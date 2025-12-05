@@ -1,0 +1,182 @@
+/* Ensure background image only applies on the login page */
+body.login-page {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-image: url("C:\Users\Administrator\Desktop\latest version\login\src\assets\components\images\18129294.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    font-family: Arial, sans-serif;
+}
+
+/* Transparent login container */
+.login-container {
+    max-width: 900px;
+    width: 400px;
+    background-color: rgba(255, 255, 255, 0.6);  /* Transparent white background */
+    padding: 35px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Optional: shadow effect for better contrast */
+    z-index: 10; /* Ensure the form is above the background image */
+    height: auto; /* Ensure the container adjusts height automatically */
+    overflow: hidden; /* Prevent overflow */
+}
+
+/* Adjust container for registration form */
+.login-container.registering {
+    padding: 30px; /* Slightly smaller padding for registration */
+}
+
+/* Header for login/register */
+.login-header {
+    text-align: center;
+    color: rgb(6, 37, 177);
+    margin-bottom: 20px;
+}
+
+/* Form group styling */
+.login-form-group {
+    margin-bottom: 15px;
+    color: black;
+    padding-right: 20px;
+}
+
+.subrolecss{
+    margin-bottom: 15px;
+    width:93%;
+}
+
+/* Label styling */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Input field styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+/* Focus styles for inputs */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border-color: #ff6900;
+    outline: none;
+}
+
+/* Button styles */
+.button1 {
+    background-color: #ff6900;
+    color:white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 95%;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+/* Button hover effect */
+.button1:hover {
+    background-color: black;
+    color: #ff6900;
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+/* Error message styles */
+.error-message {
+    color:red;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+/* Password input container styling */
+.password-input-container {
+    position: relative;
+}
+
+/* Eye icon styles */
+.password-toggle-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: black; /* Set initial color */
+    font-size: 18px; /* Adjust size */
+}
+
+/* Eye icon hover styles */
+.password-toggle-icon:hover {
+    color: #ff6900; /* Change icon color on hover */
+}
+
+/* Add some padding-right to inputs for space for the eye icon */
+input[type="password"],
+input[type="text"] {
+    padding-right: 30px; /* Space for the eye icon */
+}
+
+/* Spacing between "Register/Login" and "Forgot Password" links */
+p {
+    margin-top: 15px;
+    text-align: center;
+    color: black;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+/* Add hover effect for Register/Login toggle link */
+.register-toggle {
+    margin-top: 15px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.register-toggle:hover {
+    color: #ff6900;  /* Change color to orange on hover */
+}
+
+/* Added extra spacing between the "Register/Login" toggle and "Forgot Password" */
+.register-toggle {
+    margin-bottom: 20px;
+}
+
+/* Styling for "Forgot Password?" link */
+#forgot-password {
+    color: black; /* Initial color */
+    cursor: pointer;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: color 0.3s ease; /* Smooth transition effect */
+}
+
+/* Hover effect for "Forgot Password?" link */
+#forgot-password:hover {
+    color: #ff6900; /* Change color to orange on hover */
+}
+
+/* Additional responsive styles for smaller screens */
+@media (max-width: 600px) {
+    .login-container {
+        width: 90%;
+    }
+}

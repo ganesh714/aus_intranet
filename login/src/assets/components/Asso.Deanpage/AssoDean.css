@@ -1,0 +1,7 @@
+.plus-div {
+    position: fixed;
+    bottom: 1%;
+    right: .5%;
+    cursor: pointer;
+    border-radius: 50%;
+}

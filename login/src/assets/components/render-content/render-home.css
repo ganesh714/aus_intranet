@@ -1,0 +1,176 @@
+/* Scoped CSS for Home Page */
+.home {
+    background-color: whitesmoke;
+    min-height: 45vh; /* Ensure full viewport height */
+    display: flex;
+    flex-direction: column;
+}
+
+.home .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 17vh;
+    padding: 0 5px;
+    width: 100%;
+    border-bottom: 2px solid #FD752C;
+    position: relative;
+    padding-right: 15px;
+    padding-left: 0px;
+}
+
+.home .aulogo {
+    height:100%;
+    width: auto;
+    max-width: 100%;
+}
+
+.home .profile-container {
+    display: flex;
+    gap: 20px; /* Space between icons */
+}
+
+.header-profile-buttons {
+    cursor: pointer;
+    font-size: 18px;
+    background-color:#ff6900;
+    color:white;
+    transition: color 0.2s ease;
+    border-radius: 10px;
+    padding: 5px;
+    border:none;
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+
+.header-profile-buttons:hover {
+    background-color: black;
+    color:#ff6900;
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+
+
+.home .banner {
+    position: relative; /* Ensure the text is positioned relative to the container */
+    width: 100%;
+    height: 190px; /* Set a fixed height or adjust as needed */
+    overflow: hidden; /* To prevent any overflow from the container */
+    border-bottom: 2px solid #FD752C;
+}
+
+.home .bannerpic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home .banner-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Ensures the text is perfectly centered */
+    color: white;
+    font-size: 33px;
+    font-weight: bolder;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(243, 106, 52, 0.8); /* White shadow with higher opacity */
+    z-index: 1;
+    font-style:normal;
+}
+
+.change-password-modal {
+    position: fixed;
+    top: 50%;                /* Centers vertically */
+    left: 50%;               /* Centers horizontally */
+    transform: translate(-50%, -50%); /* Offsets the modal to truly center it */
+    width: 500px;            /* Define modal width */
+    height: 400px;           /* Define modal height */
+    background-color:bisque;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;            /* Ensure it appears on top of other elements */
+    border-radius: 8px;      /* Optional: round corners */
+}
+
+.modal-content {
+    background-color: bisque;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.changepassword-button {
+    padding: 10px;
+    background-color: #ff6900;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+.changepassword-button:hover {
+    background-color: black;
+    color:#ff6900;
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.home .error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.close-modal-button {
+    background-color:#ff6900;
+    color: white;
+    margin-top: 10px;
+    cursor: pointer;
+    width:50px;
+    border-radius: 4px;
+    border: none;  /* Remove border */
+    outline: none; /* Remove outline */
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.close-modal-button:hover {
+    background-color: black;
+    color:#ff6900;
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+
+
+.change-password-heading{
+    color:#ff6900;
+    padding-bottom: 30px;
+}
+
+.faculty{
+    cursor: pointer;
+    font-size: 16px;
+    background-color:#6082B6;
+    color:white;
+    transition: color 0.2s ease;
+    border-radius: 10px;
+    padding: 10px;
+    border:none;
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.faculty:hover{
+    background-color: white;
+    color:#6082B6;
+    transform: scale(1.1);
+}

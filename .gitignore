@@ -1,0 +1,68 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime / process files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+jspm_packages/
+
+# Build output
+dist/
+build/
+coverage/
+.parcel-cache/
+.next/
+.nuxt/
+.vercel/
+.turbo/
+.cache/
+
+# Vite / frontend
+.vite/
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+
+# Editor directories and system files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploaded/generated files (backend uploads)
+backend/uploads/
+uploads/
+public/uploads/
+
+# Misc
+*.tgz
+*.log
+*.tmp
+npm-debug.log*
+
+# Optional: lockfiles can be kept; do not ignore `package-lock.json`/`yarn.lock` unless you intend to
+# ignore them. The project keeps lockfiles by default.
+
+# Ignore local IDE workspace settings
+/.idea/
+/.vscode/
