@@ -74,7 +74,7 @@ const App = () => {
         />
       )}
 
-{isLoggedIn && userRole === 'Asso.Dean' && (
+      {isLoggedIn && userRole === 'Asso.Dean' && (
         <Route
           path='/Asso.dean-page'
           element={<Adeanpage />}
@@ -130,7 +130,7 @@ const App = () => {
         />
       )}
 
-{isLoggedIn && userRole === 'Faculty' && usersubRole === 'ECE' && (
+      {isLoggedIn && userRole === 'Faculty' && usersubRole === 'ECE' && (
         <Route
           path='/ece-faculty-page'
           element={<EceFaculty />}
