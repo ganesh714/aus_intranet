@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     subRole: {
         type: String,
         enum: [
-            'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Officers
+            'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Officers and Leadership
             'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE','SOP',         // sub-roles for Dean
             'SOE', 'IQAC', 'AD','FED',       // sub-roles for Asso.Dean
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', // sub-roles for HOD
@@ -216,7 +216,7 @@ app.get('/get-pdfs', async (req, res) => {
         // Define extra categories based on role
         const extraCategories = [];
 
-        if (role === 'Officers') {
+        if (role === 'Officers' || role === 'Leadership') {
             extraCategories.push(
                 'University related',
                 "Dean's related",
@@ -290,16 +290,38 @@ app.get('/get-pdfs', async (req, res) => {
 
 // Get Announcements based on Role and SubRole
 app.get('/get-announcements', async (req, res) => {
-    const { role, subRole } = req.query;
-    // console.log(role, subRole)
+    const { role, subRole, email } = req.query;
+
     try {
-        const query = {};
-        if (role) query['uploadedBy.role'] = role;
-        if (subRole) query['uploadedBy.subRole'] = subRole;
+        const orConditions = [];
 
-        // Fetch announcements based on role and subRole
+        // 1. Ownership: Always allow users to see what they uploaded
+        if (email) {
+            orConditions.push({ 'uploadedBy.email': email });
+        }
+
+        // 2. Viewing Permissions: Based on Target Audience
+        if (role) {
+            if (subRole && subRole !== 'null') {
+                // If SubRole is provided, match Specific SubRole OR 'All'
+                orConditions.push(
+                    { 'targetAudience.role': role, 'targetAudience.subRole': subRole },
+                    { 'targetAudience.role': role, 'targetAudience.subRole': 'All' }
+                );
+            } else {
+                // If SubRole is NOT provided (null), return all announcements for this Role
+                orConditions.push({ 'targetAudience.role': role });
+            }
+        }
+
+        // If no query parameters provided, return empty to be safe
+        if (orConditions.length === 0) {
+            return res.json({ announcements: [] });
+        }
+
+        const query = { $or: orConditions };
+
         const announcements = await Announcement.find(query);
-
         res.json({ announcements });
     } catch (error) {
         console.error('Error fetching announcements:', error);
@@ -309,20 +331,28 @@ app.get('/get-announcements', async (req, res) => {
 
 
 app.post('/add-announcement', upload.single('file'), async (req, res) => {
-    const { title, description } = req.body;
+    console.log("Received Body:", req.body);
+    const { title, description,targetRole, targetSubRole } = req.body;
     const user = JSON.parse(req.body.user);
-    const { username, role, subRole } = user;
+    // 3. Handle Optional File
+    // If req.file is undefined (no file uploaded), set filePath to null
+    const filePath = req.file ? req.file.path.replace(/\\/g, '/') : null;
 
     // Save the announcement data
     const newAnnouncement = new Announcement({
         title,
         description,
-        filePath: req.file ? req.file.path : null,
+        filePath: filePath,
         uploadedBy: {
-            username,
-            role,
-            subRole,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            subRole: user.subRole,
         },
+        targetAudience: {
+            role: targetRole,
+            subRole: targetSubRole,
+        }
     });
 
     try {

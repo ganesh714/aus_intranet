@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Content.css";
-import 'font-awesome/css/font-awesome.min.css';
+import { MdDashboard, MdCampaign } from 'react-icons/md';
+import { FaFilePdf, FaFolder, FaBullhorn, FaSearch, FaArrowLeft, FaChevronRight, FaTimes, FaUserCircle, FaCalendarAlt } from 'react-icons/fa';
 
 const Content = () => {
     const [selectedPdf, setSelectedPdf] = useState(null);
@@ -10,74 +11,150 @@ const Content = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [noResults, setNoResults] = useState(false);
+    
+    // UI State for Sidebar Expansion
     const [activeCategory, setActiveCategory] = useState(null);
+    
+    // Data State for Current View
+    const [currentViewCategory, setCurrentViewCategory] = useState(null); // [NEW] Tracks the active category for fetching
+    
     const [showDocuments, setShowDocuments] = useState(false);
     const [showContentP, setShowContentP] = useState(true);
-    const [showAnnouncements, setShowAnnouncements] = useState(false);
     const [type, settype] = useState();
 
+    // --- STATE FOR DEPARTMENT FILTER (TargetSubrole) ---
+    const [deptFilter, setDeptFilter] = useState('All');
 
+    // --- STATE FOR GENERAL ANNOUNCEMENTS (VIEWING) ---
+    const [generalAnnouncements, setGeneralAnnouncements] = useState([]);
 
+    // --- STATE FOR SEND ANNOUNCEMENTS ---
+    const [showSendAnnounce, setShowSendAnnounce] = useState(false);
+    const [myAnnouncements, setMyAnnouncements] = useState([]);
+    const [announceForm, setAnnounceForm] = useState({
+        title: '',
+        description: '',
+        targetRole: '', 
+        targetSubRole: 'All',
+        file: null
+    });
 
+    // Get User Details
+    const userRole = sessionStorage.getItem('userRole');
+    const userEmail = sessionStorage.getItem('userEmail');
+    const userSubRole = sessionStorage.getItem('usersubRole');
 
+    // --- DEFINE SUB-ROLES FOR EACH ROLE ---
+    const subRolesMapping = {
+        'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
+        'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
+        'HOD':     ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
+        'Dean':    ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
+        'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
+        'Officers':  ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
+        'Admin':     ['All'], 
+        'All':       ['All']
+    };
+
+    const getTargetRoles = () => {
+        switch(userRole) {
+            case 'Faculty': return ['Student'];
+            case 'HOD': return ['Student', 'Faculty'];
+            case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
+            case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
+            case 'Officers':
+            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'];
+            default: return ['All'];
+        }
+    };
+
+    const roleOptions = getTargetRoles();
+
+    useEffect(() => {
+        if (roleOptions.length > 0 && !announceForm.targetRole) {
+            setAnnounceForm(prev => ({ ...prev, targetRole: roleOptions[0] }));
+        }
+    }, [roleOptions]);
+
+    // [NEW] Helper to map Category Name (e.g. "Faculty related") to Role (e.g. "Faculty")
+    const getRoleFromCategory = (category) => {
+        if (!category) return userRole; 
+        if (category.includes('Faculty')) return 'Faculty';
+        if (category.includes('HOD')) return 'HOD';
+        if (category.includes('Asso.Dean')) return 'Asso.Dean';
+        if (category.includes('Dean')) return 'Dean'; 
+        if (category.includes('University')) return 'Officers'; 
+        return userRole; 
+    };
+
+    // --- FETCH REAL ANNOUNCEMENTS FOR VIEWING ---
+    const fetchGeneralAnnouncements = async () => {
+        try {
+            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
+            
+            // [UPDATE] Determine Role based on selected Category
+            const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
+
+            // [UPDATE] Determine SubRole based on Dropdown (if enabled) or User's SubRole
+            let subRoleParam = userSubRole;
+            if (isHighLevel && type === 'Announcements') {
+                // If high level user in Announcements view, use the dropdown filter value
+                subRoleParam = deptFilter;
+            }
+
+            // [UPDATE] Fetch with specific params irrespective of logged-in user
+            const response = await axios.get('http://localhost:5001/get-announcements', {
+                params: { role: roleParam, subRole: subRoleParam }
+            });
+
+            if (response.data.announcements) {
+                // Sort by uploadedAt descending (newest first)
+                const sorted = response.data.announcements.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                setGeneralAnnouncements(sorted);
+            }
+        } catch (error) {
+            console.error("Error fetching general announcements", error);
+        }
+    };
+
+    // [NEW] Effect to Refetch when Dropdown Filter or Category Changes
+    useEffect(() => {
+        if (type === 'Announcements') {
+            fetchGeneralAnnouncements();
+        }
+    }, [deptFilter, currentViewCategory, type]);
+
+    // Fetch PDFs for Categories (Sidebar structure)
     useEffect(() => {
         const fetchPdfs = async () => {
             try {
-                const role = sessionStorage.getItem('userRole');
                 const subRole = sessionStorage.getItem('usersubRole');
+                const queryParams = { role: userRole || '', subRole: subRole || '' };
 
-                const queryParams = { role: role || '', subRole: subRole || '' };
-
-                const departmentCategory = `Department ${subRole} related`;
-
-                const response = await axios.get('http://localhost:5001/get-pdfs', {
-                    params: queryParams
-                });
-
+                const response = await axios.get('http://localhost:5001/get-pdfs', { params: queryParams });
 
                 if (response.data.pdfs) {
                     const groupedPdfs = response.data.pdfs.reduce((acc, pdf) => {
                         const { category } = pdf;
-                        if (!acc[category]) {
-                            acc[category] = [];
-                        }
+                        if (!acc[category]) acc[category] = [];
                         acc[category].push(pdf);
                         return acc;
                     }, {});
 
-                    if (role === 'Officers' && !groupedPdfs["University related"]) {
-                        groupedPdfs["University related"] = [];
-                    }
-                    if ((role === 'Dean' || role === 'Officers') && !groupedPdfs["Dean's related"]) {
-                        groupedPdfs["Dean's related"] = [];
-                    }
-                    if ((role === 'Asso.Dean' ||role === 'Dean' || role === 'Officers') && !groupedPdfs["Asso.Dean's related"]) {
-                        groupedPdfs["Asso.Dean's related"] = [];
-                    }
-                    if ((role === 'HOD' || role === 'Dean' || role === 'Officers') && !groupedPdfs["HOD's related"]) {
-                        groupedPdfs["HOD's related"] = [];
-                    }
-                    if ((role === 'Faculty' || role === 'HOD' || role === 'Dean' || role === 'Officers')) {
-                        if (!groupedPdfs['Faculty related']) {
-                            groupedPdfs['Faculty related'] = [];
-                        }
-                        // if (!groupedPdfs['Dept.Equipment']) {
-                        //     groupedPdfs['Dept.Equipment'] = [];
-                        // }
+                    const ensureCategory = (cat) => { if (!groupedPdfs[cat]) groupedPdfs[cat] = []; };
+                    
+                    if (userRole === 'Officers') ensureCategory("University related");
+                    if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
+                    if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
+                    if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
+                    
+                    if (userRole === 'HOD' || userRole === 'Faculty') {
+                        ensureCategory('Teaching Material');
+                        ensureCategory('Staff Presentations');
                     }
 
-                    if (role === 'HOD' || role === 'Faculty') {
-                        // if (!groupedPdfs[departmentCategory]) {
-                        //     groupedPdfs[departmentCategory] = [];
-                        // }
-                        if (!groupedPdfs['Teaching Material']) {
-                            groupedPdfs['Teaching Material'] = [];
-                        } if (!groupedPdfs['Staff Presentations']) {
-                            groupedPdfs['Staff Presentations'] = [];
-                        }
-                    }
-
-                    if ((role === 'HOD' || role === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
+                    if ((userRole === 'HOD' || userRole === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
                         groupedPdfs['Dept.Equipment'] = [{
                             name: 'No documents uploaded yet',
                             category: 'Dept.Equipment',
@@ -85,318 +162,406 @@ const Content = () => {
                             filePath: null
                         }];
                     }
-                    
-
 
                     let pdfCategories = Object.keys(groupedPdfs).map(category => {
                         const items = groupedPdfs[category];
-
-                        // Inject default subcategories if missing
                         const hasDocuments = items.some(item => item.subcategory === 'Documents');
-                        const hasAnnouncements = items.some(item => item.subcategory === 'Announcements');
-
-                        if (!hasDocuments) {
-                            items.push({
-                                name: 'No documents uploaded yet',
-                                category,
-                                subcategory: 'Documents',
-                                filePath: null
-                            });
+                        if (!hasDocuments) items.push({ name: 'No documents uploaded yet', category, subcategory: 'Documents', filePath: null });
+                        if (!items.some(i => i.subcategory === 'Announcements')) {
+                            items.push({ name: 'Placeholder', category, subcategory: 'Announcements', filePath: null });
                         }
-
-                        if (!hasAnnouncements) {
-                            items.push({
-                                name: 'No announcements uploaded yet.',
-                                category,
-                                subcategory: 'Announcements',
-                                filePath: null
-                            });
-                        }
-
                         return { category, items };
                     });
 
-
-                    if (role === 'Officers') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            { category: "Dean's related", items: groupedPdfs["Dean's related"] || [] },
-                            { category: 'University related', items: groupedPdfs['University related'] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related", "Dean's related", 'University related'].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-                    } else if (role === 'Dean') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            { category: "Dean's related", items: groupedPdfs["Dean's related"] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related", "Dean's related"].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'Asso.Dean') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related"].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'HOD') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Dept.Equipment", items: groupedPdfs["Dept.Equipment"] || [] },
-                            { category: "Teaching Material", items: groupedPdfs["Teaching Material"] || [] },
-                            { category: "Staff Presentations", items: groupedPdfs["Staff Presentations"] || [] },
-                            // ...(groupedPdfs[departmentCategory] ? [{ category: departmentCategory, items: groupedPdfs[departmentCategory] }] : []),
-                            ...pdfCategories.filter(pdf =>
-                                !['Faculty related', "HOD's related", "Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(pdf.category))
-                        ];
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'Faculty') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "Dept.Equipment", items: groupedPdfs["Dept.Equipment"] || [] },
-                            { category: "Teaching Material", items: groupedPdfs["Teaching Material"] || [] },
-                            { category: "Staff Presentations", items: groupedPdfs["Staff Presentations"] || [] },
-                            // ...(groupedPdfs[departmentCategory] ? [{ category: departmentCategory, items: groupedPdfs[departmentCategory] }] : []),
-                            ...pdfCategories.filter(pdf =>
-                                !['Faculty related', "Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(pdf.category))
-                        ];
-                        setPdfLinks(sortedCategories);
-
-
-                        
-
-                    } else {
-                        setPdfLinks(pdfCategories);
-                    }
+                    setPdfLinks(pdfCategories);
                 }
             } catch (error) {
                 console.error('Error fetching PDFs:', error);
-                if (error.response && error.response.status === 401) {
-                    alert('Unauthorized! Please log in to access the PDFs.');
-                }
             }
         };
-
         fetchPdfs();
-    }, []);
+    }, [userRole]);
+
+    // Fetch My Sent Announcements
+    const fetchMyAnnouncements = async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/get-announcements', {
+                params: { role: userRole, subRole: userSubRole, email: userEmail }
+            });
+
+            if (response.data.announcements) {
+                const myUploads = response.data.announcements.filter(
+                    item => item.uploadedBy.email === userEmail
+                );
+                setMyAnnouncements(myUploads);
+            }
+        } catch (error) {
+            console.error("Error fetching my announcements", error);
+        }
+    };
+
+    useEffect(() => {
+        const handleEsc = (event) => {
+            if (event.key === 'Escape') {
+                handleBackClick();
+            }
+        };
+        if (selectedPdf) window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [selectedPdf]);
 
     const handlePdfClick = (pdfPath, event) => {
-        event.preventDefault();
-        console.log("PDF path:", pdfPath);
+        if(event) event.preventDefault();
         const pdfUrl = `http://localhost:5001/${pdfPath.replace(/\\/g, '/')}`;
         setSelectedPdf(pdfUrl);
     };
-
-    const handleDocumentsClick = (categoryItems) => {
-        settype("Documents")
-        setSelectedCategoryPdfs(categoryItems);
-        setIsSearchVisible(true);
-        setNoResults(false);
-        setShowDocuments(true);
-        setShowAnnouncements(false);  // Hide announcements when showing documents
-        setShowContentP(false);
-    };
-
 
     const handleBackClick = () => {
         setSelectedPdf(null);
     };
 
-
-
-    const handleSubCategoryClick = (categoryItems, subCategory) => {
-        settype(subCategory);
-        // settype(null)
-        const filteredItems = categoryItems.filter(item => item.subcategory === subCategory);
-        setSelectedCategoryPdfs(filteredItems);
-        setIsSearchVisible(true);
+    const handleDashboardClick = () => {
+        setShowContentP(true);
+        setIsSearchVisible(false);
         setNoResults(false);
-        setShowDocuments(true);
-        setShowContentP(false);
-        // setShowAnnouncements(false);
+        setActiveCategory(null);
+        setCurrentViewCategory(null); // Reset
+        settype(null);
+        setShowSendAnnounce(false);
     };
 
-
-
-
-    const handleAnnouncementsClick = (categoryItems) => {
-        settype("Announcements")
-        setSelectedCategoryPdfs(categoryItems);
+    const handleSendAnnounceClick = () => {
+        setShowSendAnnounce(true);
         setShowContentP(false);
-        setShowDocuments(true);
-        setIsSearchVisible(true);
-        setShowAnnouncements(true);  // Show announcements
+        setIsSearchVisible(false);
+        setNoResults(false);
+        setActiveCategory(null);
+        setCurrentViewCategory(null); // Reset
+        settype(null);
+        fetchMyAnnouncements();
     };
 
+    // [UPDATE] Accept categoryName to set currentViewCategory
+    const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
+        settype(subCategory);
+        setCurrentViewCategory(categoryName); // [NEW] Set the active category name for fetching context
+        
+        if(subCategory === 'Announcements') {
+             // Fetch handled by useEffect
+             setIsSearchVisible(true);
+             setNoResults(false);
+             setShowDocuments(true);
+             setShowContentP(false);
+             setShowSendAnnounce(false);
+        } else {
+             // Regular PDF filtering logic
+             const filteredItems = categoryItems.filter(item => item.subcategory === subCategory);
+             setSelectedCategoryPdfs(filteredItems);
+             setIsSearchVisible(true);
+             setNoResults(false);
+             setShowDocuments(true);
+             setShowContentP(false);
+             setShowSendAnnounce(false);
+        }
+    };
+
+    const toggleCategory = (categoryName) => {
+        setActiveCategory(activeCategory === categoryName ? null : categoryName);
+    }
+
+    const handleFormChange = (e) => {
+        const { name, value } = e.target;
+        if (name === 'targetRole') {
+            setAnnounceForm({ 
+                ...announceForm, 
+                targetRole: value,
+                targetSubRole: 'All' 
+            });
+        } else {
+            setAnnounceForm({ ...announceForm, [name]: value });
+        }
+    };
+
+    const handleFileChange = (e) => {
+        setAnnounceForm({ ...announceForm, file: e.target.files[0] });
+    };
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('title', announceForm.title);
+        formData.append('description', announceForm.description);
+        formData.append('targetRole', announceForm.targetRole);
+        formData.append('targetSubRole', announceForm.targetSubRole);
+        
+        if (announceForm.file) {
+            formData.append('file', announceForm.file);
+        }
+
+        formData.append('user', JSON.stringify({
+            username: sessionStorage.getItem('username'),
+            email: userEmail,
+            role: userRole,
+            subRole: sessionStorage.getItem('usersubRole'),
+        }));
+
+        try {
+            await axios.post('http://localhost:5001/add-announcement', formData);
+            alert('Announcement Sent Successfully!');
+            setAnnounceForm({
+                title: '',
+                description: '',
+                targetRole: roleOptions[0], 
+                targetSubRole: 'All',
+                file: null
+            });
+            fetchMyAnnouncements();
+        } catch (error) {
+            console.error('Error sending announcement', error);
+            alert('Failed to send announcement.');
+        }
+    };
+
+    // Filter logic for standard PDF view
     const filteredPdfs = selectedCategoryPdfs.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) && (!type || item.subcategory === type)
-        // && (!type || item.subcategory === type)
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
-    useEffect(() => {
-        if (filteredPdfs.length === 0 && searchQuery) {
-            setNoResults(true);
-        } else {
-            setNoResults(false);
-        }
-    }, [searchQuery, filteredPdfs]);
-
-
-
     return (
-        <div className="content">
-            {/* Left Navigation Bar */}
-            <div className="leftNavBar">
-                {pdfLinks.map((category, index) => (
-                    <div key={index}>
-                        <div className="category-container">
-                            <li className={`category-title ${activeCategory === category.category ? "active" : ""}`}>
-                                {category.category}
-                            </li>
-                            <div className="category-options">
-                                {/* {[...new Set(category.items.map(item => item.subcategory))].map((subCat) => (
-                                    <button key={subCat} onClick={() => handleSubCategoryClick(category.items, subCat)}>
-                                        {subCat}
-                                    </button>
-                                ))} */}
-
-{[...new Set(category.items.map(item => item.subcategory))]
-    .filter(subCat =>
-        !(
-            ["Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(category.category)
-            && subCat === "Announcements"
-        )
-    )
-    .map((subCat) => (
-        <button key={subCat} onClick={() => handleSubCategoryClick(category.items, subCat)}>
-            {subCat}
-        </button>
-    ))}
-
-
-
-
-                            </div>
-
+        <div className="content-wrapper">
+            <div className="sidebar">
+                <h3 className="sidebar-header">Menu</h3>
+                <div className="category-list">
+                    <div className={`category-item ${showContentP ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={handleDashboardClick}>
+                            <span className="cat-name">
+                                <MdDashboard className="cat-icon"/> Dashboard
+                            </span>
                         </div>
                     </div>
-                ))}
+
+                    <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={handleSendAnnounceClick}>
+                            <span className="cat-name">
+                                <MdCampaign className="cat-icon"/> Send Announcements
+                            </span>
+                        </div>
+                    </div>
+
+                    {pdfLinks.map((category, index) => (
+                        <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={() => toggleCategory(category.category)}>
+                                <span className="cat-name"><FaFolder className="cat-icon"/> {category.category}</span>
+                                <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`}/>
+                            </div>
+                            
+                            <div className="subcategory-list">
+                                {[...new Set(category.items.map(item => item.subcategory))]
+                                    .filter(subCat => !(
+                                        ["Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(category.category) && subCat === "Announcements"
+                                    ))
+                                    .map((subCat) => (
+                                        // [UPDATE] Pass category.category here
+                                        <button key={subCat} className="subcat-btn" onClick={() => handleSubCategoryClick(category.items, subCat, category.category)}>
+                                            {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
+                                        </button>
+                                    ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* Right Content Area */}
-            <div className="rightContent">
+            <div className="main-area">
                 {showContentP ? (
-                    <p className="contentp">
-                        Aditya University is a State Private University formed under the Andhra Pradesh Private Universities Act,
-                        2016. It has evolved from the well-established Aditya Engineering College in Surampalem, Kakinada District,
-                        Andhra Pradesh. Aditya University is committed to providing quality higher education with global standards.
-                        Programs are well crafted to blend academic rigor with practical relevance, equipping students to effectively
-                        address both societal and industrial challenges. Experienced and learned teachers encourage intellectual
-                        curiosity, critical thinking, and cooperation among the diverse student community in an inclusive manner to
-                        realize their full potential and contribute to society. The memorandum of understanding with foreign
-                        universities ushers in a new era of international academic excellence, fostering a vibrant, globally engaged
-                        educational community at Aditya University leading to joint degree certifications and joint research
-                        programs. Industry collaborations build a synergistic relationship for internship opportunities,
-                        project-based learning, and innovative research.
-                    </p>
+                    <div className="Dashboard">
+                        <h2>Welcome to Aditya University Intranet</h2>
+                        <p>Select a category from the menu to view documents or announcements.</p>
+                        <hr />
+                        <p className="university-desc">
+                            Aditya University is a State Private University...
+                        </p>
+                    </div>
+                ) : showSendAnnounce ? (
+                    <div className="announce-container">
+                        <h2>Send New Announcement</h2>
+                        <form className="announce-form" onSubmit={handleFormSubmit}>
+                            <div className="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" value={announceForm.title} onChange={handleFormChange} required placeholder="Enter announcement title"/>
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea name="description" value={announceForm.description} onChange={handleFormChange} required rows="4"/>
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group half">
+                                    <label>Target Role</label>
+                                    <select name="targetRole" value={announceForm.targetRole} onChange={handleFormChange}>
+                                        {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
+                                    </select>
+                                </div>
+                                <div className="form-group half">
+                                    <label>Target Department</label>
+                                    <select name="targetSubRole" value={announceForm.targetSubRole} onChange={handleFormChange}>
+                                        {(subRolesMapping[announceForm.targetRole] || ['All']).map((sr, i) => (
+                                            <option key={i} value={sr}>{sr}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Attachment (Optional)</label>
+                                <input type="file" onChange={handleFileChange} />
+                            </div>
+                            <button type="submit" className="send-btn">Send Announcement</button>
+                        </form>
+
+                        <div className="my-announcements-section">
+                            <h3>Announcements Sent By Me</h3>
+                            {myAnnouncements.length === 0 ? <p className="no-data">No history.</p> : (
+                                <div className="announcement-list">
+                                    {myAnnouncements.map((item, index) => (
+                                        <div key={index} className="announcement-card">
+                                            <div className="ac-header">
+                                                <h4>{item.title}</h4>
+                                                <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <p className="ac-desc">{item.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 ) : isSearchVisible ? (
-                    <>
-                        <div className="searchBar">
-                            <input
-                                type="text"
-                                placeholder="Search PDFs in this category..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="searchInput"
-                            />
+                    <div className="results-container">
+                        <div className="search-header">
+                            <h2>{type}</h2>
+                            
+                            {/* [UPDATE] Dropdown for Higher Roles in Announcement View */}
+                            {type === 'Announcements' && ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole) && (
+                                <div className="search-input-wrapper" style={{ width: '200px' }}>
+                                    <select 
+                                        className="modern-search" 
+                                        style={{ padding: '10px', paddingLeft: '15px' }}
+                                        value={deptFilter}
+                                        onChange={(e) => setDeptFilter(e.target.value)}
+                                    >
+                                        <option value="All">All Departments</option>
+                                        {/* Using Faculty list as it contains all standard departments */}
+                                        {subRolesMapping['Faculty']?.filter(r => r !== 'All').map((dept, i) => (
+                                            <option key={i} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Existing Search for Documents */}
+                            {type !== 'Announcements' && (
+                                <div className="search-input-wrapper">
+                                    <FaSearch className="search-icon"/>
+                                    <input
+                                        type="text"
+                                        placeholder={`Search ${type}...`}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="modern-search"
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        {noResults ? (
-                            <p>No search results found</p>
-                        ) : filteredPdfs.length > 0 ? (
-                            <div className="pdfGrid">
-                                <div className={type === 'Documents' ? 'documents-view' : 'announcements-view'}>
-                                    {type === 'Documents' ? (
-                                        filteredPdfs.map((item, index) => (
-                                            <div key={index} className="pdfItem">
-                                                {item.filePath ? (
-                                                    <a href="#" className="pdfLink" onClick={(event) => handlePdfClick(item.filePath, event)}>
-                                                        {item.name}
-                                                    </a>
-                                                ) : (
-                                                    <span>{item.name}</span>
-                                                )}
+                        {type === 'Announcements' ? (
+                            <div className="general-announcements-wrapper">
+                                {/* [UPDATE] Separate Ticker for Each Recent Announcement */}
+                                {generalAnnouncements.length > 0 && (
+                                    <div className="tickers-group">
+                                        <div className="ticker-label-static" style={{fontWeight:'bold', marginBottom:'10px', color:'#F97316'}}><FaBullhorn /> Recent Updates:</div>
+                                        
+                                        {generalAnnouncements.slice(0, 5).map((ann, index) => (
+                                            <div key={index} className="announcement-ticker-container" style={{ marginBottom: '10px' }}>
+                                                <div className="ticker-track-wrapper">
+                                                    <div className="ticker-track">
+                                                        <span className="ticker-item">
+                                                            {ann.title} - <span style={{fontSize:'0.9em', opacity:0.8}}>{new Date(ann.uploadedAt).toLocaleDateString()}</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* [UPDATE] Full Details List (Using generalAnnouncements directly) */}
+                                <div className="all-announcements-grid">
+                                    {generalAnnouncements.length === 0 ? (
+                                        <p className="no-data">No announcements found matching filter.</p>
+                                    ) : (
+                                        generalAnnouncements.map((ann) => (
+                                            <div key={ann._id} className="detail-card">
+                                                <div className="dc-left">
+                                                    <div className="dc-icon"><FaBullhorn /></div>
+                                                </div>
+                                                <div className="dc-content">
+                                                    <div className="dc-header">
+                                                        <h3 className="dc-title">{ann.title}</h3>
+                                                        <span className="dc-date">
+                                                            <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="dc-description">{ann.description}</p>
+                                                    <div className="dc-footer">
+                                                        <div className="dc-author">
+                                                            <FaUserCircle /> {ann.uploadedBy?.username} 
+                                                            <span className="dc-role-badge">{ann.uploadedBy?.role}</span>
+                                                        </div>
+                                                        {ann.filePath && (
+                                                            <button 
+                                                                className="dc-pdf-btn" 
+                                                                onClick={(e) => handlePdfClick(ann.filePath, e)}
+                                                            >
+                                                                <FaFilePdf /> View PDF
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         ))
-                                    ) : (
-                                        filteredPdfs.length > 0 ? (
-                                            <div className="announcements-scroller">
-                                                <ul>
-                                                    {filteredPdfs.map((item, index) => (
-                                                        <li key={index}>
-                                                            {item.filePath ? (
-                                                                <a href="#" className="pdfLink" onClick={(event) => handlePdfClick(item.filePath, event)}>
-                                                                    {item.name}
-                                                                </a>
-                                                            ) : (
-                                                                <span>{item.name}</span>
-                                                            )}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ) : (
-                                            <p>No announcements available.</p>
-                                        )
                                     )}
                                 </div>
-
-
                             </div>
-                        ) : selectedPdf ? (
-                            <div className="pdfViewer">
-                                <object
-                                    id="pdfObject"
-                                    data={selectedPdf}
-                                    width="100%"
-                                    height="700px"
-                                    type="application/pdf"
-                                >
-                                    <p>Your browser doesn't support viewing PDFs. Please download the PDF to view it.</p>
-                                </object>
+                        ) : (
+                            // --- EXISTING DOCUMENTS VIEW ---
+                            <div className="items-grid">
+                                {filteredPdfs.length > 0 ? (
+                                    filteredPdfs.map((item, index) => (
+                                        <div key={index} className="doc-card" onClick={(event) => item.filePath && handlePdfClick(item.filePath, event)}>
+                                            <div className="doc-icon-box"><FaFilePdf /></div>
+                                            <div className="doc-info">
+                                                <span className="doc-title">{item.name}</span>
+                                                {item.filePath && <span className="click-hint">Click to view</span>}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : <div className="no-results">No results found</div>}
                             </div>
-                        ) : null}
-                    </>
+                        )}
+                    </div>
                 ) : null}
             </div>
 
             {selectedPdf && (
-                <div className="pdfViewer">
-                    <object
-                        id="pdfObject"
-                        data={selectedPdf}
-                        width="100%"
-                        height="700px"
-                        type="application/pdf"
-                    >
-                        <p>Your browser doesn't support viewing PDFs. Please download the PDF to view it.</p>
-                    </object>
-                    <button className="backButton" onClick={handleBackClick}>
-                        &#8592;
-                    </button>
+                <div className="pdf-modal">
+                    <div className="pdf-container">
+                        <div className="pdf-header-bar">
+                            <button className="close-pdf-btn" onClick={handleBackClick}><FaArrowLeft /> Back</button>
+                            <button className="close-icon-btn" onClick={handleBackClick}><FaTimes /></button>
+                        </div>
+                        <object data={selectedPdf} type="application/pdf" className="pdf-object">
+                            <p>Your browser doesn't support viewing PDFs.</p>
+                        </object>
+                    </div>
                 </div>
             )}
         </div>

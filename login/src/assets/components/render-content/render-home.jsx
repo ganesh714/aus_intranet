@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './render-home.css';
 import img1 from '../images/11.png';
 import { useNavigate } from 'react-router-dom';
-import img3 from '../images/logo copy.jpg';
 import axios from 'axios';
+import { FaLock, FaSignOutAlt, FaUserCircle } from 'react-icons/fa'; // Added User Icon
 
 function Home() {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -14,7 +14,9 @@ function Home() {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
+    // Fetch User Details
     const email = sessionStorage.getItem('userEmail');
+    const username = sessionStorage.getItem('username');
     const role = sessionStorage.getItem('userRole');
     const subRole = sessionStorage.getItem('usersubRole');
 
@@ -23,10 +25,6 @@ function Home() {
         return passwordPattern.test(password);
     };
 
-    const NavigateFaculty=()=>{
-        window.location.href="http://localhost:82/ProfSense/Display/display.html"
-    }
-
     const handleLogout = () => {
         sessionStorage.clear();
         navigate('/');
@@ -34,7 +32,7 @@ function Home() {
 
     const handleChangePassword = async (e) => { 
         e.preventDefault();
-        setErrorMessage(''); // Clear previous error
+        setErrorMessage('');
         if (!validatePassword(changePasswordData.newPassword)) {
             setErrorMessage("New password must be at least 8 characters long, include letters, numbers, and special characters.");
             return;
@@ -47,7 +45,7 @@ function Home() {
             });
             alert(response.data.message);
             setChangePasswordData({ currentPassword: '', newPassword: '' });
-            setShowPasswordModal(false); // Close the password change modal
+            setShowPasswordModal(false);
         } catch (error) {
             console.error(error);
             alert('Failed to change password. Please check your current password.');
@@ -56,31 +54,37 @@ function Home() {
 
     return (
         <>
-            <div className="home">
-                <div className="header">
-                    <img src={img1} className="aulogo" alt="AULogo" />
-                        {/* {
-                            role === "HOD" && subRole === "IT" && (
-                                <button onClick={NavigateFaculty} className='faculty'>Faculty Status</button>
-                            )
-                        } */}
-                    <div className="profile-container">
-                        {/* Change Password and Logout Icons */}
-                        <button onClick={() => setShowPasswordModal(true)} className="header-profile-buttons">
-                        Change passsword
-                        </button>
-                        <button onClick={handleLogout} className="header-profile-buttons">
-                            LogOut
-                        </button>
+            <div className="home-container">
+                <div className="custom-header">
+                    <div className="logo-section">
+                        <img src={img1} className="aulogo" alt="AULogo" />
+                    </div>
+                    
+                    <div className="header-right-section">
+                        {/* User Info Display */}
+                        <div className="user-info-display">
+                            <div className="user-text">
+                                <span className="user-name">Hi, {username || 'User'}</span>
+                                <span className="user-role-badge">
+                                    {role} {subRole && subRole !== 'null' ? ` • ${subRole}` : ''}
+                                </span>
+                            </div>
+                            <FaUserCircle className="user-avatar-icon" />
+                        </div>
+
+                        <div className="header-actions">
+                            {/* Change Password */}
+                            <button onClick={() => setShowPasswordModal(true)} className="action-btn btn-change-pass">
+                                <FaLock className="btn-icon" /> Change Password
+                            </button>
+                            
+                            {/* LogOut */}
+                            <button onClick={handleLogout} className="action-btn btn-logout">
+                                <FaSignOutAlt className="btn-icon" /> LogOut
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className="banner">
-                    <img src={img3} className="bannerpic" alt="Banner" />
-                    <div className="banner-text">
-                        WELCOME TO ADITYA UNIVERSITY INTRANET
-                    </div>
-                </div>
-                
             </div>
 
             {/* Change Password Modal */}
@@ -89,9 +93,10 @@ function Home() {
                     <div className="modal-content">
                         <h2 className='change-password-heading'>Change Password</h2>
                         <form onSubmit={handleChangePassword}>
-                            <div>
-                                <label htmlFor="currentPassword">Current Password:</label>
+                            <div className="input-group">
+                                <label htmlFor="currentPassword">Current Password</label>
                                 <input
+                                    className="modal-input"
                                     type="password"
                                     id="currentPassword"
                                     value={changePasswordData.currentPassword}
@@ -99,9 +104,10 @@ function Home() {
                                     required
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="newPassword">New Password:</label>
+                            <div className="input-group">
+                                <label htmlFor="newPassword">New Password</label>
                                 <input
+                                    className="modal-input"
                                     type="password"
                                     id="newPassword"
                                     value={changePasswordData.newPassword}
@@ -110,10 +116,11 @@ function Home() {
                                 />
                                 {errorMessage && <div className="error-message">{errorMessage}</div>}
                             </div>
-                            <br/>
-                            <button type="submit" className='changepassword-button'>Change Password</button>
+                            <div className="modal-actions">
+                                <button type="submit" className='modal-btn submit-btn'>Update</button>
+                                <button type="button" onClick={() => setShowPasswordModal(false)} className="modal-btn close-btn">Close</button>
+                            </div>
                         </form>
-                        <button onClick={() => setShowPasswordModal(false)} className="close-modal-button">Close</button>
                     </div>
                 </div>
             )}

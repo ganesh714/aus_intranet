@@ -8,12 +8,12 @@ const userSchema = new mongoose.Schema({
     role: { 
         type: String, 
         required: true, 
-        enum: ['Officers', 'Dean','Asso.Dean', 'HOD', 'Faculty', 'Admin'] 
+        enum: ['Student', 'Leadership', 'Dean','Asso.Dean', 'HOD', 'Faculty', 'Admin'] // 'Officers' - > 'Leadership' 
     },
     subRole: {
         type: String,
         enum: [
-            'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Officers
+            'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Leadership
             'IQAC', 'R&D', 'CLM', 'CD',          // sub-roles for Dean
             'SOE', 'IQAC', 'ADMIN',       // sub-roles for Asso.Dean
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', // sub-roles
@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema({
         default: null,  // subRole can be null if it's not relevant for the role
         validate: {
             validator: function (v) {
-                // If the role is 'Officers', subRole must be one of 'DyPC', 'VC', etc.
-                if (this.role === 'Officers' && !['DyPC', 'VC', 'ProVC', 'Registrar'].includes(v)) {
+                // If the role is 'Leadership', subRole must be one of 'DyPC', 'VC', etc.
+                if (this.role === 'Leadership' && !['DyPC', 'VC', 'ProVC', 'Registrar'].includes(v)) {
                     return false;
                 }
                 // If the role is 'Dean', subRole must be one of 'IQAC', 'R&D', etc.

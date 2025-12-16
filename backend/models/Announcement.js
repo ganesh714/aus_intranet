@@ -6,9 +6,14 @@ const announcementSchema = new mongoose.Schema({
     uploadedAt: { type: Date, default: Date.now },
     uploadedBy: {
         username: { type: String, required: true },
+        email: { type: String, required: true },
         role: { type: String, required: true },
         subRole: { type: String },
     },
+    targetAudience: {
+        role: { type: String, required: true },
+        subRole: { type: String },
+    }
 });
 
 const Announcement = mongoose.model('Announcement', announcementSchema);

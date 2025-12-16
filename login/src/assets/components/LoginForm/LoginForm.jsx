@@ -23,7 +23,6 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     useEffect(() => {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         const role = sessionStorage.getItem('userRole');
-        const subRole = sessionStorage.getItem('usersubRole');
         
         if (isLoggedIn) {
             setIsLoggedIn(true);
@@ -49,17 +48,15 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMessage(''); // Clear previous errors
     
         if (isRegistering) {
-            // Registration logic
             if (formData.password !== formData.confirmPassword) {
-                alert('Passwords do not match!');
+                setErrorMessage('Passwords do not match!');
                 return;
             }
             if (!validatePassword(formData.password)) {
-                alert(
-                    'Password must be 8 characters include letters, numbers, and special characters.'
-                );
+                setErrorMessage('Password must be 8 characters and include letters, numbers, and special characters.');
                 return;
             }
     
@@ -77,38 +74,20 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 setIsRegistering(false);
             } catch (error) {
                 console.error('Error during registration:', error);
-    
                 if (error.response) {
-                    // Server responded with a status code other than 2xx
-                    const errorMessage = error.response.data.message;
-    
-                    if (errorMessage.includes('User with this role and subRole already exists')) {
-                        alert('User already existed.');
-                    } else if (errorMessage.includes('Email already exists')) {
-                        alert('Email already existed.');
-                    } else {
-                        alert('Registration failed. Please try again.');
-                    }
-                } else if (error.request) {
-                    // Request was made but no response received
-                    console.error('Request error:', error.request);
-                    alert('Network error. Please try again later.');
+                    setErrorMessage(error.response.data.message || 'Registration failed.');
                 } else {
-                    // Something else caused the error
-                    console.error('General error:', error.message);
-                    alert('An unexpected error occurred. Please try again.');
+                    setErrorMessage('Network error. Please try again later.');
                 }
             }
-            
         } else {
-            // Login logic
             try {
                 const response = await axios.post('http://localhost:5001/login', {
                     email: formData.email,
                     password: formData.password,
                 });
 
-                const { email, username, role , subRole} = response.data.user;
+                const { email, username, role, subRole } = response.data.user;
 
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userEmail', email);
@@ -119,17 +98,18 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 setIsLoggedIn(true);
                 setUserRole(role);
                 setUsersubRole(subRole);
-                
 
                 navigate(`/${role.toLowerCase()}-page`);
             } catch (error) {
                 console.error(error);
-                setErrorMessage('Invalid credentials.');
+                setErrorMessage('Invalid credentials. Please check your email and password.');
             }
         }
     };
 
     const renderSubRoleOptions = () => {
+        const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+        
         if (formData.role === 'Officers') {
             return (
                 <div className="subrolecss">
@@ -198,7 +178,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             );
         }
 
-        if (formData.role === 'HOD') {
+        if (formData.role === 'HOD' || formData.role === 'Faculty') {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Department:</label>
@@ -210,43 +190,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                         required
                     >
                         <option value="">Select Department</option>
-                        <option value="IT">IT</option>
-                        <option value="CSE">CSE</option>
-                        <option value="AIML">AIML</option>
-                        <option value="CE">CE</option>
-                        <option value="MECH">MECH</option>
-                        <option value="EEE">EEE</option>
-                        <option value="ECE">ECE</option>
-                        <option value="Ag.E">Ag.E</option>
-                        <option value="MPE">MPE</option>
-                        <option value="FED">FED</option>
-                    </select>
-                </div>
-            );
-        }
-
-        if (formData.role === 'Faculty') {
-            return (
-                <div className="subrolecss">
-                    <label htmlFor="department">Department:</label>
-                    <select
-                        id="department"
-                        name="subRole"  
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">Select Department</option>
-                        <option value="IT">IT</option>
-                        <option value="CSE">CSE</option>
-                        <option value="AIML">AIML</option>
-                        <option value="CE">CE</option>
-                        <option value="MECH">MECH</option>
-                        <option value="EEE">EEE</option>
-                        <option value="ECE">ECE</option>
-                        <option value="Ag.E">Ag.E</option>
-                        <option value="MPE">MPE</option>
-                        <option value="FED">FED</option>
+                        {commonDepartments.map(dept => (
+                            <option key={dept} value={dept}>{dept}</option>
+                        ))}
                     </select>
                 </div>
             );
@@ -256,13 +202,13 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     };
 
     return (
-        <div className={`login-container ${isRegistering ? 'registering' : ''}`}>
-            <h2 className="login-header">{isRegistering ? 'Register' : 'Login'}</h2>
+        <div className="login-container">
+            <h2 className="login-header">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
             <form onSubmit={handleSubmit}>
                 {isRegistering && (
                     <>
                         <div className="login-form-group">
-                            <label htmlFor="username">Staff Name:</label>
+                            <label htmlFor="username">Staff Name</label>
                             <input
                                 type="text"
                                 id="username"
@@ -270,10 +216,11 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                                 value={formData.username}
                                 onChange={handleChange}
                                 required
+                                placeholder="Enter your full name"
                             />
                         </div>
                         <div className="login-form-group">
-                            <label htmlFor="role">Role:</label>
+                            <label htmlFor="role">Role</label>
                             <select
                                 id="role"
                                 name="role"
@@ -293,8 +240,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                         {renderSubRoleOptions()}
                     </>
                 )}
+                
                 <div className="login-form-group">
-                    <label htmlFor="email">Email:</label>
+                    <label htmlFor="email">Email Address</label>
                     <input
                         type="email"
                         id="email"
@@ -302,10 +250,12 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        placeholder="name@aditya.ac.in"
                     />
                 </div>
+
                 <div className="login-form-group">
-                    <label htmlFor="password">Password:</label>
+                    <label htmlFor="password">Password</label>
                     <div className="password-input-container">
                         <input
                             type={showPassword ? 'text' : 'password'}
@@ -314,6 +264,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                             value={formData.password}
                             onChange={handleChange}
                             required
+                            placeholder="Enter your password"
                         />
                         <span
                             onClick={() => setShowPassword(!showPassword)}
@@ -322,11 +273,11 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
-                    {errorMessage && <div className="error-message">{errorMessage}</div>}
                 </div>
+
                 {isRegistering && (
                     <div className="login-form-group">
-                        <label htmlFor="confirmPassword">Confirm Password:</label>
+                        <label htmlFor="confirmPassword">Confirm Password</label>
                         <div className="password-input-container">
                             <input
                                 type={showConfirmPassword ? 'text' : 'password'}
@@ -335,6 +286,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required
+                                placeholder="Confirm your password"
                             />
                             <span
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -345,24 +297,33 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                         </div>
                     </div>
                 )}
+
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+
                 <button type="submit" className="button1">
                     {isRegistering ? 'Register' : 'Login'}
                 </button>
+
                 <p
-                    onClick={() => setIsRegistering(!isRegistering)}
+                    onClick={() => {
+                        setIsRegistering(!isRegistering);
+                        setErrorMessage('');
+                        setFormData({ username: '', email: '', password: '', confirmPassword: '', role: '', subRole: '' });
+                    }}
                     className="register-toggle"
                 >
                     {isRegistering
                         ? 'Already have an account? Login'
                         : 'Don’t have an account? Register'}
                 </p>
+
                 {!isRegistering && (
-                    <p
+                    <span
                         id="forgot-password"
                         onClick={() => navigate('/reset-password')}
                     >
                         Forgot Password?
-                    </p>
+                    </span>
                 )}
             </form>
         </div>
