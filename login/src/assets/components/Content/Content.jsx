@@ -1,406 +1,216 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Content.css";
-import 'font-awesome/css/font-awesome.min.css';
 
 const Content = () => {
-    const [selectedPdf, setSelectedPdf] = useState(null);
-    const [pdfLinks, setPdfLinks] = useState([]);
-    const [selectedCategoryPdfs, setSelectedCategoryPdfs] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [noResults, setNoResults] = useState(false);
-    const [activeCategory, setActiveCategory] = useState(null);
-    const [showDocuments, setShowDocuments] = useState(false);
-    const [showContentP, setShowContentP] = useState(true);
-    const [showAnnouncements, setShowAnnouncements] = useState(false);
-    const [type, settype] = useState();
+  const [pdfLinks, setPdfLinks] = useState([]);
+  const [selectedCategoryItems, setSelectedCategoryItems] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [showContentP, setShowContentP] = useState(true);
+  const [noResults, setNoResults] = useState(false);
 
+  useEffect(() => {
+    const fetchPdfs = async () => {
+      try {
+        const role = sessionStorage.getItem("userRole");
+        const subRole = sessionStorage.getItem("usersubRole");
+        const response = await axios.get("http://localhost:5001/get-pdfs", {
+          params: { role: role || "", subRole: subRole || "" },
+        });
 
+        if (response.data.pdfs) {
+          // group by category
+          const grouped = response.data.pdfs.reduce((acc, pdf) => {
+            const category = pdf.category || "Uncategorized";
+            if (!acc[category]) acc[category] = [];
+            acc[category].push(pdf);
+            return acc;
+          }, {});
 
+          // ensure default subcategories for each category (Documents / Announcements)
+          const categories = Object.keys(grouped).map((cat) => {
+            const items = [...grouped[cat]];
+            const hasDocuments = items.some((it) => it.subcategory === "Documents");
+            const hasAnnouncements = items.some((it) => it.subcategory === "Announcements");
 
-
-    useEffect(() => {
-        const fetchPdfs = async () => {
-            try {
-                const role = sessionStorage.getItem('userRole');
-                const subRole = sessionStorage.getItem('usersubRole');
-
-                const queryParams = { role: role || '', subRole: subRole || '' };
-
-                const departmentCategory = `Department ${subRole} related`;
-
-                const response = await axios.get('http://localhost:5001/get-pdfs', {
-                    params: queryParams
-                });
-
-
-                if (response.data.pdfs) {
-                    const groupedPdfs = response.data.pdfs.reduce((acc, pdf) => {
-                        const { category } = pdf;
-                        if (!acc[category]) {
-                            acc[category] = [];
-                        }
-                        acc[category].push(pdf);
-                        return acc;
-                    }, {});
-
-                    if (role === 'Officers' && !groupedPdfs["University related"]) {
-                        groupedPdfs["University related"] = [];
-                    }
-                    if ((role === 'Dean' || role === 'Officers') && !groupedPdfs["Dean's related"]) {
-                        groupedPdfs["Dean's related"] = [];
-                    }
-                    if ((role === 'Asso.Dean' ||role === 'Dean' || role === 'Officers') && !groupedPdfs["Asso.Dean's related"]) {
-                        groupedPdfs["Asso.Dean's related"] = [];
-                    }
-                    if ((role === 'HOD' || role === 'Dean' || role === 'Officers') && !groupedPdfs["HOD's related"]) {
-                        groupedPdfs["HOD's related"] = [];
-                    }
-                    if ((role === 'Faculty' || role === 'HOD' || role === 'Dean' || role === 'Officers')) {
-                        if (!groupedPdfs['Faculty related']) {
-                            groupedPdfs['Faculty related'] = [];
-                        }
-                        // if (!groupedPdfs['Dept.Equipment']) {
-                        //     groupedPdfs['Dept.Equipment'] = [];
-                        // }
-                    }
-
-                    if (role === 'HOD' || role === 'Faculty') {
-                        // if (!groupedPdfs[departmentCategory]) {
-                        //     groupedPdfs[departmentCategory] = [];
-                        // }
-                        if (!groupedPdfs['Teaching Material']) {
-                            groupedPdfs['Teaching Material'] = [];
-                        } if (!groupedPdfs['Staff Presentations']) {
-                            groupedPdfs['Staff Presentations'] = [];
-                        }
-                    }
-
-                    if ((role === 'HOD' || role === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
-                        groupedPdfs['Dept.Equipment'] = [{
-                            name: 'No documents uploaded yet',
-                            category: 'Dept.Equipment',
-                            subcategory: 'Documents',
-                            filePath: null
-                        }];
-                    }
-                    
-
-
-                    let pdfCategories = Object.keys(groupedPdfs).map(category => {
-                        const items = groupedPdfs[category];
-
-                        // Inject default subcategories if missing
-                        const hasDocuments = items.some(item => item.subcategory === 'Documents');
-                        const hasAnnouncements = items.some(item => item.subcategory === 'Announcements');
-
-                        if (!hasDocuments) {
-                            items.push({
-                                name: 'No documents uploaded yet',
-                                category,
-                                subcategory: 'Documents',
-                                filePath: null
-                            });
-                        }
-
-                        if (!hasAnnouncements) {
-                            items.push({
-                                name: 'No announcements uploaded yet.',
-                                category,
-                                subcategory: 'Announcements',
-                                filePath: null
-                            });
-                        }
-
-                        return { category, items };
-                    });
-
-
-                    if (role === 'Officers') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            { category: "Dean's related", items: groupedPdfs["Dean's related"] || [] },
-                            { category: 'University related', items: groupedPdfs['University related'] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related", "Dean's related", 'University related'].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-                    } else if (role === 'Dean') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            { category: "Dean's related", items: groupedPdfs["Dean's related"] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related", "Dean's related"].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'Asso.Dean') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Asso.Dean's related", items: groupedPdfs["Asso.Dean's related"] || [] },
-                            ...pdfCategories.filter(pdf => !['Faculty related', "HOD's related", "Asso.Dean's related"].includes(pdf.category))
-                        ];
-
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'HOD') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "HOD's related", items: groupedPdfs["HOD's related"] || [] },
-                            { category: "Dept.Equipment", items: groupedPdfs["Dept.Equipment"] || [] },
-                            { category: "Teaching Material", items: groupedPdfs["Teaching Material"] || [] },
-                            { category: "Staff Presentations", items: groupedPdfs["Staff Presentations"] || [] },
-                            // ...(groupedPdfs[departmentCategory] ? [{ category: departmentCategory, items: groupedPdfs[departmentCategory] }] : []),
-                            ...pdfCategories.filter(pdf =>
-                                !['Faculty related', "HOD's related", "Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(pdf.category))
-                        ];
-                        setPdfLinks(sortedCategories);
-
-                    } else if (role === 'Faculty') {
-                        const sortedCategories = [
-                            { category: 'Faculty related', items: groupedPdfs['Faculty related'] || [] },
-                            { category: "Dept.Equipment", items: groupedPdfs["Dept.Equipment"] || [] },
-                            { category: "Teaching Material", items: groupedPdfs["Teaching Material"] || [] },
-                            { category: "Staff Presentations", items: groupedPdfs["Staff Presentations"] || [] },
-                            // ...(groupedPdfs[departmentCategory] ? [{ category: departmentCategory, items: groupedPdfs[departmentCategory] }] : []),
-                            ...pdfCategories.filter(pdf =>
-                                !['Faculty related', "Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(pdf.category))
-                        ];
-                        setPdfLinks(sortedCategories);
-
-
-                        
-
-                    } else {
-                        setPdfLinks(pdfCategories);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching PDFs:', error);
-                if (error.response && error.response.status === 401) {
-                    alert('Unauthorized! Please log in to access the PDFs.');
-                }
+            if (!hasDocuments) {
+              items.push({
+                name: "No documents uploaded yet",
+                category: cat,
+                subcategory: "Documents",
+                filePath: null,
+              });
             }
-        };
+            if (!hasAnnouncements) {
+              items.push({
+                name: "No announcements uploaded yet",
+                category: cat,
+                subcategory: "Announcements",
+                filePath: null,
+              });
+            }
 
-        fetchPdfs();
-    }, []);
+            return { category: cat, items };
+          });
 
-    const handlePdfClick = (pdfPath, event) => {
-        event.preventDefault();
-        console.log("PDF path:", pdfPath);
-        const pdfUrl = `http://localhost:5001/${pdfPath.replace(/\\/g, '/')}`;
-        setSelectedPdf(pdfUrl);
-    };
-
-    const handleDocumentsClick = (categoryItems) => {
-        settype("Documents")
-        setSelectedCategoryPdfs(categoryItems);
-        setIsSearchVisible(true);
-        setNoResults(false);
-        setShowDocuments(true);
-        setShowAnnouncements(false);  // Hide announcements when showing documents
-        setShowContentP(false);
-    };
-
-
-    const handleBackClick = () => {
-        setSelectedPdf(null);
-    };
-
-
-
-    const handleSubCategoryClick = (categoryItems, subCategory) => {
-        settype(subCategory);
-        // settype(null)
-        const filteredItems = categoryItems.filter(item => item.subcategory === subCategory);
-        setSelectedCategoryPdfs(filteredItems);
-        setIsSearchVisible(true);
-        setNoResults(false);
-        setShowDocuments(true);
-        setShowContentP(false);
-        // setShowAnnouncements(false);
-    };
-
-
-
-
-    const handleAnnouncementsClick = (categoryItems) => {
-        settype("Announcements")
-        setSelectedCategoryPdfs(categoryItems);
-        setShowContentP(false);
-        setShowDocuments(true);
-        setIsSearchVisible(true);
-        setShowAnnouncements(true);  // Show announcements
-    };
-
-    const filteredPdfs = selectedCategoryPdfs.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) && (!type || item.subcategory === type)
-        // && (!type || item.subcategory === type)
-    );
-
-
-    useEffect(() => {
-        if (filteredPdfs.length === 0 && searchQuery) {
-            setNoResults(true);
-        } else {
-            setNoResults(false);
+          setPdfLinks(categories);
         }
-    }, [searchQuery, filteredPdfs]);
+      } catch (err) {
+        console.error("Error fetching PDFs:", err);
+      }
+    };
 
+    fetchPdfs();
+  }, []);
 
+  // clicking a subcategory — filter items and show them
+  const handleSubCategoryClick = (categoryItems, subCat) => {
+    const filtered = categoryItems.filter((it) => it.subcategory === subCat);
+    setSelectedCategoryItems(filtered);
+    setSelectedSubCategory(subCat);
+    setShowContentP(false);
+    setSelectedPdf(null);
+    setSearchQuery("");
+  };
 
-    return (
-        <div className="content">
-            {/* Left Navigation Bar */}
-            <div className="leftNavBar">
-                {pdfLinks.map((category, index) => (
-                    <div key={index}>
-                        <div className="category-container">
-                            <li className={`category-title ${activeCategory === category.category ? "active" : ""}`}>
-                                {category.category}
-                            </li>
-                            <div className="category-options">
-                                {/* {[...new Set(category.items.map(item => item.subcategory))].map((subCat) => (
-                                    <button key={subCat} onClick={() => handleSubCategoryClick(category.items, subCat)}>
-                                        {subCat}
-                                    </button>
-                                ))} */}
+  const handlePdfClick = (filePath, e) => {
+    e.preventDefault();
+    if (!filePath) return;
+    const url = `http://localhost:5001/${filePath.replace(/\\/g, "/")}`;
+    setSelectedPdf(url);
+  };
 
-{[...new Set(category.items.map(item => item.subcategory))]
-    .filter(subCat =>
-        !(
-            ["Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(category.category)
-            && subCat === "Announcements"
-        )
-    )
-    .map((subCat) => (
-        <button key={subCat} onClick={() => handleSubCategoryClick(category.items, subCat)}>
-            {subCat}
+  const filteredPdfs = selectedCategoryItems.filter((it) =>
+    it.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  useEffect(() => {
+    setNoResults(filteredPdfs.length === 0 && searchQuery.length > 0);
+  }, [filteredPdfs, searchQuery]);
+
+  return (
+    <div className="content-wrapper">
+      {/* TOP NAVBAR */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+        <span className="navbar-brand">Aditya University — Intranet</span>
+
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#topNav"
+          aria-controls="topNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
         </button>
-    ))}
 
+        <div className="collapse navbar-collapse" id="topNav">
+          <ul className="navbar-nav ms-auto align-items-center">
+            {pdfLinks.map((cat, idx) => (
+              <li key={idx} className="nav-item dropdown hover-dropdown mx-2">
+                <span className="nav-link dropdown-toggle" role="button">
+                  {cat.category}
+                </span>
 
+                {/* DROP-DOWN ON HOVER — subcategories horizontally stacked */}
 
-
-                            </div>
-
-                        </div>
-                    </div>
-                ))}
+    <div className="dropdown-on-hover shadow">
+        {[...new Set(cat.items.map((i) => i.subcategory))].map((sub, sidx) => (
+            <div
+                key={sidx}
+                className="dropdown-item"
+                onClick={() => handleSubCategoryClick(cat.items, sub)}
+            >
+                {sub}
             </div>
+        ))}
+    </div>
 
-            {/* Right Content Area */}
-            <div className="rightContent">
-                {showContentP ? (
-                    <p className="contentp">
-                        Aditya University is a State Private University formed under the Andhra Pradesh Private Universities Act,
-                        2016. It has evolved from the well-established Aditya Engineering College in Surampalem, Kakinada District,
-                        Andhra Pradesh. Aditya University is committed to providing quality higher education with global standards.
-                        Programs are well crafted to blend academic rigor with practical relevance, equipping students to effectively
-                        address both societal and industrial challenges. Experienced and learned teachers encourage intellectual
-                        curiosity, critical thinking, and cooperation among the diverse student community in an inclusive manner to
-                        realize their full potential and contribute to society. The memorandum of understanding with foreign
-                        universities ushers in a new era of international academic excellence, fostering a vibrant, globally engaged
-                        educational community at Aditya University leading to joint degree certifications and joint research
-                        programs. Industry collaborations build a synergistic relationship for internship opportunities,
-                        project-based learning, and innovative research.
-                    </p>
-                ) : isSearchVisible ? (
-                    <>
-                        <div className="searchBar">
-                            <input
-                                type="text"
-                                placeholder="Search PDFs in this category..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="searchInput"
-                            />
-                        </div>
-
-                        {noResults ? (
-                            <p>No search results found</p>
-                        ) : filteredPdfs.length > 0 ? (
-                            <div className="pdfGrid">
-                                <div className={type === 'Documents' ? 'documents-view' : 'announcements-view'}>
-                                    {type === 'Documents' ? (
-                                        filteredPdfs.map((item, index) => (
-                                            <div key={index} className="pdfItem">
-                                                {item.filePath ? (
-                                                    <a href="#" className="pdfLink" onClick={(event) => handlePdfClick(item.filePath, event)}>
-                                                        {item.name}
-                                                    </a>
-                                                ) : (
-                                                    <span>{item.name}</span>
-                                                )}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        filteredPdfs.length > 0 ? (
-                                            <div className="announcements-scroller">
-                                                <ul>
-                                                    {filteredPdfs.map((item, index) => (
-                                                        <li key={index}>
-                                                            {item.filePath ? (
-                                                                <a href="#" className="pdfLink" onClick={(event) => handlePdfClick(item.filePath, event)}>
-                                                                    {item.name}
-                                                                </a>
-                                                            ) : (
-                                                                <span>{item.name}</span>
-                                                            )}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ) : (
-                                            <p>No announcements available.</p>
-                                        )
-                                    )}
-                                </div>
-
-
-                            </div>
-                        ) : selectedPdf ? (
-                            <div className="pdfViewer">
-                                <object
-                                    id="pdfObject"
-                                    data={selectedPdf}
-                                    width="100%"
-                                    height="700px"
-                                    type="application/pdf"
-                                >
-                                    <p>Your browser doesn't support viewing PDFs. Please download the PDF to view it.</p>
-                                </object>
-                            </div>
-                        ) : null}
-                    </>
-                ) : null}
-            </div>
-
-            {selectedPdf && (
-                <div className="pdfViewer">
-                    <object
-                        id="pdfObject"
-                        data={selectedPdf}
-                        width="100%"
-                        height="700px"
-                        type="application/pdf"
-                    >
-                        <p>Your browser doesn't support viewing PDFs. Please download the PDF to view it.</p>
-                    </object>
-                    <button className="backButton" onClick={handleBackClick}>
-                        &#8592;
-                    </button>
-                </div>
-            )}
+              </li>
+            ))}
+          </ul>
         </div>
-    );
+      </nav>
+
+      {/* SUBHEADER (shows selected category + subcategory) */}
+      <div className="container py-3">
+        {selectedSubCategory && (
+          <div className="mb-3">
+            <h6 className="m-0">
+              Showing: <strong>{selectedSubCategory}</strong>
+            </h6>
+          </div>
+        )}
+
+        {/* CONTENT */}
+        {showContentP ? (
+          <p className="lead">
+            Aditya University is a State Private University formed under the
+            Andhra Pradesh Private Universities Act, 2016. Programs blend
+            academic rigor with practical relevance...
+          </p>
+        ) : (
+          <>
+            {/* Search */}
+            <div className="mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search PDFs in this subcategory..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            {noResults ? (
+              <p className="text-danger">No search results found</p>
+            ) : filteredPdfs.length > 0 ? (
+              <div className="list-group">
+                {filteredPdfs.map((item, i) => (
+                  <button
+                    key={i}
+                    className="list-group-item list-group-item-action text-start"
+                    onClick={(e) => item.filePath && handlePdfClick(item.filePath, e)}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted">No items to display in this subcategory.</p>
+            )}
+          </>
+        )}
+
+        {/* PDF VIEWER */}
+        {selectedPdf && (
+          <div className="mt-4">
+            <object
+              data={selectedPdf}
+              type="application/pdf"
+              width="100%"
+              height="700px"
+            >
+              <p>Your browser doesn't support embedded PDFs — download to view.</p>
+            </object>
+
+            <div className="mt-2">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSelectedPdf(null)}
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Content;

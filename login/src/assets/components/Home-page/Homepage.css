@@ -72,3 +72,14 @@
     color: #ff6900;
     transform: scale(1.05);
 }
+.items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+    gap: 20px;
+}
+
+div.inside {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+}

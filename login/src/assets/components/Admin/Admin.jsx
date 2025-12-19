@@ -8,7 +8,6 @@ import './Admin.css';
 function Admin() {
     return (
         <>
-            <RenderHome />  {/* Using the correct component name */}
             <Content />
             <Link to="/add-file">
                     <div className="plus-div">

@@ -1,8 +1,28 @@
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Kanit", sans-serif;
+}
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("../../../imageassets/aus_bg.jpg") no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(3px);        /* REAL blur */
+    z-index: -1;               /* Push below content */
 }
 
 .content {
@@ -308,4 +328,46 @@ a {
     100% {
         transform: translateX(-100%); /* Move to the left */
     }
+}
+/* --- HOVER DROPDOWN FIX FOR TOP NAVBAR --- */
+
+.hover-dropdown {
+    position: relative;
+}
+
+.dropdown-on-hover {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 180px;
+    background: white;
+    color: black;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    z-index: 999;
+}
+
+.hover-dropdown:hover .dropdown-on-hover {
+    display: block;
+}
+
+/* Sub-items vertical clickable */
+.dropdown-on-hover .dropdown-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.dropdown-on-hover .dropdown-item:hover {
+    background: #f66900;
+    color: white;
+}
+
+/* Remove bootstrap's default shadow issues */
+.dropdown-on-hover button {
+    all: unset;
+    display: block;
+    width: 100%;
 }

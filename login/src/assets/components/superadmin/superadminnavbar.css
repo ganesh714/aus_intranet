@@ -1,0 +1,101 @@
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f2937;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Left Section */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Nav Links */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background-color: #374151;
+  border-radius: 4px;
+}
+
+/* Dropdown */
+.nav-dropdown {
+  position: relative;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.nav-dropdown span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background-color: #111827;
+  border-radius: 4px;
+  display: none;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.dropdown-menu a {
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #374151;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  display: flex;
+}
+
+/* Right Section */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
