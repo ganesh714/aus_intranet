@@ -12,23 +12,15 @@ const Content = () => {
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const [noResults, setNoResults] = useState(false);
     
-    // UI State for Sidebar Expansion
     const [activeCategory, setActiveCategory] = useState(null);
-    
-    // Data State for Current View
-    const [currentViewCategory, setCurrentViewCategory] = useState(null); // [NEW] Tracks the active category for fetching
+    const [currentViewCategory, setCurrentViewCategory] = useState(null);
     
     const [showDocuments, setShowDocuments] = useState(false);
     const [showContentP, setShowContentP] = useState(true);
     const [type, settype] = useState();
 
-    // --- STATE FOR DEPARTMENT FILTER (TargetSubrole) ---
     const [deptFilter, setDeptFilter] = useState('All');
-
-    // --- STATE FOR GENERAL ANNOUNCEMENTS (VIEWING) ---
     const [generalAnnouncements, setGeneralAnnouncements] = useState([]);
-
-    // --- STATE FOR SEND ANNOUNCEMENTS ---
     const [showSendAnnounce, setShowSendAnnounce] = useState(false);
     const [myAnnouncements, setMyAnnouncements] = useState([]);
     const [announceForm, setAnnounceForm] = useState({
@@ -39,12 +31,10 @@ const Content = () => {
         file: null
     });
 
-    // Get User Details
     const userRole = sessionStorage.getItem('userRole');
     const userEmail = sessionStorage.getItem('userEmail');
     const userSubRole = sessionStorage.getItem('usersubRole');
 
-    // --- DEFINE SUB-ROLES FOR EACH ROLE ---
     const subRolesMapping = {
         'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
         'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
@@ -76,7 +66,6 @@ const Content = () => {
         }
     }, [roleOptions]);
 
-    // [NEW] Helper to map Category Name (e.g. "Faculty related") to Role (e.g. "Faculty")
     const getRoleFromCategory = (category) => {
         if (!category) return userRole; 
         if (category.includes('Faculty')) return 'Faculty';
@@ -87,28 +76,21 @@ const Content = () => {
         return userRole; 
     };
 
-    // --- FETCH REAL ANNOUNCEMENTS FOR VIEWING ---
     const fetchGeneralAnnouncements = async () => {
         try {
             const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
-            
-            // [UPDATE] Determine Role based on selected Category
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
-
-            // [UPDATE] Determine SubRole based on Dropdown (if enabled) or User's SubRole
             let subRoleParam = userSubRole;
+            
             if (isHighLevel && type === 'Announcements') {
-                // If high level user in Announcements view, use the dropdown filter value
                 subRoleParam = deptFilter;
             }
 
-            // [UPDATE] Fetch with specific params irrespective of logged-in user
             const response = await axios.get('http://localhost:5001/get-announcements', {
                 params: { role: roleParam, subRole: subRoleParam }
             });
 
             if (response.data.announcements) {
-                // Sort by uploadedAt descending (newest first)
                 const sorted = response.data.announcements.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
                 setGeneralAnnouncements(sorted);
             }
@@ -117,14 +99,12 @@ const Content = () => {
         }
     };
 
-    // [NEW] Effect to Refetch when Dropdown Filter or Category Changes
     useEffect(() => {
         if (type === 'Announcements') {
             fetchGeneralAnnouncements();
         }
     }, [deptFilter, currentViewCategory, type]);
 
-    // Fetch PDFs for Categories (Sidebar structure)
     useEffect(() => {
         const fetchPdfs = async () => {
             try {
@@ -146,12 +126,18 @@ const Content = () => {
                     if (userRole === 'Officers') ensureCategory("University related");
                     if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
                     if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    
+                    // Logic updated to hide these from Student
                     if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
                     if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
                     
-                    if (userRole === 'HOD' || userRole === 'Faculty') {
+                    // Student, Faculty, HOD see these
+                    if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                         ensureCategory('Teaching Material');
-                        ensureCategory('Staff Presentations');
+                        ensureCategory('Time Table'); 
+                    }
+                     if (userRole === 'HOD' || userRole === 'Faculty') {
+                         ensureCategory('Staff Presentations');
                     }
 
                     if ((userRole === 'HOD' || userRole === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
@@ -182,7 +168,6 @@ const Content = () => {
         fetchPdfs();
     }, [userRole]);
 
-    // Fetch My Sent Announcements
     const fetchMyAnnouncements = async () => {
         try {
             const response = await axios.get('http://localhost:5001/get-announcements', {
@@ -225,7 +210,7 @@ const Content = () => {
         setIsSearchVisible(false);
         setNoResults(false);
         setActiveCategory(null);
-        setCurrentViewCategory(null); // Reset
+        setCurrentViewCategory(null);
         settype(null);
         setShowSendAnnounce(false);
     };
@@ -236,25 +221,34 @@ const Content = () => {
         setIsSearchVisible(false);
         setNoResults(false);
         setActiveCategory(null);
-        setCurrentViewCategory(null); // Reset
+        setCurrentViewCategory(null);
         settype(null);
         fetchMyAnnouncements();
     };
 
-    // [UPDATE] Accept categoryName to set currentViewCategory
+    // --- NEW HANDLER FOR STUDENT ANNOUNCEMENTS ---
+    const handleViewAnnouncementsClick = () => {
+        settype('Announcements');
+        setCurrentViewCategory(null); // Shows announcements targeted to the user's role
+        setIsSearchVisible(true);
+        setNoResults(false);
+        setShowDocuments(true);
+        setShowContentP(false);
+        setShowSendAnnounce(false);
+        setSelectedCategoryPdfs([]);
+    };
+
     const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
         settype(subCategory);
-        setCurrentViewCategory(categoryName); // [NEW] Set the active category name for fetching context
+        setCurrentViewCategory(categoryName); 
         
         if(subCategory === 'Announcements') {
-             // Fetch handled by useEffect
              setIsSearchVisible(true);
              setNoResults(false);
              setShowDocuments(true);
              setShowContentP(false);
              setShowSendAnnounce(false);
         } else {
-             // Regular PDF filtering logic
              const filteredItems = categoryItems.filter(item => item.subcategory === subCategory);
              setSelectedCategoryPdfs(filteredItems);
              setIsSearchVisible(true);
@@ -322,7 +316,6 @@ const Content = () => {
         }
     };
 
-    // Filter logic for standard PDF view
     const filteredPdfs = selectedCategoryPdfs.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -340,13 +333,27 @@ const Content = () => {
                         </div>
                     </div>
 
-                    <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={handleSendAnnounceClick}>
-                            <span className="cat-name">
-                                <MdCampaign className="cat-icon"/> Send Announcements
-                            </span>
+                    {/* HIDE SEND ANNOUNCEMENT FOR STUDENTS */}
+                    {userRole !== 'Student' && (
+                        <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={handleSendAnnounceClick}>
+                                <span className="cat-name">
+                                    <MdCampaign className="cat-icon"/> Send Announcements
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {/* NEW: VIEW ANNOUNCEMENTS FOR STUDENTS */}
+                    {userRole === 'Student' && (
+                        <div className={`category-item ${type === 'Announcements' ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={handleViewAnnouncementsClick}>
+                                <span className="cat-name">
+                                    <FaBullhorn className="cat-icon"/> Announcements
+                                </span>
+                            </div>
+                        </div>
+                    )}
 
                     {pdfLinks.map((category, index) => (
                         <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
@@ -358,10 +365,9 @@ const Content = () => {
                             <div className="subcategory-list">
                                 {[...new Set(category.items.map(item => item.subcategory))]
                                     .filter(subCat => !(
-                                        ["Dept.Equipment", "Teaching Material", "Staff Presentations"].includes(category.category) && subCat === "Announcements"
+                                        ["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table"].includes(category.category) && subCat === "Announcements"
                                     ))
                                     .map((subCat) => (
-                                        // [UPDATE] Pass category.category here
                                         <button key={subCat} className="subcat-btn" onClick={() => handleSubCategoryClick(category.items, subCat, category.category)}>
                                             {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
                                         </button>
@@ -438,8 +444,6 @@ const Content = () => {
                     <div className="results-container">
                         <div className="search-header">
                             <h2>{type}</h2>
-                            
-                            {/* [UPDATE] Dropdown for Higher Roles in Announcement View */}
                             {type === 'Announcements' && ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole) && (
                                 <div className="search-input-wrapper" style={{ width: '200px' }}>
                                     <select 
@@ -449,7 +453,6 @@ const Content = () => {
                                         onChange={(e) => setDeptFilter(e.target.value)}
                                     >
                                         <option value="All">All Departments</option>
-                                        {/* Using Faculty list as it contains all standard departments */}
                                         {subRolesMapping['Faculty']?.filter(r => r !== 'All').map((dept, i) => (
                                             <option key={i} value={dept}>{dept}</option>
                                         ))}
@@ -457,7 +460,6 @@ const Content = () => {
                                 </div>
                             )}
 
-                            {/* Existing Search for Documents */}
                             {type !== 'Announcements' && (
                                 <div className="search-input-wrapper">
                                     <FaSearch className="search-icon"/>
@@ -474,11 +476,9 @@ const Content = () => {
 
                         {type === 'Announcements' ? (
                             <div className="general-announcements-wrapper">
-                                {/* [UPDATE] Separate Ticker for Each Recent Announcement */}
                                 {generalAnnouncements.length > 0 && (
                                     <div className="tickers-group">
                                         <div className="ticker-label-static" style={{fontWeight:'bold', marginBottom:'10px', color:'#F97316'}}><FaBullhorn /> Recent Updates:</div>
-                                        
                                         {generalAnnouncements.slice(0, 5).map((ann, index) => (
                                             <div key={index} className="announcement-ticker-container" style={{ marginBottom: '10px' }}>
                                                 <div className="ticker-track-wrapper">
@@ -492,8 +492,6 @@ const Content = () => {
                                         ))}
                                     </div>
                                 )}
-
-                                {/* [UPDATE] Full Details List (Using generalAnnouncements directly) */}
                                 <div className="all-announcements-grid">
                                     {generalAnnouncements.length === 0 ? (
                                         <p className="no-data">No announcements found matching filter.</p>
@@ -532,7 +530,6 @@ const Content = () => {
                                 </div>
                             </div>
                         ) : (
-                            // --- EXISTING DOCUMENTS VIEW ---
                             <div className="items-grid">
                                 {filteredPdfs.length > 0 ? (
                                     filteredPdfs.map((item, index) => (

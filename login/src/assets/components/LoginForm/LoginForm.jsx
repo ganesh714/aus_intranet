@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
 import './LoginForm.css';
 
 const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
@@ -48,7 +47,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMessage(''); // Clear previous errors
+        setErrorMessage('');
     
         if (isRegistering) {
             if (formData.password !== formData.confirmPassword) {
@@ -99,7 +98,11 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 setUserRole(role);
                 setUsersubRole(subRole);
 
-                navigate(`/${role.toLowerCase()}-page`);
+                if (role === 'Student') {
+                    navigate('/student-page');
+                } else {
+                    navigate(`/${role.toLowerCase()}-page`);
+                }
             } catch (error) {
                 console.error(error);
                 setErrorMessage('Invalid credentials. Please check your email and password.');
@@ -114,13 +117,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Position:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
                         <option value="">Select Position</option>
                         <option value="DyPC">DyPC</option>
                         <option value="VC">VC</option>
@@ -134,13 +131,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
                         <option value="">Select Department</option>
                         <option value="IQAC">IQAC</option>
                         <option value="R&C">R&C</option>
@@ -156,18 +147,11 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
             );
         }
-
         if (formData.role === 'Asso.Dean') {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
                         <option value="">Select Department</option>
                         <option value="SOE">SOE</option>
                         <option value="IQAC">IQAC</option>
@@ -177,18 +161,12 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
             );
         }
-
-        if (formData.role === 'HOD' || formData.role === 'Faculty') {
+        // Combined HOD, Faculty, and Student logic
+        if (formData.role === 'HOD' || formData.role === 'Faculty' || formData.role === 'Student') {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
                         <option value="">Select Department</option>
                         {commonDepartments.map(dept => (
                             <option key={dept} value={dept}>{dept}</option>
@@ -197,7 +175,6 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
             );
         }
-        
         return null;
     };
 
@@ -208,32 +185,19 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 {isRegistering && (
                     <>
                         <div className="login-form-group">
-                            <label htmlFor="username">Staff Name</label>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                required
-                                placeholder="Enter your full name"
-                            />
+                            <label htmlFor="username">Full Name</label>
+                            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" />
                         </div>
                         <div className="login-form-group">
                             <label htmlFor="role">Role</label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                required
-                            >
+                            <select id="role" name="role" value={formData.role} onChange={handleChange} required>
                                 <option value="">Select your role</option>
                                 <option value="Officers">Officers</option>
                                 <option value="Dean">Dean</option>
                                 <option value="Asso.Dean">Asso.Dean</option>
                                 <option value="HOD">HOD</option>
                                 <option value="Faculty">Faculty</option>
+                                <option value="Student">Student</option> 
                                 <option value="Admin">Admin</option>
                             </select>
                         </div>
@@ -243,33 +207,14 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 
                 <div className="login-form-group">
                     <label htmlFor="email">Email Address</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        placeholder="name@aditya.ac.in"
-                    />
+                    <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@aditya.ac.in" />
                 </div>
 
                 <div className="login-form-group">
                     <label htmlFor="password">Password</label>
                     <div className="password-input-container">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            placeholder="Enter your password"
-                        />
-                        <span
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="password-toggle-icon"
-                        >
+                        <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" />
+                        <span onClick={() => setShowPassword(!showPassword)} className="password-toggle-icon">
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
@@ -279,19 +224,8 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     <div className="login-form-group">
                         <label htmlFor="confirmPassword">Confirm Password</label>
                         <div className="password-input-container">
-                            <input
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                                placeholder="Confirm your password"
-                            />
-                            <span
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="password-toggle-icon"
-                            >
+                            <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" />
+                            <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-icon">
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
@@ -300,28 +234,18 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-                <button type="submit" className="button1">
-                    {isRegistering ? 'Register' : 'Login'}
-                </button>
+                <button type="submit" className="button1">{isRegistering ? 'Register' : 'Login'}</button>
 
-                <p
-                    onClick={() => {
+                <p onClick={() => {
                         setIsRegistering(!isRegistering);
                         setErrorMessage('');
                         setFormData({ username: '', email: '', password: '', confirmPassword: '', role: '', subRole: '' });
-                    }}
-                    className="register-toggle"
-                >
-                    {isRegistering
-                        ? 'Already have an account? Login'
-                        : 'Don’t have an account? Register'}
+                    }} className="register-toggle">
+                    {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
                 </p>
 
                 {!isRegistering && (
-                    <span
-                        id="forgot-password"
-                        onClick={() => navigate('/reset-password')}
-                    >
+                    <span id="forgot-password" onClick={() => navigate('/reset-password')}>
                         Forgot Password?
                     </span>
                 )}

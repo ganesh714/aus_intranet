@@ -7,31 +7,26 @@ const randomstring = require('randomstring');
 const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
-const Announcement = require('./models/Announcement'); // Import your Announcement model
+const Announcement = require('./models/Announcement'); 
 
 const app = express();
 
-// Enable CORS and parse incoming requests
 app.use(cors());
 app.use(bodyParser.json());
-
-// Serve the 'uploads' folder as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Set up file storage configuration using Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = 'uploads/';
-        cb(null, uploadDir); // The directory where files will be stored
+        cb(null, uploadDir); 
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Use timestamp to avoid name collisions
+        cb(null, Date.now() + path.extname(file.originalname)); 
     },
 });
 
 const upload = multer({ storage: storage });
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
@@ -40,7 +35,6 @@ mongoose.connect(process.env.MONGODB_URI)
         console.error('Error connecting to MongoDB', err);
     });
 
-// Define User Schema with subRole field
 const userSchema = new mongoose.Schema({
     username: String,
     email: String,
@@ -49,19 +43,18 @@ const userSchema = new mongoose.Schema({
     subRole: {
         type: String,
         enum: [
-            'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Officers and Leadership
-            'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE','SOP',         // sub-roles for Dean
-            'SOE', 'IQAC', 'AD','FED',       // sub-roles for Asso.Dean
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', // sub-roles for HOD
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED' // sub-roles for Faculty
+            'DyPC', 'VC', 'ProVC', 'Registrar',  
+            'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE','SOP',         
+            'SOE', 'IQAC', 'AD','FED',       
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', 
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED'  
         ],
-        default: null,  // subRole can be null if it's not relevant for the role
+        default: null,  
     },
 });
 
 const User = mongoose.model('User', userSchema);
 
-// Define PDF Schema
 const pdfSchema = new mongoose.Schema({
     category: { type: String, required: true },
     subcategory: { type: String, required: true },
@@ -77,30 +70,26 @@ const pdfSchema = new mongoose.Schema({
 
 const Pdf = mongoose.model('Pdf', pdfSchema);
 
-// User Registration Route
+// Register Route
 app.post('/register', async (req, res) => {
     const { username, email, password, role, subRole } = req.body;
 
-    // Check if email already exists
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
         return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // Check if a user with the same role and subRole exists (for roles other than 'Faculty' and 'Admin')
-    if (role !== 'Faculty' && role !== 'Admin') {
+    if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
         const existingUserByRoleAndSubRole = await User.findOne({ role, subRole });
         if (existingUserByRoleAndSubRole) {
             return res.status(400).json({ message: 'User with this role and subRole already exists' });
         }
     }
 
-    // Ensure subRole is provided for 'Faculty'
-    if (role === 'Faculty' && !subRole) {
-        return res.status(400).json({ message: 'subRole (department) is required for Faculty' });
+    if ((role === 'Faculty' || role === 'Student') && !subRole) {
+        return res.status(400).json({ message: 'subRole (department) is required' });
     }
 
-    // Create a new user, including the subRole if provided
     const newUser = new User({
         username,
         email,
@@ -118,40 +107,26 @@ app.post('/register', async (req, res) => {
     }
 });
 
-
-
-// User Login Route
+// Login Route
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (user && user.password === password) {
-        // Return the user information including subRole
         res.json({ message: 'Login successful!', user });
     } else {
         res.status(401).json({ message: 'Invalid credentials!' });
     }
 });
 
-app.use(bodyParser.json());
-
-
-// Add PDF Route for uploading multiple PDFs
+// Add PDF Route
 app.post('/add-pdf', upload.array('file', 10), async (req, res) => {
-    //console.log('Request received: ', req.body); // Log the request body
-    //console.log('Files uploaded: ', req.files); // Log the uploaded files
-
-
     const { category, name, user, subCategory } = req.body;
 
-    // Ensure category and name are arrays
     const categories = Array.isArray(category) ? category : [category];
     const subcategorys = Array.isArray(subCategory) ? subCategory : [subCategory];
     const names = Array.isArray(name) ? name : [name];
-
-    // Parse user data correctly for each file
     const users = Array.isArray(user) ? user.map(u => JSON.parse(u)) : [JSON.parse(user)];
-
     const filePaths = req.files ? req.files.map(file => file.path.replace(/\\/g, '/')) : [];
 
     if (filePaths.length === 0) {
@@ -161,44 +136,28 @@ app.post('/add-pdf', upload.array('file', 10), async (req, res) => {
     try {
         const newPdfs = await Promise.all(
             filePaths.map(async (filePath, index) => {
-                const categoryForFile = categories[index];
-                const nameForFile = names[index];
-                const userForFile = users[index];
-                const subcategoryForFile = subcategorys[index]
-
-                console.log(subcategoryForFile)
-                console.log(subcategorys)
-                console.log(subCategory)
-
                 const newPdf = new Pdf({
-                    category: categoryForFile,
-                    subcategory: subcategoryForFile,
-                    name: nameForFile,
+                    category: categories[index],
+                    subcategory: subcategorys[index],
+                    name: names[index],
                     filePath: filePath,
                     uploadedBy: {
-                        username: userForFile.username,
-                        role: userForFile.role,
-                        subRole: userForFile.subRole,
+                        username: users[index].username,
+                        role: users[index].role,
+                        subRole: users[index].subRole,
                     },
                 });
-
                 return newPdf.save();
             })
         );
-
         res.json({ message: 'PDFs added successfully!', pdfs: newPdfs });
     } catch (err) {
         console.error('Error uploading PDFs:', err);
         res.status(500).json({ message: 'Error uploading PDFs!', error: err });
     }
-
 });
 
-
-
-
-
-// Get PDFs based on Role and SubRole
+// Get PDFs Route (Corrected for Student)
 app.get('/get-pdfs', async (req, res) => {
     const { role, subRole } = req.query;
 
@@ -209,118 +168,63 @@ app.get('/get-pdfs', async (req, res) => {
 
         const pdfsSet = new Map();
 
-        // Fetch PDFs uploaded by the user role/subRole
-        const initialPdfs = await Pdf.find(query);
-        initialPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
+        // Students don't see their own uploads (they don't upload), so skip this block for them
+        if (role !== 'Student') {
+            const initialPdfs = await Pdf.find(query);
+            initialPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
+        }
 
-        // Define extra categories based on role
         const extraCategories = [];
 
         if (role === 'Officers' || role === 'Leadership') {
-            extraCategories.push(
-                'University related',
-                "Dean's related",
-                "Asso.Dean's related",
-                "HOD's related",
-                'Faculty related',
-                'Dept.Equipment'
-            );
+            extraCategories.push('University related', "Dean's related", "Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
         } else if (role === 'Dean') {
-            extraCategories.push(
-                "Dean's related",
-                "Asso.Dean's related",
-                "HOD's related",
-                'Faculty related',
-                'Dept.Equipment'
-            );
-
+            extraCategories.push("Dean's related", "Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
         } else if (role === 'Asso.Dean') {
-            extraCategories.push(
-                "Asso.Dean's related",
-                "HOD's related",
-                'Faculty related',
-                'Dept.Equipment'
-            );
-
+            extraCategories.push("Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
         } else if (role === 'HOD') {
-            extraCategories.push(
-                "HOD's related",
-                'Faculty related',
-                'Dept.Equipment',
-                `Teaching Material`,
-                `Staff Presentations`
-                // `Department ${subRole} related`
-            );
-
+            extraCategories.push("HOD's related", 'Faculty related', 'Dept.Equipment', 'Teaching Material', 'Staff Presentations', 'Time Table');
         } else if (role === 'Faculty') {
-            extraCategories.push(
-                'Faculty related',
-                'Dept.Equipment',
-                `Teaching Material`,
-                `Staff Presentations`
-                // `Department ${subRole} related`
-
-            );
+            extraCategories.push('Faculty related', 'Dept.Equipment', 'Teaching Material', 'Staff Presentations', 'Time Table');
+        } else if (role === 'Student') {
+            // UPDATED: Student only sees these
+            extraCategories.push('Teaching Material', 'Time Table');
         }
 
-        // Fetch and add extra PDFs by category
         if (extraCategories.length > 0) {
             const extraPdfs = await Pdf.find({ category: { $in: extraCategories } });
             extraPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
         }
 
         const uniquePdfs = Array.from(pdfsSet.values());
-
         res.json({ pdfs: uniquePdfs });
-
-        // If you want to return file URLs for frontend use, use this instead:
-        // res.json({
-        //     pdfs: uniquePdfs.map(pdf => ({
-        //         ...pdf.toObject(),
-        //         fileUrl: `http://localhost:5000/uploads/${pdf.fileName}`
-        //     }))
-        // });
 
     } catch (error) {
         res.status(500).json({ message: 'Error fetching PDFs!', error });
     }
 });
 
-
-
-// Get Announcements based on Role and SubRole
+// Get Announcements
 app.get('/get-announcements', async (req, res) => {
     const { role, subRole, email } = req.query;
-
     try {
         const orConditions = [];
-
-        // 1. Ownership: Always allow users to see what they uploaded
-        if (email) {
-            orConditions.push({ 'uploadedBy.email': email });
-        }
-
-        // 2. Viewing Permissions: Based on Target Audience
+        if (email) orConditions.push({ 'uploadedBy.email': email });
+        
         if (role) {
             if (subRole && subRole !== 'null') {
-                // If SubRole is provided, match Specific SubRole OR 'All'
                 orConditions.push(
                     { 'targetAudience.role': role, 'targetAudience.subRole': subRole },
                     { 'targetAudience.role': role, 'targetAudience.subRole': 'All' }
                 );
             } else {
-                // If SubRole is NOT provided (null), return all announcements for this Role
                 orConditions.push({ 'targetAudience.role': role });
             }
         }
 
-        // If no query parameters provided, return empty to be safe
-        if (orConditions.length === 0) {
-            return res.json({ announcements: [] });
-        }
+        if (orConditions.length === 0) return res.json({ announcements: [] });
 
         const query = { $or: orConditions };
-
         const announcements = await Announcement.find(query);
         res.json({ announcements });
     } catch (error) {
@@ -329,52 +233,32 @@ app.get('/get-announcements', async (req, res) => {
     }
 });
 
-
+// Add Announcement
 app.post('/add-announcement', upload.single('file'), async (req, res) => {
-    console.log("Received Body:", req.body);
-    const { title, description,targetRole, targetSubRole } = req.body;
+    const { title, description, targetRole, targetSubRole } = req.body;
     const user = JSON.parse(req.body.user);
-    // 3. Handle Optional File
-    // If req.file is undefined (no file uploaded), set filePath to null
     const filePath = req.file ? req.file.path.replace(/\\/g, '/') : null;
 
-    // Save the announcement data
     const newAnnouncement = new Announcement({
-        title,
-        description,
-        filePath: filePath,
-        uploadedBy: {
-            username: user.username,
-            email: user.email,
-            role: user.role,
-            subRole: user.subRole,
-        },
-        targetAudience: {
-            role: targetRole,
-            subRole: targetSubRole,
-        }
+        title, description, filePath: filePath,
+        uploadedBy: { username: user.username, email: user.email, role: user.role, subRole: user.subRole },
+        targetAudience: { role: targetRole, subRole: targetSubRole }
     });
 
     try {
         await newAnnouncement.save();
         res.status(200).json({ message: 'Announcement uploaded successfully!', announcement: newAnnouncement });
     } catch (error) {
-        console.error('Error saving announcement:', error);
         res.status(500).json({ message: 'Error uploading announcement', error });
     }
 });
 
-
-
-// Edit PDF Route for updating PDF details
+// Edit PDF
 app.put('/edit-pdf/:id', upload.single('file'), async (req, res) => {
     const { id } = req.params;
     const { category, name } = req.body;
     const updatedFields = { category, name };
-
-    if (req.file) {
-        updatedFields.filePath = req.file.path;
-    }
+    if (req.file) updatedFields.filePath = req.file.path;
 
     try {
         const updatedPdf = await Pdf.findByIdAndUpdate(id, updatedFields, { new: true });
@@ -384,40 +268,23 @@ app.put('/edit-pdf/:id', upload.single('file'), async (req, res) => {
     }
 });
 
-
-// Edit Announcement Route for updating announcement details
+// Edit Announcement
 app.put('/edit-announcement/:id', upload.single('file'), async (req, res) => {
     const { id } = req.params;
     const { title, description } = req.body;
-
-    // Prepare the fields to be updated
     const updatedFields = { title, description };
-
-    // Check if a new file has been uploaded and update the filePath
-    if (req.file) {
-        updatedFields.filePath = req.file.path;  // Store the new file path
-    }
+    if (req.file) updatedFields.filePath = req.file.path;
 
     try {
-        // Find the announcement by ID and update it with the Teaching Material
         const updatedAnnouncement = await Announcement.findByIdAndUpdate(id, updatedFields, { new: true });
-
-        // If no announcement was found with that ID
-        if (!updatedAnnouncement) {
-            return res.status(404).json({ message: 'Announcement not found' });
-        }
-
-        // Return success response with the updated announcement
+        if (!updatedAnnouncement) return res.status(404).json({ message: 'Announcement not found' });
         res.json({ message: 'Announcement updated successfully!', announcement: updatedAnnouncement });
     } catch (error) {
-        // Return error response if there is a problem updating
-        console.error('Error updating announcement:', error);
         res.status(500).json({ message: 'Error updating announcement!', error });
     }
 });
 
-
-// Delete PDF Route
+// Delete PDF
 app.delete('/delete-pdf/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -428,57 +295,36 @@ app.delete('/delete-pdf/:id', async (req, res) => {
     }
 });
 
-// Change Password Route
+// Change Password
 app.post('/change-password', async (req, res) => {
     const { email, currentPassword, newPassword } = req.body;
     const user = await User.findOne({ email });
-
     if (!user || user.password !== currentPassword) {
         return res.status(401).json({ message: 'Invalid current password!' });
     }
-
     user.password = newPassword;
     await user.save();
-
     res.json({ message: 'Password changed successfully!' });
 });
 
-// Password Reset Request Route
+// Reset Password
 app.post('/reset-password', async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found!' });
 
-    if (!user) {
-        return res.status(404).json({ message: 'User not found!' });
-    }
-
-    // Generate a random password
-    const newPassword = randomstring.generate({
-        length: 8, // Password length
-        charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', // Password containing numbers and letters
-    });
-
-    // Update the user's password with the generated random password
+    const newPassword = randomstring.generate({ length: 8, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' });
     user.password = newPassword;
     await user.save();
 
-    // Configure Mailtrap transporter
     const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.GOOGLE_EMAIL,
-            pass: process.env.GOOGLE_PASS,
-        },
+        service: "Gmail", host: "smtp.gmail.com", port: 465, secure: true,
+        auth: { user: process.env.GOOGLE_EMAIL, pass: process.env.GOOGLE_PASS },
     });
 
     const mailOptions = {
-        from: process.env.GOOGLE_EMAIL, // Sender email
-        to: email, // Recipient email
-        subject: 'Your New Password',
-        text: `Your new password is: ${newPassword}. Use this password to log in to the system.`,
+        from: process.env.GOOGLE_EMAIL, to: email,
+        subject: 'Your New Password', text: `Your new password is: ${newPassword}. Use this password to log in to the system.`
     };
 
     try {
@@ -489,7 +335,6 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
-// Start the server
 const port = 5001;
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
