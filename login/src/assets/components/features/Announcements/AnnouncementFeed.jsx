@@ -76,10 +76,10 @@ const AnnouncementFeed = ({
                                             <FaUserCircle /> {ann.uploadedBy?.username} 
                                             <span className="dc-role-badge">{ann.uploadedBy?.role}</span>
                                         </div>
-                                        {ann.filePath && (
-                                            <button 
-                                                className="dc-pdf-btn" 
-                                                onClick={(e) => onPdfClick(ann.filePath, e)}
+                                        {ann.fileId?.filePath && (
+                                            <button
+                                                className="dc-pdf-btn"
+                                                onClick={(e) => onPdfClick(ann.fileId.filePath, e)}
                                             >
                                                 <FaFilePdf /> View PDF
                                             </button>

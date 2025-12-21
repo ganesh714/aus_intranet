@@ -7,6 +7,7 @@ const randomstring = require('randomstring');
 const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
+const File = require('./models/File');
 const Announcement = require('./models/Announcement'); 
 
 const app = express();
@@ -209,23 +210,40 @@ app.get('/get-announcements', async (req, res) => {
     const { role, subRole, email } = req.query;
     try {
         const orConditions = [];
-        if (email) orConditions.push({ 'uploadedBy.email': email });
+
+        // 1. Fetch my own uploaded announcements (so I can see what I sent)
+        if (email) {
+            orConditions.push({ 'uploadedBy.email': email });
+        }
         
+        // 2. Fetch announcements targeting ME (My Role & My Dept)
         if (role) {
             if (subRole && subRole !== 'null') {
                 orConditions.push(
+                    // Targeted specifically to my Role & Dept (e.g., Student - CSE)
                     { 'targetAudience.role': role, 'targetAudience.subRole': subRole },
+                    // Targeted to my Role generally (e.g., Student - All)
                     { 'targetAudience.role': role, 'targetAudience.subRole': 'All' }
                 );
             } else {
+                // If I have no subRole, just check my main role
                 orConditions.push({ 'targetAudience.role': role });
             }
         }
 
+        // --- THE FIX: ALWAYS FETCH GLOBAL ANNOUNCEMENTS ---
+        // This ensures announcements sent to "All" (by DyPC/Leadership) are seen by everyone.
+        orConditions.push({ 'targetAudience.role': 'All' });
+
         if (orConditions.length === 0) return res.json({ announcements: [] });
 
         const query = { $or: orConditions };
-        const announcements = await Announcement.find(query);
+
+        // Ensure you use .populate() if you are using the new File schema
+        const announcements = await Announcement.find(query)
+            .populate('fileId') 
+            .sort({ uploadedAt: -1 });
+
         res.json({ announcements });
     } catch (error) {
         console.error('Error fetching announcements:', error);
@@ -237,11 +255,39 @@ app.get('/get-announcements', async (req, res) => {
 app.post('/add-announcement', upload.single('file'), async (req, res) => {
     const { title, description, targetRole, targetSubRole } = req.body;
     const user = JSON.parse(req.body.user);
-    const filePath = req.file ? req.file.path.replace(/\\/g, '/') : null;
+    
+    let savedFileId = null;
 
+    // 1. If a physical file was uploaded, create a File entry first
+    if (req.file) {
+        const newFile = new File({
+            fileName: req.file.originalname,
+            filePath: req.file.path.replace(/\\/g, '/'),
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+            uploadedBy: {
+                username: user.username,
+                email: user.email,
+                role: user.role
+            },
+            usage: { isAnnouncement: true } // Flag this as an announcement file
+        });
+        
+        const savedFile = await newFile.save();
+        savedFileId = savedFile._id; // Capture the ID
+    }
+
+    // 2. Create the Announcement referencing the File ID
     const newAnnouncement = new Announcement({
-        title, description, filePath: filePath,
-        uploadedBy: { username: user.username, email: user.email, role: user.role, subRole: user.subRole },
+        title, 
+        description, 
+        fileId: savedFileId, // Link via ID, not path
+        uploadedBy: { 
+            username: user.username, 
+            email: user.email, 
+            role: user.role, 
+            subRole: user.subRole 
+        },
         targetAudience: { role: targetRole, subRole: targetSubRole }
     });
 
@@ -249,6 +295,7 @@ app.post('/add-announcement', upload.single('file'), async (req, res) => {
         await newAnnouncement.save();
         res.status(200).json({ message: 'Announcement uploaded successfully!', announcement: newAnnouncement });
     } catch (error) {
+        console.error("Upload Error", error);
         res.status(500).json({ message: 'Error uploading announcement', error });
     }
 });
@@ -294,6 +341,7 @@ app.delete('/delete-pdf/:id', async (req, res) => {
         res.status(500).json({ message: 'Error deleting PDF!', error });
     }
 });
+
 
 // Change Password
 app.post('/change-password', async (req, res) => {
