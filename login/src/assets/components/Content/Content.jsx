@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Content.css"; // Ensure this file exists and contains all your styles
+import "./Content.css"; 
 
 // Import Feature Components
 import Sidebar from "../features/Sidebar/Sidebar";
@@ -48,7 +48,7 @@ const Content = () => {
         'HOD':     ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
         'Dean':    ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
         'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
-        'Officers':  ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
+        'Leadership': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
         'Admin':     ['All'], 
         'All':       ['All']
     };
@@ -59,8 +59,8 @@ const Content = () => {
             case 'HOD': return ['Student', 'Faculty'];
             case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
             case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
-            case 'Officers':
-            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'];
+            case 'Leadership':
+            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Leadership'];
             default: return ['All'];
         }
     };
@@ -80,14 +80,14 @@ const Content = () => {
         if (category.includes('HOD')) return 'HOD';
         if (category.includes('Asso.Dean')) return 'Asso.Dean';
         if (category.includes('Dean')) return 'Dean'; 
-        if (category.includes('University')) return 'Officers'; 
+        if (category.includes('University')) return 'Leadership'; 
         return userRole; 
     };
 
     // Fetch General Announcements
     const fetchGeneralAnnouncements = async () => {
         try {
-            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
+            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Leadership', 'Admin'].includes(userRole);
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
             
@@ -133,11 +133,11 @@ const Content = () => {
 
                     const ensureCategory = (cat) => { if (!groupedPdfs[cat]) groupedPdfs[cat] = []; };
                     
-                    if (userRole === 'Officers') ensureCategory("University related");
-                    if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
-                    if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
-                    if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
+                    if (userRole === 'Leadership') ensureCategory("University related");
+                    if (['Dean', 'Leadership'].includes(userRole)) ensureCategory("Dean's related");
+                    if (['Asso.Dean', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    if (['HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("HOD's related");
+                    if (['Faculty', 'HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory('Faculty related');
                     
                     if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                         ensureCategory('Teaching Material');

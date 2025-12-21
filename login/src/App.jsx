@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HodPage from "./assets/components/HodPage/Hod";
 import DeanPage from "./assets/components/DeanPage/Dean";
-import OfficersPage from "./assets/components/OfficersPage/Officers";
+import LeadershipPage from "./assets/components/LeadershipPage/Leadership"; // Note: You should rename the file 'Officers.jsx' to 'Leadership.jsx' eventually
 import Adminpage from "./assets/components/Admin/Admin";
 import Adeanpage from "./assets/components/Asso.Deanpage/AssoDean";
 import Homepage from "./assets/components/Home-page/Homepage";
@@ -55,8 +55,8 @@ const App = () => {
         <Route path='/dean-page' element={<DeanPage />} />
       )}
 
-      {isLoggedIn && userRole === 'Officers' && (
-        <Route path='/officers-page' element={<OfficersPage />} />
+      {isLoggedIn && userRole === 'Leadership' && (
+        <Route path='/leadership-page' element={<LeadershipPage />} />
       )}
 
       {isLoggedIn && userRole === 'Admin' && (

@@ -19,16 +19,10 @@ const Add = () => {
     const userRole = sessionStorage.getItem('userRole');
     const usersubRole = sessionStorage.getItem('usersubRole');  // Assuming subRole is stored in session storage
 
-
-
     const fetchCategories = async () => {
         const userRole = sessionStorage.getItem('userRole');
         const usersubRole = sessionStorage.getItem('usersubRole');
 
-        const departmentCategory = `Department ${usersubRole} related`;
-
-
-        // const departmentCategory= `Department ${subRole} related`;
         // Fetch categories with role and subRole filters
         const url = `http://localhost:5001/get-pdfs?role=${userRole}&subRole=${usersubRole}`;
         const response = await fetch(url);
@@ -37,12 +31,9 @@ const Add = () => {
         // Extract unique categories from the filtered PDFs
         const uniqueCategories = [...new Set(data.pdfs.map(pdf => pdf.category))];
 
-
-
         // If the user is an Admin, modify the categories as per the logic
-        // If the user is an Admin, modify the categories as per the logic
-        if (userRole === 'Admin' || userRole === 'Officers') {
-            // Admin can modify categories, so add roles-specific categories if they are not already included
+        if (userRole === 'Admin' || userRole === 'Leadership') {
+            // Admin/Leadership can modify categories
             if (!uniqueCategories.includes("University related")) {
                 uniqueCategories.push("University related");
             }
@@ -74,9 +65,7 @@ const Add = () => {
             });
 
         } else if (userRole === 'Asso.Dean') {
-            // Dean can modify 'Dean's related', 'HOD's related', and 'Faculty related'
             const deanCategories = ["Asso.Dean's related", "HOD's related", "Faculty related"];
-
             deanCategories.forEach(category => {
                 if (!uniqueCategories.includes(category)) {
                     uniqueCategories.push(category);
@@ -93,15 +82,12 @@ const Add = () => {
                 }
             });
         } else {
-            // If the user is not Admin, exclude the specific categories for Admin and other roles
+            // If the user is not Admin/Leadership, exclude the specific categories
             const adminCategories = ["University related", "Dean's related","Asso.Dean's related", "HOD's related", "Faculty related"];
             const filteredCategories = uniqueCategories.filter(category => !adminCategories.includes(category));
-            setCategories(filteredCategories); // Only set categories that are not admin-related
+            setCategories(filteredCategories);
             return;
         }
-
-        // Set categories for both Admin and other roles, but other roles cannot modify
-
 
         if (userRole !== 'HOD') {
             const filtered = uniqueCategories.filter(category => category !== "Dept.Equipment");
@@ -110,10 +96,7 @@ const Add = () => {
         }
 
         setCategories(uniqueCategories);
-
     };
-
-
 
     const fetchFiles = async () => {
         if (!selectedOption2) return;
@@ -147,8 +130,6 @@ const Add = () => {
         }
     };
 
-
-
     const handleDeletePdf = async (pdfId) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this file?');
         if (!confirmDelete) return;
@@ -173,7 +154,6 @@ const Add = () => {
 
     // Update fileInputs when numOfFiles changes
     useEffect(() => {
-        // Initialize fileInputs array when numOfFiles is updated
         setFileInputs(Array.from({ length: numOfFiles }).map(() => ({ fileName: '', file: null })));
     }, [numOfFiles]);
 
@@ -186,7 +166,6 @@ const Add = () => {
             fetchFiles();
         }
     }, [selectedOption1, selectedOption2]);
-
 
     // Validate and submit form
     const handleSubmit = async (event) => {
@@ -244,7 +223,7 @@ const Add = () => {
                 setErrors({});
                 setSelectedSubCategory('');  // Reset sub-category on successful upload
                 alert('Successfully uploaded files');
-                navigate('/home-page'); // Navigate to the home page after successful upload
+                navigate('/home-page'); 
             } else {
                 alert(data.message || 'Error uploading files');
             }
