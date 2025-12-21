@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Content.css";
-import { MdDashboard, MdCampaign } from 'react-icons/md';
-import { FaFilePdf, FaFolder, FaBullhorn, FaSearch, FaArrowLeft, FaChevronRight, FaTimes, FaUserCircle, FaCalendarAlt } from 'react-icons/fa';
+import "./Content.css"; // Ensure this file exists and contains all your styles
+
+// Import Feature Components
+import Sidebar from "../features/Sidebar/Sidebar";
+import AnnouncementForm from "../features/Announcements/AnnouncementForm";
+import AnnouncementFeed from "../features/Announcements/AnnouncementFeed";
+import DocumentView from "../features/Documents/DocumentView";
+import PdfViewer from "../features/Documents/PdfViewer";
 
 const Content = () => {
+    // --- STATE MANAGEMENT ---
     const [selectedPdf, setSelectedPdf] = useState(null);
     const [pdfLinks, setPdfLinks] = useState([]);
     const [selectedCategoryPdfs, setSelectedCategoryPdfs] = useState([]);
@@ -35,6 +41,7 @@ const Content = () => {
     const userEmail = sessionStorage.getItem('userEmail');
     const userSubRole = sessionStorage.getItem('usersubRole');
 
+    // --- CONFIGURATION / CONSTANTS ---
     const subRolesMapping = {
         'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
         'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
@@ -60,6 +67,7 @@ const Content = () => {
 
     const roleOptions = getTargetRoles();
 
+    // --- EFFECTS ---
     useEffect(() => {
         if (roleOptions.length > 0 && !announceForm.targetRole) {
             setAnnounceForm(prev => ({ ...prev, targetRole: roleOptions[0] }));
@@ -76,6 +84,7 @@ const Content = () => {
         return userRole; 
     };
 
+    // Fetch General Announcements
     const fetchGeneralAnnouncements = async () => {
         try {
             const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
@@ -105,6 +114,7 @@ const Content = () => {
         }
     }, [deptFilter, currentViewCategory, type]);
 
+    // Fetch PDFs
     useEffect(() => {
         const fetchPdfs = async () => {
             try {
@@ -126,12 +136,9 @@ const Content = () => {
                     if (userRole === 'Officers') ensureCategory("University related");
                     if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
                     if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    
-                    // Logic updated to hide these from Student
                     if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
                     if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
                     
-                    // Student, Faculty, HOD see these
                     if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                         ensureCategory('Teaching Material');
                         ensureCategory('Time Table'); 
@@ -168,6 +175,7 @@ const Content = () => {
         fetchPdfs();
     }, [userRole]);
 
+    // Fetch My Announcements
     const fetchMyAnnouncements = async () => {
         try {
             const response = await axios.get('http://localhost:5001/get-announcements', {
@@ -185,6 +193,7 @@ const Content = () => {
         }
     };
 
+    // Close PDF on Escape
     useEffect(() => {
         const handleEsc = (event) => {
             if (event.key === 'Escape') {
@@ -194,6 +203,8 @@ const Content = () => {
         if (selectedPdf) window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
     }, [selectedPdf]);
+
+    // --- EVENT HANDLERS ---
 
     const handlePdfClick = (pdfPath, event) => {
         if(event) event.preventDefault();
@@ -226,10 +237,9 @@ const Content = () => {
         fetchMyAnnouncements();
     };
 
-    // --- NEW HANDLER FOR STUDENT ANNOUNCEMENTS ---
     const handleViewAnnouncementsClick = () => {
         settype('Announcements');
-        setCurrentViewCategory(null); // Shows announcements targeted to the user's role
+        setCurrentViewCategory(null); 
         setIsSearchVisible(true);
         setNoResults(false);
         setShowDocuments(true);
@@ -322,61 +332,20 @@ const Content = () => {
 
     return (
         <div className="content-wrapper">
-            <div className="sidebar">
-                <h3 className="sidebar-header">Menu</h3>
-                <div className="category-list">
-                    <div className={`category-item ${showContentP ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={handleDashboardClick}>
-                            <span className="cat-name">
-                                <MdDashboard className="cat-icon"/> Dashboard
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* HIDE SEND ANNOUNCEMENT FOR STUDENTS */}
-                    {userRole !== 'Student' && (
-                        <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={handleSendAnnounceClick}>
-                                <span className="cat-name">
-                                    <MdCampaign className="cat-icon"/> Send Announcements
-                                </span>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* NEW: VIEW ANNOUNCEMENTS FOR STUDENTS */}
-                    {userRole === 'Student' && (
-                        <div className={`category-item ${type === 'Announcements' ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={handleViewAnnouncementsClick}>
-                                <span className="cat-name">
-                                    <FaBullhorn className="cat-icon"/> Announcements
-                                </span>
-                            </div>
-                        </div>
-                    )}
-
-                    {pdfLinks.map((category, index) => (
-                        <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={() => toggleCategory(category.category)}>
-                                <span className="cat-name"><FaFolder className="cat-icon"/> {category.category}</span>
-                                <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`}/>
-                            </div>
-                            
-                            <div className="subcategory-list">
-                                {[...new Set(category.items.map(item => item.subcategory))]
-                                    .filter(subCat => !(
-                                        ["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table"].includes(category.category) && subCat === "Announcements"
-                                    ))
-                                    .map((subCat) => (
-                                        <button key={subCat} className="subcat-btn" onClick={() => handleSubCategoryClick(category.items, subCat, category.category)}>
-                                            {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
-                                        </button>
-                                    ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            {/* Sidebar Feature */}
+            <Sidebar 
+                userRole={userRole}
+                pdfLinks={pdfLinks}
+                activeCategory={activeCategory}
+                showContentP={showContentP}
+                showSendAnnounce={showSendAnnounce}
+                type={type}
+                onDashboardClick={handleDashboardClick}
+                onSendAnnounceClick={handleSendAnnounceClick}
+                onViewAnnouncementsClick={handleViewAnnouncementsClick}
+                onToggleCategory={toggleCategory}
+                onSubCategoryClick={handleSubCategoryClick}
+            />
 
             <div className="main-area">
                 {showContentP ? (
@@ -389,177 +358,45 @@ const Content = () => {
                         </p>
                     </div>
                 ) : showSendAnnounce ? (
-                    <div className="announce-container">
-                        <h2>Send New Announcement</h2>
-                        <form className="announce-form" onSubmit={handleFormSubmit}>
-                            <div className="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" value={announceForm.title} onChange={handleFormChange} required placeholder="Enter announcement title"/>
-                            </div>
-                            <div className="form-group">
-                                <label>Description</label>
-                                <textarea name="description" value={announceForm.description} onChange={handleFormChange} required rows="4"/>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group half">
-                                    <label>Target Role</label>
-                                    <select name="targetRole" value={announceForm.targetRole} onChange={handleFormChange}>
-                                        {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-group half">
-                                    <label>Target Department</label>
-                                    <select name="targetSubRole" value={announceForm.targetSubRole} onChange={handleFormChange}>
-                                        {(subRolesMapping[announceForm.targetRole] || ['All']).map((sr, i) => (
-                                            <option key={i} value={sr}>{sr}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Attachment (Optional)</label>
-                                <input type="file" onChange={handleFileChange} />
-                            </div>
-                            <button type="submit" className="send-btn">Send Announcement</button>
-                        </form>
-
-                        <div className="my-announcements-section">
-                            <h3>Announcements Sent By Me</h3>
-                            {myAnnouncements.length === 0 ? <p className="no-data">No history.</p> : (
-                                <div className="announcement-list">
-                                    {myAnnouncements.map((item, index) => (
-                                        <div key={index} className="announcement-card">
-                                            <div className="ac-header">
-                                                <h4>{item.title}</h4>
-                                                <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
-                                            </div>
-                                            <p className="ac-desc">{item.description}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    /* Announcement Form Feature */
+                    <AnnouncementForm 
+                        formData={announceForm}
+                        roleOptions={roleOptions}
+                        subRolesMapping={subRolesMapping}
+                        myAnnouncements={myAnnouncements}
+                        onChange={handleFormChange}
+                        onFileChange={handleFileChange}
+                        onSubmit={handleFormSubmit}
+                    />
                 ) : isSearchVisible ? (
-                    <div className="results-container">
-                        <div className="search-header">
-                            <h2>{type}</h2>
-                            {type === 'Announcements' && ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole) && (
-                                <div className="search-input-wrapper" style={{ width: '200px' }}>
-                                    <select 
-                                        className="modern-search" 
-                                        style={{ padding: '10px', paddingLeft: '15px' }}
-                                        value={deptFilter}
-                                        onChange={(e) => setDeptFilter(e.target.value)}
-                                    >
-                                        <option value="All">All Departments</option>
-                                        {subRolesMapping['Faculty']?.filter(r => r !== 'All').map((dept, i) => (
-                                            <option key={i} value={dept}>{dept}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
-
-                            {type !== 'Announcements' && (
-                                <div className="search-input-wrapper">
-                                    <FaSearch className="search-icon"/>
-                                    <input
-                                        type="text"
-                                        placeholder={`Search ${type}...`}
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="modern-search"
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        {type === 'Announcements' ? (
-                            <div className="general-announcements-wrapper">
-                                {generalAnnouncements.length > 0 && (
-                                    <div className="tickers-group">
-                                        <div className="ticker-label-static" style={{fontWeight:'bold', marginBottom:'10px', color:'#F97316'}}><FaBullhorn /> Recent Updates:</div>
-                                        {generalAnnouncements.slice(0, 5).map((ann, index) => (
-                                            <div key={index} className="announcement-ticker-container" style={{ marginBottom: '10px' }}>
-                                                <div className="ticker-track-wrapper">
-                                                    <div className="ticker-track">
-                                                        <span className="ticker-item">
-                                                            {ann.title} - <span style={{fontSize:'0.9em', opacity:0.8}}>{new Date(ann.uploadedAt).toLocaleDateString()}</span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="all-announcements-grid">
-                                    {generalAnnouncements.length === 0 ? (
-                                        <p className="no-data">No announcements found matching filter.</p>
-                                    ) : (
-                                        generalAnnouncements.map((ann) => (
-                                            <div key={ann._id} className="detail-card">
-                                                <div className="dc-left">
-                                                    <div className="dc-icon"><FaBullhorn /></div>
-                                                </div>
-                                                <div className="dc-content">
-                                                    <div className="dc-header">
-                                                        <h3 className="dc-title">{ann.title}</h3>
-                                                        <span className="dc-date">
-                                                            <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString()}
-                                                        </span>
-                                                    </div>
-                                                    <p className="dc-description">{ann.description}</p>
-                                                    <div className="dc-footer">
-                                                        <div className="dc-author">
-                                                            <FaUserCircle /> {ann.uploadedBy?.username} 
-                                                            <span className="dc-role-badge">{ann.uploadedBy?.role}</span>
-                                                        </div>
-                                                        {ann.filePath && (
-                                                            <button 
-                                                                className="dc-pdf-btn" 
-                                                                onClick={(e) => handlePdfClick(ann.filePath, e)}
-                                                            >
-                                                                <FaFilePdf /> View PDF
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="items-grid">
-                                {filteredPdfs.length > 0 ? (
-                                    filteredPdfs.map((item, index) => (
-                                        <div key={index} className="doc-card" onClick={(event) => item.filePath && handlePdfClick(item.filePath, event)}>
-                                            <div className="doc-icon-box"><FaFilePdf /></div>
-                                            <div className="doc-info">
-                                                <span className="doc-title">{item.name}</span>
-                                                {item.filePath && <span className="click-hint">Click to view</span>}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : <div className="no-results">No results found</div>}
-                            </div>
-                        )}
-                    </div>
+                    /* Render either Announcements Feed or Document Grid */
+                    type === 'Announcements' ? (
+                        <AnnouncementFeed 
+                            announcements={generalAnnouncements}
+                            deptFilter={deptFilter}
+                            setDeptFilter={setDeptFilter}
+                            userRole={userRole}
+                            subRolesMapping={subRolesMapping}
+                            onPdfClick={handlePdfClick}
+                        />
+                    ) : (
+                        <DocumentView 
+                            type={type}
+                            documents={filteredPdfs}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            onPdfClick={handlePdfClick}
+                        />
+                    )
                 ) : null}
             </div>
 
+            {/* PDF Viewer Feature */}
             {selectedPdf && (
-                <div className="pdf-modal">
-                    <div className="pdf-container">
-                        <div className="pdf-header-bar">
-                            <button className="close-pdf-btn" onClick={handleBackClick}><FaArrowLeft /> Back</button>
-                            <button className="close-icon-btn" onClick={handleBackClick}><FaTimes /></button>
-                        </div>
-                        <object data={selectedPdf} type="application/pdf" className="pdf-object">
-                            <p>Your browser doesn't support viewing PDFs.</p>
-                        </object>
-                    </div>
-                </div>
+                <PdfViewer 
+                    fileUrl={selectedPdf} 
+                    onClose={handleBackClick} 
+                />
             )}
         </div>
     );

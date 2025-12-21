@@ -1,0 +1,138 @@
+/* src/assets/components/features/Documents/Documents.css */
+
+/* --- Document Cards --- */
+.doc-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e5e7eb;
+}
+
+.doc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    border-color: var(--primary-orange);
+}
+
+.doc-icon-box {
+    font-size: 32px;
+    color: #ef4444; 
+    margin-bottom: 10px;
+    background-color: #fee2e2;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.doc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.doc-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 15px;
+    word-break: break-word;
+}
+
+.click-hint {
+    font-size: 12px;
+    color: var(--primary-orange);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.doc-card:hover .click-hint {
+    opacity: 1;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.no-results {
+    color: #6b7280;
+    font-style: italic;
+    grid-column: 1 / -1;
+}
+
+/* --- PDF Viewer Modal --- */
+.pdf-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pdf-container {
+    width: 90%;
+    height: 90%;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.pdf-header-bar {
+    padding: 10px 20px;
+    background-color: #374151;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-pdf-btn {
+    background-color: var(--primary-orange);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.close-pdf-btn:hover {
+    background-color: #ea580c;
+}
+
+.close-icon-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.close-icon-btn:hover {
+    color: white;
+}
+
+.pdf-object {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+}
