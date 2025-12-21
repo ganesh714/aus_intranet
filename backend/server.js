@@ -342,6 +342,57 @@ app.delete('/delete-pdf/:id', async (req, res) => {
     }
 });
 
+// 1. Get Personal Files
+app.get('/get-personal-files', async (req, res) => {
+    const { email } = req.query;
+    try {
+        // Fetch files where the user is the owner AND isPersonal flag is true
+        const files = await File.find({
+            "uploadedBy.email": email,
+            "usage.isPersonal": true
+        }).sort({ uploadedAt: -1 });
+        
+        res.json({ files });
+    } catch (error) {
+        console.error("Error fetching personal files:", error);
+        res.status(500).json({ message: "Error fetching personal files", error });
+    }
+});
+
+// 2. Upload to Personal Data
+app.post('/upload-personal-file', upload.array('file', 10), async (req, res) => {
+    try {
+        const user = JSON.parse(req.body.user);
+        const names = Array.isArray(req.body.name) ? req.body.name : [req.body.name];
+        const files = req.files;
+
+        if (!files || files.length === 0) {
+            return res.status(400).json({ message: 'No files uploaded!' });
+        }
+
+        const savedFiles = await Promise.all(files.map(async (file, index) => {
+            const newFile = new File({
+                fileName: names[index] || file.originalname, // Use provided name or original
+                filePath: file.path.replace(/\\/g, '/'),
+                fileType: file.mimetype,
+                fileSize: file.size,
+                uploadedBy: {
+                    username: user.username,
+                    email: user.email,
+                    role: user.role
+                },
+                // CRITICAL: Set the Personal flag to true
+                usage: { isPersonal: true } 
+            });
+            return await newFile.save();
+        }));
+
+        res.json({ message: "Files saved to My Data successfully!", files: savedFiles });
+    } catch (error) {
+        console.error("Error uploading personal files:", error);
+        res.status(500).json({ message: "Error uploading files", error });
+    }
+});
 
 // Change Password
 app.post('/change-password', async (req, res) => {

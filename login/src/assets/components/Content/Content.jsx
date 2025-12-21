@@ -7,7 +7,7 @@ import Sidebar from "../features/Sidebar/Sidebar";
 import AnnouncementForm from "../features/Announcements/AnnouncementForm";
 import AnnouncementFeed from "../features/Announcements/AnnouncementFeed";
 import DocumentView from "../features/Documents/DocumentView";
-import PdfViewer from "../features/Documents/PdfViewer";
+import PdfViewer from "../features/Documents/PdfViewer"; 
 
 const Content = () => {
     // --- STATE MANAGEMENT ---
@@ -36,6 +36,9 @@ const Content = () => {
         targetSubRole: 'All',
         file: null
     });
+    const [personalFiles, setPersonalFiles] = useState([]);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [uploadFile, setUploadFile] = useState(null);
 
     const userRole = sessionStorage.getItem('userRole');
     const userEmail = sessionStorage.getItem('userEmail');
@@ -193,6 +196,23 @@ const Content = () => {
         }
     };
 
+    const fetchPersonalFiles = async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/get-personal-files', {
+                params: { email: userEmail }
+            });
+            // Ensure compatibility with DocumentView
+            const mapped = response.data.files.map(f => ({
+                ...f, 
+                name: f.fileName, // Map fileName to name
+                filePath: f.filePath // Ensure path is available
+            }));
+            setPersonalFiles(mapped);
+        } catch (error) {
+            console.error("Error fetching personal data", error);
+        }
+    };
+
     // Close PDF on Escape
     useEffect(() => {
         const handleEsc = (event) => {
@@ -224,6 +244,34 @@ const Content = () => {
         setCurrentViewCategory(null);
         settype(null);
         setShowSendAnnounce(false);
+    };
+
+    const handlePersonalDataClick = async () => {
+        settype('Personal Data');
+        setCurrentViewCategory('Personal Data');
+        setIsSearchVisible(true);
+        setNoResults(false);
+        setShowDocuments(true);
+        setShowContentP(false);
+        setShowSendAnnounce(false);
+        setActiveCategory(null);
+        fetchPersonalFiles();
+
+        try {
+            const response = await axios.get('http://localhost:5001/get-personal-files', {
+                params: { email: userEmail }
+            });
+            
+            // Map 'fileName' (from File model) to 'name' (expected by DocumentView)
+            const mappedFiles = response.data.files.map(f => ({
+                ...f,
+                name: f.fileName // Mapping for compatibility
+            }));
+            
+            setPersonalFiles(mappedFiles);
+        } catch (error) {
+            console.error("Error fetching personal data", error);
+        }
     };
 
     const handleSendAnnounceClick = () => {
@@ -266,6 +314,30 @@ const Content = () => {
              setShowDocuments(true);
              setShowContentP(false);
              setShowSendAnnounce(false);
+        }
+    };
+
+    const handleSimpleUpload = async (e) => {
+        e.preventDefault();
+        if (!uploadFile) return alert("Please select a file first");
+
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('user', JSON.stringify({
+            username: sessionStorage.getItem('username'),
+            email: userEmail,
+            role: userRole
+        }));
+
+        try {
+            await axios.post('http://localhost:5001/upload-personal-file', formData);
+            alert("File uploaded successfully!");
+            setIsUploadModalOpen(false);
+            setUploadFile(null);
+            fetchPersonalFiles(); // Refresh list immediately
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert("Failed to upload file");
         }
     };
 
@@ -332,7 +404,6 @@ const Content = () => {
 
     return (
         <div className="content-wrapper">
-            {/* Sidebar Feature */}
             <Sidebar 
                 userRole={userRole}
                 pdfLinks={pdfLinks}
@@ -343,6 +414,7 @@ const Content = () => {
                 onDashboardClick={handleDashboardClick}
                 onSendAnnounceClick={handleSendAnnounceClick}
                 onViewAnnouncementsClick={handleViewAnnouncementsClick}
+                onPersonalDataClick={handlePersonalDataClick} // <--- Pass new handler
                 onToggleCategory={toggleCategory}
                 onSubCategoryClick={handleSubCategoryClick}
             />
@@ -353,12 +425,9 @@ const Content = () => {
                         <h2>Welcome to Aditya University Intranet</h2>
                         <p>Select a category from the menu to view documents or announcements.</p>
                         <hr />
-                        <p className="university-desc">
-                            Aditya University is a State Private University...
-                        </p>
+                        <p className="university-desc">Aditya University is a State Private University...</p>
                     </div>
                 ) : showSendAnnounce ? (
-                    /* Announcement Form Feature */
                     <AnnouncementForm 
                         formData={announceForm}
                         roleOptions={roleOptions}
@@ -369,7 +438,6 @@ const Content = () => {
                         onSubmit={handleFormSubmit}
                     />
                 ) : isSearchVisible ? (
-                    /* Render either Announcements Feed or Document Grid */
                     type === 'Announcements' ? (
                         <AnnouncementFeed 
                             announcements={generalAnnouncements}
@@ -380,23 +448,48 @@ const Content = () => {
                             onPdfClick={handlePdfClick}
                         />
                     ) : (
+                        /* Document View with Conditional Data Source */
                         <DocumentView 
                             type={type}
-                            documents={filteredPdfs}
+                            /* Switch data source based on type */
+                            documents={type === 'Personal Data' 
+                                ? personalFiles.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) 
+                                : filteredPdfs
+                            }
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
                             onPdfClick={handlePdfClick}
+                            /* Pass upload handler ONLY for Personal Data */
+                            onUploadClick={type === 'Personal Data' ? () => setIsUploadModalOpen(true) : null}
                         />
                     )
                 ) : null}
             </div>
 
+            {/* Simple Upload Modal */}
+            {isUploadModalOpen && (
+                <div className="upload-modal-overlay">
+                    <div className="upload-modal">
+                        <h3>Upload to My Data</h3>
+                        <form onSubmit={handleSimpleUpload}>
+                            <input 
+                                type="file" 
+                                className="modal-file-input"
+                                onChange={(e) => setUploadFile(e.target.files[0])}
+                                required
+                            />
+                            <div className="modal-actions">
+                                <button type="button" className="modal-btn close-btn" onClick={() => setIsUploadModalOpen(false)}>Cancel</button>
+                                <button type="submit" className="modal-btn submit-btn">Upload</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* PDF Viewer Feature */}
             {selectedPdf && (
-                <PdfViewer 
-                    fileUrl={selectedPdf} 
-                    onClose={handleBackClick} 
-                />
+                <PdfViewer fileUrl={selectedPdf} onClose={handleBackClick} />
             )}
         </div>
     );

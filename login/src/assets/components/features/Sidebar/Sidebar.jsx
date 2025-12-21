@@ -13,6 +13,7 @@ const Sidebar = ({
     onDashboardClick, 
     onSendAnnounceClick, 
     onViewAnnouncementsClick,
+    onPersonalDataClick,
     onToggleCategory, 
     onSubCategoryClick 
 }) => {
@@ -28,6 +29,16 @@ const Sidebar = ({
                         </span>
                     </div>
                 </div>
+                {/* My Data (Personal Data) - Not for Students */}
+                {userRole !== 'Student' && (
+                    <div className={`category-item ${type === 'Personal Data' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={onPersonalDataClick}>
+                            <span className="cat-name">
+                                <FaFolder className="cat-icon"/> My Data
+                            </span>
+                        </div>
+                    </div>
+                )}
 
                 {/* Send Announcements (Not for Students) */}
                 {userRole !== 'Student' && (

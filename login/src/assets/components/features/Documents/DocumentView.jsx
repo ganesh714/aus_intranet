@@ -1,18 +1,28 @@
 import React from 'react';
 import './Documents.css';
-import { FaSearch, FaFilePdf } from 'react-icons/fa';
+import { FaSearch, FaFilePdf, FaCloudUploadAlt } from 'react-icons/fa'; // Added Upload Icon
 
 const DocumentView = ({ 
     type, 
     documents, 
     searchQuery, 
     setSearchQuery, 
-    onPdfClick 
+    onPdfClick,
+    onUploadClick // <--- NEW PROP: Function to handle upload click
 }) => {
     return (
         <div className="results-container">
             <div className="search-header">
-                <h2>{type}</h2>
+                <div className="header-left">
+                    <h2>{type}</h2>
+                    {/* Render Upload Button only if onUploadClick is provided */}
+                    {onUploadClick && (
+                        <button className="quick-upload-btn" onClick={onUploadClick}>
+                            <FaCloudUploadAlt /> Upload New
+                        </button>
+                    )}
+                </div>
+                
                 <div className="search-input-wrapper">
                     <FaSearch className="search-icon"/>
                     <input
@@ -28,11 +38,12 @@ const DocumentView = ({
             <div className="items-grid">
                 {documents.length > 0 ? (
                     documents.map((item, index) => (
-                        <div key={index} className="doc-card" onClick={(event) => item.filePath && onPdfClick(item.filePath, event)}>
+                        <div key={index} className="doc-card" onClick={(event) => (item.filePath || item.fileId?.filePath) && onPdfClick(item.filePath || item.fileId?.filePath, event)}>
                             <div className="doc-icon-box"><FaFilePdf /></div>
                             <div className="doc-info">
-                                <span className="doc-title">{item.name}</span>
-                                {item.filePath && <span className="click-hint">Click to view</span>}
+                                {/* Use optional chaining for safety */}
+                                <span className="doc-title">{item.name || item.fileName}</span>
+                                <span className="click-hint">Click to view</span>
                             </div>
                         </div>
                     ))
