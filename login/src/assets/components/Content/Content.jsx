@@ -1,233 +1,79 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./Content.css"; 
+import React, { useState } from "react";
+import "./Content.css";
 
-// Import Feature Components
+// Import Components
 import Sidebar from "../features/Sidebar/Sidebar";
-import AnnouncementForm from "../features/Announcements/AnnouncementForm";
-import AnnouncementFeed from "../features/Announcements/AnnouncementFeed";
-import DocumentView from "../features/Documents/DocumentView";
-import PdfViewer from "../features/Documents/PdfViewer"; 
+import Dashboard from "../features/Dashboard/Dashboard";
+import PersonalData from "../features/PersonalData/PersonalData";
+import AnnouncementManager from "../features/Announcements/AnnouncementManager";
+import CategoryViewer from "../features/Documents/CategoryViewer";
+import ResourceRepository from "../features/Documents/ResourceRepository";
+import PdfViewer from "../features/Documents/PdfViewer";
 
 const Content = () => {
-    // --- STATE MANAGEMENT ---
-    const [selectedPdf, setSelectedPdf] = useState(null);
-    const [pdfLinks, setPdfLinks] = useState([]);
-    const [selectedCategoryPdfs, setSelectedCategoryPdfs] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [noResults, setNoResults] = useState(false);
-    
-    const [activeCategory, setActiveCategory] = useState(null);
-    const [currentViewCategory, setCurrentViewCategory] = useState(null);
-    
-    const [showDocuments, setShowDocuments] = useState(false);
-    const [showContentP, setShowContentP] = useState(true);
-    const [type, settype] = useState();
-
-    const [deptFilter, setDeptFilter] = useState('All');
-    const [generalAnnouncements, setGeneralAnnouncements] = useState([]);
-    const [showSendAnnounce, setShowSendAnnounce] = useState(false);
-    const [myAnnouncements, setMyAnnouncements] = useState([]);
-    const [announceForm, setAnnounceForm] = useState({
-        title: '',
-        description: '',
-        targetRole: '', 
-        targetSubRole: 'All',
-        file: null
-    });
-    const [personalFiles, setPersonalFiles] = useState([]);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [uploadFile, setUploadFile] = useState(null);
-
+    // --- USER INFO ---
     const userRole = sessionStorage.getItem('userRole');
     const userEmail = sessionStorage.getItem('userEmail');
     const userSubRole = sessionStorage.getItem('usersubRole');
 
-    // --- CONFIGURATION / CONSTANTS ---
-    const subRolesMapping = {
-        'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'HOD':     ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Dean':    ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
-        'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
-        'Leadership': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
-        'Admin':     ['All'], 
-        'All':       ['All']
+    // --- STATE MANAGEMENT ---
+    const [selectedPdf, setSelectedPdf] = useState(null);
+    const [pdfLinks, setPdfLinks] = useState([]);
+    
+    // View State
+    const [activeView, setActiveView] = useState('dashboard');
+    const [viewParams, setViewParams] = useState({
+        category: null,
+        subCategory: null
+    });
+    const [deptFilter, setDeptFilter] = useState('All');
+
+    // Sidebar State (FIXED: This was missing)
+    const [activeCategory, setActiveCategory] = useState(null); 
+
+    // --- VIEW HANDLERS ---
+    const handleDashboardClick = () => {
+        setActiveView('dashboard');
+        setActiveCategory(null); // Optional: Close menus when going to dashboard
     };
 
-    const getTargetRoles = () => {
-        switch(userRole) {
-            case 'Faculty': return ['Student'];
-            case 'HOD': return ['Student', 'Faculty'];
-            case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
-            case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
-            case 'Leadership':
-            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Leadership'];
-            default: return ['All'];
-        }
+    const handlePersonalDataClick = () => {
+        setActiveView('personal-data');
     };
 
-    const roleOptions = getTargetRoles();
-
-    // --- EFFECTS ---
-    useEffect(() => {
-        if (roleOptions.length > 0 && !announceForm.targetRole) {
-            setAnnounceForm(prev => ({ ...prev, targetRole: roleOptions[0] }));
-        }
-    }, [roleOptions]);
-
-    const getRoleFromCategory = (category) => {
-        if (!category) return userRole; 
-        if (category.includes('Faculty')) return 'Faculty';
-        if (category.includes('HOD')) return 'HOD';
-        if (category.includes('Asso.Dean')) return 'Asso.Dean';
-        if (category.includes('Dean')) return 'Dean'; 
-        if (category.includes('University')) return 'Leadership'; 
-        return userRole; 
+    const handleSendAnnounceClick = () => {
+        setActiveView('announcements');
     };
 
-    // Fetch General Announcements
-    const fetchGeneralAnnouncements = async () => {
-        try {
-            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Leadership', 'Admin'].includes(userRole);
-            const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
-            let subRoleParam = userSubRole;
-            
-            if (isHighLevel && type === 'Announcements') {
-                subRoleParam = deptFilter;
-            }
+    const handleViewAnnouncementsClick = () => {
+        setActiveView('announcements-feed');
+    };
 
-            const response = await axios.get('http://localhost:5001/get-announcements', {
-                params: { role: roleParam, subRole: subRoleParam }
+    const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
+        if (subCategory === 'Announcements') {
+            setActiveView('announcements-feed');
+            // If viewing specific category announcements, you might want to filter them here
+            // But usually 'Announcements' in sidebar goes to general feed or category specific feed
+            // keeping it simple for now:
+             setViewParams({ category: categoryName, subCategory: 'Announcements' });
+        } else {
+            setActiveView('category');
+            setViewParams({
+                category: categoryName,
+                subCategory: subCategory
             });
-
-            if (response.data.announcements) {
-                const sorted = response.data.announcements.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-                setGeneralAnnouncements(sorted);
-            }
-        } catch (error) {
-            console.error("Error fetching general announcements", error);
         }
     };
 
-    useEffect(() => {
-        if (type === 'Announcements') {
-            fetchGeneralAnnouncements();
-        }
-    }, [deptFilter, currentViewCategory, type]);
-
-    // Fetch PDFs
-    useEffect(() => {
-        const fetchPdfs = async () => {
-            try {
-                const subRole = sessionStorage.getItem('usersubRole');
-                const queryParams = { role: userRole || '', subRole: subRole || '' };
-
-                const response = await axios.get('http://localhost:5001/get-pdfs', { params: queryParams });
-
-                if (response.data.pdfs) {
-                    const groupedPdfs = response.data.pdfs.reduce((acc, pdf) => {
-                        const { category } = pdf;
-                        if (!acc[category]) acc[category] = [];
-                        acc[category].push(pdf);
-                        return acc;
-                    }, {});
-
-                    const ensureCategory = (cat) => { if (!groupedPdfs[cat]) groupedPdfs[cat] = []; };
-                    
-                    if (userRole === 'Leadership') ensureCategory("University related");
-                    if (['Dean', 'Leadership'].includes(userRole)) ensureCategory("Dean's related");
-                    if (['Asso.Dean', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    if (['HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("HOD's related");
-                    if (['Faculty', 'HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory('Faculty related');
-                    
-                    if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
-                        ensureCategory('Teaching Material');
-                        ensureCategory('Time Table'); 
-                    }
-                     if (userRole === 'HOD' || userRole === 'Faculty') {
-                         ensureCategory('Staff Presentations');
-                    }
-
-                    if ((userRole === 'HOD' || userRole === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
-                        groupedPdfs['Dept.Equipment'] = [{
-                            name: 'No documents uploaded yet',
-                            category: 'Dept.Equipment',
-                            subcategory: 'Documents',
-                            filePath: null
-                        }];
-                    }
-
-                    let pdfCategories = Object.keys(groupedPdfs).map(category => {
-                        const items = groupedPdfs[category];
-                        const hasDocuments = items.some(item => item.subcategory === 'Documents');
-                        if (!hasDocuments) items.push({ name: 'No documents uploaded yet', category, subcategory: 'Documents', filePath: null });
-                        if (!items.some(i => i.subcategory === 'Announcements')) {
-                            items.push({ name: 'Placeholder', category, subcategory: 'Announcements', filePath: null });
-                        }
-                        return { category, items };
-                    });
-
-                    setPdfLinks(pdfCategories);
-                }
-            } catch (error) {
-                console.error('Error fetching PDFs:', error);
-            }
-        };
-        fetchPdfs();
-    }, [userRole]);
-
-    // Fetch My Announcements
-    const fetchMyAnnouncements = async () => {
-        try {
-            const response = await axios.get('http://localhost:5001/get-announcements', {
-                params: { role: userRole, subRole: userSubRole, email: userEmail }
-            });
-
-            if (response.data.announcements) {
-                const myUploads = response.data.announcements.filter(
-                    item => item.uploadedBy.email === userEmail
-                );
-                setMyAnnouncements(myUploads);
-            }
-        } catch (error) {
-            console.error("Error fetching my announcements", error);
-        }
+    // --- FIXED: Toggle Logic ---
+    const toggleCategory = (categoryName) => {
+        setActiveCategory(prev => prev === categoryName ? null : categoryName);
     };
-
-    const fetchPersonalFiles = async () => {
-        try {
-            const response = await axios.get('http://localhost:5001/get-personal-files', {
-                params: { email: userEmail }
-            });
-            // Ensure compatibility with DocumentView
-            const mapped = response.data.files.map(f => ({
-                ...f, 
-                name: f.fileName, // Map fileName to name
-                filePath: f.filePath // Ensure path is available
-            }));
-            setPersonalFiles(mapped);
-        } catch (error) {
-            console.error("Error fetching personal data", error);
-        }
-    };
-
-    // Close PDF on Escape
-    useEffect(() => {
-        const handleEsc = (event) => {
-            if (event.key === 'Escape') {
-                handleBackClick();
-            }
-        };
-        if (selectedPdf) window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [selectedPdf]);
-
-    // --- EVENT HANDLERS ---
 
     const handlePdfClick = (pdfPath, event) => {
-        if(event) event.preventDefault();
+        if (event) event.preventDefault();
+        if (!pdfPath) return;
+        
         const pdfUrl = `http://localhost:5001/${pdfPath.replace(/\\/g, '/')}`;
         setSelectedPdf(pdfUrl);
     };
@@ -236,260 +82,103 @@ const Content = () => {
         setSelectedPdf(null);
     };
 
-    const handleDashboardClick = () => {
-        setShowContentP(true);
-        setIsSearchVisible(false);
-        setNoResults(false);
-        setActiveCategory(null);
-        setCurrentViewCategory(null);
-        settype(null);
-        setShowSendAnnounce(false);
-    };
+    // --- RENDER ACTIVE VIEW ---
+    const renderActiveView = () => {
+        switch (activeView) {
+            case 'dashboard':
+                return <Dashboard />;
 
-    const handlePersonalDataClick = async () => {
-        settype('Personal Data');
-        setCurrentViewCategory('Personal Data');
-        setIsSearchVisible(true);
-        setNoResults(false);
-        setShowDocuments(true);
-        setShowContentP(false);
-        setShowSendAnnounce(false);
-        setActiveCategory(null);
-        fetchPersonalFiles();
+            case 'personal-data':
+                return (
+                    <PersonalData
+                        userEmail={userEmail}
+                        userRole={userRole}
+                        onPdfClick={handlePdfClick}
+                    />
+                );
 
-        try {
-            const response = await axios.get('http://localhost:5001/get-personal-files', {
-                params: { email: userEmail }
-            });
-            
-            // Map 'fileName' (from File model) to 'name' (expected by DocumentView)
-            const mappedFiles = response.data.files.map(f => ({
-                ...f,
-                name: f.fileName // Mapping for compatibility
-            }));
-            
-            setPersonalFiles(mappedFiles);
-        } catch (error) {
-            console.error("Error fetching personal data", error);
+            case 'announcements':
+                return (
+                    <AnnouncementManager
+                        userRole={userRole}
+                        userEmail={userEmail}
+                        userSubRole={userSubRole}
+                        currentViewCategory={viewParams.category}
+                        deptFilter={deptFilter}
+                        setDeptFilter={setDeptFilter}
+                        onPdfClick={handlePdfClick}
+                        initialMode="send" // Helper to open directly in send mode if needed
+                    />
+                );
+
+            case 'announcements-feed':
+                return (
+                    <AnnouncementManager
+                        userRole={userRole}
+                        userEmail={userEmail}
+                        userSubRole={userSubRole}
+                        currentViewCategory={viewParams.category} // Pass category to filter announcements
+                        deptFilter={deptFilter}
+                        setDeptFilter={setDeptFilter}
+                        onPdfClick={handlePdfClick}
+                        initialMode="view"
+                    />
+                );
+
+            case 'category':
+                return (
+                    <CategoryViewer
+                        userRole={userRole}
+                        userSubRole={userSubRole}
+                        categoryName={viewParams.category}
+                        subCategoryName={viewParams.subCategory}
+                        onPdfClick={handlePdfClick}
+                    />
+                );
+
+            default:
+                return <Dashboard />;
         }
     };
-
-    const handleSendAnnounceClick = () => {
-        setShowSendAnnounce(true);
-        setShowContentP(false);
-        setIsSearchVisible(false);
-        setNoResults(false);
-        setActiveCategory(null);
-        setCurrentViewCategory(null);
-        settype(null);
-        fetchMyAnnouncements();
-    };
-
-    const handleViewAnnouncementsClick = () => {
-        settype('Announcements');
-        setCurrentViewCategory(null); 
-        setIsSearchVisible(true);
-        setNoResults(false);
-        setShowDocuments(true);
-        setShowContentP(false);
-        setShowSendAnnounce(false);
-        setSelectedCategoryPdfs([]);
-    };
-
-    const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
-        settype(subCategory);
-        setCurrentViewCategory(categoryName); 
-        
-        if(subCategory === 'Announcements') {
-             setIsSearchVisible(true);
-             setNoResults(false);
-             setShowDocuments(true);
-             setShowContentP(false);
-             setShowSendAnnounce(false);
-        } else {
-             const filteredItems = categoryItems.filter(item => item.subcategory === subCategory);
-             setSelectedCategoryPdfs(filteredItems);
-             setIsSearchVisible(true);
-             setNoResults(false);
-             setShowDocuments(true);
-             setShowContentP(false);
-             setShowSendAnnounce(false);
-        }
-    };
-
-    const handleSimpleUpload = async (e) => {
-        e.preventDefault();
-        if (!uploadFile) return alert("Please select a file first");
-
-        const formData = new FormData();
-        formData.append('file', uploadFile);
-        formData.append('user', JSON.stringify({
-            username: sessionStorage.getItem('username'),
-            email: userEmail,
-            role: userRole
-        }));
-
-        try {
-            await axios.post('http://localhost:5001/upload-personal-file', formData);
-            alert("File uploaded successfully!");
-            setIsUploadModalOpen(false);
-            setUploadFile(null);
-            fetchPersonalFiles(); // Refresh list immediately
-        } catch (error) {
-            console.error("Upload failed", error);
-            alert("Failed to upload file");
-        }
-    };
-
-    const toggleCategory = (categoryName) => {
-        setActiveCategory(activeCategory === categoryName ? null : categoryName);
-    }
-
-    const handleFormChange = (e) => {
-        const { name, value } = e.target;
-        if (name === 'targetRole') {
-            setAnnounceForm({ 
-                ...announceForm, 
-                targetRole: value,
-                targetSubRole: 'All' 
-            });
-        } else {
-            setAnnounceForm({ ...announceForm, [name]: value });
-        }
-    };
-
-    const handleFileChange = (e) => {
-        setAnnounceForm({ ...announceForm, file: e.target.files[0] });
-    };
-
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('title', announceForm.title);
-        formData.append('description', announceForm.description);
-        formData.append('targetRole', announceForm.targetRole);
-        formData.append('targetSubRole', announceForm.targetSubRole);
-        
-        if (announceForm.file) {
-            formData.append('file', announceForm.file);
-        }
-
-        formData.append('user', JSON.stringify({
-            username: sessionStorage.getItem('username'),
-            email: userEmail,
-            role: userRole,
-            subRole: sessionStorage.getItem('usersubRole'),
-        }));
-
-        try {
-            await axios.post('http://localhost:5001/add-announcement', formData);
-            alert('Announcement Sent Successfully!');
-            setAnnounceForm({
-                title: '',
-                description: '',
-                targetRole: roleOptions[0], 
-                targetSubRole: 'All',
-                file: null
-            });
-            fetchMyAnnouncements();
-        } catch (error) {
-            console.error('Error sending announcement', error);
-            alert('Failed to send announcement.');
-        }
-    };
-
-    const filteredPdfs = selectedCategoryPdfs.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
     return (
         <div className="content-wrapper">
-            <Sidebar 
+            {/* Resource Repository - Handles PDF fetching side effects */}
+            <ResourceRepository 
+                userRole={userRole} 
+                setPdfLinks={setPdfLinks} 
+            />
+
+            {/* Sidebar */}
+            <Sidebar
                 userRole={userRole}
                 pdfLinks={pdfLinks}
-                activeCategory={activeCategory}
-                showContentP={showContentP}
-                showSendAnnounce={showSendAnnounce}
-                type={type}
+                activeCategory={activeCategory} // <--- FIXED: Passing state
+                
+                // Active highlighting flags
+                showContentP={activeView === 'dashboard'}
+                showSendAnnounce={activeView === 'announcements'}
+                type={activeView === 'announcements-feed' ? 'Announcements' : activeView === 'personal-data' ? 'Personal Data' : ''}
+
                 onDashboardClick={handleDashboardClick}
                 onSendAnnounceClick={handleSendAnnounceClick}
                 onViewAnnouncementsClick={handleViewAnnouncementsClick}
-                onPersonalDataClick={handlePersonalDataClick} // <--- Pass new handler
-                onToggleCategory={toggleCategory}
+                onPersonalDataClick={handlePersonalDataClick}
+                onToggleCategory={toggleCategory} // <--- FIXED: Passing handler
                 onSubCategoryClick={handleSubCategoryClick}
             />
 
+            {/* Main Content Area */}
             <div className="main-area">
-                {showContentP ? (
-                    <div className="Dashboard">
-                        <h2>Welcome to Aditya University Intranet</h2>
-                        <p>Select a category from the menu to view documents or announcements.</p>
-                        <hr />
-                        <p className="university-desc">Aditya University is a State Private University...</p>
-                    </div>
-                ) : showSendAnnounce ? (
-                    <AnnouncementForm 
-                        formData={announceForm}
-                        roleOptions={roleOptions}
-                        subRolesMapping={subRolesMapping}
-                        myAnnouncements={myAnnouncements}
-                        onChange={handleFormChange}
-                        onFileChange={handleFileChange}
-                        onSubmit={handleFormSubmit}
-                    />
-                ) : isSearchVisible ? (
-                    type === 'Announcements' ? (
-                        <AnnouncementFeed 
-                            announcements={generalAnnouncements}
-                            deptFilter={deptFilter}
-                            setDeptFilter={setDeptFilter}
-                            userRole={userRole}
-                            subRolesMapping={subRolesMapping}
-                            onPdfClick={handlePdfClick}
-                        />
-                    ) : (
-                        /* Document View with Conditional Data Source */
-                        <DocumentView 
-                            type={type}
-                            /* Switch data source based on type */
-                            documents={type === 'Personal Data' 
-                                ? personalFiles.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) 
-                                : filteredPdfs
-                            }
-                            searchQuery={searchQuery}
-                            setSearchQuery={setSearchQuery}
-                            onPdfClick={handlePdfClick}
-                            /* Pass upload handler ONLY for Personal Data */
-                            onUploadClick={type === 'Personal Data' ? () => setIsUploadModalOpen(true) : null}
-                        />
-                    )
-                ) : null}
+                {renderActiveView()}
             </div>
 
-            {/* Simple Upload Modal */}
-            {isUploadModalOpen && (
-                <div className="upload-modal-overlay">
-                    <div className="upload-modal">
-                        <h3>Upload to My Data</h3>
-                        <form onSubmit={handleSimpleUpload}>
-                            <input 
-                                type="file" 
-                                className="modal-file-input"
-                                onChange={(e) => setUploadFile(e.target.files[0])}
-                                required
-                            />
-                            <div className="modal-actions">
-                                <button type="button" className="modal-btn close-btn" onClick={() => setIsUploadModalOpen(false)}>Cancel</button>
-                                <button type="submit" className="modal-btn submit-btn">Upload</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* PDF Viewer Feature */}
+            {/* PDF Viewer Modal */}
             {selectedPdf && (
-                <PdfViewer fileUrl={selectedPdf} onClose={handleBackClick} />
+                <PdfViewer 
+                    fileUrl={selectedPdf} 
+                    onClose={handleBackClick} 
+                />
             )}
         </div>
     );
