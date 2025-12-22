@@ -8,13 +8,7 @@ import './Hod.css';
 function Hod() {
     return (
         <>
-            <RenderHome />  {/* Using the correct component name */}
-            <Content />
-            <Link to="/add-file">
-                    <div className="plus-div">
-                        <Add />
-                    </div>
-                </Link>
+           <h1>Hod page</h1>
         </>
     );
 }

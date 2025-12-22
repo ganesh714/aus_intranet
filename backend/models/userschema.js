@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema(
     // Common for ALL
     email: {
       type: String,
-      required: true,
       unique: true,
       trim: true
     },

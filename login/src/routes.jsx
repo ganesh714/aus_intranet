@@ -12,7 +12,10 @@ import OfficersPage from "./assets/components/OfficersPage/Officers";
 import SuperAdminLogin from "./assets/components/superadmin/superadmin";
 import Add from "./assets/components/Add/Add";
 import SuperAdminDashboard from "./assets/components/superadmin/superadmindasboard";
-
+import SendCirculars from "./assets/components/circulars/superadminsendcirculars";
+import ViewCirculars from "./assets/components/circulars/viewcirculars";
+import SuperAdminLayout from "./assets/components/superadmin/superadminlayout";
+import HodLayout from "./assets/components/HodPage/Hodlayout";
 // Faculty subpages
 import ItFaculty from "./assets/components/ItFacultyPage/ItFaculty";
 import CseFaculty from "./assets/components/CSE-Faculty-page/CSE-Faculty";
@@ -71,6 +74,23 @@ const RoutesConfig = ({ setIsLoggedIn, setUserRole, setUserId }) => {
         path="/dean-page"
         element={<ProtectedRoute element={DeanPage} />}
       />
+      <Route
+  path="/superadmin"
+  element={<ProtectedRoute element={SuperAdminLayout} />}
+>
+  <Route path="dashboard" element={<SuperAdminDashboard />} />
+  <Route path="sendcirculars" element={<SendCirculars></SendCirculars>} />
+  <Route path="viewcirculars" element={<SuperAdminDashboard />} />
+</Route>
+  <Route
+  path="/hod"
+  element={<ProtectedRoute element={HodLayout} />}
+>
+  <Route path="dashboard" element={<HodPage/>} />
+  <Route path="sendcirculars" element={<SendCirculars></SendCirculars>} />
+  <Route path="viewcirculars" element={<ViewCirculars></ViewCirculars>} />
+</Route>
+
       <Route
         path="/faculty-page"
         element={<ProtectedRoute element={FacultyPage} />}

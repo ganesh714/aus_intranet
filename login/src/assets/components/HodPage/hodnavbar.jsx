@@ -1,9 +1,9 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FaTachometerAlt, FaUsers, FaCogs, FaChartLine, FaSignOutAlt } from "react-icons/fa";
-import "./superadminnavbar.css";
+import "./Hodnavbar.css";
 
-const SuperAdminNavbar = ({ userName }) => {
+const HodNavbar = ({ userName }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -17,7 +17,7 @@ const SuperAdminNavbar = ({ userName }) => {
     <nav className="top-navbar">
       {/* Left Section */}
       <div className="navbar-left">
-        <span className="navbar-brand">SuperAdmin Panel</span>
+        <span className="navbar-brand">Hod Panel</span>
 
         <NavLink to="/superadmin/dashboard" className="nav-link">
           <FaTachometerAlt /> Dashboard
@@ -28,8 +28,8 @@ const SuperAdminNavbar = ({ userName }) => {
             <FaUsers /> Circulars
           </span>
           <div className="sa-dropdown-menu">
-            <NavLink to="/superadmin/sendcirculars">Send Circulars</NavLink>
-            <NavLink to="/superadmin/viewcirculars">View Circulars</NavLink>
+            <NavLink to="/hod/sendcirculars">Send Circulars</NavLink>
+            <NavLink to="/hod/viewcirculars">View Circulars</NavLink>
           </div>
         </div>
 
@@ -60,4 +60,4 @@ const SuperAdminNavbar = ({ userName }) => {
   );
 };
 
-export default SuperAdminNavbar;
+export default HodNavbar;

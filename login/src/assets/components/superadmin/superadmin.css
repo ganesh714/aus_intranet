@@ -54,3 +54,39 @@ body::before {
   color: #000;
 }
 
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 20px;
+}
+
+.stat-card {
+  background: #1f2937;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: scale(1.05);
+}
+
+.stat-card .icon {
+  font-size: 2rem;
+}
+
+.stat-card .info h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.stat-card .info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}

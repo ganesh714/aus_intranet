@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SuperAdminNavbar from "./superadminnavigation";
-
+import QuickStats from "./qucikstats";
 const SuperAdminDashboard = () => {
   const [userName, setUserName] = useState("");
 
@@ -19,10 +19,8 @@ const SuperAdminDashboard = () => {
 
   return (
     <div>
-      <SuperAdminNavbar userName={userName} />
       <div className="container mt-4">
-        <h1>Welcome to SuperAdmin Dashboard</h1>
-        <p>Here you can manage users, settings, and view reports.</p>
+      <QuickStats />
       </div>
     </div>
   );
