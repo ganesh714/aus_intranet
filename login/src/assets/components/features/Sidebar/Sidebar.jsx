@@ -1,7 +1,7 @@
 import React from 'react';
 import './Sidebar.css';
 import { MdDashboard, MdCampaign } from 'react-icons/md';
-import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf } from 'react-icons/fa';
+import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock } from 'react-icons/fa';
 
 const Sidebar = ({ 
     userRole, 
@@ -15,8 +15,21 @@ const Sidebar = ({
     onViewAnnouncementsClick,
     onPersonalDataClick,
     onToggleCategory, 
-    onSubCategoryClick 
+    onSubCategoryClick,
+    onDirectCategoryClick // <--- New Prop for direct clicking main categories
 }) => {
+    
+    // Helper to check if a category should be a direct link for Students
+    const isStudentDirectLink = (catName) => {
+        return userRole === 'Student' && ['Teaching Material', 'Time Table'].includes(catName);
+    };
+
+    const getIcon = (catName) => {
+        if(catName === 'Teaching Material') return <FaBook className="cat-icon"/>;
+        if(catName === 'Time Table') return <FaClock className="cat-icon"/>;
+        return <FaFolder className="cat-icon"/>;
+    }
+
     return (
         <div className="sidebar">
             <h3 className="sidebar-header">Menu</h3>
@@ -29,7 +42,8 @@ const Sidebar = ({
                         </span>
                     </div>
                 </div>
-                {/* My Data (Personal Data) - Not for Students */}
+
+                {/* My Data (Non-Students) */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${type === 'Personal Data' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onPersonalDataClick}>
@@ -40,7 +54,7 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* Send Announcements (Not for Students) */}
+                {/* Send Announcements (Non-Students) */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onSendAnnounceClick}>
@@ -51,7 +65,7 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* View Announcements (For Students) */}
+                {/* View Announcements (Students) */}
                 {userRole === 'Student' && (
                     <div className={`category-item ${type === 'Announcements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onViewAnnouncementsClick}>
@@ -62,27 +76,42 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* Document Categories */}
-                {pdfLinks.map((category, index) => (
-                    <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onToggleCategory(category.category)}>
-                            <span className="cat-name"><FaFolder className="cat-icon"/> {category.category}</span>
-                            <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`}/>
+                {/* Dynamic Categories */}
+                {pdfLinks.map((category, index) => {
+                    // Check if this is a direct link for students
+                    if (isStudentDirectLink(category.category)) {
+                        return (
+                            <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
+                                <div className="category-header" onClick={() => onDirectCategoryClick(category.category)}>
+                                    <span className="cat-name">{getIcon(category.category)} {category.category}</span>
+                                    {/* No Chevron for direct links */}
+                                </div>
+                            </div>
+                        );
+                    }
+
+                    // Default Accordion Behavior
+                    return (
+                        <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={() => onToggleCategory(category.category)}>
+                                <span className="cat-name"><FaFolder className="cat-icon"/> {category.category}</span>
+                                <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`}/>
+                            </div>
+                            
+                            <div className="subcategory-list">
+                                {[...new Set(category.items.map(item => item.subcategory))]
+                                    .filter(subCat => !(
+                                        ["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table"].includes(category.category) && subCat === "Announcements"
+                                    ))
+                                    .map((subCat) => (
+                                        <button key={subCat} className="subcat-btn" onClick={() => onSubCategoryClick(category.items, subCat, category.category)}>
+                                            {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
+                                        </button>
+                                    ))}
+                            </div>
                         </div>
-                        
-                        <div className="subcategory-list">
-                            {[...new Set(category.items.map(item => item.subcategory))]
-                                .filter(subCat => !(
-                                    ["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table"].includes(category.category) && subCat === "Announcements"
-                                ))
-                                .map((subCat) => (
-                                    <button key={subCat} className="subcat-btn" onClick={() => onSubCategoryClick(category.items, subCat, category.category)}>
-                                        {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
-                                    </button>
-                                ))}
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

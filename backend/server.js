@@ -8,6 +8,7 @@ const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
 const File = require('./models/File');
+const Material = require('./models/Material'); // Import the new model
 const Announcement = require('./models/Announcement'); 
 
 const app = express();
@@ -184,12 +185,10 @@ app.get('/get-pdfs', async (req, res) => {
         } else if (role === 'Asso.Dean') {
             extraCategories.push("Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
         } else if (role === 'HOD') {
-            extraCategories.push("HOD's related", 'Faculty related', 'Dept.Equipment', 'Teaching Material', 'Staff Presentations', 'Time Table');
+            extraCategories.push("HOD's related", 'Faculty related', 'Dept.Equipment', 'Staff Presentations');
         } else if (role === 'Faculty') {
-            extraCategories.push('Faculty related', 'Dept.Equipment', 'Teaching Material', 'Staff Presentations', 'Time Table');
+            extraCategories.push('Faculty related', 'Dept.Equipment', 'Staff Presentations');
         } else if (role === 'Student') {
-            // UPDATED: Student only sees these
-            extraCategories.push('Teaching Material', 'Time Table');
         }
 
         if (extraCategories.length > 0) {
@@ -391,6 +390,84 @@ app.post('/upload-personal-file', upload.array('file', 10), async (req, res) => 
     } catch (error) {
         console.error("Error uploading personal files:", error);
         res.status(500).json({ message: "Error uploading files", error });
+    }
+});
+
+// 1. Add Material
+app.post('/add-material', upload.single('file'), async (req, res) => {
+    try {
+        // Removed 'type' from destructuring
+        const { title, subject, targetYear, targetSection } = req.body;
+        const user = JSON.parse(req.body.user);
+
+        if (!req.file) return res.status(400).json({ message: 'No file uploaded!' });
+
+        const newFile = new File({
+            fileName: req.file.originalname,
+            filePath: req.file.path.replace(/\\/g, '/'),
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+            uploadedBy: {
+                username: user.username,
+                email: user.email,
+                role: user.role
+            },
+            usage: { isDeptDocument: true } 
+        });
+        const savedFile = await newFile.save();
+
+        const newMaterial = new Material({
+            // Removed 'type'
+            title,
+            subject,
+            targetYear,
+            targetSection,
+            fileId: savedFile._id,
+            uploadedBy: {
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                subRole: user.subRole
+            }
+        });
+
+        await newMaterial.save();
+        res.json({ message: 'Material uploaded successfully!', material: newMaterial });
+
+    } catch (error) {
+        console.error("Error uploading material:", error);
+        res.status(500).json({ message: "Error uploading material", error });
+    }
+});
+
+// 2. Get Materials
+app.get('/get-materials', async (req, res) => {
+    // Removed 'type' from query
+    const { role, subRole, year, section } = req.query;
+    
+    try {
+        let query = {};
+
+        if (role === 'Student') {
+            if (subRole) query['uploadedBy.subRole'] = subRole; 
+            if (year) query.targetYear = year;
+            if (section) query.targetSection = section;
+        } else {
+            // Faculty/Leadership viewing logic
+            if (subRole && subRole !== 'All' && subRole !== 'null') {
+                query['uploadedBy.subRole'] = subRole;
+            }
+        }
+
+        const materials = await Material.find(query)
+            .populate('fileId')
+            .sort({ uploadedAt: -1 });
+
+        res.json({ materials });
+
+    } catch (error) {
+        console.error("Error fetching materials:", error);
+        res.status(500).json({ message: "Error fetching materials", error });
     }
 });
 

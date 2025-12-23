@@ -37,10 +37,10 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                     if (['HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("HOD's related");
                     if (['Faculty', 'HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory('Faculty related');
                     
-                    if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
-                        ensureCategory('Teaching Material');
-                        ensureCategory('Time Table');
-                    }
+                    // if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
+                    //     ensureCategory('Teaching Material');
+                    //     ensureCategory('Time Table');
+                    // }
                     
                     if (userRole === 'HOD' || userRole === 'Faculty') {
                         ensureCategory('Staff Presentations');
@@ -54,6 +54,48 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                             filePath: null
                         }];
                     }
+
+                    // --- LOGIC FOR "STUDENT RELATED" (Non-Students) ---
+                    if (userRole !== 'Student') {
+                        // Initialize if missing
+                        if (!groupedPdfs['Student Related']) {
+                            groupedPdfs['Student Related'] = [];
+                        }
+
+                        // Determine Permissions
+                        const isHighLevel = ['Dean', 'Asso.Dean', 'Leadership', 'Admin', 'Officers'].includes(userRole);
+                        const isFacultyLevel = ['HOD', 'Faculty'].includes(userRole);
+
+                        // 1. Announcements (Everyone gets this if the sidebar supports it, or specific per role)
+                        const hasAnnouncements = groupedPdfs['Student Related'].some(i => i.subcategory === 'Announcements');
+                        if (!hasAnnouncements) {
+                            groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Announcements' });
+                        }
+
+                        // 2. Material & Time Table (Only HOD & Faculty)
+                        if (isFacultyLevel) {
+                            const hasMaterial = groupedPdfs['Student Related'].some(i => i.subcategory === 'Material');
+                            if (!hasMaterial) {
+                                groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Material' });
+                            }
+                            const hasTimeTable = groupedPdfs['Student Related'].some(i => i.subcategory === 'Time Table');
+                            if (!hasTimeTable) {
+                                groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Time Table' });
+                            }
+                        }
+                    }
+
+                    // --- LOGIC FOR STUDENTS ---
+                    if (userRole === 'Student') {
+                        // Ensure main categories exist
+                        if (!groupedPdfs['Teaching Material']) {
+                            groupedPdfs['Teaching Material'] = [{ category: 'Teaching Material', subcategory: 'hidden' }];
+                        }
+                        if (!groupedPdfs['Time Table']) {
+                            groupedPdfs['Time Table'] = [{ category: 'Time Table', subcategory: 'hidden' }];
+                        }
+                    }
+
 
                     // Transform to sidebar format
                     let pdfCategories = Object.keys(groupedPdfs).map(category => {

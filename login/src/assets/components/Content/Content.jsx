@@ -9,6 +9,7 @@ import AnnouncementManager from "../features/Announcements/AnnouncementManager";
 import CategoryViewer from "../features/Documents/CategoryViewer";
 import ResourceRepository from "../features/Documents/ResourceRepository";
 import PdfViewer from "../features/Documents/PdfViewer";
+import MaterialManager from "../features/Materials/MaterialManager"; // Import the new component
 
 const Content = () => {
     // --- USER INFO ---
@@ -50,6 +51,15 @@ const Content = () => {
     };
 
     const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
+        
+        // Only checking for Material
+        if (categoryName === 'Student Related' && subCategory === 'Material') {
+            setActiveView('material-manager');
+            setViewParams({ category: categoryName, subCategory: subCategory });
+            return;
+        }
+
+        // 3. Handle Announcements
         if (subCategory === 'Announcements') {
             setActiveView('announcements-feed');
             // If viewing specific category announcements, you might want to filter them here
@@ -62,6 +72,17 @@ const Content = () => {
                 category: categoryName,
                 subCategory: subCategory
             });
+        }
+    };
+
+    // 2. Handle Direct Category Click (Students)
+    const handleDirectCategoryClick = (categoryName) => {
+        if (categoryName === 'Teaching Material') {
+            setActiveView('material-manager');
+            setActiveCategory('Teaching Material'); 
+        } else if (categoryName === 'Time Table') {
+            setActiveView('Time Table');
+            setActiveCategory('Time Table');
         }
     };
 
@@ -125,6 +146,16 @@ const Content = () => {
                     />
                 );
 
+            case 'material-manager':
+                return (
+                    <MaterialManager 
+                        userRole={userRole}
+                        userSubRole={userSubRole}
+                        userEmail={userEmail}
+                        onPdfClick={handlePdfClick}
+                    />
+                );
+            
             case 'category':
                 return (
                     <CategoryViewer
@@ -166,6 +197,7 @@ const Content = () => {
                 onPersonalDataClick={handlePersonalDataClick}
                 onToggleCategory={toggleCategory} // <--- FIXED: Passing handler
                 onSubCategoryClick={handleSubCategoryClick}
+                onDirectCategoryClick={handleDirectCategoryClick} // <--- New Prop for direct clicking main categories
             />
 
             {/* Main Content Area */}
