@@ -89,8 +89,19 @@ const Sidebar = ({
                         return null;
                     }
 
-                    // Check if this is a direct link for students
-                    if (isStudentDirectLink(category.category)) {
+                    // NEW: Remove "Vice Chancellor" category
+                    if (category.category === 'Vice Chancellor') {
+                        return null;
+                    }
+
+                    // Check if this is a direct link (Students or Dept.Equipment)
+                    const isDirectLink = (catName) => {
+                        if (userRole === 'Student' && ['Teaching Material', 'Time Table'].includes(catName)) return true;
+                        if (catName === 'Dept.Equipment') return true;
+                        return false;
+                    };
+
+                    if (isDirectLink(category.category)) {
                         return (
                             <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
                                 <div className="category-header" onClick={() => onDirectCategoryClick(category.category)}>
@@ -113,7 +124,8 @@ const Sidebar = ({
                                 {[...new Set(category.items.map(item => item.subcategory))]
                                     .filter(subCat => {
                                         // Existing filter: Remove Announcements from specific categories
-                                        if (["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table"].includes(category.category) && subCat === "Announcements") return false;
+                                        // UPDATED: Added "University related" to the exclusion list
+                                        if (["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table", "University related"].includes(category.category) && subCat === "Announcements") return false;
 
                                         // NEW: Remove "Documents" from "Student Related" for Faculty and HOD
                                         if (category.category === 'Student Related' && subCat === 'Documents' && isFacultyOrHod) return false;

@@ -105,7 +105,9 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                             subcategory: 'Documents',
                             filePath: null
                         });
-                        if (!items.some(i => i.subcategory === 'Announcements')) {
+
+                        // UPDATED: Do not add "Announcements" placeholder for "University related"
+                        if (!items.some(i => i.subcategory === 'Announcements') && category !== "University related") {
                             items.push({
                                 name: 'Placeholder',
                                 category,

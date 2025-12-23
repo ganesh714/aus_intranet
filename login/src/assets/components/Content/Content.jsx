@@ -20,7 +20,7 @@ const Content = () => {
     // --- STATE MANAGEMENT ---
     const [selectedPdf, setSelectedPdf] = useState(null);
     const [pdfLinks, setPdfLinks] = useState([]);
-    
+
     // View State
     const [activeView, setActiveView] = useState('dashboard');
     const [viewParams, setViewParams] = useState({
@@ -30,7 +30,7 @@ const Content = () => {
     const [deptFilter, setDeptFilter] = useState('All');
 
     // Sidebar State (FIXED: This was missing)
-    const [activeCategory, setActiveCategory] = useState(null); 
+    const [activeCategory, setActiveCategory] = useState(null);
 
     // --- VIEW HANDLERS ---
     const handleDashboardClick = () => {
@@ -51,7 +51,7 @@ const Content = () => {
     };
 
     const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {
-        
+
         // Only checking for Material
         if (categoryName === 'Student Related' && subCategory === 'Material') {
             setActiveView('material-manager');
@@ -65,7 +65,7 @@ const Content = () => {
             // If viewing specific category announcements, you might want to filter them here
             // But usually 'Announcements' in sidebar goes to general feed or category specific feed
             // keeping it simple for now:
-             setViewParams({ category: categoryName, subCategory: 'Announcements' });
+            setViewParams({ category: categoryName, subCategory: 'Announcements' });
         } else {
             setActiveView('category');
             setViewParams({
@@ -76,13 +76,21 @@ const Content = () => {
     };
 
     // 2. Handle Direct Category Click (Students)
+    // 2. Handle Direct Category Click (Students & Equipment)
     const handleDirectCategoryClick = (categoryName) => {
         if (categoryName === 'Teaching Material') {
             setActiveView('material-manager');
-            setActiveCategory('Teaching Material'); 
+            setActiveCategory('Teaching Material');
         } else if (categoryName === 'Time Table') {
             setActiveView('Time Table');
             setActiveCategory('Time Table');
+        } else if (categoryName === 'Dept.Equipment') {
+            setActiveView('category');
+            setViewParams({
+                category: 'Dept.Equipment',
+                subCategory: 'Documents'
+            });
+            setActiveCategory('Dept.Equipment');
         }
     };
 
@@ -94,7 +102,7 @@ const Content = () => {
     const handlePdfClick = (pdfPath, event) => {
         if (event) event.preventDefault();
         if (!pdfPath) return;
-        
+
         const pdfUrl = `http://localhost:5001/${pdfPath.replace(/\\/g, '/')}`;
         setSelectedPdf(pdfUrl);
     };
@@ -148,14 +156,14 @@ const Content = () => {
 
             case 'material-manager':
                 return (
-                    <MaterialManager 
+                    <MaterialManager
                         userRole={userRole}
                         userSubRole={userSubRole}
                         userEmail={userEmail}
                         onPdfClick={handlePdfClick}
                     />
                 );
-            
+
             case 'category':
                 return (
                     <CategoryViewer
@@ -175,9 +183,9 @@ const Content = () => {
     return (
         <div className="content-wrapper">
             {/* Resource Repository - Handles PDF fetching side effects */}
-            <ResourceRepository 
-                userRole={userRole} 
-                setPdfLinks={setPdfLinks} 
+            <ResourceRepository
+                userRole={userRole}
+                setPdfLinks={setPdfLinks}
             />
 
             {/* Sidebar */}
@@ -185,7 +193,7 @@ const Content = () => {
                 userRole={userRole}
                 pdfLinks={pdfLinks}
                 activeCategory={activeCategory} // <--- FIXED: Passing state
-                
+
                 // Active highlighting flags
                 showContentP={activeView === 'dashboard'}
                 showSendAnnounce={activeView === 'announcements'}
@@ -207,9 +215,9 @@ const Content = () => {
 
             {/* PDF Viewer Modal */}
             {selectedPdf && (
-                <PdfViewer 
-                    fileUrl={selectedPdf} 
-                    onClose={handleBackClick} 
+                <PdfViewer
+                    fileUrl={selectedPdf}
+                    onClose={handleBackClick}
                 />
             )}
         </div>
