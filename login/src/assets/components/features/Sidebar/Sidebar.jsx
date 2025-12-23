@@ -43,8 +43,8 @@ const Sidebar = ({
                     </div>
                 </div>
 
-                {/* My Data (Non-Students) */}
-                {userRole !== 'Student' && (
+                {/* My Data (Non-Students and Non-Admin) */}
+                {userRole !== 'Student' && userRole !== 'Admin' && (
                     <div className={`category-item ${type === 'Personal Data' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onPersonalDataClick}>
                             <span className="cat-name">
@@ -78,6 +78,11 @@ const Sidebar = ({
 
                 {/* Dynamic Categories */}
                 {pdfLinks.map((category, index) => {
+                    // NEW: Filter out specific categories for Admin
+                    if (userRole === 'Admin' && ['Faculty related', "HOD's related", "Dean's related"].includes(category.category)) {
+                        return null;
+                    }
+
                     // NEW: Filter out "Student Related" for non-Faculty/HOD
                     const isFacultyOrHod = ['Faculty', 'HOD'].includes(userRole);
                     if (category.category === 'Student Related' && !isFacultyOrHod) {
