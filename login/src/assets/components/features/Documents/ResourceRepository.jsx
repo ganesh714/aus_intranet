@@ -9,13 +9,13 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
         const fetchPdfs = async () => {
             try {
                 const subRole = sessionStorage.getItem('usersubRole');
-                const queryParams = { 
-                    role: userRole || '', 
-                    subRole: subRole || '' 
+                const queryParams = {
+                    role: userRole || '',
+                    subRole: subRole || ''
                 };
 
-                const response = await axios.get('http://localhost:5001/get-pdfs', { 
-                    params: queryParams 
+                const response = await axios.get('http://localhost:5001/get-pdfs', {
+                    params: queryParams
                 });
 
                 if (response.data.pdfs) {
@@ -27,24 +27,22 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                     }, {});
 
                     // Ensure required categories exist based on user role
-                    const ensureCategory = (cat) => { 
-                        if (!groupedPdfs[cat]) groupedPdfs[cat] = []; 
+                    const ensureCategory = (cat) => {
+                        if (!groupedPdfs[cat]) groupedPdfs[cat] = [];
                     };
-                    
+
                     if (userRole === 'Leadership') ensureCategory("University related");
                     if (['Dean', 'Leadership'].includes(userRole)) ensureCategory("Dean's related");
                     if (['Asso.Dean', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("Asso.Dean's related");
                     if (['HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("HOD's related");
                     if (['Faculty', 'HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory('Faculty related');
-                    
+
                     // if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                     //     ensureCategory('Teaching Material');
                     //     ensureCategory('Time Table');
                     // }
-                    
-                    if (userRole === 'HOD' || userRole === 'Faculty') {
-                        ensureCategory('Staff Presentations');
-                    }
+
+
 
                     if ((userRole === 'HOD' || userRole === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
                         groupedPdfs['Dept.Equipment'] = [{
@@ -101,18 +99,18 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                     let pdfCategories = Object.keys(groupedPdfs).map(category => {
                         const items = groupedPdfs[category];
                         const hasDocuments = items.some(item => item.subcategory === 'Documents');
-                        if (!hasDocuments) items.push({ 
-                            name: 'No documents uploaded yet', 
-                            category, 
-                            subcategory: 'Documents', 
-                            filePath: null 
+                        if (!hasDocuments) items.push({
+                            name: 'No documents uploaded yet',
+                            category,
+                            subcategory: 'Documents',
+                            filePath: null
                         });
                         if (!items.some(i => i.subcategory === 'Announcements')) {
-                            items.push({ 
-                                name: 'Placeholder', 
-                                category, 
-                                subcategory: 'Announcements', 
-                                filePath: null 
+                            items.push({
+                                name: 'Placeholder',
+                                category,
+                                subcategory: 'Announcements',
+                                filePath: null
                             });
                         }
                         return { category, items };
