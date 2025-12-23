@@ -30,6 +30,7 @@ const SuperAdminNavbar = ({ userName }) => {
           <div className="sa-dropdown-menu">
             <NavLink to="/superadmin/sendcirculars">Send Circulars</NavLink>
             <NavLink to="/superadmin/viewcirculars">View Circulars</NavLink>
+            <NavLink to="/superadmin/sendannouncements">send announcements</NavLink>
           </div>
         </div>
 

@@ -27,7 +27,7 @@ import EceFaculty from "./assets/components/ECE-Faculty-Page/ECE-Faculty";
 import AgeFaculty from "./assets/components/Ag.E-Faculty-Page/Ag.E-Faculty";
 import HmbsFaculty from "./assets/components/HMBS-Faculty-Page/HMBS-Faculty";
 import MpeFaculty from "./assets/components/MPE-Faculty-Page/MPE-Faculty";
-
+import SendAnnouncement from "./assets/components/announcments/announcments"
 // ProtectedRoute Component
 const ProtectedRoute = ({ element: Component, ...props }) => {
   const token = localStorage.getItem("token");
@@ -81,6 +81,7 @@ const RoutesConfig = ({ setIsLoggedIn, setUserRole, setUserId }) => {
   <Route path="dashboard" element={<SuperAdminDashboard />} />
   <Route path="sendcirculars" element={<SendCirculars></SendCirculars>} />
   <Route path="viewcirculars" element={<SuperAdminDashboard />} />
+  <Route path="sendannouncements" element={<SendAnnouncement></SendAnnouncement>} />
 </Route>
   <Route
   path="/hod"
