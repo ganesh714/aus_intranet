@@ -14,7 +14,7 @@ import MaterialManager from "../features/Materials/MaterialManager"; // Import t
 const Content = () => {
     // --- USER INFO ---
     const userRole = sessionStorage.getItem('userRole');
-    const userEmail = sessionStorage.getItem('userEmail');
+    const userId = sessionStorage.getItem('userId');
     const userSubRole = sessionStorage.getItem('usersubRole');
 
     // --- STATE MANAGEMENT ---
@@ -120,7 +120,7 @@ const Content = () => {
             case 'personal-data':
                 return (
                     <PersonalData
-                        userEmail={userEmail}
+                        userId={userId}
                         userRole={userRole}
                         onPdfClick={handlePdfClick}
                     />
@@ -130,7 +130,7 @@ const Content = () => {
                 return (
                     <AnnouncementManager
                         userRole={userRole}
-                        userEmail={userEmail}
+                        userId={userId}
                         userSubRole={userSubRole}
                         currentViewCategory={viewParams.category}
                         deptFilter={deptFilter}
@@ -144,7 +144,7 @@ const Content = () => {
                 return (
                     <AnnouncementManager
                         userRole={userRole}
-                        userEmail={userEmail}
+                        userId={userId}
                         userSubRole={userSubRole}
                         currentViewCategory={viewParams.category} // Pass category to filter announcements
                         deptFilter={deptFilter}
@@ -159,7 +159,7 @@ const Content = () => {
                     <MaterialManager
                         userRole={userRole}
                         userSubRole={userSubRole}
-                        userEmail={userEmail}
+                        userId={userId}
                         onPdfClick={handlePdfClick}
                     />
                 );

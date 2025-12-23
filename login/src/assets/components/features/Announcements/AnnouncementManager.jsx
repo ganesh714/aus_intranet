@@ -3,9 +3,9 @@ import axios from 'axios';
 import AnnouncementForm from './AnnouncementForm';
 import AnnouncementFeed from './AnnouncementFeed';
 
-const AnnouncementManager = ({ 
-    userRole, 
-    userEmail, 
+const AnnouncementManager = ({
+    userRole,
+    userId,
     userSubRole,
     currentViewCategory,
     deptFilter,
@@ -15,7 +15,7 @@ const AnnouncementManager = ({
 }) => {
     const [announcements, setAnnouncements] = useState([]);
     const [myAnnouncements, setMyAnnouncements] = useState([]);
-    
+
     // <--- FIXED: Initialize state based on the prop
     const [showSendAnnounce, setShowSendAnnounce] = useState(initialMode === 'send');
 
@@ -45,7 +45,7 @@ const AnnouncementManager = ({
     };
 
     const getTargetRoles = () => {
-        switch(userRole) {
+        switch (userRole) {
             case 'Faculty': return ['Student'];
             case 'HOD': return ['Student', 'Faculty'];
             case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
@@ -67,6 +67,7 @@ const AnnouncementManager = ({
 
     const getRoleFromCategory = (category) => {
         if (!category) return userRole;
+        if (category.includes('Student')) return 'Student';
         if (category.includes('Faculty')) return 'Faculty';
         if (category.includes('HOD')) return 'HOD';
         if (category.includes('Asso.Dean')) return 'Asso.Dean';
@@ -81,26 +82,26 @@ const AnnouncementManager = ({
             const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Leadership', 'Admin'].includes(userRole);
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
-            
+
             if (isHighLevel && !showSendAnnounce) {
                 subRoleParam = deptFilter;
             }
 
             const response = await axios.get('http://localhost:5001/get-announcements', {
-                params: { 
-                    role: roleParam, 
+                params: {
+                    role: roleParam,
                     subRole: subRoleParam,
-                    email: showSendAnnounce ? userEmail : null
+                    id: showSendAnnounce ? userId : null
                 }
             });
 
             if (response.data.announcements) {
-                const sorted = response.data.announcements.sort((a, b) => 
+                const sorted = response.data.announcements.sort((a, b) =>
                     new Date(b.uploadedAt) - new Date(a.uploadedAt)
                 );
-                
+
                 if (showSendAnnounce) {
-                    setMyAnnouncements(sorted.filter(item => item.uploadedBy.email === userEmail));
+                    setMyAnnouncements(sorted.filter(item => item.uploadedBy.id === userId));
                 } else {
                     setAnnouncements(sorted);
                 }
@@ -117,10 +118,10 @@ const AnnouncementManager = ({
     const handleFormChange = (e) => {
         const { name, value } = e.target;
         if (name === 'targetRole') {
-            setAnnounceForm({ 
-                ...announceForm, 
+            setAnnounceForm({
+                ...announceForm,
                 targetRole: value,
-                targetSubRole: 'All' 
+                targetSubRole: 'All'
             });
         } else {
             setAnnounceForm({ ...announceForm, [name]: value });
@@ -138,14 +139,14 @@ const AnnouncementManager = ({
         formData.append('description', announceForm.description);
         formData.append('targetRole', announceForm.targetRole);
         formData.append('targetSubRole', announceForm.targetSubRole);
-        
+
         if (announceForm.file) {
             formData.append('file', announceForm.file);
         }
 
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
-            email: userEmail,
+            id: userId,
             role: userRole,
             subRole: userSubRole,
         }));
@@ -173,7 +174,7 @@ const AnnouncementManager = ({
 
     if (showSendAnnounce) {
         return (
-            <AnnouncementForm 
+            <AnnouncementForm
                 formData={announceForm}
                 roleOptions={roleOptions}
                 subRolesMapping={subRolesMapping}
@@ -187,7 +188,7 @@ const AnnouncementManager = ({
     }
 
     return (
-        <AnnouncementFeed 
+        <AnnouncementFeed
             announcements={announcements}
             deptFilter={deptFilter}
             setDeptFilter={setDeptFilter}

@@ -9,7 +9,7 @@ const path = require('path');
 require('dotenv').config();
 const File = require('./models/File');
 const Material = require('./models/Material'); // Import the new model
-const Announcement = require('./models/Announcement'); 
+const Announcement = require('./models/Announcement');
 
 const app = express();
 
@@ -20,10 +20,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = 'uploads/';
-        cb(null, uploadDir); 
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); 
+        cb(null, Date.now() + path.extname(file.originalname));
     },
 });
 
@@ -39,19 +39,19 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const userSchema = new mongoose.Schema({
     username: String,
-    email: String,
+    id: String,
     password: String,
     role: String,
     subRole: {
         type: String,
         enum: [
-            'DyPC', 'VC', 'ProVC', 'Registrar',  
-            'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE','SOP',         
-            'SOE', 'IQAC', 'AD','FED',       
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', 
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED'  
+            'DyPC', 'VC', 'ProVC', 'Registrar',
+            'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP',
+            'SOE', 'IQAC', 'AD', 'FED',
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED',
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'
         ],
-        default: null,  
+        default: null,
     },
 });
 
@@ -63,22 +63,18 @@ const pdfSchema = new mongoose.Schema({
     name: { type: String, required: true },
     filePath: { type: String, required: true },
     uploadedAt: { type: Date, default: Date.now },
-    uploadedBy: {
-        username: { type: String, required: true },
-        role: { type: String, required: true },
-        subRole: { type: String },
-    },
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 const Pdf = mongoose.model('Pdf', pdfSchema);
 
 // Register Route
 app.post('/register', async (req, res) => {
-    const { username, email, password, role, subRole } = req.body;
+    const { username, id, password, role, subRole } = req.body;
 
-    const existingUserByEmail = await User.findOne({ email });
-    if (existingUserByEmail) {
-        return res.status(400).json({ message: 'Email already exists' });
+    const existingUserById = await User.findOne({ id });
+    if (existingUserById) {
+        return res.status(400).json({ message: 'User ID already exists' });
     }
 
     if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
@@ -94,7 +90,7 @@ app.post('/register', async (req, res) => {
 
     const newUser = new User({
         username,
-        email,
+        id,
         password,
         role,
         subRole: role === 'Admin' ? null : subRole,
@@ -111,8 +107,8 @@ app.post('/register', async (req, res) => {
 
 // Login Route
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { id, password } = req.body;
+    const user = await User.findOne({ id });
 
     if (user && user.password === password) {
         res.json({ message: 'Login successful!', user });
@@ -138,16 +134,16 @@ app.post('/add-pdf', upload.array('file', 10), async (req, res) => {
     try {
         const newPdfs = await Promise.all(
             filePaths.map(async (filePath, index) => {
+                const userObj = users[index];
+                const dbUser = await User.findOne({ id: userObj.id }); // Find user by custom ID
+                if (!dbUser) throw new Error(`User not found: ${userObj.id}`);
+
                 const newPdf = new Pdf({
                     category: categories[index],
                     subcategory: subcategorys[index],
                     name: names[index],
                     filePath: filePath,
-                    uploadedBy: {
-                        username: users[index].username,
-                        role: users[index].role,
-                        subRole: users[index].subRole,
-                    },
+                    uploadedBy: dbUser._id, // Save ObjectId
                 });
                 return newPdf.save();
             })
@@ -172,8 +168,19 @@ app.get('/get-pdfs', async (req, res) => {
 
         // Students don't see their own uploads (they don't upload), so skip this block for them
         if (role !== 'Student') {
-            const initialPdfs = await Pdf.find(query);
-            initialPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
+            // Find users matching query first
+            const userQuery = {};
+            if (role) userQuery.role = role;
+            if (subRole) userQuery.subRole = subRole;
+
+            const users = await User.find(userQuery).select('_id');
+            const userIds = users.map(u => u._id);
+
+            if (userIds.length > 0) {
+                query.uploadedBy = { $in: userIds };
+                const initialPdfs = await Pdf.find(query).populate('uploadedBy', 'username role subRole id');
+                initialPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
+            }
         }
 
         const extraCategories = [];
@@ -192,7 +199,7 @@ app.get('/get-pdfs', async (req, res) => {
         }
 
         if (extraCategories.length > 0) {
-            const extraPdfs = await Pdf.find({ category: { $in: extraCategories } });
+            const extraPdfs = await Pdf.find({ category: { $in: extraCategories } }).populate('uploadedBy', 'username role subRole id');
             extraPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
         }
 
@@ -206,15 +213,18 @@ app.get('/get-pdfs', async (req, res) => {
 
 // Get Announcements
 app.get('/get-announcements', async (req, res) => {
-    const { role, subRole, email } = req.query;
+    const { role, subRole, id } = req.query;
     try {
         const orConditions = [];
 
         // 1. Fetch my own uploaded announcements (so I can see what I sent)
-        if (email) {
-            orConditions.push({ 'uploadedBy.email': email });
+        if (id) {
+            const user = await User.findOne({ id });
+            if (user) {
+                orConditions.push({ 'uploadedBy': user._id });
+            }
         }
-        
+
         // 2. Fetch announcements targeting ME (My Role & My Dept)
         if (role) {
             if (subRole && subRole !== 'null') {
@@ -240,7 +250,7 @@ app.get('/get-announcements', async (req, res) => {
 
         // Ensure you use .populate() if you are using the new File schema
         const announcements = await Announcement.find(query)
-            .populate('fileId') 
+            .populate('fileId')
             .sort({ uploadedAt: -1 });
 
         res.json({ announcements });
@@ -254,7 +264,9 @@ app.get('/get-announcements', async (req, res) => {
 app.post('/add-announcement', upload.single('file'), async (req, res) => {
     const { title, description, targetRole, targetSubRole } = req.body;
     const user = JSON.parse(req.body.user);
-    
+    const userDb = await User.findOne({ id: user.id });
+    if (!userDb) return res.status(404).json({ message: 'User not found' });
+
     let savedFileId = null;
 
     // 1. If a physical file was uploaded, create a File entry first
@@ -264,29 +276,20 @@ app.post('/add-announcement', upload.single('file'), async (req, res) => {
             filePath: req.file.path.replace(/\\/g, '/'),
             fileType: req.file.mimetype,
             fileSize: req.file.size,
-            uploadedBy: {
-                username: user.username,
-                email: user.email,
-                role: user.role
-            },
+            uploadedBy: userDb._id,
             usage: { isAnnouncement: true } // Flag this as an announcement file
         });
-        
+
         const savedFile = await newFile.save();
         savedFileId = savedFile._id; // Capture the ID
     }
 
     // 2. Create the Announcement referencing the File ID
     const newAnnouncement = new Announcement({
-        title, 
-        description, 
+        title,
+        description,
         fileId: savedFileId, // Link via ID, not path
-        uploadedBy: { 
-            username: user.username, 
-            email: user.email, 
-            role: user.role, 
-            subRole: user.subRole 
-        },
+        uploadedBy: userDb._id,
         targetAudience: { role: targetRole, subRole: targetSubRole }
     });
 
@@ -343,14 +346,17 @@ app.delete('/delete-pdf/:id', async (req, res) => {
 
 // 1. Get Personal Files
 app.get('/get-personal-files', async (req, res) => {
-    const { email } = req.query;
+    const { id } = req.query;
     try {
+        const user = await User.findOne({ id });
+        if (!user) return res.json({ files: [] });
+
         // Fetch files where the user is the owner AND isPersonal flag is true
         const files = await File.find({
-            "uploadedBy.email": email,
+            "uploadedBy": user._id,
             "usage.isPersonal": true
-        }).sort({ uploadedAt: -1 });
-        
+        }).populate('uploadedBy', 'id username').sort({ uploadedAt: -1 });
+
         res.json({ files });
     } catch (error) {
         console.error("Error fetching personal files:", error);
@@ -362,6 +368,8 @@ app.get('/get-personal-files', async (req, res) => {
 app.post('/upload-personal-file', upload.array('file', 10), async (req, res) => {
     try {
         const user = JSON.parse(req.body.user);
+        const userDb = await User.findOne({ id: user.id });
+        if (!userDb) return res.status(404).json({ message: 'User not found' });
         const names = Array.isArray(req.body.name) ? req.body.name : [req.body.name];
         const files = req.files;
 
@@ -375,13 +383,9 @@ app.post('/upload-personal-file', upload.array('file', 10), async (req, res) => 
                 filePath: file.path.replace(/\\/g, '/'),
                 fileType: file.mimetype,
                 fileSize: file.size,
-                uploadedBy: {
-                    username: user.username,
-                    email: user.email,
-                    role: user.role
-                },
+                uploadedBy: userDb._id,
                 // CRITICAL: Set the Personal flag to true
-                usage: { isPersonal: true } 
+                usage: { isPersonal: true }
             });
             return await newFile.save();
         }));
@@ -399,6 +403,8 @@ app.post('/add-material', upload.single('file'), async (req, res) => {
         // Removed 'type' from destructuring
         const { title, subject, targetYear, targetSection } = req.body;
         const user = JSON.parse(req.body.user);
+        const userDb = await User.findOne({ id: user.id });
+        if (!userDb) return res.status(404).json({ message: 'User not found' });
 
         if (!req.file) return res.status(400).json({ message: 'No file uploaded!' });
 
@@ -407,12 +413,8 @@ app.post('/add-material', upload.single('file'), async (req, res) => {
             filePath: req.file.path.replace(/\\/g, '/'),
             fileType: req.file.mimetype,
             fileSize: req.file.size,
-            uploadedBy: {
-                username: user.username,
-                email: user.email,
-                role: user.role
-            },
-            usage: { isDeptDocument: true } 
+            uploadedBy: userDb._id,
+            usage: { isDeptDocument: true }
         });
         const savedFile = await newFile.save();
 
@@ -423,12 +425,7 @@ app.post('/add-material', upload.single('file'), async (req, res) => {
             targetYear,
             targetSection,
             fileId: savedFile._id,
-            uploadedBy: {
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                subRole: user.subRole
-            }
+            uploadedBy: userDb._id
         });
 
         await newMaterial.save();
@@ -444,23 +441,35 @@ app.post('/add-material', upload.single('file'), async (req, res) => {
 app.get('/get-materials', async (req, res) => {
     // Removed 'type' from query
     const { role, subRole, year, section } = req.query;
-    
+
     try {
         let query = {};
 
         if (role === 'Student') {
-            if (subRole) query['uploadedBy.subRole'] = subRole; 
+            if (subRole) {
+                const facultyUsers = await User.find({ subRole }).select('_id');
+                const facultyIds = facultyUsers.map(u => u._id);
+                if (facultyIds.length > 0) query['uploadedBy'] = { $in: facultyIds };
+            }
             if (year) query.targetYear = year;
             if (section) query.targetSection = section;
         } else {
             // Faculty/Leadership viewing logic
             if (subRole && subRole !== 'All' && subRole !== 'null') {
-                query['uploadedBy.subRole'] = subRole;
+                // Find users with this subRole
+                const users = await User.find({ subRole }).select('_id');
+                const userIds = users.map(u => u._id);
+                if (userIds.length > 0) {
+                    query['uploadedBy'] = { $in: userIds };
+                } else {
+                    return res.json({ materials: [] }); // No users found, so no materials
+                }
             }
         }
 
         const materials = await Material.find(query)
             .populate('fileId')
+            .populate('uploadedBy', 'username role subRole id')
             .sort({ uploadedAt: -1 });
 
         res.json({ materials });
@@ -473,8 +482,8 @@ app.get('/get-materials', async (req, res) => {
 
 // Change Password
 app.post('/change-password', async (req, res) => {
-    const { email, currentPassword, newPassword } = req.body;
-    const user = await User.findOne({ email });
+    const { id, currentPassword, newPassword } = req.body;
+    const user = await User.findOne({ id });
     if (!user || user.password !== currentPassword) {
         return res.status(401).json({ message: 'Invalid current password!' });
     }
@@ -485,8 +494,8 @@ app.post('/change-password', async (req, res) => {
 
 // Reset Password
 app.post('/reset-password', async (req, res) => {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+    const { id } = req.body;
+    const user = await User.findOne({ id });
     if (!user) return res.status(404).json({ message: 'User not found!' });
 
     const newPassword = randomstring.generate({ length: 8, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' });
@@ -499,7 +508,7 @@ app.post('/reset-password', async (req, res) => {
     });
 
     const mailOptions = {
-        from: process.env.GOOGLE_EMAIL, to: email,
+        from: process.env.GOOGLE_EMAIL, to: id,
         subject: 'Your New Password', text: `Your new password is: ${newPassword}. Use this password to log in to the system.`
     };
 

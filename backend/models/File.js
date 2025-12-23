@@ -3,17 +3,13 @@ const mongoose = require('mongoose');
 
 const fileSchema = new mongoose.Schema({
     // --- Physical File Details ---
-    fileName: { type: String, required: true }, 
+    fileName: { type: String, required: true },
     filePath: { type: String, required: true, unique: true }, // e.g., "uploads/12345.pdf"
     fileType: { type: String }, // e.g., "application/pdf"
-    fileSize: { type: Number }, 
-    
+    fileSize: { type: Number },
+
     // --- Ownership ---
-    uploadedBy: {
-        username: { type: String, required: true },
-        email: { type: String, required: true, index: true }, // Index for fast "My Data" fetch
-        role: { type: String, required: true }
-    },
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     // --- Usage Contexts (The "Where is it used?" flags) ---
     usage: {

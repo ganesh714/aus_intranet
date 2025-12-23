@@ -15,7 +15,7 @@ function Home() {
     const navigate = useNavigate();
 
     // Fetch User Details
-    const email = sessionStorage.getItem('userEmail');
+    const id = sessionStorage.getItem('userId');
     const username = sessionStorage.getItem('username');
     const role = sessionStorage.getItem('userRole');
     const subRole = sessionStorage.getItem('usersubRole');
@@ -30,7 +30,7 @@ function Home() {
         navigate('/');
     };
 
-    const handleChangePassword = async (e) => { 
+    const handleChangePassword = async (e) => {
         e.preventDefault();
         setErrorMessage('');
         if (!validatePassword(changePasswordData.newPassword)) {
@@ -39,7 +39,7 @@ function Home() {
         }
         try {
             const response = await axios.post('http://localhost:5001/change-password', {
-                email,
+                id,
                 currentPassword: changePasswordData.currentPassword,
                 newPassword: changePasswordData.newPassword,
             });
@@ -59,7 +59,7 @@ function Home() {
                     <div className="logo-section">
                         <img src={img1} className="aulogo" alt="AULogo" />
                     </div>
-                    
+
                     <div className="header-right-section">
                         {/* User Info Display */}
                         <div className="user-info-display">
@@ -77,7 +77,7 @@ function Home() {
                             <button onClick={() => setShowPasswordModal(true)} className="action-btn btn-change-pass">
                                 <FaLock className="btn-icon" /> Change Password
                             </button>
-                            
+
                             {/* LogOut */}
                             <button onClick={handleLogout} className="action-btn btn-logout">
                                 <FaSignOutAlt className="btn-icon" /> LogOut

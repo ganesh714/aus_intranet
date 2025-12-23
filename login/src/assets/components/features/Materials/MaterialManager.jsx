@@ -3,10 +3,10 @@ import axios from 'axios';
 import { FaBook, FaCloudUploadAlt, FaUserTie } from 'react-icons/fa';
 import '../Documents/Documents.css';
 
-const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
+const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
     const [materials, setMaterials] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
-    
+
     const [filters, setFilters] = useState({
         year: '',
         section: ''
@@ -40,7 +40,7 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
         if (userRole !== 'Student' || (filters.year && filters.section)) {
             fetchMaterials();
         } else {
-            setMaterials([]); 
+            setMaterials([]);
         }
     }, [userRole, filters, userSubRole]);
 
@@ -55,7 +55,7 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
         formData.append('file', uploadForm.file);
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
-            email: userEmail,
+            id: userId,
             role: userRole,
             subRole: userSubRole
         }));
@@ -83,7 +83,7 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
         <div className="results-container">
             <div className="search-header">
                 <h2>{userRole === 'Student' ? 'Class Materials' : 'Student Related / Material'}</h2>
-                
+
                 {userRole !== 'Student' && (
                     <button className="quick-upload-btn" onClick={() => setIsUploading(!isUploading)}>
                         <FaCloudUploadAlt /> {isUploading ? 'View List' : 'Upload Material'}
@@ -96,24 +96,24 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
                 <div className="filter-bar" style={{ display: 'flex', gap: '15px', marginBottom: '20px', padding: '15px', background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
                     <div className="form-group" style={{ flex: 1 }}>
                         <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Year</label>
-                        <input 
-                            type="number" 
-                            className="modern-search" 
-                            style={{ width: '100%', borderRadius:'6px' }}
-                            placeholder="Enter Year (e.g. 2)" 
-                            value={filters.year} 
-                            onChange={(e) => setFilters({...filters, year: e.target.value})} 
+                        <input
+                            type="number"
+                            className="modern-search"
+                            style={{ width: '100%', borderRadius: '6px' }}
+                            placeholder="Enter Year (e.g. 2)"
+                            value={filters.year}
+                            onChange={(e) => setFilters({ ...filters, year: e.target.value })}
                         />
                     </div>
                     <div className="form-group" style={{ flex: 1 }}>
                         <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Section</label>
-                        <input 
-                            type="number" 
-                            className="modern-search" 
-                            style={{ width: '100%', borderRadius:'6px' }}
-                            placeholder="Enter Section (e.g. 1)" 
-                            value={filters.section} 
-                            onChange={(e) => setFilters({...filters, section: e.target.value})} 
+                        <input
+                            type="number"
+                            className="modern-search"
+                            style={{ width: '100%', borderRadius: '6px' }}
+                            placeholder="Enter Section (e.g. 1)"
+                            value={filters.section}
+                            onChange={(e) => setFilters({ ...filters, section: e.target.value })}
                         />
                     </div>
                 </div>
@@ -127,26 +127,26 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
                         <div className="form-row">
                             <div className="form-group half">
                                 <label>Title</label>
-                                <input type="text" required value={uploadForm.title} onChange={e => setUploadForm({...uploadForm, title: e.target.value})} placeholder="e.g. Unit 1 Notes"/>
+                                <input type="text" required value={uploadForm.title} onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })} placeholder="e.g. Unit 1 Notes" />
                             </div>
                             <div className="form-group half">
                                 <label>Subject (Course)</label>
-                                <input type="text" required value={uploadForm.subject} onChange={e => setUploadForm({...uploadForm, subject: e.target.value})} placeholder="e.g. Data Structures"/>
+                                <input type="text" required value={uploadForm.subject} onChange={e => setUploadForm({ ...uploadForm, subject: e.target.value })} placeholder="e.g. Data Structures" />
                             </div>
                         </div>
                         <div className="form-row">
                             <div className="form-group half">
                                 <label>Target Year</label>
-                                <input type="number" required value={uploadForm.targetYear} onChange={e => setUploadForm({...uploadForm, targetYear: e.target.value})} />
+                                <input type="number" required value={uploadForm.targetYear} onChange={e => setUploadForm({ ...uploadForm, targetYear: e.target.value })} />
                             </div>
                             <div className="form-group half">
                                 <label>Target Section</label>
-                                <input type="number" required value={uploadForm.targetSection} onChange={e => setUploadForm({...uploadForm, targetSection: e.target.value})} />
+                                <input type="number" required value={uploadForm.targetSection} onChange={e => setUploadForm({ ...uploadForm, targetSection: e.target.value })} />
                             </div>
                         </div>
                         <div className="form-group">
                             <label>File</label>
-                            <input type="file" required onChange={e => setUploadForm({...uploadForm, file: e.target.files[0]})} />
+                            <input type="file" required onChange={e => setUploadForm({ ...uploadForm, file: e.target.files[0] })} />
                         </div>
                         <button type="submit" className="send-btn">Upload</button>
                     </form>
@@ -158,10 +158,10 @@ const MaterialManager = ({ userRole, userSubRole, userEmail, onPdfClick }) => {
                 {Object.keys(groupedMaterials).length > 0 ? (
                     Object.entries(groupedMaterials).map(([facultyName, items]) => (
                         <div key={facultyName} className="faculty-group" style={{ marginBottom: '30px' }}>
-                            <h3 style={{ 
-                                fontSize: '18px', 
-                                color: '#1E3A8A', 
-                                borderBottom: '2px solid #F97316', 
+                            <h3 style={{
+                                fontSize: '18px',
+                                color: '#1E3A8A',
+                                borderBottom: '2px solid #F97316',
                                 paddingBottom: '8px',
                                 marginBottom: '15px',
                                 display: 'flex',

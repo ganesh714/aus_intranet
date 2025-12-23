@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 // Define the schema for the user, including subRole that is only required for specific roles
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    id: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { 
-        type: String, 
-        required: true, 
-        enum: ['Student', 'Leadership', 'Dean','Asso.Dean', 'HOD', 'Faculty', 'Admin'] // 'Officers' - > 'Leadership' 
+    role: {
+        type: String,
+        required: true,
+        enum: ['Student', 'Leadership', 'Dean', 'Asso.Dean', 'HOD', 'Faculty', 'Admin'] // 'Officers' - > 'Leadership' 
     },
     subRole: {
         type: String,
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
             'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Leadership
             'IQAC', 'R&D', 'CLM', 'CD',          // sub-roles for Dean
             'SOE', 'IQAC', 'ADMIN',       // sub-roles for Asso.Dean
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', // sub-roles
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED', // sub-roles
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', // sub-roles for HOD
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE' // sub-roles for Faculty
         ],
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
                 if (this.role === 'Admin' && v !== null) {
                     return false;
                 }
-                
+
                 // If subRole is not provided and it's not needed for the role (e.g., Admin), it should be valid
                 return true;
             },

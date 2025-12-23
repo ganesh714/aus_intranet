@@ -8,10 +8,10 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     const [isRegistering, setIsRegistering] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
+        id: '',
         password: '',
         confirmPassword: '',
-        role: '',  
+        role: '',
         subRole: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
@@ -22,12 +22,12 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     useEffect(() => {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         const role = sessionStorage.getItem('userRole');
-        
+
         if (isLoggedIn) {
             setIsLoggedIn(true);
             navigate(`/${role?.toLowerCase()}-page`);
         }
-        
+
         document.body.classList.add('login-page');
         return () => {
             document.body.classList.remove('login-page');
@@ -48,7 +48,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage('');
-    
+
         if (isRegistering) {
             if (formData.password !== formData.confirmPassword) {
                 setErrorMessage('Passwords do not match!');
@@ -58,13 +58,13 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 setErrorMessage('Password must be 8 characters and include letters, numbers, and special characters.');
                 return;
             }
-    
+
             try {
                 const response = await axios.post('http://localhost:5001/register', formData);
                 alert(response.data.message);
                 setFormData({
                     username: '',
-                    email: '',
+                    id: '',
                     password: '',
                     confirmPassword: '',
                     role: '',
@@ -82,14 +82,14 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         } else {
             try {
                 const response = await axios.post('http://localhost:5001/login', {
-                    email: formData.email,
+                    id: formData.id,
                     password: formData.password,
                 });
 
-                const { email, username, role, subRole } = response.data.user;
+                const { id, username, role, subRole } = response.data.user;
 
                 sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('userEmail', email);
+                sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', role);
                 sessionStorage.setItem('usersubRole', subRole);
                 sessionStorage.setItem('username', username);
@@ -105,14 +105,14 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 }
             } catch (error) {
                 console.error(error);
-                setErrorMessage('Invalid credentials. Please check your email and password.');
+                setErrorMessage('Invalid credentials. Please check your ID and password.');
             }
         }
     };
 
     const renderSubRoleOptions = () => {
         const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
-        
+
         if (formData.role === 'Leadership') {
             return (
                 <div className="subrolecss">
@@ -197,17 +197,17 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                                 <option value="Asso.Dean">Asso.Dean</option>
                                 <option value="HOD">HOD</option>
                                 <option value="Faculty">Faculty</option>
-                                <option value="Student">Student</option> 
+                                <option value="Student">Student</option>
                                 <option value="Admin">Admin</option>
                             </select>
                         </div>
                         {renderSubRoleOptions()}
                     </>
                 )}
-                
+
                 <div className="login-form-group">
-                    <label htmlFor="email">Email Address</label>
-                    <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required placeholder="name@aditya.ac.in" />
+                    <label htmlFor="id">User ID</label>
+                    <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" />
                 </div>
 
                 <div className="login-form-group">
@@ -237,10 +237,10 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 <button type="submit" className="button1">{isRegistering ? 'Register' : 'Login'}</button>
 
                 <p onClick={() => {
-                        setIsRegistering(!isRegistering);
-                        setErrorMessage('');
-                        setFormData({ username: '', email: '', password: '', confirmPassword: '', role: '', subRole: '' });
-                    }} className="register-toggle">
+                    setIsRegistering(!isRegistering);
+                    setErrorMessage('');
+                    setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '' });
+                }} className="register-toggle">
                     {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
                 </p>
 

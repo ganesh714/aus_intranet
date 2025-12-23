@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DocumentView from '../Documents/DocumentView';
 
-const PersonalData = ({ userEmail, userRole, onPdfClick }) => {
+const PersonalData = ({ userId, userRole, onPdfClick }) => {
     const [personalFiles, setPersonalFiles] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -12,20 +12,20 @@ const PersonalData = ({ userEmail, userRole, onPdfClick }) => {
     // Fetch personal files on mount
     useEffect(() => {
         fetchPersonalFiles();
-    }, [userEmail]);
+    }, [userId]);
 
     const fetchPersonalFiles = async () => {
         try {
             const response = await axios.get('http://localhost:5001/get-personal-files', {
-                params: { email: userEmail }
+                params: { id: userId }
             });
-            
+
             const mapped = response.data.files.map(f => ({
                 ...f,
                 name: f.fileName,
                 filePath: f.filePath
             }));
-            
+
             setPersonalFiles(mapped);
         } catch (error) {
             console.error("Error fetching personal data", error);
@@ -40,7 +40,7 @@ const PersonalData = ({ userEmail, userRole, onPdfClick }) => {
         formData.append('file', uploadFile);
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
-            email: userEmail,
+            id: userId,
             role: userRole
         }));
 
@@ -57,13 +57,13 @@ const PersonalData = ({ userEmail, userRole, onPdfClick }) => {
     };
 
     // Filter files based on search query
-    const filteredFiles = personalFiles.filter(item => 
+    const filteredFiles = personalFiles.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <>
-            <DocumentView 
+            <DocumentView
                 type="Personal Data"
                 documents={filteredFiles}
                 searchQuery={searchQuery}
@@ -78,8 +78,8 @@ const PersonalData = ({ userEmail, userRole, onPdfClick }) => {
                     <div className="upload-modal">
                         <h3>Upload to My Data</h3>
                         <form onSubmit={handleSimpleUpload}>
-                            <input 
-                                type="file" 
+                            <input
+                                type="file"
                                 className="modal-file-input"
                                 onChange={(e) => setUploadFile(e.target.files[0])}
                                 required
