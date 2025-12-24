@@ -169,7 +169,7 @@
     font-size: 15px;
     font-weight: 600;
     margin-right: 20px;
-    animation: blink-colors 0.25s infinite alternate;
+    animation: blink-colors 0.5s infinite alternate;
 }
 
 .click-here-btn {
@@ -187,11 +187,11 @@
 
 @keyframes blink-colors {
     0% {
-        color: rgb(235, 0, 0);
+        color: #00436f;
     }
 
     100% {
-        color: rgb(0, 67, 111);
+        color: #c80000;
     }
 }
 

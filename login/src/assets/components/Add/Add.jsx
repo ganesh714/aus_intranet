@@ -32,8 +32,8 @@ const Add = () => {
         const uniqueCategories = [...new Set(data.pdfs.map(pdf => pdf.category))];
 
         // If the user is an Admin, modify the categories as per the logic
-        if (userRole === 'Admin' || userRole === 'Leadership') {
-            // Admin/Leadership can modify categories
+        if (userRole === 'Admin' || userRole === 'Officers') {
+            // Admin/Officers can modify categories
             if (!uniqueCategories.includes("University related")) {
                 uniqueCategories.push("University related");
             }
@@ -56,7 +56,7 @@ const Add = () => {
 
         } else if (userRole === 'Dean') {
             // Dean can modify 'Dean's related', 'HOD's related', and 'Faculty related'
-            const deanCategories = ["Dean's related","Asso.Dean's related", "HOD's related", "Faculty related"];
+            const deanCategories = ["Dean's related", "Asso.Dean's related", "HOD's related", "Faculty related"];
 
             deanCategories.forEach(category => {
                 if (!uniqueCategories.includes(category)) {
@@ -83,7 +83,7 @@ const Add = () => {
             });
         } else {
             // If the user is not Admin/Leadership, exclude the specific categories
-            const adminCategories = ["University related", "Dean's related","Asso.Dean's related", "HOD's related", "Faculty related"];
+            const adminCategories = ["University related", "Dean's related", "Asso.Dean's related", "HOD's related", "Faculty related"];
             const filteredCategories = uniqueCategories.filter(category => !adminCategories.includes(category));
             setCategories(filteredCategories);
             return;
@@ -223,7 +223,7 @@ const Add = () => {
                 setErrors({});
                 setSelectedSubCategory('');  // Reset sub-category on successful upload
                 alert('Successfully uploaded files');
-                navigate('/home-page'); 
+                navigate('/home-page');
             } else {
                 alert(data.message || 'Error uploading files');
             }

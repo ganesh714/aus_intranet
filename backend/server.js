@@ -185,7 +185,7 @@ app.get('/get-pdfs', async (req, res) => {
 
         const extraCategories = [];
 
-        if (role === 'Officers' || role === 'Leadership') {
+        if (role === 'Officers') {
             extraCategories.push('University related', "Dean's related", "Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
         } else if (role === 'Dean') {
             extraCategories.push("Dean's related", "Asso.Dean's related", "HOD's related", 'Faculty related', 'Dept.Equipment');
@@ -477,7 +477,7 @@ app.get('/get-materials', async (req, res) => {
             if (year) query.targetYear = year;
             if (section) query.targetSection = section;
         } else {
-            // Faculty/Leadership viewing logic
+            // Faculty/Officers viewing logic
             if (subRole && subRole !== 'All' && subRole !== 'null') {
                 // Find users with this subRole
                 const users = await User.find({ subRole }).select('_id');

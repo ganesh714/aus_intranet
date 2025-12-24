@@ -113,7 +113,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     const renderSubRoleOptions = () => {
         const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
 
-        if (formData.role === 'Leadership') {
+        if (formData.role === 'Officers') {
             return (
                 <div className="subrolecss">
                     <label htmlFor="subRole">Position:</label>
@@ -192,7 +192,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                             <label htmlFor="role">Role</label>
                             <select id="role" name="role" value={formData.role} onChange={handleChange} required>
                                 <option value="">Select your role</option>
-                                <option value="Leadership">Leadership</option>
+                                <option value="Officers">Officers</option>
                                 <option value="Dean">Dean</option>
                                 <option value="Asso.Dean">Asso.Dean</option>
                                 <option value="HOD">HOD</option>

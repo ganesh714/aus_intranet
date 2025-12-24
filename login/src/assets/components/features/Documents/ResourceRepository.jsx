@@ -31,11 +31,11 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                         if (!groupedPdfs[cat]) groupedPdfs[cat] = [];
                     };
 
-                    if (userRole === 'Leadership') ensureCategory("University related");
-                    if (['Dean', 'Leadership'].includes(userRole)) ensureCategory("Dean's related");
-                    if (['Asso.Dean', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    if (['HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory("HOD's related");
-                    if (['Faculty', 'HOD', 'Dean', 'Leadership'].includes(userRole)) ensureCategory('Faculty related');
+                    if (userRole === 'Officers') ensureCategory("University related");
+                    if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
+                    if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
+                    if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
 
                     // if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                     //     ensureCategory('Teaching Material');
@@ -61,7 +61,7 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                         }
 
                         // Determine Permissions
-                        const isHighLevel = ['Dean', 'Asso.Dean', 'Leadership', 'Admin', 'Officers'].includes(userRole);
+                        const isHighLevel = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
                         const isFacultyLevel = ['HOD', 'Faculty'].includes(userRole);
 
                         // 1. Announcements (Everyone gets this if the sidebar supports it, or specific per role)

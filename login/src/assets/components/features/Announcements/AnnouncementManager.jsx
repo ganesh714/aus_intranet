@@ -40,7 +40,7 @@ const AnnouncementManager = ({
         'HOD': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
         'Dean': ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
         'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
-        'Leadership': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
+        'Officers': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
         'Admin': ['All'],
         'All': ['All']
     };
@@ -51,8 +51,8 @@ const AnnouncementManager = ({
             case 'HOD': return ['Student', 'Faculty'];
             case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
             case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
-            case 'Leadership':
-            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Leadership'];
+            case 'Officers':
+            case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'];
             default: return ['All'];
         }
     };
@@ -99,14 +99,14 @@ const AnnouncementManager = ({
         if (category.includes('HOD')) return 'HOD';
         if (category.includes('Asso.Dean')) return 'Asso.Dean';
         if (category.includes('Dean')) return 'Dean';
-        if (category.includes('University')) return 'Leadership';
+        if (category.includes('University')) return 'Officers';
         return userRole;
     };
 
     // Fetch announcements
     const fetchAnnouncements = async () => {
         try {
-            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Leadership', 'Admin'].includes(userRole);
+            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
 

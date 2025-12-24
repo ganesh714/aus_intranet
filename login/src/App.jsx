@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HodPage from "./assets/components/HodPage/Hod";
 import DeanPage from "./assets/components/DeanPage/Dean";
-import LeadershipPage from "./assets/components/LeadershipPage/Leadership"; // Note: You should rename the file 'Officers.jsx' to 'Leadership.jsx' eventually
+import OfficersPage from "./assets/components/OfficersPage/Officers";
 import Adminpage from "./assets/components/Admin/Admin";
 import Adeanpage from "./assets/components/Asso.Deanpage/AssoDean";
 import Homepage from "./assets/components/Home-page/Homepage";
@@ -38,9 +38,9 @@ const App = () => {
   return (
     <Routes>
       <Route path='/' element={<Homepage />} />
-      <Route 
-        path='/LoginForm' 
-        element={<LoginForm setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} setUsersubRole={setUsersubRole} />} 
+      <Route
+        path='/LoginForm'
+        element={<LoginForm setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} setUsersubRole={setUsersubRole} />}
       />
 
       {isLoggedIn && userRole === 'HOD' && (
@@ -55,8 +55,8 @@ const App = () => {
         <Route path='/dean-page' element={<DeanPage />} />
       )}
 
-      {isLoggedIn && userRole === 'Leadership' && (
-        <Route path='/leadership-page' element={<LeadershipPage />} />
+      {isLoggedIn && userRole === 'Officers' && (
+        <Route path='/officers-page' element={<OfficersPage />} />
       )}
 
       {isLoggedIn && userRole === 'Admin' && (
@@ -65,8 +65,8 @@ const App = () => {
 
       {isLoggedIn && userRole === 'Faculty' && (
         <>
-            <Route path='/faculty-page' element={<FacultyDashboard />} />
-            {/* <Route path='/it-faculty-page' element={<FacultyDashboard />} />
+          <Route path='/faculty-page' element={<FacultyDashboard />} />
+          {/* <Route path='/it-faculty-page' element={<FacultyDashboard />} />
             <Route path='/cse-faculty-page' element={<FacultyDashboard />} />
             <Route path='/aiml-faculty-page' element={<FacultyDashboard />} />
             <Route path='/ce-faculty-page' element={<FacultyDashboard />} />
@@ -97,9 +97,9 @@ const App = () => {
               isLoggedIn
                 ? userRole.toLowerCase() === "faculty"
                   ? `/${usersubRole.toLowerCase()}-faculty-page`
-                : userRole === "Student"
-                  ? `/student-page`
-                  : `/${userRole.toLowerCase()}-page`
+                  : userRole === "Student"
+                    ? `/student-page`
+                    : `/${userRole.toLowerCase()}-page`
                 : "/"
             }
             replace
