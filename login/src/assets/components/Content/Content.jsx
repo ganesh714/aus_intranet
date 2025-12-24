@@ -9,7 +9,8 @@ import AnnouncementManager from "../features/Announcements/AnnouncementManager";
 import CategoryViewer from "../features/Documents/CategoryViewer";
 import ResourceRepository from "../features/Documents/ResourceRepository";
 import PdfViewer from "../features/Documents/PdfViewer";
-import MaterialManager from "../features/Materials/MaterialManager"; // Import the new component
+import MaterialManager from "../features/Materials/MaterialManager";
+import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
 
 const Content = () => {
     // --- USER INFO ---
@@ -59,6 +60,12 @@ const Content = () => {
             return;
         }
 
+        // [NEW] Handle Time Table in Accordion
+        if (categoryName === 'Student Related' && subCategory === 'Time Table') {
+            setActiveView('timetable-manager');
+            return;
+        }
+
         // 3. Handle Announcements
         if (subCategory === 'Announcements') {
             setActiveView('announcements-feed');
@@ -82,7 +89,8 @@ const Content = () => {
             setActiveView('material-manager');
             setActiveCategory('Teaching Material');
         } else if (categoryName === 'Time Table') {
-            setActiveView('Time Table');
+            // [NEW] Direct Link for Students
+            setActiveView('timetable-manager');
             setActiveCategory('Time Table');
         } else if (categoryName === 'Dept.Equipment') {
             setActiveView('category');
@@ -161,6 +169,16 @@ const Content = () => {
                         userSubRole={userSubRole}
                         userId={userId}
                         onPdfClick={handlePdfClick}
+                    />
+                );
+
+            // [NEW CASE]
+            case 'timetable-manager':
+                return (
+                    <TimetableManager
+                        userRole={userRole}
+                        userSubRole={userSubRole}
+                        userId={userId} // Passing ID
                     />
                 );
 

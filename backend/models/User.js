@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
     id: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+
+    // Permission flag specifically for Faculty
+    // For HODs, this is effectively 'true' by virtue of their role.
+    canUploadTimetable: { type: Boolean, default: false },
     role: {
         type: String,
         required: true,

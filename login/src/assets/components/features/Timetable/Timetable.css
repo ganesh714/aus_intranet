@@ -1,0 +1,88 @@
+.timetable-filter-bar {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+}
+
+.filter-inputs {
+    display: flex;
+    gap: 20px;
+}
+
+.timetable-card {
+    border-color: #d9f99d;
+}
+
+.timetable-card:hover {
+    border-color: #84cc16;
+}
+
+/* Excel Modal Styles */
+.excel-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 2500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.excel-container {
+    width: 95%;
+    height: 90%;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.excel-header {
+    padding: 15px 20px;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.excel-header h3 {
+    margin: 0;
+    color: var(--primary-blue);
+}
+
+.excel-content {
+    flex-grow: 1;
+    overflow: auto;
+    padding: 20px;
+    background-color: white;
+}
+
+.excel-content table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+}
+
+.excel-content td,
+.excel-content th {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.excel-content tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.excel-content tr:hover {
+    background-color: #f0f9ff;
+}

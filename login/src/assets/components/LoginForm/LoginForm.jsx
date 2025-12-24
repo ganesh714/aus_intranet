@@ -86,13 +86,14 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     password: formData.password,
                 });
 
-                const { id, username, role, subRole } = response.data.user;
+                const { id, username, role, subRole, canUploadTimetable } = response.data.user;
 
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', role);
                 sessionStorage.setItem('usersubRole', subRole);
                 sessionStorage.setItem('username', username);
+                sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
 
                 setIsLoggedIn(true);
                 setUserRole(role);

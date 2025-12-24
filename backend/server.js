@@ -10,6 +10,9 @@ require('dotenv').config();
 const File = require('./models/File');
 const Material = require('./models/Material'); // Import the new model
 const Announcement = require('./models/Announcement');
+const Timetable = require('./models/Timetable'); // [NEW]
+const User = require('./models/User'); // Import User from models
+const fs = require('fs'); // Required for deleting replaced files
 
 const app = express();
 
@@ -37,25 +40,6 @@ mongoose.connect(process.env.MONGODB_URI)
         console.error('Error connecting to MongoDB', err);
     });
 
-const userSchema = new mongoose.Schema({
-    username: String,
-    id: String,
-    password: String,
-    role: String,
-    subRole: {
-        type: String,
-        enum: [
-            'DyPC', 'VC', 'ProVC', 'Registrar',
-            'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP',
-            'SOE', 'IQAC', 'AD', 'FED',
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED',
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'
-        ],
-        default: null,
-    },
-});
-
-const User = mongoose.model('User', userSchema);
 
 const pdfSchema = new mongoose.Schema({
     category: { type: String, required: true },
@@ -93,7 +77,9 @@ app.post('/register', async (req, res) => {
         id,
         password,
         role,
+        role,
         subRole: role === 'Admin' ? null : subRole,
+        canUploadTimetable: false // Default
     });
 
     try {
@@ -114,6 +100,161 @@ app.post('/login', async (req, res) => {
         res.json({ message: 'Login successful!', user });
     } else {
         res.status(401).json({ message: 'Invalid credentials!' });
+    }
+});
+
+// --- TIMETABLE ROUTES ---
+
+// 1. Get Department Faculty (For HOD Access Control)
+app.get('/get-dept-faculty', async (req, res) => {
+    const { dept } = req.query;
+    console.log(`[GetFaculty] Fetching for dept: ${dept}`);
+    try {
+        // Fetch ID, Username, and Permission status
+        const faculty = await User.find({
+            role: 'Faculty',
+            subRole: dept
+        }, 'username id canUploadTimetable');
+        console.log(`[GetFaculty] Found ${faculty.length} faculty. First item:`, faculty.length > 0 ? faculty[0] : 'None');
+        res.json({ faculty });
+    } catch (error) {
+        console.error("[GetFaculty] Error", error);
+        res.status(500).json({ message: 'Error fetching faculty', error });
+    }
+});
+
+// 2. Toggle Timetable Permission (HOD Only)
+app.post('/toggle-timetable-permission', async (req, res) => {
+    const { id, canUpload } = req.body; // Using ID instead of email
+    console.log(`[TogglePermission] Request received for ID: ${id}, canUpload: ${canUpload}`);
+    try {
+        const user = await User.findOne({ id });
+        if (!user) {
+            console.log(`[TogglePermission] User not found: ${id}`);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role !== 'Faculty') {
+            console.log(`[TogglePermission] User is not faculty: ${user.role}`);
+            return res.status(400).json({ message: 'Permissions can only be toggled for Faculty.' });
+        }
+
+        user.canUploadTimetable = canUpload;
+        const savedUser = await user.save();
+        console.log(`[TogglePermission] Successfully updated user ${user.username}. New state: ${savedUser.canUploadTimetable}`);
+
+        res.json({ message: 'Permission updated', user: savedUser });
+    } catch (error) {
+        console.error(`[TogglePermission] Error`, error);
+        res.status(500).json({ message: 'Error updating permission', error });
+    }
+});
+
+// 3. Add/Replace Timetable
+app.post('/add-timetable', upload.single('file'), async (req, res) => {
+    try {
+        const { targetYear, targetSection } = req.body;
+        const userJson = JSON.parse(req.body.user);
+
+        const userDb = await User.findOne({ id: userJson.id });
+        if (!userDb) return res.status(404).json({ message: 'User not found' });
+
+        if (!req.file) return res.status(400).json({ message: 'No file uploaded!' });
+
+        // --- BACKEND PERMISSION CHECK ---
+        const isHOD = userDb.role === 'HOD';
+        const isAuthorizedFaculty = userDb.role === 'Faculty' && userDb.canUploadTimetable;
+
+        if (!isHOD && !isAuthorizedFaculty) {
+            return res.status(403).json({ message: 'You do not have permission to upload time tables.' });
+        }
+
+        // --- OVERWRITE LOGIC ---
+        // Find existing timetable for this Year + Section + Department (uploadedBy user's subRole)
+        // We need to check if existing timetable was uploaded by someone in the same department
+        const usersInDept = await User.find({ subRole: userDb.subRole }).select('_id');
+        const userIdsInDept = usersInDept.map(u => u._id);
+
+        const existingTimetable = await Timetable.findOne({
+            targetYear: targetYear,
+            targetSection: targetSection,
+            uploadedBy: { $in: userIdsInDept }
+        }).populate('fileId');
+
+        if (existingTimetable) {
+            // 1. Delete physical file
+            if (existingTimetable.fileId && existingTimetable.fileId.filePath) {
+                const absolutePath = path.join(__dirname, existingTimetable.fileId.filePath);
+                if (fs.existsSync(absolutePath)) {
+                    try { fs.unlinkSync(absolutePath); } catch (e) { console.error("File delete error", e); }
+                }
+            }
+            // 2. Delete DB records
+            await File.findByIdAndDelete(existingTimetable.fileId._id);
+            await Timetable.findByIdAndDelete(existingTimetable._id);
+            console.log(`Replaced existing timetable for Y:${targetYear} S:${targetSection} Dept:${userDb.subRole}`);
+        }
+
+        // Create new records
+        const newFile = new File({
+            fileName: req.file.originalname,
+            filePath: req.file.path.replace(/\\/g, '/'),
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+            uploadedBy: userDb._id,
+            usage: { isDeptDocument: true }
+        });
+        const savedFile = await newFile.save();
+
+        const newTimetable = new Timetable({
+            targetYear,
+            targetSection,
+            fileId: savedFile._id,
+            uploadedBy: userDb._id
+        });
+
+        await newTimetable.save();
+        res.json({ message: 'Timetable uploaded successfully (Previous version replaced)!', timetable: newTimetable });
+
+    } catch (error) {
+        console.error("Error uploading timetable:", error);
+        res.status(500).json({ message: "Error uploading timetable", error });
+    }
+});
+
+// 4. Get Timetables
+app.get('/get-timetables', async (req, res) => {
+    const { role, subRole, year, section } = req.query;
+
+    try {
+        let query = {};
+
+        // Filter by Department (subRole)
+        if (subRole && subRole !== 'All' && subRole !== 'null') {
+            const users = await User.find({ subRole }).select('_id');
+            const userIds = users.map(u => u._id);
+            if (userIds.length > 0) {
+                query['uploadedBy'] = { $in: userIds };
+            } else {
+                return res.json({ timetables: [] });
+            }
+        }
+
+        if (role === 'Student') {
+            if (year) query.targetYear = year;
+            if (section) query.targetSection = section;
+        }
+
+        const timetables = await Timetable.find(query)
+            .populate('fileId')
+            .populate('uploadedBy', 'username role subRole id')
+            .sort({ uploadedAt: -1 });
+
+        res.json({ timetables });
+
+    } catch (error) {
+        console.error("Error fetching timetables:", error);
+        res.status(500).json({ message: "Error fetching timetables", error });
     }
 });
 
