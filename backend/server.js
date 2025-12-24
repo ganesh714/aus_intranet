@@ -264,6 +264,7 @@ app.get('/get-announcements', async (req, res) => {
         // Ensure you use .populate() if you are using the new File schema
         const announcements = await Announcement.find(query)
             .populate('fileId')
+            .populate('uploadedBy', 'username role')
             .sort({ uploadedAt: -1 });
 
         res.json({ announcements });
