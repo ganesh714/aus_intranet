@@ -140,17 +140,16 @@
 }
 
 /* --- Ticker & Feed --- */
-.announcement-ticker-container {
-    display: flex;
-    align-items: center;
+.recent-updates {
     background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
-    overflow: hidden;
-    height: 50px;
+    padding: 10px;
+    max-height: 600px;
+    margin-bottom: 10px;
     border-left: 5px solid var(--primary-orange);
 }
+
+
 
 .ticker-track-wrapper {
     flex-grow: 1;
@@ -162,27 +161,42 @@
 }
 
 .ticker-track {
-    white-space: nowrap;
-    animation: scroll 15s linear infinite;
-    display: inline-block;
-    padding-left: 100%;
+    width: 100%;
 }
 
 .ticker-item {
-    color: var(--primary-blue);
-    font-weight: 500;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
     margin-right: 20px;
+    animation: blink-colors 0.25s infinite alternate;
 }
 
-@keyframes scroll {
+.click-here-btn {
+    color: rgb(248, 5, 5);
+    border: none;
+    /* padding: 6px 12px; */
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    /* display: flex; */
+    /* align-items: center; */
+    gap: 6px;
+}
+
+@keyframes blink-colors {
     0% {
-        transform: translateX(0);
+        color: rgb(235, 0, 0);
     }
 
     100% {
-        transform: translateX(-100%);
+        color: rgb(0, 67, 111);
     }
 }
+
+
+
 
 .all-announcements-grid {
     display: flex;
