@@ -1,14 +1,14 @@
 import React from 'react';
 import './Announcements.css';
 
-const AnnouncementForm = ({ 
-    formData, 
-    roleOptions, 
-    subRolesMapping, 
-    myAnnouncements, 
-    onChange, 
-    onFileChange, 
-    onSubmit 
+const AnnouncementForm = ({
+    formData,
+    roleOptions,
+    subRolesMapping,
+    myAnnouncements,
+    onChange,
+    onFileChange,
+    onSubmit
 }) => {
     return (
         <div className="announce-container">
@@ -16,27 +16,42 @@ const AnnouncementForm = ({
             <form className="announce-form" onSubmit={onSubmit}>
                 <div className="form-group">
                     <label>Title</label>
-                    <input type="text" name="title" value={formData.title} onChange={onChange} required placeholder="Enter announcement title"/>
+                    <input type="text" name="title" value={formData.title} onChange={onChange} required placeholder="Enter announcement title" />
                 </div>
                 <div className="form-group">
                     <label>Description</label>
-                    <textarea name="description" value={formData.description} onChange={onChange} required rows="4"/>
+                    <textarea name="description" value={formData.description} onChange={onChange} required rows="4" />
                 </div>
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label>Target Role</label>
-                        <select name="targetRole" value={formData.targetRole} onChange={onChange}>
-                            {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
-                        </select>
+                <div className="target-builder">
+                    <label>Target Audience</label>
+                    <div className="form-row">
+                        <div className="form-group half">
+                            <select name="targetRole" value={formData.targetRole} onChange={onChange}>
+                                {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-group half">
+                            <select name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
+                                {(subRolesMapping[formData.targetRole] || ['All']).map((sr, i) => (
+                                    <option key={i} value={sr}>{sr}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <button type="button" className="add-target-btn" onClick={formData.onAddTarget}>
+                            Add
+                        </button>
                     </div>
-                    <div className="form-group half">
-                        <label>Target Department</label>
-                        <select name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
-                            {(subRolesMapping[formData.targetRole] || ['All']).map((sr, i) => (
-                                <option key={i} value={sr}>{sr}</option>
+
+                    {formData.targets && formData.targets.length > 0 && (
+                        <div className="added-targets-list">
+                            {formData.targets.map((t, idx) => (
+                                <span key={idx} className="target-chip">
+                                    {t.role} - {t.subRole}
+                                    <button type="button" onClick={() => formData.onRemoveTarget(idx)}>×</button>
+                                </span>
                             ))}
-                        </select>
-                    </div>
+                        </div>
+                    )}
                 </div>
                 <div className="form-group">
                     <label>Attachment (Optional)</label>

@@ -24,6 +24,7 @@ const AnnouncementManager = ({
         description: '',
         targetRole: '',
         targetSubRole: 'All',
+        targets: [], // Array of { role, subRole }
         file: null
     });
 
@@ -64,6 +65,32 @@ const AnnouncementManager = ({
             setAnnounceForm(prev => ({ ...prev, targetRole: roleOptions[0] }));
         }
     }, [roleOptions]);
+
+    const handleAddTarget = () => {
+        const newTarget = {
+            role: announceForm.targetRole,
+            subRole: announceForm.targetSubRole
+        };
+
+        // Prevent duplicates
+        const exists = announceForm.targets.some(t =>
+            t.role === newTarget.role && t.subRole === newTarget.subRole
+        );
+
+        if (!exists) {
+            setAnnounceForm(prev => ({
+                ...prev,
+                targets: [...prev.targets, newTarget]
+            }));
+        }
+    };
+
+    const handleRemoveTarget = (index) => {
+        setAnnounceForm(prev => ({
+            ...prev,
+            targets: prev.targets.filter((_, i) => i !== index)
+        }));
+    };
 
     const getRoleFromCategory = (category) => {
         if (!category) return userRole;
@@ -134,11 +161,19 @@ const AnnouncementManager = ({
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+
+        // Validation: Ensure at least one target is added
+        if (announceForm.targets.length === 0) {
+            alert('Please add at least one target audience.');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('title', announceForm.title);
         formData.append('description', announceForm.description);
-        formData.append('targetRole', announceForm.targetRole);
-        formData.append('targetSubRole', announceForm.targetSubRole);
+
+        // Pass the targets array as a JSON string
+        formData.append('targets', JSON.stringify(announceForm.targets));
 
         if (announceForm.file) {
             formData.append('file', announceForm.file);
@@ -159,6 +194,7 @@ const AnnouncementManager = ({
                 description: '',
                 targetRole: roleOptions[0],
                 targetSubRole: 'All',
+                targets: [],
                 file: null
             });
             fetchAnnouncements();
@@ -175,12 +211,18 @@ const AnnouncementManager = ({
     if (showSendAnnounce) {
         return (
             <AnnouncementForm
-                formData={announceForm}
+
                 roleOptions={roleOptions}
                 subRolesMapping={subRolesMapping}
                 myAnnouncements={myAnnouncements}
                 onChange={handleFormChange}
                 onFileChange={handleFileChange}
+                // Pass the new props for target management
+                formData={{
+                    ...announceForm,
+                    onAddTarget: handleAddTarget,
+                    onRemoveTarget: handleRemoveTarget
+                }}
                 onSubmit={handleFormSubmit}
                 onToggleView={toggleView}
             />

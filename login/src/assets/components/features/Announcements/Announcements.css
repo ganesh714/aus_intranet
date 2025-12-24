@@ -5,7 +5,7 @@
     background-color: white;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .announce-container h2 {
@@ -145,7 +145,7 @@
     align-items: center;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     margin-bottom: 25px;
     overflow: hidden;
     height: 50px;
@@ -175,8 +175,13 @@
 }
 
 @keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
 .all-announcements-grid {
@@ -189,7 +194,7 @@
     display: flex;
     background: white;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     border: 1px solid #e5e7eb;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -197,7 +202,7 @@
 
 .detail-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .dc-left {
@@ -217,7 +222,7 @@
     background: white;
     padding: 8px;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .dc-content {
@@ -307,4 +312,64 @@
     .scrolling-text {
         animation: none;
     }
+}
+
+/* Target Builder */
+.target-builder {
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.add-target-btn {
+    padding: 0 20px;
+    background: #ea580c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-left: 10px;
+    align-self: flex-end;
+    height: 42px;
+    /* Match input height */
+    margin-bottom: 15px;
+}
+
+.added-targets-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.target-chip {
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bbdefb;
+}
+
+.target-chip button {
+    background: none;
+    border: none;
+    color: #ef5350;
+    font-weight: bold;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.target-chip button:hover {
+    color: #c62828;
 }

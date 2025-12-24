@@ -14,10 +14,10 @@ const announcementSchema = new mongoose.Schema({
 
     uploadedAt: { type: Date, default: Date.now },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    targetAudience: {
+    targetAudience: [{
         role: { type: String, required: true },
         subRole: { type: String },
-    }
+    }]
 });
 
 module.exports = mongoose.model('Announcement', announcementSchema);

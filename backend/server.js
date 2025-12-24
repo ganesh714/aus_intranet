@@ -227,22 +227,35 @@ app.get('/get-announcements', async (req, res) => {
 
         // 2. Fetch announcements targeting ME (My Role & My Dept)
         if (role) {
+            // Find announcements where targetAudience array contains an element matching my role/subRole
             if (subRole && subRole !== 'null') {
-                orConditions.push(
-                    // Targeted specifically to my Role & Dept (e.g., Student - CSE)
-                    { 'targetAudience.role': role, 'targetAudience.subRole': subRole },
-                    // Targeted to my Role generally (e.g., Student - All)
-                    { 'targetAudience.role': role, 'targetAudience.subRole': 'All' }
-                );
+                orConditions.push({
+                    targetAudience: {
+                        $elemMatch: {
+                            $or: [
+                                { role: role, subRole: subRole },
+                                { role: role, subRole: 'All' }
+                            ]
+                        }
+                    }
+                });
             } else {
-                // If I have no subRole, just check my main role
-                orConditions.push({ 'targetAudience.role': role });
+                // If I have no subRole, check if there is a target with my role
+                orConditions.push({
+                    targetAudience: {
+                        $elemMatch: { role: role }
+                    }
+                });
             }
         }
 
         // --- THE FIX: ALWAYS FETCH GLOBAL ANNOUNCEMENTS ---
-        // This ensures announcements sent to "All" (by DyPC/Leadership) are seen by everyone.
-        orConditions.push({ 'targetAudience.role': 'All' });
+        // This checks if there is ANY target with role 'All' in the array
+        orConditions.push({
+            targetAudience: {
+                $elemMatch: { role: 'All' }
+            }
+        });
 
         if (orConditions.length === 0) return res.json({ announcements: [] });
 
@@ -285,12 +298,21 @@ app.post('/add-announcement', upload.single('file'), async (req, res) => {
     }
 
     // 2. Create the Announcement referencing the File ID
+    // Parse targets if it came as a stringified JSON (common with FormData)
+    let targets = [];
+    try {
+        targets = typeof req.body.targets === 'string' ? JSON.parse(req.body.targets) : req.body.targets;
+    } catch (e) {
+        console.error("Error parsing targets:", e);
+        targets = []; // Fallback
+    }
+
     const newAnnouncement = new Announcement({
         title,
         description,
         fileId: savedFileId, // Link via ID, not path
         uploadedBy: userDb._id,
-        targetAudience: { role: targetRole, subRole: targetSubRole }
+        targetAudience: targets // Save the array
     });
 
     try {
