@@ -128,7 +128,7 @@ const AnnouncementManager = ({
                 );
 
                 if (showSendAnnounce) {
-                    setMyAnnouncements(sorted.filter(item => item.uploadedBy.id === userId));
+                    setMyAnnouncements(sorted.filter(item => item.uploadedBy?.id === userId));
                 } else {
                     setAnnouncements(sorted);
                 }
