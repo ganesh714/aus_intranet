@@ -52,6 +52,7 @@ desktop.ini
 
 # Uploaded/generated files (backend uploads)
 backend/uploads/
+backend/uploads1/
 uploads/
 public/uploads/
 
