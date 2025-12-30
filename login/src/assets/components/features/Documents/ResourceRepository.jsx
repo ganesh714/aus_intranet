@@ -86,8 +86,8 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                     // --- LOGIC FOR STUDENTS ---
                     if (userRole === 'Student') {
                         // Ensure main categories exist
-                        if (!groupedPdfs['Teaching Material']) {
-                            groupedPdfs['Teaching Material'] = [{ category: 'Teaching Material', subcategory: 'hidden' }];
+                        if (!groupedPdfs['Material']) {
+                            groupedPdfs['Material'] = [{ category: 'Material', subcategory: 'hidden' }];
                         }
                         if (!groupedPdfs['Time Table']) {
                             groupedPdfs['Time Table'] = [{ category: 'Time Table', subcategory: 'hidden' }];

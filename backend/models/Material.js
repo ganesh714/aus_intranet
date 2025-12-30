@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const materialSchema = new mongoose.Schema({
     title: { type: String, required: true },
     subject: { type: String, required: true },
-    targetYear: { type: Number, required: true },
-    targetSection: { type: Number, required: true },
+    targetBatch: { type: String, required: true },
+    targetDepartments: { type: [String], required: true },
 
     fileId: {
         type: mongoose.Schema.Types.ObjectId,

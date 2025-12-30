@@ -21,18 +21,18 @@ const Sidebar = ({
 
     // Helper to check if a category should be a direct link for Students
     const isStudentDirectLink = (catName) => {
-        return userRole === 'Student' && ['Teaching Material', 'Time Table'].includes(catName);
+        return userRole === 'Student' && ['Material', 'Time Table'].includes(catName);
     };
 
     const getIcon = (catName) => {
-        if (catName === 'Teaching Material') return <FaBook className="cat-icon" />;
+        if (catName === 'Material' || catName === 'Teaching Material') return <FaBook className="cat-icon" />;
         if (catName === 'Time Table') return <FaClock className="cat-icon" />;
         return <FaFolder className="cat-icon" />;
     }
 
     return (
         <div className="sidebar">
-            <h3 className="sidebar-header">Menu</h3>
+
             <div className="category-list">
                 {/* Dashboard */}
                 <div className={`category-item ${showContentP ? "expanded" : ""}`}>
@@ -101,7 +101,7 @@ const Sidebar = ({
 
                     // Check if this is a direct link (Students or Dept.Equipment)
                     const isDirectLink = (catName) => {
-                        if (userRole === 'Student' && ['Teaching Material', 'Time Table'].includes(catName)) return true;
+                        if (userRole === 'Student' && ['Material', 'Time Table'].includes(catName)) return true;
                         if (catName === 'Dept.Equipment') return true;
                         return false;
                     };

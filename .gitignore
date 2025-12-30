@@ -36,6 +36,7 @@ coverage/
 
 # Environment variables
 .env
+service-account-key.json
 .env.*.local
 .env.local
 

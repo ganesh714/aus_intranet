@@ -113,7 +113,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         event.preventDefault();
         if (!fileId || !fileId.filePath) return;
         try {
-            const response = await axios.get(`http://localhost:5001/${fileId.filePath}`, {
+            const response = await axios.get(`http://localhost:5001/proxy-file/${fileId.filePath}`, {
                 responseType: 'arraybuffer'
             });
             const data = new Uint8Array(response.data);

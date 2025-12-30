@@ -16,7 +16,12 @@ const AnnouncementFeed = ({
     const [activeTab, setActiveTab] = useState('university');
 
     const universityRoles = ['Dean', 'Asso.Dean', 'Officers', 'Admin'];
+    const deptRoles = ['HOD', 'Faculty'];
+
     const universityAnnouncements = announcements.filter(ann => universityRoles.includes(ann.uploadedBy?.role));
+    const deptAnnouncements = announcements.filter(ann => deptRoles.includes(ann.uploadedBy?.role));
+
+    const isHigherOfficial = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
 
     return (
         <div className="results-container">
@@ -47,6 +52,14 @@ const AnnouncementFeed = ({
                 >
                     University Announcements
                 </button>
+                {!isHigherOfficial && (
+                    <button
+                        className={`tab-button ${activeTab === 'department' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('department')}
+                    >
+                        Department Announcements
+                    </button>
+                )}
                 <button
                     className={`tab-button ${activeTab === 'quick' ? 'active' : ''}`}
                     onClick={() => setActiveTab('quick')}
@@ -60,7 +73,7 @@ const AnnouncementFeed = ({
                     universityAnnouncements.length > 0 ? (
                         <div className="tickers-group">
                             <div className="ticker-label-static" style={{ fontWeight: 'bold', marginBottom: '10px', color: '#F97316' }}>
-                                <FaBullhorn /> Recent Updates:
+                                <FaBullhorn /> University Updates:
                             </div>
                             <div className="recent-updates">
                                 {universityAnnouncements.slice(0, 50).map((ann, index) => (
@@ -80,6 +93,33 @@ const AnnouncementFeed = ({
                         </div>
                     ) : (
                         <p className="no-data">No university announcements found.</p>
+                    )
+                )}
+
+                {activeTab === 'department' && !isHigherOfficial && (
+                    deptAnnouncements.length > 0 ? (
+                        <div className="tickers-group">
+                            <div className="ticker-label-static" style={{ fontWeight: 'bold', marginBottom: '10px', color: '#10b981' }}>
+                                <FaBullhorn /> Department Updates:
+                            </div>
+                            <div className="recent-updates" style={{ borderLeftColor: '#10b981' }}>
+                                {deptAnnouncements.slice(0, 50).map((ann, index) => (
+                                    <div key={index} className="announcement-ticker-container" style={{ marginBottom: '10px' }}>
+                                        <div className="ticker-track-wrapper">
+                                            <div className="ticker-track">
+                                                <a href="#" className="ticker-link" onClick={(e) => { e.preventDefault(); onPdfClick(ann.fileId?.filePath); }}>
+                                                    <span className="ticker-item" style={{ color: '#059669' }}>
+                                                        {ann.title} - <span style={{ fontSize: '0.9em', opacity: 0.8 }}>{new Date(ann.uploadedAt).toLocaleDateString()}</span>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="no-data">No department announcements found.</p>
                     )
                 )}
 

@@ -85,9 +85,9 @@ const Content = () => {
     // 2. Handle Direct Category Click (Students)
     // 2. Handle Direct Category Click (Students & Equipment)
     const handleDirectCategoryClick = (categoryName) => {
-        if (categoryName === 'Teaching Material') {
+        if (categoryName === 'Material' || categoryName === 'Teaching Material') {
             setActiveView('material-manager');
-            setActiveCategory('Teaching Material');
+            setActiveCategory('Material');
         } else if (categoryName === 'Time Table') {
             // [NEW] Direct Link for Students
             setActiveView('timetable-manager');
@@ -111,7 +111,9 @@ const Content = () => {
         if (event) event.preventDefault();
         if (!pdfPath) return;
 
-        const pdfUrl = `http://localhost:5001/${pdfPath.replace(/\\/g, '/')}`;
+        // NEW (Correct - Uses Backend Proxy):
+        const pdfUrl = `http://localhost:5001/proxy-file/${pdfPath}`;
+
         setSelectedPdf(pdfUrl);
     };
 
