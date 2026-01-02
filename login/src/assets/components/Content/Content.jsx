@@ -99,6 +99,13 @@ const Content = () => {
                 subCategory: 'Documents'
             });
             setActiveCategory('Dept.Equipment');
+        } else if (categoryName === 'Faculty related') {
+            setActiveView('announcements-feed');
+            setViewParams({
+                category: 'Faculty related',
+                subCategory: 'Announcements'
+            });
+            setActiveCategory('Faculty related');
         }
     };
 

@@ -27,6 +27,7 @@ const Sidebar = ({
     const getIcon = (catName) => {
         if (catName === 'Material' || catName === 'Teaching Material') return <FaBook className="cat-icon" />;
         if (catName === 'Time Table') return <FaClock className="cat-icon" />;
+        if (catName === 'Faculty related') return <FaBullhorn className="cat-icon" />;
         return <FaFolder className="cat-icon" />;
     }
 
@@ -89,6 +90,11 @@ const Sidebar = ({
                         return null;
                     }
 
+                    // NEW: Remove "HOD's related" for HOD
+                    if (userRole === 'HOD' && category.category === "HOD's related") {
+                        return null;
+                    }
+
                     // NEW: Remove "Staff Presentations" for Faculty and HOD (as requested)
                     if (category.category === 'Staff Presentations' && isFacultyOrHod) {
                         return null;
@@ -99,10 +105,20 @@ const Sidebar = ({
                         return null;
                     }
 
+                    // NEW: Remove "Dept.Equipment" for Faculty and HOD
+                    if ((userRole === 'Faculty' || userRole === 'HOD') && category.category === 'Dept.Equipment') {
+                        return null;
+                    }
+
+                    // NEW: Remove "Student Related" for Faculty and HOD
+                    if ((userRole === 'Faculty' || userRole === 'HOD') && category.category === 'Student Related') {
+                        return null;
+                    }
+
                     // Check if this is a direct link (Students or Dept.Equipment)
                     const isDirectLink = (catName) => {
-                        if (userRole === 'Student' && ['Material', 'Time Table'].includes(catName)) return true;
-                        if (catName === 'Dept.Equipment') return true;
+                        if (['Material', 'Time Table'].includes(catName)) return true; // Direct link for everyone who has it
+                        if (catName === 'Dept.Equipment' || catName === 'Faculty related') return true;
                         return false;
                     };
 
@@ -110,7 +126,12 @@ const Sidebar = ({
                         return (
                             <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
                                 <div className="category-header" onClick={() => onDirectCategoryClick(category.category)}>
-                                    <span className="cat-name">{getIcon(category.category)} {category.category}</span>
+                                    <span className="cat-name">
+                                        {getIcon(category.category)}
+                                        {category.category === 'Faculty related' ? 'Announcements' :
+                                            category.category === 'Material' ? 'Shared Documents' :
+                                                category.category}
+                                    </span>
                                     {/* No Chevron for direct links */}
                                 </div>
                             </div>

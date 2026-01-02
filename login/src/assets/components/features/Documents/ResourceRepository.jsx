@@ -44,7 +44,8 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
 
 
 
-                    if ((userRole === 'HOD' || userRole === 'Faculty') && !groupedPdfs['Dept.Equipment']) {
+                    /* 
+                    if (userRole === 'HOD' && !groupedPdfs['Dept.Equipment']) {
                         groupedPdfs['Dept.Equipment'] = [{
                             name: 'No documents uploaded yet',
                             category: 'Dept.Equipment',
@@ -52,6 +53,7 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                             filePath: null
                         }];
                     }
+                    */
 
                     // --- LOGIC FOR "STUDENT RELATED" (Non-Students) ---
                     if (userRole !== 'Student') {
@@ -65,20 +67,19 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                         const isFacultyLevel = ['HOD', 'Faculty'].includes(userRole);
 
                         // 1. Announcements (Everyone gets this if the sidebar supports it, or specific per role)
-                        const hasAnnouncements = groupedPdfs['Student Related'].some(i => i.subcategory === 'Announcements');
-                        if (!hasAnnouncements) {
-                            groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Announcements' });
-                        }
+                        // const hasAnnouncements = groupedPdfs['Student Related'].some(i => i.subcategory === 'Announcements');
+                        // if (!hasAnnouncements) {
+                        //    groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Announcements' });
+                        // }
 
                         // 2. Material & Time Table (Only HOD & Faculty)
                         if (isFacultyLevel) {
-                            const hasMaterial = groupedPdfs['Student Related'].some(i => i.subcategory === 'Material');
-                            if (!hasMaterial) {
-                                groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Material' });
+                            // Ensure main categories exist
+                            if (!groupedPdfs['Material']) {
+                                groupedPdfs['Material'] = [{ category: 'Material', subcategory: 'hidden' }];
                             }
-                            const hasTimeTable = groupedPdfs['Student Related'].some(i => i.subcategory === 'Time Table');
-                            if (!hasTimeTable) {
-                                groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Time Table' });
+                            if (!groupedPdfs['Time Table']) {
+                                groupedPdfs['Time Table'] = [{ category: 'Time Table', subcategory: 'hidden' }];
                             }
                         }
                     }
