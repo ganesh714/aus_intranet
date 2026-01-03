@@ -19,6 +19,7 @@ function Home() {
     const username = sessionStorage.getItem('username');
     const role = sessionStorage.getItem('userRole');
     const subRole = sessionStorage.getItem('usersubRole');
+    const batch = sessionStorage.getItem('userBatch'); // Read batch
 
     const validatePassword = (password) => {
         const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
@@ -67,6 +68,7 @@ function Home() {
                                 <span className="user-name">Hi, {username || 'User'}</span>
                                 <span className="user-role-badge">
                                     {role} {subRole && subRole !== 'null' ? ` • ${subRole}` : ''}
+                                    {role === 'Student' && batch ? ` • ${batch}` : ''}
                                 </span>
                             </div>
                             <FaUserCircle className="user-avatar-icon" />

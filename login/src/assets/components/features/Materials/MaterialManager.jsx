@@ -19,7 +19,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
     // Filter Logic
     const [filters, setFilters] = useState({
-        batch: '',
+        batch: (userRole === 'Student' ? sessionStorage.getItem('userBatch') : '') || '',
     });
 
     const [uploadForm, setUploadForm] = useState({

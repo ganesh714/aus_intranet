@@ -51,9 +51,11 @@ const Pdf = mongoose.model('Pdf', pdfSchema);
 
 // Register Route
 app.post('/register', async (req, res) => {
-    const { username, id, password, role, subRole, batch } = req.body; // Added batch
+    const { username, id, password, role, subRole, batch } = req.body;
+    const normalizedId = id.toUpperCase(); // Standardize new users to Uppercase
 
-    const existingUserById = await User.findOne({ id });
+    // Check for existing user (Case Insensitive)
+    const existingUserById = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
     if (existingUserById) {
         return res.status(400).json({ message: 'User ID already exists' });
     }
@@ -71,7 +73,7 @@ app.post('/register', async (req, res) => {
 
     const newUser = new User({
         username,
-        id,
+        id: normalizedId,
         password,
         role,
         subRole: role === 'Admin' ? null : subRole,
@@ -91,7 +93,8 @@ app.post('/register', async (req, res) => {
 // Login Route
 app.post('/login', async (req, res) => {
     const { id, password } = req.body;
-    const user = await User.findOne({ id });
+    // Find user by ID (Case Insensitive)
+    const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
 
     if (user && user.password === password) {
         res.json({ message: 'Login successful!', user });
