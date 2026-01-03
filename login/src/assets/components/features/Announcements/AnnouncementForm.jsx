@@ -37,7 +37,27 @@ const AnnouncementForm = ({
                                 ))}
                             </select>
                         </div>
-                        <button type="button" className="add-target-btn" onClick={formData.onAddTarget}>
+
+                        {/* Conditionally render Batch input for Students */}
+                        {formData.targetRole === 'Student' && (
+                            <div className="form-group half">
+                                <input
+                                    type="text"
+                                    name="targetBatch"
+                                    value={formData.targetBatch || ''}
+                                    onChange={onChange}
+                                    placeholder="Enter Batch (e.g. 2024)"
+                                    className="batch-input"
+                                />
+                            </div>
+                        )}
+
+                        <button
+                            type="button"
+                            className="add-target-btn"
+                            onClick={formData.onAddTarget}
+                            disabled={formData.targetRole === 'Student' && (!formData.targetBatch || !formData.targetBatch.trim())}
+                        >
                             Add
                         </button>
                     </div>
@@ -46,7 +66,7 @@ const AnnouncementForm = ({
                         <div className="added-targets-list">
                             {formData.targets.map((t, idx) => (
                                 <span key={idx} className="target-chip">
-                                    {t.role} - {t.subRole}
+                                    {t.role} - {t.subRole} {t.batch && `(${t.batch})`}
                                     <button type="button" onClick={() => formData.onRemoveTarget(idx)}>×</button>
                                 </span>
                             ))}

@@ -17,6 +17,7 @@ const announcementSchema = new mongoose.Schema({
     targetAudience: [{
         role: { type: String, required: true },
         subRole: { type: String },
+        batch: { type: String } // Added batch field
     }]
 });
 

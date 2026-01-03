@@ -7,6 +7,7 @@ const AnnouncementManager = ({
     userRole,
     userId,
     userSubRole,
+    userBatch, // Passed from parent or read from session in the future (for now we assume parent passes it or we read from session here if needed)
     currentViewCategory,
     deptFilter,
     setDeptFilter,
@@ -24,7 +25,8 @@ const AnnouncementManager = ({
         description: '',
         targetRole: '',
         targetSubRole: 'All',
-        targets: [], // Array of { role, subRole }
+        targetBatch: '', // Added targetBatch
+        targets: [], // Array of { role, subRole, batch }
         file: null
     });
 
@@ -67,20 +69,29 @@ const AnnouncementManager = ({
     }, [roleOptions]);
 
     const handleAddTarget = () => {
+        // Validation for Student role
+        if (announceForm.targetRole === 'Student' && !announceForm.targetBatch.trim()) {
+            return; // Should be handled by UI disable too, but safe guard here
+        }
+
         const newTarget = {
             role: announceForm.targetRole,
-            subRole: announceForm.targetSubRole
+            subRole: announceForm.targetSubRole,
+            batch: announceForm.targetRole === 'Student' ? announceForm.targetBatch : null
         };
 
         // Prevent duplicates
         const exists = announceForm.targets.some(t =>
-            t.role === newTarget.role && t.subRole === newTarget.subRole
+            t.role === newTarget.role &&
+            t.subRole === newTarget.subRole &&
+            t.batch === newTarget.batch
         );
 
         if (!exists) {
             setAnnounceForm(prev => ({
                 ...prev,
-                targets: [...prev.targets, newTarget]
+                targets: [...prev.targets, newTarget],
+                targetBatch: '' // Reset batch after adding
             }));
         }
     };
@@ -109,6 +120,8 @@ const AnnouncementManager = ({
             const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
+            // Read batch directly from session if not passed as prop (or ensure parent passes it)
+            const batchParam = sessionStorage.getItem('userBatch');
 
             if (isHighLevel && !showSendAnnounce) {
                 subRoleParam = deptFilter;
@@ -118,6 +131,7 @@ const AnnouncementManager = ({
                 params: {
                     role: roleParam,
                     subRole: subRoleParam,
+                    batch: batchParam, // Pass batch
                     id: showSendAnnounce ? userId : null
                 }
             });
@@ -148,7 +162,8 @@ const AnnouncementManager = ({
             setAnnounceForm({
                 ...announceForm,
                 targetRole: value,
-                targetSubRole: 'All'
+                targetSubRole: 'All',
+                targetBatch: '' // Reset batch when role changes
             });
         } else {
             setAnnounceForm({ ...announceForm, [name]: value });
@@ -194,6 +209,7 @@ const AnnouncementManager = ({
                 description: '',
                 targetRole: roleOptions[0],
                 targetSubRole: 'All',
+                targetBatch: '',
                 targets: [],
                 file: null
             });

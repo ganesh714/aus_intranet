@@ -56,6 +56,12 @@ const userSchema = new mongoose.Schema({
             message: 'Invalid subRole for the given role'
         }
     },
+    batch: {
+        type: String,
+        required: function () {
+            return this.role === 'Student';
+        }
+    }
 });
 
 // Create and export the User model

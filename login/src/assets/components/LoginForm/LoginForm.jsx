@@ -13,6 +13,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         confirmPassword: '',
         role: '',
         subRole: '',
+        batch: '', // Added batch
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -69,6 +70,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     confirmPassword: '',
                     role: '',
                     subRole: '',
+                    batch: '',
                 });
                 setIsRegistering(false);
             } catch (error) {
@@ -86,12 +88,13 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     password: formData.password,
                 });
 
-                const { id, username, role, subRole, canUploadTimetable } = response.data.user;
+                const { id, username, role, subRole, canUploadTimetable, batch } = response.data.user;
 
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', role);
                 sessionStorage.setItem('usersubRole', subRole);
+                sessionStorage.setItem('userBatch', batch || ''); // Save Batch
                 sessionStorage.setItem('username', username);
                 sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
 
@@ -173,6 +176,22 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                             <option key={dept} value={dept}>{dept}</option>
                         ))}
                     </select>
+
+                    {/* Conditionally render Batch input for Student */}
+                    {formData.role === 'Student' && (
+                        <div className="login-form-group" style={{ marginTop: '15px' }}>
+                            <label htmlFor="batch">Batch (Year):</label>
+                            <input
+                                type="text"
+                                id="batch"
+                                name="batch"
+                                value={formData.batch}
+                                onChange={handleChange}
+                                required
+                                placeholder="e.g. 2024"
+                            />
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -240,7 +259,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 <p onClick={() => {
                     setIsRegistering(!isRegistering);
                     setErrorMessage('');
-                    setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '' });
+                    setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '', batch: '' });
                 }} className="register-toggle">
                     {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
                 </p>

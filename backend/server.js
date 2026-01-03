@@ -51,7 +51,7 @@ const Pdf = mongoose.model('Pdf', pdfSchema);
 
 // Register Route
 app.post('/register', async (req, res) => {
-    const { username, id, password, role, subRole } = req.body;
+    const { username, id, password, role, subRole, batch } = req.body; // Added batch
 
     const existingUserById = await User.findOne({ id });
     if (existingUserById) {
@@ -75,6 +75,7 @@ app.post('/register', async (req, res) => {
         password,
         role,
         subRole: role === 'Admin' ? null : subRole,
+        batch: role === 'Student' ? batch : null, // Pass batch if Student
         canUploadTimetable: false
     });
 
@@ -337,16 +338,49 @@ app.get('/get-announcements', async (req, res) => {
 
         if (role) {
             if (subRole && subRole !== 'null') {
-                orConditions.push({
-                    targetAudience: {
-                        $elemMatch: {
-                            $or: [
-                                { role: role, subRole: subRole },
-                                { role: role, subRole: 'All' }
-                            ]
+                const criteria = [
+                    { role: role, subRole: subRole },
+                    { role: role, subRole: 'All' }
+                ];
+
+                // If it's a student and we have a batch, filter by batch
+                if (role === 'Student' && req.query.batch) {
+                    // Match specific batch
+                    const batch = req.query.batch;
+                    orConditions.push({
+                        targetAudience: {
+                            $elemMatch: {
+                                $or: [
+                                    // 1. Exact match: Role + SubRole + Batch
+                                    { role: role, subRole: subRole, batch: batch },
+                                    // 2. Role + SubRole + No Batch (Legacy/General) -> logic: if batch is NOT stored in DB, it's for everyone? 
+                                    // Actually, if sender specified batch, it must match. If sender didn't specify batch (null/undefined), it's for all batches.
+                                    // Ideally, "All Batches" should be explicit or handled by missing field. 
+                                    // Let's assume if batch field is missing in DB target, it's for all batches.
+                                    { role: role, subRole: subRole, batch: { $exists: false } },
+                                    { role: role, subRole: subRole, batch: null },
+                                    { role: role, subRole: subRole, batch: '' },
+
+                                    // 3. Role + All + Batch
+                                    { role: role, subRole: 'All', batch: batch },
+                                    // 4. Role + All + No Batch
+                                    { role: role, subRole: 'All', batch: { $exists: false } },
+                                    { role: role, subRole: 'All', batch: null },
+                                    { role: role, subRole: 'All', batch: '' }
+                                ]
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    // Original logic for non-students or students without batch (legacy)
+                    orConditions.push({
+                        targetAudience: {
+                            $elemMatch: {
+                                $or: criteria
+                            }
+                        }
+                    });
+                }
             } else {
                 orConditions.push({
                     targetAudience: { $elemMatch: { role: role } }
