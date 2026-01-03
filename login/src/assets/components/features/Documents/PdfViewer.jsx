@@ -3,6 +3,22 @@ import './Documents.css';
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 
 const PdfViewer = ({ fileUrl, onClose }) => {
+    // Close on Escape key
+    React.useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup listener
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onClose]);
+
     return (
         <div className="pdf-modal">
             <div className="pdf-container">
