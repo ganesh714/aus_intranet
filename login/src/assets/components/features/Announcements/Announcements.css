@@ -145,6 +145,8 @@
     border-radius: 8px;
     padding: 10px;
     max-height: 600px;
+    overflow-y: auto;
+    /* Added scroll for overflow */
     margin-bottom: 10px;
     border-left: 5px solid var(--primary-orange);
 }
@@ -172,7 +174,7 @@
 }
 
 .tab-button:hover {
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 

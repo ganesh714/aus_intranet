@@ -26,7 +26,12 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
         if (isLoggedIn) {
             setIsLoggedIn(true);
-            navigate(`/${role?.toLowerCase()}-page`);
+            const lowerRole = role?.toLowerCase() || '';
+            if (lowerRole.includes('asso') && lowerRole.includes('dean')) {
+                navigate('/asso.dean-page');
+            } else {
+                navigate(`/${lowerRole}-page`);
+            }
         }
 
         document.body.classList.add('login-page');
@@ -104,6 +109,8 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
                 if (role === 'Student') {
                     navigate('/student-page');
+                } else if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                    navigate('/asso.dean-page');
                 } else {
                     navigate(`/${role.toLowerCase()}-page`);
                 }

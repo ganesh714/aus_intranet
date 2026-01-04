@@ -15,6 +15,26 @@ import Homepage from "./assets/components/Home-page/Homepage";
 import FacultyDashboard from "./assets/components/FacultyDashboard/FacultyDashboard";
 import StudentDashboard from "./assets/components/StudentDashboard/StudentDashboard";
 
+const getNavigatePath = (role, subRole) => {
+  if (!role) return "/";
+  const lowerRole = role.toLowerCase();
+
+  // Handle various spellings of Asso.Dean
+  if (lowerRole.includes("asso") && lowerRole.includes("dean")) {
+    return "/asso.dean-page";
+  }
+
+  if (lowerRole === "faculty") {
+    return `/${subRole.toLowerCase()}-faculty-page`;
+  }
+
+  if (lowerRole === "student") {
+    return `/student-page`;
+  }
+
+  return `/${lowerRole}-page`;
+};
+
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(
     sessionStorage.getItem('isLoggedIn') === 'true'
@@ -47,8 +67,9 @@ const App = () => {
         <Route path='/hod-page' element={<HodPage />} />
       )}
 
-      {isLoggedIn && userRole === 'Asso.Dean' && (
-        <Route path='/Asso.dean-page' element={<Adeanpage />} />
+      {/* Normalized path for Asso.Dean */}
+      {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean') && (
+        <Route path='/asso.dean-page' element={<Adeanpage />} />
       )}
 
       {isLoggedIn && userRole === 'Dean' && (
@@ -64,19 +85,7 @@ const App = () => {
       )}
 
       {isLoggedIn && userRole === 'Faculty' && (
-        <>
-          <Route path='/faculty-page' element={<FacultyDashboard />} />
-          {/* <Route path='/it-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/cse-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/aiml-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/ce-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/mech-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/eee-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/ece-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/age-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/mpe-faculty-page' element={<FacultyDashboard />} />
-            <Route path='/hmbs-faculty-page' element={<FacultyDashboard />} /> */}
-        </>
+        <Route path='/faculty-page' element={<FacultyDashboard />} />
       )}
 
       {isLoggedIn && userRole === 'Student' && (
@@ -93,15 +102,7 @@ const App = () => {
         path="*"
         element={
           <Navigate
-            to={
-              isLoggedIn
-                ? userRole.toLowerCase() === "faculty"
-                  ? `/${usersubRole.toLowerCase()}-faculty-page`
-                  : userRole === "Student"
-                    ? `/student-page`
-                    : `/${userRole.toLowerCase()}-page`
-                : "/"
-            }
+            to={isLoggedIn ? getNavigatePath(userRole, usersubRole) : "/"}
             replace
           />
         }
