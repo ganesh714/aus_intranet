@@ -82,7 +82,7 @@ const AnnouncementFeed = ({
                                             <div className="ticker-track">
                                                 <a href="#" className="ticker-link" onClick={(e) => { e.preventDefault(); onPdfClick(ann.fileId?.filePath); }}>
                                                     <span className="ticker-item">
-                                                        {ann.title} - <span style={{ fontSize: '0.9em', opacity: 0.8 }}>{new Date(ann.uploadedAt).toLocaleDateString()}</span>
+                                                        {ann.title} - <span style={{ fontSize: '0.9em', opacity: 0.8 }}>{new Date(ann.uploadedAt).toLocaleDateString('en-GB')}</span>
                                                     </span>
                                                 </a>
                                             </div>
@@ -109,7 +109,7 @@ const AnnouncementFeed = ({
                                             <div className="ticker-track">
                                                 <a href="#" className="ticker-link" onClick={(e) => { e.preventDefault(); onPdfClick(ann.fileId?.filePath); }}>
                                                     <span className="ticker-item" style={{ color: '#059669' }}>
-                                                        {ann.title} - <span style={{ fontSize: '0.9em', opacity: 0.8 }}>{new Date(ann.uploadedAt).toLocaleDateString()}</span>
+                                                        {ann.title} - <span style={{ fontSize: '0.9em', opacity: 0.8 }}>{new Date(ann.uploadedAt).toLocaleDateString('en-GB')}</span>
                                                     </span>
                                                 </a>
                                             </div>
@@ -137,7 +137,7 @@ const AnnouncementFeed = ({
                                         <div className="dc-header">
                                             <h3 className="dc-title">{ann.title}</h3>
                                             <span className="dc-date">
-                                                <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString()}
+                                                <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString('en-GB')}
                                             </span>
                                         </div>
                                         <p className="dc-description">{ann.description}</p>

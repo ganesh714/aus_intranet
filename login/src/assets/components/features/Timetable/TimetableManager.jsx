@@ -228,7 +228,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                             <div className="doc-info">
                                 <span className="doc-title">Year {item.targetYear} - Section {item.targetSection}</span>
                                 <span style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
-                                    <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString()}
+                                    <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString('en-GB')}
                                 </span>
                                 <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
                                     By: {item.uploadedBy?.username}

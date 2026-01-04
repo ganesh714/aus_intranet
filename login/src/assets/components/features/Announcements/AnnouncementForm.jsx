@@ -88,7 +88,7 @@ const AnnouncementForm = ({
                             <div key={index} className="announcement-card">
                                 <div className="ac-header">
                                     <h4>{item.title}</h4>
-                                    <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                                    <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString('en-GB')}</span>
                                 </div>
                                 <p className="ac-desc">{item.description}</p>
                             </div>
