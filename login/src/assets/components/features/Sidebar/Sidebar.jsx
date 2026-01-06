@@ -44,8 +44,8 @@ const Sidebar = ({
                     </div>
                 </div>
 
-                {/* My Data (Non-Students and Non-Admin) */}
-                {userRole !== 'Student' && userRole !== 'Admin' && (
+                {/* My Data (Non-Admin) */}
+                {userRole !== 'Admin' && (
                     <div className={`category-item ${type === 'Personal Data' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onPersonalDataClick}>
                             <span className="cat-name">

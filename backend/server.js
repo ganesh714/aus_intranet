@@ -15,6 +15,7 @@ const Material = require('./models/Material');
 const Announcement = require('./models/Announcement');
 const Timetable = require('./models/Timetable');
 const User = require('./models/User');
+const DriveItem = require('./models/DriveItem');
 
 // Import Storage Service (Modular Logic)
 const storageService = require('./services/storageService');
@@ -745,6 +746,389 @@ app.post('/reset-password', async (req, res) => {
 });
 
 const port = 5001;
+
+// --- DRIVE / MY DATA ROUTES ---
+
+// 1. Get Drive Items (Files & Folders)
+app.get('/drive/items', async (req, res) => {
+    const { userId, folderId } = req.query; // folderId can be 'null' for root
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        let parentId = folderId;
+        if (folderId === 'null' || folderId === 'undefined' || !folderId) {
+            parentId = null;
+        }
+
+        // --- MIGRATION LOGIC START ---
+        // If requesting Root (parentId is null), check for legacy "flat" files
+        if (parentId === null) {
+            // Find files that are Personal but NOT linked to any DriveItem yet
+            // We look for any personal file for this user.
+            // Efficient check: find fileIds from DriveItems, then find Files not in that list.
+
+            const existingDriveItems = await DriveItem.find({ owner: user._id, type: 'file' }).select('fileId');
+            const linkedFileIds = existingDriveItems.map(item => item.fileId);
+
+            const legacyFiles = await File.find({
+                "uploadedBy": user._id,
+                "usage.isPersonal": true,
+                "_id": { $nin: linkedFileIds }
+            });
+
+            for (const file of legacyFiles) {
+                // Double check (redundant but safe)
+                // Create a DriveItem for this legacy file at Root
+                await DriveItem.create({
+                    name: file.fileName,
+                    type: 'file',
+                    parent: null,
+                    owner: user._id,
+                    fileId: file._id
+                });
+                console.log(`Migrated legacy file to Drive: ${file.fileName}`);
+            }
+        }
+        // --- MIGRATION LOGIC END ---
+
+        // Fetch items for the directory
+        const items = await DriveItem.find({
+            owner: user._id,
+            parent: parentId
+        }).populate('fileId'); // Populate file details if it's a file
+
+        // Fetch current folder metadata (for navigation)
+        let currentFolder = null;
+        if (parentId) {
+            currentFolder = await DriveItem.findById(parentId);
+        }
+
+        // Calculate Storage Used
+        // Sum fileSize of all files where usage.isPersonal = true for this user
+        const storageStats = await File.aggregate([
+            { $match: { uploadedBy: user._id, "usage.isPersonal": true } },
+            { $group: { _id: null, totalSize: { $sum: "$fileSize" } } }
+        ]);
+        const storageUsed = storageStats.length > 0 ? storageStats[0].totalSize : 0;
+
+        res.json({ items, folder: currentFolder, storageUsed }); // Return stats
+    } catch (error) {
+        console.error("Error fetching drive items:", error);
+        res.status(500).json({ message: "Error fetching items", error });
+    }
+});
+
+// 2. Create New Folder
+app.post('/drive/create-folder', async (req, res) => {
+    const { name, parentId, userId } = req.body;
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const existingItem = await DriveItem.findOne({
+            owner: user._id,
+            parent: parentId || null,
+            name: name
+        });
+        if (existingItem) {
+            return res.status(400).json({ message: 'A folder or file with this name already exists in this destination.' });
+        }
+
+        const newFolder = new DriveItem({
+            name,
+            type: 'folder',
+            parent: parentId || null,
+            owner: user._id
+        });
+
+        await newFolder.save();
+        res.json({ message: "Folder created", folder: newFolder });
+    } catch (error) {
+        res.status(500).json({ message: "Error creating folder", error });
+    }
+});
+
+// 3. Upload File to Drive
+app.post('/drive/upload', upload.array('file', 10), async (req, res) => {
+    try {
+        const userJson = JSON.parse(req.body.user);
+        const parentId = req.body.parentId === 'null' ? null : req.body.parentId;
+
+        const userDb = await User.findOne({ id: userJson.id });
+        if (!userDb) return res.status(404).json({ message: 'User not found' });
+
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'No files uploaded!' });
+        }
+
+        // Check for duplicates first (fail fast or partial? Let's fail fast for simplicity or skip?)
+        // User request implies strictness. Let's check all file names first.
+        // If any conflict, abort entire batch (safer UX than partial uploads).
+        for (const file of req.files) {
+            const existing = await DriveItem.findOne({
+                owner: userDb._id,
+                parent: parentId,
+                name: file.originalname
+            });
+            if (existing) {
+                return res.status(400).json({ message: `File with name "${file.originalname}" already exists.` });
+            }
+        }
+
+        const savedItems = await Promise.all(req.files.map(async (file) => {
+            // 1. Save physical file via Storage Service
+            const fileIdFromStorage = await storageService.saveFile(file);
+
+            // 2. Create File Record
+            const newFile = new File({
+                fileName: file.originalname,
+                filePath: fileIdFromStorage,
+                fileType: file.mimetype,
+                fileSize: file.size,
+                uploadedBy: userDb._id,
+                usage: { isPersonal: true }
+            });
+            const savedFile = await newFile.save();
+
+            // 3. Create DriveItem link
+            const newDriveItem = new DriveItem({
+                name: file.originalname,
+                type: 'file',
+                parent: parentId,
+                owner: userDb._id,
+                fileId: savedFile._id
+            });
+            return await newDriveItem.save();
+        }));
+
+        res.json({ message: "Files uploaded to Drive", items: savedItems });
+    } catch (error) {
+        console.error("Error uploading to drive:", error);
+        res.status(500).json({ message: "Error uploading", error });
+    }
+});
+
+// 4. Rename Item
+app.put('/drive/rename/:id', async (req, res) => {
+    const { id } = req.params;
+    const { newName } = req.body;
+    try {
+        const currentItem = await DriveItem.findById(id);
+        if (!currentItem) return res.status(404).json({ message: "Item not found" });
+
+        const existing = await DriveItem.findOne({
+            owner: currentItem.owner,
+            parent: currentItem.parent,
+            name: newName
+        });
+        if (existing && existing._id.toString() !== id) {
+            return res.status(400).json({ message: "An item with this name already exists." });
+        }
+
+        const item = await DriveItem.findByIdAndUpdate(id, { name: newName }, { new: true });
+        res.json({ message: "Renamed successfully", item });
+    } catch (error) {
+        res.status(500).json({ message: "Error renaming", error });
+    }
+});
+
+// 5. Move Item
+app.put('/drive/move/:id', async (req, res) => {
+    const { id } = req.params;
+    const { newParentId } = req.body; // can be null for root
+    try {
+        const item = await DriveItem.findById(id);
+        if (!item) return res.status(404).json({ message: "Item not found" });
+
+        if (newParentId === id) {
+            return res.status(400).json({ message: "Cannot move a folder into itself." });
+        }
+
+        // Check for Circular Dependency (Moving parent into child)
+        if (item.type === 'folder' && newParentId) {
+            let current = await DriveItem.findById(newParentId);
+            while (current) {
+                if (current._id.toString() === id) {
+                    return res.status(400).json({ message: "Cannot move a folder into one of its subfolders." });
+                }
+                if (!current.parent) break;
+                current = await DriveItem.findById(current.parent);
+            }
+        }
+
+        // Check for Duplicate in Destination
+        const existing = await DriveItem.findOne({
+            owner: item.owner,
+            parent: newParentId || null,
+            name: item.name
+        });
+        if (existing) {
+            return res.status(400).json({ message: `An item with name "${item.name}" already exists in the destination.` });
+        }
+
+        const updatedItem = await DriveItem.findByIdAndUpdate(id, { parent: newParentId || null }, { new: true });
+        res.json({ message: "Moved successfully", item: updatedItem });
+    } catch (error) {
+        res.status(500).json({ message: "Error moving", error });
+    }
+});
+
+// 6. Delete Item (Recursive)
+app.delete('/drive/delete/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const item = await DriveItem.findById(id);
+        if (!item) return res.status(404).json({ message: "Item not found" });
+
+        // Recursive delete function
+        async function deleteItemRecursively(itemId) {
+            const currentItem = await DriveItem.findById(itemId);
+            if (!currentItem) return;
+
+            if (currentItem.type === 'folder') {
+                // Find children
+                const children = await DriveItem.find({ parent: itemId });
+                for (const child of children) {
+                    await deleteItemRecursively(child._id);
+                }
+            } else {
+                // It's a file, delete the physical file reference too
+                if (currentItem.fileId) {
+                    const fileRecord = await File.findById(currentItem.fileId);
+                    if (fileRecord) {
+                        // Delete from Storage
+                        if (fileRecord.filePath) {
+                            await storageService.deleteFile(fileRecord.filePath);
+                        }
+                        // Delete File Record
+                        await File.findByIdAndDelete(currentItem.fileId);
+                    }
+                }
+            }
+            // Finally delete the DriveItem itself
+            await DriveItem.findByIdAndDelete(itemId);
+        }
+
+        await deleteItemRecursively(id);
+
+        res.json({ message: "Deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting:", error);
+        res.status(500).json({ message: "Error deleting", error });
+    }
+});
+
+// 7. Get All Folders (For Picker)
+app.get('/drive/folders', async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const folders = await DriveItem.find({
+            owner: user._id,
+            type: 'folder'
+        }).select('name parent _id');
+
+        res.json({ folders });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching folders", error });
+    }
+});
+
+// 8. Copy Item
+app.post('/drive/copy', async (req, res) => {
+    const { itemId, targetParentId, userId } = req.body;
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const itemToCopy = await DriveItem.findById(itemId);
+        if (!itemToCopy) return res.status(404).json({ message: "Item not found" });
+
+        if (targetParentId === itemId) {
+            return res.status(400).json({ message: "Cannot copy a folder into itself." });
+        }
+
+        // Check for Circular Dependency (Copying parent into child)
+        if (itemToCopy.type === 'folder' && targetParentId) {
+            let current = await DriveItem.findById(targetParentId);
+            while (current) {
+                if (current._id.toString() === itemId) {
+                    return res.status(400).json({ message: "Cannot copy a folder into one of its subfolders." });
+                }
+                if (!current.parent) break;
+                current = await DriveItem.findById(current.parent);
+            }
+        }
+
+        // Check for duplicate name in target
+        const existing = await DriveItem.findOne({
+            owner: user._id,
+            parent: targetParentId || null,
+            name: itemToCopy.name
+        });
+        if (existing) {
+            return res.status(400).json({ message: `Item "${itemToCopy.name}" already exists in destination.` });
+        }
+
+        // Recursive Copy Function
+        async function copyRecursively(sourceItem, newParentId) {
+            if (sourceItem.type === 'folder') {
+                // Create new folder
+                const newFolder = await DriveItem.create({
+                    name: sourceItem.name,
+                    type: 'folder',
+                    parent: newParentId,
+                    owner: user._id
+                });
+
+                // Copy children
+                const children = await DriveItem.find({ parent: sourceItem._id });
+                for (const child of children) {
+                    await copyRecursively(child, newFolder._id);
+                }
+            } else {
+                // File Copy
+                if (sourceItem.fileId) {
+                    const originalFile = await File.findById(sourceItem.fileId);
+                    if (originalFile) {
+                        // 1. Physical Copy
+                        const newStorageId = await storageService.copyFile(originalFile.filePath);
+
+                        // 2. New File Record
+                        const newFileRecord = new File({
+                            fileName: originalFile.fileName,
+                            filePath: newStorageId, // UNIQUE
+                            fileType: originalFile.fileType,
+                            fileSize: originalFile.fileSize,
+                            uploadedBy: user._id,
+                            usage: { isPersonal: true }
+                        });
+                        const savedFile = await newFileRecord.save();
+
+                        // 3. New DriveItem
+                        await DriveItem.create({
+                            name: sourceItem.name,
+                            type: 'file',
+                            parent: newParentId,
+                            owner: user._id,
+                            fileId: savedFile._id
+                        });
+                    }
+                }
+            }
+        }
+
+        await copyRecursively(itemToCopy, targetParentId || null);
+
+        res.json({ message: "Copied successfully" });
+    } catch (error) {
+        console.error("Error copying:", error);
+        res.status(500).json({ message: "Error copying", error });
+    }
+});
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });

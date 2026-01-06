@@ -60,10 +60,10 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 setErrorMessage('Passwords do not match!');
                 return;
             }
-            if (!validatePassword(formData.password)) {
-                setErrorMessage('Password must be 8 characters and include letters, numbers, and special characters.');
-                return;
-            }
+            // if (!validatePassword(formData.password)) {
+            //     setErrorMessage('Password must be 8 characters and include letters, numbers, and special characters.');
+            //     return;
+            // }
 
             try {
                 const response = await axios.post('http://localhost:5001/register', formData);

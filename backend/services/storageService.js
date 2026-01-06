@@ -88,4 +88,26 @@ const getFileStream = async (fileId) => {
     }
 };
 
-module.exports = { saveFile, deleteFile, getFileStream };
+/**
+ * Copies a file on Google Drive.
+ */
+const copyFile = async (fileId) => {
+    if (!driveClient || !fileId) throw new Error("Storage service is not available.");
+
+    try {
+        const response = await driveClient.files.copy({
+            fileId: fileId,
+            requestBody: {
+                parents: [UPLOAD_FOLDER_ID] // Copy to same upload folder
+            },
+            fields: 'id, name'
+        });
+        console.log(`[Storage] File copied. New ID: ${response.data.id}`);
+        return response.data.id;
+    } catch (error) {
+        console.error(`[Storage] Copy failed for ID ${fileId}:`, error.message);
+        throw error;
+    }
+};
+
+module.exports = { saveFile, deleteFile, getFileStream, copyFile };
