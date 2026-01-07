@@ -41,14 +41,17 @@ const Content = () => {
 
     const handlePersonalDataClick = () => {
         setActiveView('personal-data');
+        setActiveCategory(null);
     };
 
     const handleSendAnnounceClick = () => {
         setActiveView('announcements');
+        setActiveCategory(null);
     };
 
     const handleViewAnnouncementsClick = () => {
         setActiveView('announcements-feed');
+        setActiveCategory(null);
     };
 
     const handleSubCategoryClick = (categoryItems, subCategory, categoryName) => {

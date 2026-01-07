@@ -365,6 +365,18 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
     return (
         <div className="drive-container" onClick={handleBoxClick}>
             {/* Header / Navigation */}
@@ -474,6 +486,11 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                     // Could show background context menu (Paste, New Folder) here
                 }}
             >
+                {/* List Header */}
+                <div className="drive-list-header">
+                    <div className="header-name">Name</div>
+                    <div className="header-date">Date modified</div>
+                </div>
                 {loading && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20 }}>Loading...</div>}
 
                 {!loading && items.length === 0 && (
@@ -503,6 +520,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                             {item.type === 'folder' ? <FaFolder /> : <FaFilePdf />}
                         </div>
                         <div className="item-name">{item.name}</div>
+                        <div className="item-date">{formatDate(item.updatedAt)}</div>
                     </div>
                 ))}
             </div>

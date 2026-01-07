@@ -1,317 +1,437 @@
 /* src/assets/components/features/PersonalData/DriveExplorer.css */
+:root {
+    --win-bg: #ffffff;
+    --win-header-bg: #f9f9f9;
+    --win-border: #d1d5db;
+    /* Light gray border */
+    --win-hover: #e5f3ff;
+    /* Windows hover blue */
+    --win-hover-border: transparent;
+    /* No border on hover in list view usually, just bg */
+    --win-selected: #cce8ff;
+    /* Windows selected blue */
+    --win-selected-border: #99d1ff;
+    --win-text: #1f2937;
+    --win-primary: #0078d4;
+    /* Windows Blue */
+}
+
+/* Base Container */
 .drive-container {
-    padding: 20px;
+    min-height: calc(100vh - 120px);
+    /* Fill remaining height */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--win-bg);
+    color: var(--win-text);
+    font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    padding: 0;
+    border: 1px solid var(--win-border);
+    margin: 0;
+    box-shadow: none;
 }
 
-/* --- Navigation & Toolbar --- */
+/* --- Top Header (Nav + Address Bar) --- */
 .drive-header {
-    margin-bottom: 20px;
     background: white;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
+/* Nav Buttons (Back/Forward/Up/Home) */
 .nav-row {
     display: flex;
-    gap: 10px;
     align-items: center;
-    margin-bottom: 15px;
+    gap: 4px;
+    /* Tight grouping */
 }
 
 .nav-btn {
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 6px 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: #5f6368;
     cursor: pointer;
-    color: #4b5563;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    font-size: 14px;
 }
 
 .nav-btn:hover:not(:disabled) {
-    background-color: #f3f4f6;
-    color: var(--primary-orange);
-    border-color: var(--primary-orange);
+    background-color: #f0f0f0;
+    color: black;
 }
 
 .nav-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #f9fafb;
+    opacity: 0.3;
+    cursor: default;
 }
 
+/* Address Bar Styling for Breadcrumbs */
 .breadcrumbs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    color: #4b5563;
     flex-grow: 1;
-    overflow-x: auto;
-    padding: 5px 0;
-}
-
-.breadcrumb-item {
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    transition: background-color 0.2s;
-}
-
-.breadcrumb-item:hover {
-    background-color: #f3f4f6;
-    color: var(--primary-orange);
-}
-
-.breadcrumb-separator {
-    color: #9ca3af;
-}
-
-/* --- Toolbar Actions --- */
-.toolbar-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    border: 1px solid #ccc;
+    padding: 4px 10px;
+    height: 30px;
+    /* Windows address bar height */
+    font-size: 13px;
+    color: #333;
+    overflow: hidden;
+    white-space: nowrap;
+    background: white;
+    cursor: text;
+}
+
+.breadcrumbs span {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumbs span::before {
+    /* Folder icon in address bar? Optional */
+    content: "📁";
+    margin-right: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* --- Ribbon Toolbar --- */
+.toolbar-row {
+    background: #fdfdfd;
+    border-bottom: 1px solid var(--win-border);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 50px;
+    /* Fixed ribbon height */
 }
 
 .toolbar-group {
     display: flex;
-    gap: 10px;
     align-items: center;
+    gap: 4px;
+    padding-right: 12px;
+    border-right: 1px solid #e0e0e0;
+    /* Separator between groups */
 }
 
+.toolbar-group:last-child {
+    border-right: none;
+}
+
+/* Ribbon Buttons */
 .drive-btn {
     display: flex;
+    flex-direction: row;
+    /* Horizontal in ribbon */
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
+    gap: 6px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
     cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
+    font-size: 12px;
+    color: #444;
+}
+
+.drive-btn svg {
+    font-size: 16px;
+    color: #0078d4;
+    /* Consistent blue icons */
+}
+
+.drive-btn.btn-delete svg {
+    color: #d13438;
+}
+
+.drive-btn:hover:not(:disabled) {
+    background-color: var(--win-hover);
+    border-color: var(--win-hover-border);
 }
 
 .drive-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: grayscale(1);
+    opacity: 0.4;
+    cursor: default;
+    filter: grayscale(100%);
 }
 
-.btn-new-folder {
-    background-color: #e0f2fe;
-    color: #0284c7;
-}
 
-.btn-new-folder:hover:not(:disabled) {
-    background-color: #bae6fd;
-}
-
-.btn-upload {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.btn-upload:hover:not(:disabled) {
-    background-color: #bbf7d0;
-}
-
-.btn-upload-folder {
-    background-color: #f3e8ff;
-    color: #7e22ce;
-}
-
-.btn-upload-folder:hover:not(:disabled) {
-    background-color: #e9d5ff;
-}
-
-.btn-delete {
-    background-color: #fee2e2;
-    color: #b91c1c;
-}
-
-.btn-delete:hover:not(:disabled) {
-    background-color: #fecaca;
-}
-
-.btn-rename {
-    background-color: #f3f4f6;
-    color: #374151;
-}
-
-.btn-rename:hover:not(:disabled) {
-    background-color: #e5e7eb;
-}
-
-/* --- Grid Grid --- */
+/* --- File View Area (LIST View) --- */
 .drive-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
-}
+    flex-grow: 1;
+    background: white;
+    overflow-y: auto;
 
-.drive-item {
+    /* List Layout */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
-    border: 1px solid transparent;
-    position: relative;
+    padding: 0;
 }
 
-.drive-item:hover {
+/* List Header */
+.drive-list-header {
+    display: flex;
+    padding: 6px 12px;
+    border-bottom: 1px solid #dcdcdc;
+    /* Slightly darker than row border */
     background-color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border-color: #e5e7eb;
+    font-weight: 600;
+    color: #555;
+    font-size: 13px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
+.header-name {
+    flex-grow: 1;
+    padding-left: 36px;
+    /* Offset for icon space */
+    border-right: 1px solid transparent;
+}
+
+.header-name:hover {
+    background-color: #f0f0f0;
+    /* Windows hover effect for sort headers */
+}
+
+.header-date {
+    width: 150px;
+    padding-left: 10px;
+    border-left: 1px solid #e0e0e0;
+}
+
+.header-date:hover {
+    background-color: #f0f0f0;
+}
+
+/* Item Base (List Row) */
+.drive-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 12px;
+    /* Compact row padding */
+    border-bottom: 1px solid #f4f4f4;
+    /* Subtle separator */
+    cursor: pointer;
+    transition: none;
+    /* Instant response */
+    height: 36px;
+    width: 100%;
+}
+
+/* Hover State */
+.drive-item:hover {
+    background-color: var(--win-hover);
+}
+
+/* Selected State */
 .drive-item.selected {
-    background-color: #eff6ff;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    background-color: var(--win-selected);
+    /* In list view, usually no border or just outline. Background is enough. */
 }
 
+.drive-item.selected:hover {
+    background-color: #b8ddff;
+}
+
+/* Icons (Small for List) */
 .item-icon {
-    font-size: 42px;
-    margin-bottom: 8px;
+    font-size: 18px;
+    /* Small Icon Size */
+    margin-right: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    /* Fixed width for alignment */
 }
 
 .folder-icon {
-    color: #fbbf24;
+    color: #fce883;
+    /* Windows Folder Yellow */
 }
 
 .file-icon {
-    color: #ef4444;
+    color: #737373;
+    /* Gray for files */
 }
 
+/* Text (Left Aligned) */
 .item-name {
     font-size: 13px;
-    color: #374151;
-    word-break: break-word;
-    line-height: 1.3;
-    max-width: 100%;
-    margin-top: 4px;
+    color: #333;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    text-align: left;
+    margin-top: 0;
+    padding-right: 10px;
 }
 
-/* --- Context Menu --- */
+.item-date {
+    width: 150px;
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: left;
+    padding-left: 10px;
+}
+
+/* --- Status Bar --- */
+.status-bar {
+    border-top: 1px solid #dcdcdc;
+    background: #f5f5f5;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: #666;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.storage-indicator {
+    /* Use the generic status bar style */
+    display: flex;
+    margin-left: auto;
+    /* Push to right */
+    gap: 8px;
+}
+
+.storage-indicator strong {
+    color: #333;
+}
+
+
+/* --- Context Menu (Windows Style) --- */
 .context-menu {
     position: fixed;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    padding: 5px 0;
-    z-index: 50;
-    min-width: 160px;
+    background: #f2f2f2;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 2px;
+    min-width: 150px;
+    z-index: 999;
 }
 
 .context-menu-item {
-    padding: 8px 16px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: black;
     display: flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer;
-    color: #374151;
-    font-size: 14px;
-    transition: background-color 0.1s;
 }
 
 .context-menu-item:hover {
-    background-color: #f3f4f6;
-    color: var(--primary-orange);
+    background-color: #91c9f7;
+    /* Selection Blue */
+    color: black;
 }
 
-.context-menu-item.delete {
-    color: #ef4444;
+.context-menu-item svg {
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
 }
 
-.context-menu-item.delete:hover {
-    background-color: #fee2e2;
-}
-
-/* --- Modals --- */
+/* --- Modals (Simple Windows Dialogs) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.1);
+    /* Very subtle overlay */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .modal-content {
     background: white;
-    padding: 24px;
-    border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #888;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    width: 350px;
+    padding: 0;
+    /* Windows dialogs have header bar */
 }
 
 .modal-title {
-    font-size: 1.25rem;
+    background: white;
+    padding: 10px 15px;
+    font-size: 14px;
     font-weight: 600;
-    margin-bottom: 16px;
-    color: #1f2937;
+    border-bottom: 1px solid #dfdfdf;
+    color: #333;
+}
+
+.modal-body {
+    padding: 15px;
 }
 
 .modal-input {
     width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid #888;
+    font-size: 13px;
     margin-bottom: 20px;
-    font-size: 16px;
+}
+
+.modal-input:focus {
+    border-color: var(--win-primary);
+    outline: 1px solid var(--win-primary);
 }
 
 .modal-buttons {
+    background: #f0f0f0;
+    padding: 10px 15px;
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 8px;
+    border-top: 1px solid #dfdfdf;
 }
 
+.btn-confirm,
 .btn-cancel {
-    background: none;
-    border: 1px solid #d1d5db;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 4px 16px;
+    border: 1px solid #adadad;
+    background: #e1e1e1;
+    font-size: 12px;
+    min-width: 70px;
     cursor: pointer;
 }
 
 .btn-confirm {
-    background: var(--primary-orange);
+    border: 1px solid #0078d4;
+    background: #0078d4;
     color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
 }
 
-/* Storage Indicator */
-.storage-indicator {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #e5e7eb;
-    color: #4b5563;
-    font-size: 14px;
-    text-align: right;
+.btn-confirm:hover {
+    background: #006cc1;
+    border-color: #006cc1;
 }
 
-.storage-indicator strong {
-    color: var(--primary-orange);
+.btn-cancel:hover {
+    background: #d8d8d8;
+    border-color: #888;
 }

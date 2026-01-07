@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaBook, FaCloudUploadAlt, FaUserTie } from 'react-icons/fa';
+import { FaBook, FaCloudUploadAlt, FaUserTie, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import '../Documents/Documents.css';
 
 const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
@@ -17,9 +17,22 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
     const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
 
+    // Helper to calculate range if only end year is provided (e.g., "2027" -> "2023-2027")
+    const getDefaultBatch = () => {
+        if (userRole !== 'Student') return '';
+        const rawBatch = sessionStorage.getItem('userBatch') || '';
+        // If it looks like a single 4-digit year, assume it's the graduating year and format as range
+        if (/^\d{4}$/.test(rawBatch)) {
+            const endYear = parseInt(rawBatch);
+            const startYear = endYear - 4;
+            return `${startYear}-${endYear}`;
+        }
+        return rawBatch;
+    };
+
     // Filter Logic
     const [filters, setFilters] = useState({
-        batch: (userRole === 'Student' ? sessionStorage.getItem('userBatch') : '') || '',
+        batch: getDefaultBatch(),
     });
 
     const [uploadForm, setUploadForm] = useState({
@@ -178,14 +191,50 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                 <div className="filter-bar" style={{ display: 'flex', gap: '15px', marginBottom: '20px', padding: '15px', background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
                     <div className="form-group" style={{ flex: 1 }}>
                         <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Batch (Year)</label>
-                        <input
-                            type="text"
-                            className="modern-search"
-                            style={{ width: '100%', borderRadius: '6px' }}
-                            placeholder="Enter Batch (e.g. 2022-2026)"
-                            value={filters.batch}
-                            onChange={(e) => setFilters({ ...filters, batch: e.target.value })}
-                        />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input
+                                type="text"
+                                className="modern-search"
+                                style={{ width: '100%', borderRadius: '6px', paddingRight: '30px' }}
+                                placeholder="Enter Batch (e.g. 2022-2026)"
+                                value={filters.batch}
+                                onChange={(e) => setFilters({ ...filters, batch: e.target.value })}
+                            />
+                            <div style={{
+                                position: 'absolute',
+                                right: '10px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '2px'
+                            }}>
+                                <FaChevronUp
+                                    style={{ cursor: 'pointer', fontSize: '10px', color: '#666' }}
+                                    onClick={() => {
+                                        const rangeRegex = /^(\d{4})-(\d{4})$/;
+                                        const singleRegex = /^(\d{4})$/;
+                                        if (rangeRegex.test(filters.batch)) {
+                                            const [_, start, end] = filters.batch.match(rangeRegex);
+                                            setFilters({ ...filters, batch: `${parseInt(start) + 1}-${parseInt(end) + 1}` });
+                                        } else if (singleRegex.test(filters.batch)) {
+                                            setFilters({ ...filters, batch: `${parseInt(filters.batch) + 1}` });
+                                        }
+                                    }}
+                                />
+                                <FaChevronDown
+                                    style={{ cursor: 'pointer', fontSize: '10px', color: '#666' }}
+                                    onClick={() => {
+                                        const rangeRegex = /^(\d{4})-(\d{4})$/;
+                                        const singleRegex = /^(\d{4})$/;
+                                        if (rangeRegex.test(filters.batch)) {
+                                            const [_, start, end] = filters.batch.match(rangeRegex);
+                                            setFilters({ ...filters, batch: `${parseInt(start) - 1}-${parseInt(end) - 1}` });
+                                        } else if (singleRegex.test(filters.batch)) {
+                                            setFilters({ ...filters, batch: `${parseInt(filters.batch) - 1}` });
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

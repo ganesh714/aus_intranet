@@ -10,10 +10,16 @@ const AnnouncementFeed = ({
     subRolesMapping,
     onPdfClick
 }) => {
-    // Determine if the user has permission to see the filter
-    const showFilter = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
-
     const [activeTab, setActiveTab] = useState('university');
+
+    // Determine if the user has permission to see the filter
+    const isHigherOfficial = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
+
+    // HODs have conditional access, so we reserve space for them too
+    const canAccessFilter = isHigherOfficial || userRole === 'HOD';
+
+    // Toggle visibility based on logic
+    const showFilter = isHigherOfficial || (userRole === 'HOD' && activeTab === 'department');
 
     const universityRoles = ['Dean', 'Asso.Dean', 'Officers', 'Admin'];
     const deptRoles = ['HOD', 'Faculty'];
@@ -21,14 +27,12 @@ const AnnouncementFeed = ({
     const universityAnnouncements = announcements.filter(ann => universityRoles.includes(ann.uploadedBy?.role));
     const deptAnnouncements = announcements.filter(ann => deptRoles.includes(ann.uploadedBy?.role));
 
-    const isHigherOfficial = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
-
     return (
         <div className="results-container">
             <div className="search-header">
                 <h2>Announcements</h2>
-                {showFilter && (
-                    <div className="search-input-wrapper" style={{ width: '200px' }}>
+                {canAccessFilter && (
+                    <div className="search-input-wrapper" style={{ width: '200px', visibility: showFilter ? 'visible' : 'hidden' }}>
                         <select
                             className="modern-search"
                             style={{ padding: '10px', paddingLeft: '15px' }}
