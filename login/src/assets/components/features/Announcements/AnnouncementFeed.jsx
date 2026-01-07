@@ -10,7 +10,7 @@ const AnnouncementFeed = ({
     subRolesMapping,
     onPdfClick
 }) => {
-    const [activeTab, setActiveTab] = useState('university');
+    const [activeTab, setActiveTab] = useState('quick');
 
     // Determine if the user has permission to see the filter
     const isHigherOfficial = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
@@ -51,6 +51,12 @@ const AnnouncementFeed = ({
             {/* Tabs */}
             <div className="ann-tabs">
                 <button
+                    className={`tab-button ${activeTab === 'quick' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('quick')}
+                >
+                    Quick reference
+                </button>
+                <button
                     className={`tab-button ${activeTab === 'university' ? 'active' : ''}`}
                     onClick={() => setActiveTab('university')}
                 >
@@ -64,15 +70,48 @@ const AnnouncementFeed = ({
                         Department Announcements
                     </button>
                 )}
-                <button
-                    className={`tab-button ${activeTab === 'quick' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('quick')}
-                >
-                    Quick reference
-                </button>
             </div>
 
             <div className="general-announcements-wrapper">
+                {activeTab === 'quick' && (
+                    <div className="all-announcements-grid">
+                        {announcements.length === 0 ? (
+                            <p className="no-data">No announcements found matching filter.</p>
+                        ) : (
+                            announcements.map((ann) => (
+                                <div key={ann._id} className="detail-card">
+                                    <div className="dc-left">
+                                        <div className="dc-icon"><FaBullhorn /></div>
+                                    </div>
+                                    <div className="dc-content">
+                                        <div className="dc-header">
+                                            <h3 className="dc-title">{ann.title}</h3>
+                                            <span className="dc-date">
+                                                <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString('en-GB')}
+                                            </span>
+                                        </div>
+                                        <p className="dc-description">{ann.description}</p>
+                                        <div className="dc-footer">
+                                            <div className="dc-author">
+                                                <FaUserCircle /> {ann.uploadedBy?.username}
+                                                <span className="dc-role-badge">{ann.uploadedBy?.role}</span>
+                                            </div>
+                                            {ann.fileId?.filePath && (
+                                                <button
+                                                    className="dc-pdf-btn"
+                                                    onClick={(e) => onPdfClick(ann.fileId.filePath, e)}
+                                                >
+                                                    <FaFilePdf /> View PDF
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
+
                 {activeTab === 'university' && (
                     universityAnnouncements.length > 0 ? (
                         <div className="tickers-group">
@@ -125,45 +164,6 @@ const AnnouncementFeed = ({
                     ) : (
                         <p className="no-data">No department announcements found.</p>
                     )
-                )}
-
-                {activeTab === 'quick' && (
-                    <div className="all-announcements-grid">
-                        {announcements.length === 0 ? (
-                            <p className="no-data">No announcements found matching filter.</p>
-                        ) : (
-                            announcements.map((ann) => (
-                                <div key={ann._id} className="detail-card">
-                                    <div className="dc-left">
-                                        <div className="dc-icon"><FaBullhorn /></div>
-                                    </div>
-                                    <div className="dc-content">
-                                        <div className="dc-header">
-                                            <h3 className="dc-title">{ann.title}</h3>
-                                            <span className="dc-date">
-                                                <FaCalendarAlt /> {new Date(ann.uploadedAt).toLocaleDateString('en-GB')}
-                                            </span>
-                                        </div>
-                                        <p className="dc-description">{ann.description}</p>
-                                        <div className="dc-footer">
-                                            <div className="dc-author">
-                                                <FaUserCircle /> {ann.uploadedBy?.username}
-                                                <span className="dc-role-badge">{ann.uploadedBy?.role}</span>
-                                            </div>
-                                            {ann.fileId?.filePath && (
-                                                <button
-                                                    className="dc-pdf-btn"
-                                                    onClick={(e) => onPdfClick(ann.fileId.filePath, e)}
-                                                >
-                                                    <FaFilePdf /> View PDF
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
                 )}
             </div>
         </div>

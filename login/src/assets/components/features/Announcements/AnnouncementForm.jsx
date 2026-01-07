@@ -41,14 +41,17 @@ const AnnouncementForm = ({
                         {/* Conditionally render Batch input for Students */}
                         {formData.targetRole === 'Student' && (
                             <div className="form-group half">
-                                <input
-                                    type="text"
+                                <select
                                     name="targetBatch"
                                     value={formData.targetBatch || ''}
                                     onChange={onChange}
-                                    placeholder="Enter Batch (e.g. 2024)"
                                     className="batch-input"
-                                />
+                                >
+                                    <option value="">Select Batch</option>
+                                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map(year => (
+                                        <option key={year} value={year}>{year - 4}-{year}</option>
+                                    ))}
+                                </select>
                             </div>
                         )}
 
@@ -56,7 +59,7 @@ const AnnouncementForm = ({
                             type="button"
                             className="add-target-btn"
                             onClick={formData.onAddTarget}
-                            disabled={formData.targetRole === 'Student' && (!formData.targetBatch || !formData.targetBatch.trim())}
+                            disabled={formData.targetRole === 'Student' && !formData.targetBatch}
                         >
                             Add
                         </button>

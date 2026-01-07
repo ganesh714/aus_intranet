@@ -257,7 +257,17 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                         <div className="form-row">
                             <div className="form-group full">
                                 <label>Target Batch (Year/Session)</label>
-                                <input type="text" required value={uploadForm.targetBatch} onChange={e => setUploadForm({ ...uploadForm, targetBatch: e.target.value })} placeholder="e.g. 2022-2026" />
+                                <select
+                                    required
+                                    value={uploadForm.targetBatch}
+                                    onChange={e => setUploadForm({ ...uploadForm, targetBatch: e.target.value })}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                >
+                                    <option value="">Select Target Batch</option>
+                                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map(year => (
+                                        <option key={year} value={year}>{year - 4}-{year}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                         <div className="form-group">
