@@ -1037,6 +1037,31 @@ app.get('/drive/folders', async (req, res) => {
     }
 });
 
+// 9. Recursive Search
+app.get('/drive/search', async (req, res) => {
+    const { userId, query } = req.query;
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (!query || query.trim() === '') {
+            return res.json({ items: [] });
+        }
+
+        const items = await DriveItem.find({
+            owner: user._id,
+            name: { $regex: query, $options: 'i' } // Case-insensitive regex
+        })
+            .populate('fileId')
+            .populate('parent', 'name') // Populate parent to show location
+            .limit(50); // Limit results for performance
+
+        res.json({ items });
+    } catch (error) {
+        res.status(500).json({ message: "Error searching drive", error });
+    }
+});
+
 // 8. Copy Item
 app.post('/drive/copy', async (req, res) => {
     const { itemId, targetParentId, userId } = req.body;

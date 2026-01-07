@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
     FaFolder, FaFilePdf, FaArrowLeft, FaArrowRight, FaArrowUp,
     FaPlus, FaCloudUploadAlt, FaFolderPlus, FaTrash, FaPen,
-    FaCut, FaPaste, FaHome, FaCopy, FaArrowRight as FaMoveIcon
+    FaCut, FaPaste, FaHome, FaCopy, FaArrowRight as FaMoveIcon, FaSearch
 } from 'react-icons/fa';
 import './DriveExplorer.css';
 import FolderPicker from './FolderPicker';
@@ -14,6 +14,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const [currentFolderData, setCurrentFolderData] = useState(null); // Full object of current folder
     const [storageUsed, setStorageUsed] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Navigation History
     // Stack of folder IDs
@@ -63,6 +64,37 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
             setLoading(false);
         }
     };
+
+    // Recursive Search
+    useEffect(() => {
+        const performSearch = async () => {
+            if (!searchQuery.trim()) {
+                if (currentFolder !== undefined) fetchItems(currentFolder);
+                return;
+            }
+            setLoading(true);
+            try {
+                const response = await axios.get('http://localhost:5001/drive/search', {
+                    params: {
+                        userId: userInfo.id,
+                        query: searchQuery
+                    }
+                });
+                setItems(response.data.items);
+                // We don't change currentFolderData during search, so breadcrumbs stay
+            } catch (error) {
+                console.error("Search error", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const debounce = setTimeout(() => {
+            performSearch();
+        }, 300); // Debounce search
+
+        return () => clearTimeout(debounce);
+    }, [searchQuery]);
 
     // --- Navigation ---
     const navigateTo = (folderId) => {
@@ -348,10 +380,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
     // --- Render Helpers ---
     const getBreadcrumbString = () => {
-        // Since we only store history stack, constructing full breadcrumb from root is hard without recursive details.
-        // But users asked for "Back/Up" buttons, so maybe just showing "Current Folder Name" is enough or
-        // we display simple path if available?
-        // Let's rely on buttons for nav, and show Current Folder Name.
+        if (searchQuery.trim()) return `Search Results for "${searchQuery}"`;
         if (!currentFolder) return "My Data (Root)";
         return currentFolderData ? currentFolderData.name : "Loading...";
     };
@@ -380,102 +409,119 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     return (
         <div className="drive-container" onClick={handleBoxClick}>
             {/* Header / Navigation */}
-            <div className="drive-header">
-                <div className="nav-row">
-                    <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleBack(); }} disabled={historyIndex === 0} title="Back">
-                        <FaArrowLeft />
-                    </button>
-                    <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleForward(); }} disabled={historyIndex === history.length - 1} title="Forward">
-                        <FaArrowRight />
-                    </button>
-                    <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleUp(); }} disabled={!currentFolder} title="Up One Level">
-                        <FaArrowUp />
-                    </button>
-                    <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleHome(); }} disabled={!currentFolder} title="Home">
-                        <FaHome />
-                    </button>
+            <div className="drive-header-remastered">
+                <div className="nav-controls">
+                    <div className="nav-row">
+                        <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleBack(); }} disabled={historyIndex === 0} title="Back">
+                            <FaArrowLeft />
+                        </button>
+                        <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleForward(); }} disabled={historyIndex === history.length - 1} title="Forward">
+                            <FaArrowRight />
+                        </button>
+                        <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleUp(); }} disabled={!currentFolder || searchQuery} title="Up One Level">
+                            <FaArrowUp />
+                        </button>
+                        <button className="nav-btn" onClick={(e) => { e.stopPropagation(); handleHome(); }} disabled={!currentFolder || searchQuery} title="Home">
+                            <FaHome />
+                        </button>
+                    </div>
 
-                    <div className="breadcrumbs">
-                        <span style={{ fontWeight: 'bold' }}>{getBreadcrumbString()}</span>
+                    <div className="breadcrumbs-modern">
+                        <span className="crumb-icon"><FaFolder /></span>
+                        <span style={{ fontWeight: 600 }}>{getBreadcrumbString()}</span>
                     </div>
                 </div>
 
-                <div className="toolbar-row">
-                    <div className="toolbar-group">
-                        <button
-                            className="drive-btn btn-new-folder"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setInputVal('');
-                                setModal({ type: 'create_folder' });
-                            }}
-                        >
-                            <FaFolderPlus /> New Folder
-                        </button>
-
-                        <button className="drive-btn btn-upload" onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); }}>
-                            <FaCloudUploadAlt /> Upload Files
-                        </button>
-                        <input type="file" multiple hidden ref={fileInputRef} onChange={handleUploadFiles} />
-
-                        <button className="drive-btn btn-upload-folder" onClick={(e) => { e.stopPropagation(); folderInputRef.current.click(); }}>
-                            <FaFolder /> Upload Folder
-                        </button>
-                        <input
-                            type="file"
-                            multiple
-                            webkitdirectory=""
-                            directory=""
-                            hidden
-                            ref={folderInputRef}
-                            onChange={handleUploadFolder}
-                        />
-                    </div>
-
-                    <div className="toolbar-group">
-                        <button
-                            className="drive-btn btn-rename"
-                            disabled={!selectedItem}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setInputVal(selectedItem.name);
-                                setModal({ type: 'rename', item: selectedItem });
-                            }}
-                        >
-                            <FaPen /> Rename
-                        </button>
-                        <button
-                            className="drive-btn btn-delete"
-                            disabled={!selectedItem}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(selectedItem);
-                            }}
-                        >
-                            <FaTrash /> Delete
-                        </button>
-                        {clipboard && (
-                            <button className="drive-btn" style={{ background: '#e0e7ff', color: '#4338ca' }} onClick={(e) => { e.stopPropagation(); handlePaste(); }}>
-                                <FaPaste /> Paste Item
-                            </button>
-                        )}
-                        <button
-                            className="drive-btn"
-                            disabled={!selectedItem}
-                            onClick={(e) => { e.stopPropagation(); setPicker({ open: true, mode: 'copy', item: selectedItem }); }}
-                        >
-                            <FaCopy /> Copy To
-                        </button>
-                        <button
-                            className="drive-btn"
-                            disabled={!selectedItem}
-                            onClick={(e) => { e.stopPropagation(); setPicker({ open: true, mode: 'move', item: selectedItem }); }}
-                        >
-                            <FaMoveIcon /> Move To
-                        </button>
-                    </div>
+                <div className="drive-search-modern">
+                    <FaSearch className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Search My Data"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button className="clear-search" onClick={() => setSearchQuery('')}>×</button>
+                    )}
                 </div>
             </div>
+
+            <div className="toolbar-row">
+                <div className="toolbar-group">
+                    <button
+                        className="drive-btn btn-new-folder"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setInputVal('');
+                            setModal({ type: 'create_folder' });
+                        }}
+                    >
+                        <FaFolderPlus /> New Folder
+                    </button>
+
+                    <button className="drive-btn btn-upload" disabled={!!searchQuery} onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); }}>
+                        <FaCloudUploadAlt /> Upload Files
+                    </button>
+                    <input type="file" multiple hidden ref={fileInputRef} onChange={handleUploadFiles} />
+
+                    <button className="drive-btn btn-upload-folder" disabled={!!searchQuery} onClick={(e) => { e.stopPropagation(); folderInputRef.current.click(); }}>
+                        <FaFolder /> Upload Folder
+                    </button>
+                    <input
+                        type="file"
+                        multiple
+                        webkitdirectory=""
+                        directory=""
+                        hidden
+                        ref={folderInputRef}
+                        onChange={handleUploadFolder}
+                    />
+                </div>
+
+                <div className="toolbar-group">
+                    <button
+                        className="drive-btn btn-rename"
+                        disabled={!selectedItem}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setInputVal(selectedItem.name);
+                            setModal({ type: 'rename', item: selectedItem });
+                        }}
+                    >
+                        <FaPen /> Rename
+                    </button>
+                    <button
+                        className="drive-btn btn-delete"
+                        disabled={!selectedItem}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(selectedItem);
+                        }}
+                    >
+                        <FaTrash /> Delete
+                    </button>
+                    {clipboard && (
+                        <button className="drive-btn" style={{ background: '#e0e7ff', color: '#4338ca' }} onClick={(e) => { e.stopPropagation(); handlePaste(); }}>
+                            <FaPaste /> Paste Item
+                        </button>
+                    )}
+                    <button
+                        className="drive-btn"
+                        disabled={!selectedItem}
+                        onClick={(e) => { e.stopPropagation(); setPicker({ open: true, mode: 'copy', item: selectedItem }); }}
+                    >
+                        <FaCopy /> Copy To
+                    </button>
+                    <button
+                        className="drive-btn"
+                        disabled={!selectedItem}
+                        onClick={(e) => { e.stopPropagation(); setPicker({ open: true, mode: 'move', item: selectedItem }); }}
+                    >
+                        <FaMoveIcon /> Move To
+                    </button>
+                </div>
+            </div>
+
 
             {/* Grid */}
             <div
@@ -489,13 +535,14 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                 {/* List Header */}
                 <div className="drive-list-header">
                     <div className="header-name">Name</div>
+                    {searchQuery && <div className="header-location" style={{ width: '150px', paddingLeft: '10px', borderLeft: '1px solid #e0e0e0', color: '#555', fontWeight: 600 }}>Location</div>}
                     <div className="header-date">Date modified</div>
                 </div>
                 {loading && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20 }}>Loading...</div>}
 
                 {!loading && items.length === 0 && (
                     <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#9ca3af', fontStyle: 'italic', padding: 40 }}>
-                        This folder is empty.
+                        {searchQuery ? "No results found." : "This folder is empty."}
                     </div>
                 )}
 
@@ -520,103 +567,114 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                             {item.type === 'folder' ? <FaFolder /> : <FaFilePdf />}
                         </div>
                         <div className="item-name">{item.name}</div>
+                        {searchQuery && <div className="item-location" style={{ width: '150px', fontSize: '12px', color: '#888', paddingLeft: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.parent ? item.parent.name : 'My Data'}
+                        </div>}
                         <div className="item-date">{formatDate(item.updatedAt)}</div>
                     </div>
                 ))}
             </div>
 
             {/* Storage Indicator */}
-            {storageUsed !== null && (
-                <div className="storage-indicator">
-                    Storage Used: <strong>{formatBytes(storageUsed)}</strong>
-                </div>
-            )}
+            {
+                storageUsed !== null && (
+                    <div className="storage-indicator">
+                        Storage Used: <strong>{formatBytes(storageUsed)}</strong>
+                    </div>
+                )
+            }
 
             {/* Context Menu */}
-            {contextMenu && (
-                <div
-                    className="context-menu"
-                    style={{ top: contextMenu.y, left: contextMenu.x }}
-                >
-                    <div className="context-menu-item" onClick={(e) => {
-                        e.stopPropagation();
-                        setInputVal(contextMenu.item.name);
-                        setModal({ type: 'rename', item: contextMenu.item });
-                        setContextMenu(null);
-                    }}>
-                        <FaPen /> Rename
+            {
+                contextMenu && (
+                    <div
+                        className="context-menu"
+                        style={{ top: contextMenu.y, left: contextMenu.x }}
+                    >
+                        <div className="context-menu-item" onClick={(e) => {
+                            e.stopPropagation();
+                            setInputVal(contextMenu.item.name);
+                            setModal({ type: 'rename', item: contextMenu.item });
+                            setContextMenu(null);
+                        }}>
+                            <FaPen /> Rename
+                        </div>
+                        <div className="context-menu-item" onClick={(e) => {
+                            e.stopPropagation();
+                            setPicker({ open: true, mode: 'copy', item: contextMenu.item });
+                            setContextMenu(null);
+                        }}>
+                            <FaCopy /> Copy To
+                        </div>
+                        <div className="context-menu-item" onClick={(e) => {
+                            e.stopPropagation();
+                            setPicker({ open: true, mode: 'move', item: contextMenu.item });
+                            setContextMenu(null);
+                        }}>
+                            <FaMoveIcon /> Move To
+                        </div>
+                        <div className="context-menu-item" onClick={(e) => {
+                            e.stopPropagation();
+                            handleCut(contextMenu.item);
+                            setContextMenu(null);
+                        }}>
+                            <FaCut /> Cut
+                        </div>
+                        <div className="context-menu-item delete" onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(contextMenu.item);
+                            setContextMenu(null);
+                        }}>
+                            <FaTrash /> Delete
+                        </div>
                     </div>
-                    <div className="context-menu-item" onClick={(e) => {
-                        e.stopPropagation();
-                        setPicker({ open: true, mode: 'copy', item: contextMenu.item });
-                        setContextMenu(null);
-                    }}>
-                        <FaCopy /> Copy To
-                    </div>
-                    <div className="context-menu-item" onClick={(e) => {
-                        e.stopPropagation();
-                        setPicker({ open: true, mode: 'move', item: contextMenu.item });
-                        setContextMenu(null);
-                    }}>
-                        <FaMoveIcon /> Move To
-                    </div>
-                    <div className="context-menu-item" onClick={(e) => {
-                        e.stopPropagation();
-                        handleCut(contextMenu.item);
-                        setContextMenu(null);
-                    }}>
-                        <FaCut /> Cut
-                    </div>
-                    <div className="context-menu-item delete" onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(contextMenu.item);
-                        setContextMenu(null);
-                    }}>
-                        <FaTrash /> Delete
-                    </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Modal */}
-            {modal.type && (
-                <div className="modal-overlay" onClick={() => setModal({ type: null })}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-title">
-                            {modal.type === 'create_folder' ? 'Create New Folder' : 'Rename Item'}
-                        </div>
-                        <input
-                            className="modal-input"
-                            autoFocus
-                            value={inputVal}
-                            onChange={(e) => setInputVal(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    modal.type === 'create_folder' ? handleCreateFolder() : handleRename();
-                                }
-                            }}
-                        />
-                        <div className="modal-buttons">
-                            <button className="btn-cancel" onClick={() => setModal({ type: null })}>Cancel</button>
-                            <button
-                                className="btn-confirm"
-                                onClick={modal.type === 'create_folder' ? handleCreateFolder : handleRename}
-                            >
-                                {modal.type === 'create_folder' ? 'Create' : 'Save'}
-                            </button>
+            {
+                modal.type && (
+                    <div className="modal-overlay" onClick={() => setModal({ type: null })}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
+                            <div className="modal-title">
+                                {modal.type === 'create_folder' ? 'Create New Folder' : 'Rename Item'}
+                            </div>
+                            <input
+                                className="modal-input"
+                                autoFocus
+                                value={inputVal}
+                                onChange={(e) => setInputVal(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        modal.type === 'create_folder' ? handleCreateFolder() : handleRename();
+                                    }
+                                }}
+                            />
+                            <div className="modal-buttons">
+                                <button className="btn-cancel" onClick={() => setModal({ type: null })}>Cancel</button>
+                                <button
+                                    className="btn-confirm"
+                                    onClick={modal.type === 'create_folder' ? handleCreateFolder : handleRename}
+                                >
+                                    {modal.type === 'create_folder' ? 'Create' : 'Save'}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             {/* Folder Picker */}
-            {picker.open && (
-                <FolderPicker
-                    userInfo={userInfo}
-                    actionTitle={picker.mode === 'move' ? "Move to..." : "Copy to..."}
-                    onCancel={() => setPicker({ open: false, mode: null, item: null })}
-                    onSelect={handlePickerSelect}
-                />
-            )}
-        </div>
+            {
+                picker.open && (
+                    <FolderPicker
+                        userInfo={userInfo}
+                        actionTitle={picker.mode === 'move' ? "Move to..." : "Copy to..."}
+                        onCancel={() => setPicker({ open: false, mode: null, item: null })}
+                        onSelect={handlePickerSelect}
+                    />
+                )
+            }
+        </div >
     );
 };
 
