@@ -812,7 +812,23 @@ app.get('/drive/items', async (req, res) => {
         ]);
         const storageUsed = storageStats.length > 0 ? storageStats[0].totalSize : 0;
 
-        res.json({ items, folder: currentFolder, storageUsed }); // Return stats
+        // Calculate Breadcrumbs Path
+        const breadcrumbs = [];
+        if (currentFolder) {
+            let curr = currentFolder;
+            while (curr) {
+                breadcrumbs.unshift({ _id: curr._id, name: curr.name });
+                if (curr.parent) {
+                    curr = await DriveItem.findById(curr.parent);
+                } else {
+                    curr = null;
+                }
+            }
+        }
+        // Always add Root at the start
+        breadcrumbs.unshift({ _id: null, name: 'My Data' });
+
+        res.json({ items, folder: currentFolder, path: breadcrumbs, storageUsed }); // Return stats
     } catch (error) {
         console.error("Error fetching drive items:", error);
         res.status(500).json({ message: "Error fetching items", error });

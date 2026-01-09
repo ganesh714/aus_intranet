@@ -12,6 +12,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const [items, setItems] = useState([]);
     const [currentFolder, setCurrentFolder] = useState(null); // ID of current folder
     const [currentFolderData, setCurrentFolderData] = useState(null); // Full object of current folder
+    const [path, setPath] = useState([]); // Breadcrumb path
     const [storageUsed, setStorageUsed] = useState(null);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -56,6 +57,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
             });
             setItems(response.data.items);
             setCurrentFolderData(response.data.folder);
+            setPath(response.data.path || []);
             setStorageUsed(response.data.storageUsed);
             setCurrentFolder(folderId);
         } catch (error) {
@@ -379,9 +381,23 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     };
 
     // --- Render Helpers ---
+    // --- Render Helpers ---
     const getBreadcrumbString = () => {
         if (searchQuery.trim()) return `Search Results for "${searchQuery}"`;
-        if (!currentFolder) return "My Data (Root)";
+
+        // If we have a path (from backend), use it
+        if (path && path.length > 0) {
+            const MAX_ITEMS = 4;
+            if (path.length > MAX_ITEMS) {
+                // Show: Root > ... > Parent > Current
+                const root = path[0].name;
+                const lastTwo = path.slice(-2).map(p => p.name).join(' > ');
+                return `${root} > ... > ${lastTwo}`;
+            }
+            return path.map(p => p.name).join(' > ');
+        }
+
+        if (!currentFolder) return "My Data";
         return currentFolderData ? currentFolderData.name : "Loading...";
     };
 
