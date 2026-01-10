@@ -104,6 +104,30 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// --- NEW HELPER: Get Users (For User Picker) ---
+app.get('/get-users', async (req, res) => {
+    const { role, dept, batch, search } = req.query;
+    try {
+        let query = {};
+        if (role) query.role = role;
+        if (dept && dept !== 'All') query.subRole = dept;
+        if (batch) query.batch = batch; // Only for students
+        if (search) {
+            query.$or = [
+                { username: { $regex: search, $options: 'i' } },
+                { id: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Return minimal info
+        const users = await User.find(query).select('id username role subRole batch');
+        res.json({ users });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: "Error fetching users", error });
+    }
+});
+
 // --- TIMETABLE ROUTES ---
 
 // 1. Get Department Faculty
@@ -589,22 +613,25 @@ app.post('/upload-personal-file', upload.array('file', 10), async (req, res) => 
 // 1. Add Material
 app.post('/add-material', upload.single('file'), async (req, res) => {
     try {
-        const { title, subject, targetBatch, targetDepartments } = req.body;
+        const { title, subject, targetIndividualIds } = req.body;
+        const targetAudience = JSON.parse(req.body.targetAudience || '[]');
         const user = JSON.parse(req.body.user);
         const userDb = await User.findOne({ id: user.id });
         if (!userDb) return res.status(404).json({ message: 'User not found' });
         if (!req.file) return res.status(400).json({ message: 'No file uploaded!' });
 
-        // Parse targetDepartments if it's sent as a JSON string (common with FormData)
-        let departments = targetDepartments;
-        if (typeof targetDepartments === 'string') {
+        // Helper to parse if stringified
+        const parseArray = (val) => {
+            if (!val) return [];
+            if (Array.isArray(val)) return val;
             try {
-                departments = JSON.parse(targetDepartments);
+                return JSON.parse(val);
             } catch (e) {
-                // If not JSON, assume single string and wrap in array
-                departments = [targetDepartments];
+                return [val];
             }
-        }
+        };
+
+        const individualIds = parseArray(targetIndividualIds);
 
         // Upload via Service
         const fileIdFromStorage = await storageService.saveFile(req.file);
@@ -622,8 +649,8 @@ app.post('/add-material', upload.single('file'), async (req, res) => {
         const newMaterial = new Material({
             title,
             subject,
-            targetBatch,
-            targetDepartments: departments,
+            targetAudience: targetAudience,
+            targetIndividualIds: individualIds,
             fileId: savedFile._id,
             uploadedBy: userDb._id
         });
@@ -644,40 +671,57 @@ app.get('/get-materials', async (req, res) => {
     try {
         let query = {};
 
-        if (role === 'Student') {
-            // Student Logic: Show materials if:
-            // 1. Target Batch matches student's batch (if provided)
-            // 2. AND (Target Departments includes student's dept OR Uploaded by student's faculty)
+        // Universal Check: Am I personally targeted?
+        const userId = req.query.id;
 
-            if (batch) query.targetBatch = batch;
+        let orConditions = [];
 
-            if (subRole) { // Student's department
-                // Find faculty of this department to support legacy "UploadedBy" check
-                const facultyUsers = await User.find({ subRole }).select('_id');
-                const facultyIds = facultyUsers.map(u => u._id);
-
-                query.$or = [
-                    { targetDepartments: { $in: [subRole] } }, // Explicit sharing
-                    { uploadedBy: { $in: facultyIds } }       // Legacy/Implicit sharing
-                ];
-            }
-
-        } else {
-            // Faculty/HOD Logic: Show materials if:
-            // 1. They uploaded it
-            // 2. OR It is shared with their department
-
-            if (subRole && subRole !== 'All' && subRole !== 'null') {
-                const users = await User.find({ subRole }).select('_id');
-                const userIds = users.map(u => u._id);
-
-                query.$or = [
-                    { targetDepartments: { $in: [subRole] } },
-                    { uploadedBy: { $in: userIds } }
-                ];
-            }
-            if (batch) query.targetBatch = batch;
+        // 1. Personally Targeted
+        if (userId) {
+            orConditions.push({ targetIndividualIds: { $in: [userId] } });
         }
+
+        // 2. Uploaded by Me (Everyone)
+        if (userId) {
+            const userMe = await User.findOne({ id: userId });
+            if (userMe) {
+                orConditions.push({ uploadedBy: userMe._id });
+            }
+        }
+
+        // 3. Rule-Based Audience Matching
+        // Match if ANY rule in targetAudience matches the user's attributes
+
+        // Construct the criteria for the current user
+        // A user matches a rule if:
+        // Rule.role == User.role
+        // AND (Rule.subRole is missing OR Rule.subRole == User.subRole)
+        // AND (Rule.batch is missing OR Rule.batch == User.batch)
+
+        // MongoDB query for this:
+        const audienceMatch = {
+            targetAudience: {
+                $elemMatch: {
+                    role: role,
+                    $or: [
+                        { subRole: subRole },
+                        { subRole: { $exists: false } }, // If rule has no subRole, it applies to all depts
+                        { subRole: null },
+                        { subRole: '' }
+                    ],
+                    $or: [
+                        { batch: batch },
+                        { batch: { $exists: false } }, // If rule has no batch, it applies to all batches
+                        { batch: null },
+                        { batch: '' }
+                    ]
+                }
+            }
+        };
+        orConditions.push(audienceMatch);
+
+        // Combine all conditions
+        query.$or = orConditions;
 
         const materials = await Material.find(query)
             .populate('fileId')

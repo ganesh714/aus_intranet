@@ -129,7 +129,7 @@ const Sidebar = ({
                                     <span className="cat-name">
                                         {getIcon(category.category)}
                                         {category.category === 'Faculty related' ? 'Announcements' :
-                                            category.category === 'Material' ? 'Materials' :
+                                            category.category === 'Material' ? 'Shared Documents' :
                                                 category.category}
                                     </span>
                                     {/* No Chevron for direct links */}
