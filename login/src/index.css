@@ -12,6 +12,100 @@
 }
 
 body {
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;
+  height: 100vh;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* --- Global Standard Form Styles --- */
+.std-form-group {
+  margin-bottom: 20px;
+}
+
+.std-label {
+  display: block;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.std-input,
+.std-select,
+.std-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
+  color: #1f2937;
+}
+
+.std-input:focus,
+.std-select:focus,
+.std-textarea:focus {
+  border-color: #F97316;
+  /* var(--primary-orange) */
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.std-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.std-file-input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.std-btn {
+  background-color: #F97316;
+  /* var(--primary-orange) */
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  /* Matched to Materials.css */
+  border-radius: 6px;
+  font-weight: 700;
+  /* Matched to Materials.css */
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  /* Prevent Full Width Stretch */
+}
+
+.std-btn:hover {
+  background-color: #ea580c;
+}
+
+.std-btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.std-btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.std-form-footer {
+  margin-top: 25px;
+  text-align: right;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
 }

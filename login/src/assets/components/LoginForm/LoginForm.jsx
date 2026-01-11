@@ -126,9 +126,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
         if (formData.role === 'Officers') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Position:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Position:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Position</option>
                         <option value="DyPC">DyPC</option>
                         <option value="VC">VC</option>
@@ -140,9 +140,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         }
         if (formData.role === 'Dean') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
                         <option value="IQAC">IQAC</option>
                         <option value="R&C">R&C</option>
@@ -160,9 +160,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         }
         if (formData.role === 'Asso.Dean') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
                         <option value="SOE">SOE</option>
                         <option value="IQAC">IQAC</option>
@@ -175,9 +175,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         // Combined HOD, Faculty, and Student logic
         if (formData.role === 'HOD' || formData.role === 'Faculty' || formData.role === 'Student') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required>
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
                         {commonDepartments.map(dept => (
                             <option key={dept} value={dept}>{dept}</option>
@@ -186,8 +186,8 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
                     {/* Conditionally render Batch input for Student */}
                     {formData.role === 'Student' && (
-                        <div className="login-form-group" style={{ marginTop: '15px' }}>
-                            <label htmlFor="batch">Batch (Year):</label>
+                        <div className="std-form-group" style={{ marginTop: '15px' }}>
+                            <label className="std-label" htmlFor="batch">Batch (Year):</label>
                             <input
                                 type="text"
                                 id="batch"
@@ -196,6 +196,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                                 onChange={handleChange}
                                 required
                                 placeholder="e.g. 2024"
+                                className="std-input"
                             />
                         </div>
                     )}
@@ -211,13 +212,13 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             <form onSubmit={handleSubmit}>
                 {isRegistering && (
                     <>
-                        <div className="login-form-group">
-                            <label htmlFor="username">Full Name</label>
-                            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" />
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="username">Full Name</label>
+                            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" className="std-input" />
                         </div>
-                        <div className="login-form-group">
-                            <label htmlFor="role">Role</label>
-                            <select id="role" name="role" value={formData.role} onChange={handleChange} required>
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="role">Role</label>
+                            <select id="role" name="role" value={formData.role} onChange={handleChange} required className="std-select">
                                 <option value="">Select your role</option>
                                 <option value="Officers">Officers</option>
                                 <option value="Dean">Dean</option>
@@ -232,15 +233,15 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     </>
                 )}
 
-                <div className="login-form-group">
-                    <label htmlFor="id">User ID</label>
-                    <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" />
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="id">User ID</label>
+                    <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" className="std-input" />
                 </div>
 
-                <div className="login-form-group">
-                    <label htmlFor="password">Password</label>
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="password">Password</label>
                     <div className="password-input-container">
-                        <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" />
+                        <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="std-input" style={{ paddingRight: '40px' }} />
                         <span onClick={() => setShowPassword(!showPassword)} className="password-toggle-icon">
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
@@ -248,10 +249,10 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
 
                 {isRegistering && (
-                    <div className="login-form-group">
-                        <label htmlFor="confirmPassword">Confirm Password</label>
+                    <div className="std-form-group">
+                        <label className="std-label" htmlFor="confirmPassword">Confirm Password</label>
                         <div className="password-input-container">
-                            <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" />
+                            <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className="std-input" style={{ paddingRight: '40px' }} />
                             <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-icon">
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
@@ -261,7 +262,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-                <button type="submit" className="button1">{isRegistering ? 'Register' : 'Login'}</button>
+                <button type="submit" className="std-btn" style={{ width: '100%' }}>{isRegistering ? 'Register' : 'Login'}</button>
 
                 <p onClick={() => {
                     setIsRegistering(!isRegistering);

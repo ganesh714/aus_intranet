@@ -3,7 +3,7 @@ import './render-home.css';
 import img1 from '../images/11.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaLock, FaSignOutAlt, FaUserCircle } from 'react-icons/fa'; // Added User Icon
+import { FaLock, FaSignOutAlt, FaUserCircle, FaCog, FaBell, FaChevronDown } from 'react-icons/fa'; // Added Icons
 
 function Home() {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -12,6 +12,7 @@ function Home() {
         newPassword: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
+    const [showProfileMenu, setShowProfileMenu] = useState(false); // [NEW] Profile Menu State
     const navigate = useNavigate();
 
     // Fetch User Details
@@ -62,28 +63,61 @@ function Home() {
                     </div>
 
                     <div className="header-right-section">
-                        {/* User Info Display */}
-                        <div className="user-info-display">
+                        {/* 1. Header Icons (Settings, Notification) */}
+                        <div className="header-icons-group">
+                            <div className="header-icon-btn" title="Settings">
+                                <FaCog />
+                            </div>
+                            <div className="header-icon-btn" title="Notifications">
+                                <FaBell />
+                                <span className="notification-badge"></span>
+                            </div>
+                        </div>
+
+                        <div className="header-separator"></div>
+
+                        {/* 2. User Profile Section (Clickable) */}
+                        <div
+                            className="user-profile-wrapper"
+                            onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            tabIndex={0}
+                            onBlur={(e) => {
+                                // Close menu on blur (using timeout to allow click events on children)
+                                if (!e.currentTarget.contains(e.relatedTarget)) {
+                                    // setTimeout(() => setShowProfileMenu(false), 200);
+                                    // simpler: just let layout handle it or click outside listener
+                                    // for now, strict click toggling
+                                }
+                            }}
+                        >
                             <div className="user-text">
-                                <span className="user-name">Hi, {username || 'User'}</span>
+                                <span className="user-name">{username || 'User'}</span>
                                 <span className="user-role-badge">
                                     {role} {subRole && subRole !== 'null' ? ` • ${subRole}` : ''}
                                     {role === 'Student' && batch ? ` • ${batch}` : ''}
                                 </span>
                             </div>
-                            <FaUserCircle className="user-avatar-icon" />
-                        </div>
+                            <div className="user-avatar-container">
+                                <FaUserCircle className="user-avatar-icon" style={{ fontSize: '32px', color: '#9ca3af' }} />
+                            </div>
+                            <FaChevronDown className={`profile-arrow ${showProfileMenu ? 'open' : ''}`} />
 
-                        <div className="header-actions">
-                            {/* Change Password */}
-                            <button onClick={() => setShowPasswordModal(true)} className="action-btn btn-change-pass">
-                                <FaLock className="btn-icon" /> Change Password
-                            </button>
-
-                            {/* LogOut */}
-                            <button onClick={handleLogout} className="action-btn btn-logout">
-                                <FaSignOutAlt className="btn-icon" /> LogOut
-                            </button>
+                            {/* Dropdown Menu */}
+                            {showProfileMenu && (
+                                <div className="profile-dropdown-menu">
+                                    <div className="profile-menu-header">
+                                        <div className="pm-name">{username}</div>
+                                        <div className="pm-role">{role}</div>
+                                    </div>
+                                    <div className="profile-menu-item" onClick={(e) => { e.stopPropagation(); setShowPasswordModal(true); setShowProfileMenu(false); }}>
+                                        <FaLock className="pm-icon" /> Change Password
+                                    </div>
+                                    <div className="profile-menu-divider"></div>
+                                    <div className="profile-menu-item danger" onClick={(e) => { e.stopPropagation(); handleLogout(); }}>
+                                        <FaSignOutAlt className="pm-icon" /> LogOut
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -95,10 +129,10 @@ function Home() {
                     <div className="modal-content">
                         <h2 className='change-password-heading'>Change Password</h2>
                         <form onSubmit={handleChangePassword}>
-                            <div className="input-group">
-                                <label htmlFor="currentPassword">Current Password</label>
+                            <div className="std-form-group">
+                                <label className="std-label" htmlFor="currentPassword">Current Password</label>
                                 <input
-                                    className="modal-input"
+                                    className="std-input"
                                     type="password"
                                     id="currentPassword"
                                     value={changePasswordData.currentPassword}
@@ -106,10 +140,10 @@ function Home() {
                                     required
                                 />
                             </div>
-                            <div className="input-group">
-                                <label htmlFor="newPassword">New Password</label>
+                            <div className="std-form-group">
+                                <label className="std-label" htmlFor="newPassword">New Password</label>
                                 <input
-                                    className="modal-input"
+                                    className="std-input"
                                     type="password"
                                     id="newPassword"
                                     value={changePasswordData.newPassword}
@@ -119,8 +153,8 @@ function Home() {
                                 {errorMessage && <div className="error-message">{errorMessage}</div>}
                             </div>
                             <div className="modal-actions">
-                                <button type="submit" className='modal-btn submit-btn'>Update</button>
-                                <button type="button" onClick={() => setShowPasswordModal(false)} className="modal-btn close-btn">Close</button>
+                                <button type="submit" className='std-btn'>Update</button>
+                                <button type="button" onClick={() => setShowPasswordModal(false)} className="std-btn std-btn-secondary">Close</button>
                             </div>
                         </form>
                     </div>

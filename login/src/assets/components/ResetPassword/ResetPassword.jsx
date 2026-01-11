@@ -46,18 +46,20 @@ const ResetPassword = () => {
             <div className="reset-container">
                 <h2 className="title">Reset Password</h2>
                 <form onSubmit={handleReset} className="reset-form">
-                    <input
-                        type="text"
-                        placeholder="Enter your User ID"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
-                        required
-                        className="input"
-                    />
-                    <button type="submit" className="reset-button" disabled={loading}>
+                    <div className="std-form-group">
+                        <input
+                            type="text"
+                            placeholder="Enter your User ID"
+                            value={id}
+                            onChange={(e) => setId(e.target.value)}
+                            required
+                            className="std-input"
+                        />
+                    </div>
+                    <button type="submit" className="std-btn" style={{ width: '100%' }} disabled={loading}>
                         {loading ? 'Sending...' : 'Send Reset Link'}
                     </button>
-                    <button type="button" onClick={handleBack} className="reset-back-button">Back to Login</button>
+                    <button type="button" onClick={handleBack} className="std-btn std-btn-secondary" style={{ width: '100%', marginTop: '10px' }}>Back to Login</button>
                 </form>
                 {message && <p className="reset-message">{message}</p>}
                 {error && <p className="reset-error">{error}</p>}

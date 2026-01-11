@@ -1,5 +1,6 @@
 import React from 'react';
 import './Announcements.css';
+import { FaTrash } from 'react-icons/fa';
 
 const AnnouncementForm = ({
     formData,
@@ -8,30 +9,31 @@ const AnnouncementForm = ({
     myAnnouncements,
     onChange,
     onFileChange,
-    onSubmit
+    onSubmit,
+    onDelete // New prop
 }) => {
     return (
         <div className="announce-container">
             <h2>Send New Announcement</h2>
             <form className="announce-form" onSubmit={onSubmit}>
-                <div className="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" value={formData.title} onChange={onChange} required placeholder="Enter announcement title" />
+                <div className="std-form-group">
+                    <label className="std-label">Title</label>
+                    <input className="std-input" type="text" name="title" value={formData.title} onChange={onChange} required placeholder="Enter announcement title" />
                 </div>
-                <div className="form-group">
-                    <label>Description</label>
-                    <textarea name="description" value={formData.description} onChange={onChange} required rows="4" />
+                <div className="std-form-group">
+                    <label className="std-label">Description</label>
+                    <textarea className="std-textarea" name="description" value={formData.description} onChange={onChange} required rows="4" />
                 </div>
                 <div className="target-builder">
-                    <label>Target Audience</label>
+                    <label className="std-label">Target Audience</label>
                     <div className="form-row">
-                        <div className="form-group half">
-                            <select name="targetRole" value={formData.targetRole} onChange={onChange}>
+                        <div className="std-form-group half">
+                            <select className="std-select" name="targetRole" value={formData.targetRole} onChange={onChange}>
                                 {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
                             </select>
                         </div>
-                        <div className="form-group half">
-                            <select name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
+                        <div className="std-form-group half">
+                            <select className="std-select" name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
                                 {(subRolesMapping[formData.targetRole] || ['All']).map((sr, i) => (
                                     <option key={i} value={sr}>{sr}</option>
                                 ))}
@@ -40,12 +42,12 @@ const AnnouncementForm = ({
 
                         {/* Conditionally render Batch input for Students */}
                         {formData.targetRole === 'Student' && (
-                            <div className="form-group half">
+                            <div className="std-form-group half">
                                 <select
                                     name="targetBatch"
                                     value={formData.targetBatch || ''}
                                     onChange={onChange}
-                                    className="batch-input"
+                                    className="std-select"
                                 >
                                     <option value="">Select Batch</option>
                                     {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map(year => (
@@ -76,11 +78,13 @@ const AnnouncementForm = ({
                         </div>
                     )}
                 </div>
-                <div className="form-group">
-                    <label>Attachment (Optional)</label>
-                    <input type="file" onChange={onFileChange} />
+                <div className="std-form-group">
+                    <label className="std-label">Attachment (Optional)</label>
+                    <input className="std-file-input" type="file" onChange={onFileChange} />
                 </div>
-                <button type="submit" className="send-btn">Send Announcement</button>
+                <div className="std-form-footer">
+                    <button type="submit" className="std-btn">Send Announcement</button>
+                </div>
             </form>
 
             <div className="my-announcements-section">
@@ -91,7 +95,17 @@ const AnnouncementForm = ({
                             <div key={index} className="announcement-card">
                                 <div className="ac-header">
                                     <h4>{item.title}</h4>
-                                    <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString('en-GB')}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString('en-GB')}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => onDelete(item._id)}
+                                            title="Delete Announcement"
+                                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
                                 </div>
                                 <p className="ac-desc">{item.description}</p>
                             </div>

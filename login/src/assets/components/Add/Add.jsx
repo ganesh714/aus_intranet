@@ -259,10 +259,10 @@ const Add = () => {
                 </button>
 
                 {/* Action Selector (Create or Edit) */}
-                <div className="form-group">
-                    <label className="form-label">
+                <div className="std-form-group">
+                    <label className="std-label">
                         Action:
-                        <select value={selectedOption1} onChange={(e) => setSelectedOption1(e.target.value)} className="form-select">
+                        <select value={selectedOption1} onChange={(e) => setSelectedOption1(e.target.value)} className="std-select">
                             <option value="">Select...</option>
                             <option value="Create">Create</option>
                             <option value="Edit">Edit</option>
@@ -274,26 +274,26 @@ const Add = () => {
                 {/* New Category for Create Action */}
                 {selectedOption1 === 'Create' && (
                     <div>
-                        <div className="form-group">
-                            <label className="form-label">
+                        <div className="std-form-group">
+                            <label className="std-label">
                                 New Category:
                                 <input
                                     type="text"
                                     value={newCategory}
                                     onChange={(e) => setNewCategory(e.target.value)}
-                                    className="form-input"
+                                    className="std-input"
                                 />
                             </label>
                             {errors.newCategory && <p className="error-text">{errors.newCategory}</p>}
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">
+                        <div className="std-form-group">
+                            <label className="std-label">
                                 New SubCategory:
                                 <input
                                     type="text"
                                     value={newSubCategory}
                                     onChange={(e) => setNewSubCategory(e.target.value)}
-                                    className="form-input"
+                                    className="std-input"
                                 />
                             </label>
                             {errors.newCategory && <p className="error-text">{errors.newCategory}</p>}
@@ -303,10 +303,10 @@ const Add = () => {
 
                 {/* Category for Edit Action */}
                 {selectedOption1 === 'Edit' && (
-                    <div className="form-group">
-                        <label className="form-label">
+                    <div className="std-form-group">
+                        <label className="std-label">
                             Category:
-                            <select value={selectedOption2} onChange={(e) => setSelectedOption2(e.target.value)} className="form-select">
+                            <select value={selectedOption2} onChange={(e) => setSelectedOption2(e.target.value)} className="std-select">
                                 <option value="">Select Category</option>
                                 {categories.map((category, index) => (
                                     <option key={index} value={category}>
@@ -320,13 +320,13 @@ const Add = () => {
                 )}
 
                 {selectedOption1 === 'Edit' && selectedOption2 && (
-                    <div className="form-group">
-                        <label className="form-label">
+                    <div className="std-form-group">
+                        <label className="std-label">
                             Sub Category:
                             <select
                                 value={selectedSubCategory}
                                 onChange={(e) => setSelectedSubCategory(e.target.value)}
-                                className="form-select"
+                                className="std-select"
                             >
                                 <option value="">Select Sub Category</option>
                                 {subCategories.map((subCat, index) => (
@@ -340,7 +340,7 @@ const Add = () => {
                     </div>
                 )}
                 {selectedOption1 === 'Edit' && selectedOption2 && selectedSubCategory && filesInCategory.length > 0 && (
-                    <div className="form-group row">
+                    <div className="std-form-group row">
                         <h4>Existing Files in "{selectedOption2}" Category - "{selectedSubCategory}" Subcategory:</h4>
                         {filesInCategory
                             .filter(file => file.subcategory === selectedSubCategory)
@@ -362,14 +362,14 @@ const Add = () => {
                 <br />
 
                 {/* Number of Files */}
-                <div className="form-group">
-                    <label className="form-label">
+                <div className="std-form-group">
+                    <label className="std-label">
                         Add Files:
                         <input
                             type="number"
                             value={numOfFiles}
                             onChange={(e) => setNumOfFiles(parseInt(e.target.value))}
-                            className="form-input"
+                            className="std-input"
                         />
                     </label>
                     {errors.numOfFiles && <p className="error-text">{errors.numOfFiles}</p>}
@@ -377,23 +377,23 @@ const Add = () => {
 
                 {/* File Inputs */}
                 {Array.from({ length: numOfFiles }).map((_, index) => (
-                    <div key={index} className="file-input-group">
-                        <label className="form-label">
+                    <div key={index} className="file-input-group std-form-group">
+                        <label className="std-label">
                             File Name:
                             <input
                                 type="text"
                                 value={fileInputs[index]?.fileName || ''}
                                 onChange={(e) => handleFileNameChange(e, index)}
-                                className="form-input"
+                                className="std-input"
                             />
                         </label>
                         {errors[`fileName${index}`] && <p className="error-text">{errors[`fileName${index}`]}</p>}
-                        <label className="form-label">
+                        <label className="std-label">
                             File:
                             <input
                                 type="file"
                                 onChange={(e) => handleFileChange(e, index)}
-                                className="form-input"
+                                className="std-file-input"
                             />
                         </label>
                         {errors[`file${index}`] && <p className="error-text">{errors[`file${index}`]}</p>}
@@ -401,7 +401,9 @@ const Add = () => {
                 ))}
 
                 {/* Submit Button */}
-                <button type="submit" className="add-form-button">Submit</button>
+                <div className="std-form-footer">
+                    <button type="submit" className="std-btn">Submit</button>
+                </div>
             </form>
         </div>
     );

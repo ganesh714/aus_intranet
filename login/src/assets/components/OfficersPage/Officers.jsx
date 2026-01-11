@@ -10,11 +10,6 @@ function Officers() {
         <>
             <RenderHome />
             <Content />
-            <Link to="/add-file">
-                <div className="plus-div">
-                    <Add />
-                </div>
-            </Link>
         </>
     );
 }

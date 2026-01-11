@@ -23,7 +23,7 @@ body.login-page {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 /* Modern Login Card */
@@ -102,7 +102,7 @@ select:focus {
 input[type="password"],
 input[type="text"] {
     /* Ensure padding for icon doesn't overlap text */
-    padding-right: 40px; 
+    padding-right: 40px;
 }
 
 /* Eye Icon */
@@ -127,7 +127,8 @@ input[type="text"] {
 .button1 {
     width: 100%;
     padding: 12px;
-    background-color: var(--primary-blue); /* Changed to Blue for primary action */
+    background-color: var(--primary-blue);
+    /* Changed to Blue for primary action */
     color: white;
     border: none;
     border-radius: 8px;
@@ -139,7 +140,8 @@ input[type="text"] {
 }
 
 .button1:hover {
-    background-color: var(--primary-orange); /* Orange on hover */
+    background-color: var(--primary-orange);
+    /* Orange on hover */
     transform: translateY(-1px);
 }
 
@@ -171,7 +173,8 @@ input[type="text"] {
 }
 
 #forgot-password:hover {
-    color: #c2410c; /* Darker orange */
+    color: #c2410c;
+    /* Darker orange */
 }
 
 /* Error Message */
@@ -191,7 +194,7 @@ input[type="text"] {
         margin: 15px;
         padding: 30px 20px;
     }
-    
+
     .login-header {
         font-size: 24px;
     }

@@ -220,6 +220,18 @@ const AnnouncementManager = ({
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this announcement?")) return;
+        try {
+            await axios.delete(`http://localhost:5001/delete-announcement/${id}`);
+            alert('Announcement deleted successfully!');
+            fetchAnnouncements(); // Refresh list
+        } catch (error) {
+            console.error("Error deleting announcement", error);
+            alert("Failed to delete announcement.");
+        }
+    };
+
     const toggleView = () => {
         setShowSendAnnounce(!showSendAnnounce);
     };
@@ -241,6 +253,7 @@ const AnnouncementManager = ({
                 }}
                 onSubmit={handleFormSubmit}
                 onToggleView={toggleView}
+                onDelete={handleDelete}
             />
         );
     }

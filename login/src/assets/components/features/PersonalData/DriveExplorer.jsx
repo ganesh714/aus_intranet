@@ -3,7 +3,10 @@ import axios from 'axios';
 import {
     FaFolder, FaFilePdf, FaArrowLeft, FaArrowRight, FaArrowUp,
     FaPlus, FaCloudUploadAlt, FaFolderPlus, FaTrash, FaPen,
-    FaCut, FaPaste, FaHome, FaCopy, FaArrowRight as FaMoveIcon, FaSearch
+    FaCut, FaPaste, FaHome, FaCopy, FaArrowRight as FaMoveIcon, FaSearch,
+    FaImage, FaFileAlt, FaVideo, FaInfoCircle,
+    FaFileWord, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFileCode, FaFileAudio,
+    FaSortAmountDown, FaList, FaThLarge
 } from 'react-icons/fa';
 import './DriveExplorer.css';
 import FolderPicker from './FolderPicker';
@@ -34,9 +37,39 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const [picker, setPicker] = useState({ open: false, mode: null, item: null }); // mode: 'move' | 'copy'
     const [inputVal, setInputVal] = useState('');
 
+    const [showNewMenu, setShowNewMenu] = useState(false);
+
+    // Sort
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [showSortMenu, setShowSortMenu] = useState(false);
+
+    // View Mode
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+    const [showViewMenu, setShowViewMenu] = useState(false);
+
+    // Derived sorted items
+    const sortedItems = [...items].sort((a, b) => {
+        if (sortConfig.key === 'name') {
+            return sortConfig.direction === 'asc'
+                ? a.name.localeCompare(b.name)
+                : b.name.localeCompare(a.name);
+        }
+        if (sortConfig.key === 'date') {
+            return sortConfig.direction === 'asc'
+                ? new Date(a.createdAt) - new Date(b.createdAt)
+                : new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        return 0;
+    });
+
     // Refs for file inputs
     const fileInputRef = useRef(null);
     const folderInputRef = useRef(null);
+
+    // Debugging
+    useEffect(() => {
+        console.log("Current Drive Items:", items);
+    }, [items]);
 
     // Initial Fetch handling
     useEffect(() => {
@@ -49,17 +82,50 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const fetchItems = async (folderId) => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:5001/drive/items', {
-                params: {
-                    userId: userInfo.id,
-                    folderId: folderId || 'null'
+            if (folderId === 'virtual-shared-folder') {
+                const params = { id: userInfo.id, role: userInfo.role, subRole: userInfo.subRole };
+                const res = await axios.get('http://localhost:5001/get-materials', { params });
+
+                const sharedDocs = res.data.materials
+                    .filter(m => m.uploadedBy?.id !== userInfo.id)
+                    .map(m => ({
+                        _id: m._id,
+                        name: m.title,
+                        type: 'file',
+                        isShared: true,
+                        size: m.fileId?.fileSize,
+                        updatedAt: m.uploadedAt,
+                        fileId: m.fileId
+                    }));
+
+                setItems(sharedDocs);
+                setCurrentFolderData({ _id: 'virtual-shared-folder', name: 'Shared Files', parent: null });
+                setPath([]);
+                setCurrentFolder(folderId);
+            } else {
+                const response = await axios.get('http://localhost:5001/drive/items', {
+                    params: {
+                        userId: userInfo.id,
+                        folderId: folderId || 'null'
+                    }
+                });
+
+                let list = response.data.items;
+                if (!folderId) {
+                    list.unshift({
+                        _id: 'virtual-shared-folder',
+                        name: 'Shared Files',
+                        type: 'folder',
+                        isSystem: true,
+                        itemCount: 'Auto'
+                    });
                 }
-            });
-            setItems(response.data.items);
-            setCurrentFolderData(response.data.folder);
-            setPath(response.data.path || []);
-            setStorageUsed(response.data.storageUsed);
-            setCurrentFolder(folderId);
+                setItems(list);
+                setCurrentFolderData(response.data.folder);
+                setPath(response.data.path || []);
+                setStorageUsed(response.data.storageUsed);
+                setCurrentFolder(folderId);
+            }
         } catch (error) {
             console.error("Error fetching drive items", error);
         } finally {
@@ -129,6 +195,35 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         if (currentFolder !== null) navigateTo(null);
     }
 
+    // --- Helpers ---
+    const getFileMeta = (name) => {
+        const lower = name.toLowerCase();
+        // PDF
+        if (lower.endsWith('.pdf')) return { icon: <FaFilePdf style={{ color: '#ef4444' }} />, label: 'PDF Document' };
+        // Word
+        if (lower.match(/\.(doc|docx)$/)) return { icon: <FaFileWord style={{ color: '#2563eb' }} />, label: 'Word Document' };
+        // Excel
+        if (lower.match(/\.(xls|xlsx|csv)$/)) return { icon: <FaFileExcel style={{ color: '#16a34a' }} />, label: 'Excel Spreadsheet' };
+        // PowerPoint
+        if (lower.match(/\.(ppt|pptx)$/)) return { icon: <FaFilePowerpoint style={{ color: '#ea580c' }} />, label: 'PowerPoint Presentation' };
+        // Images
+        if (lower.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) return { icon: <FaImage style={{ color: '#3b82f6' }} />, label: 'Image File' };
+        // Video
+        if (lower.match(/\.(mp4|mov|avi|mkv|webm)$/)) return { icon: <FaVideo style={{ color: '#8b5cf6' }} />, label: 'Video File' };
+        // Audio
+        if (lower.match(/\.(mp3|wav|ogg|m4a)$/)) return { icon: <FaFileAudio style={{ color: '#ec4899' }} />, label: 'Audio File' };
+        // Code
+        if (lower.match(/\.(js|jsx|html|css|json|java|py|c|cpp|ts|tsx)$/)) return { icon: <FaFileCode style={{ color: '#6366f1' }} />, label: 'Source Code' };
+        // Archive
+        if (lower.match(/\.(zip|rar|7z|tar|gz)$/)) return { icon: <FaFileArchive style={{ color: '#f59e0b' }} />, label: 'Archive File' };
+        // Text
+        if (lower.match(/\.(txt|md|log)$/)) return { icon: <FaFileAlt style={{ color: '#9ca3af' }} />, label: 'Text Document' };
+
+        return { icon: <FaFileAlt style={{ color: '#9ca3af' }} />, label: `${name.split('.').pop().toUpperCase()} File` };
+    };
+
+    const getFileIcon = (name) => getFileMeta(name).icon;
+
     // --- Selection ---
     const handleItemClick = (e, item) => {
         e.stopPropagation();
@@ -139,6 +234,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const handleBoxClick = () => {
         setSelectedItem(null);
         setContextMenu(null);
+        setShowNewMenu(false);
     };
 
     // --- Actions ---
@@ -302,9 +398,22 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     // 4. Rename
     const handleRename = async () => {
         if (!inputVal.trim()) return;
+
+        let newName = inputVal.trim();
+        const oldName = modal.item.name;
+
+        // Preserve extension for files if user didn't type it
+        if (modal.item.type === 'file' && oldName.includes('.')) {
+            const ext = oldName.split('.').pop();
+            // If new name has no dot, append original extension
+            if (!newName.includes('.')) {
+                newName = `${newName}.${ext}`;
+            }
+        }
+
         try {
             await axios.put(`http://localhost:5001/drive/rename/${modal.item._id}`, {
-                newName: inputVal
+                newName: newName
             });
             setModal({ type: null });
             setInputVal('');
@@ -320,9 +429,20 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
     // 5. Delete
     const handleDelete = async (item) => {
+        if (item.isSystem) {
+            alert("Cannot delete system folder.");
+            return;
+        }
         if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) return;
         try {
-            await axios.delete(`http://localhost:5001/drive/delete/${item._id}`);
+            if (item.isShared) {
+                await axios.post('http://localhost:5001/hide-shared-material', {
+                    materialId: item._id,
+                    userId: userInfo.id
+                });
+            } else {
+                await axios.delete(`http://localhost:5001/drive/delete/${item._id}`);
+            }
             setSelectedItem(null);
             fetchItems(currentFolder);
         } catch (error) {
@@ -338,16 +458,30 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const handlePaste = async () => {
         if (!clipboard) return;
         try {
-            await axios.put(`http://localhost:5001/drive/move/${clipboard.item._id}`, {
-                newParentId: currentFolder
-            });
+            if (clipboard.item.isShared) {
+                await axios.post('http://localhost:5001/copy-shared-to-drive', {
+                    materialId: clipboard.item._id,
+                    targetFolderId: currentFolder || 'root',
+                    userId: userInfo.id
+                });
+                if (clipboard.action === 'move') {
+                    await axios.post('http://localhost:5001/hide-shared-material', {
+                        materialId: clipboard.item._id,
+                        userId: userInfo.id
+                    });
+                }
+            } else {
+                await axios.put(`http://localhost:5001/drive/move/${clipboard.item._id}`, {
+                    newParentId: currentFolder
+                });
+            }
             setClipboard(null);
             fetchItems(currentFolder);
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 alert(error.response.data.message);
             } else {
-                alert('Move failed');
+                alert('Action failed');
             }
         }
     };
@@ -357,16 +491,30 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         if (!picker.item) return;
 
         try {
-            if (picker.mode === 'move') {
-                await axios.put(`http://localhost:5001/drive/move/${picker.item._id}`, {
-                    newParentId: targetFolderId
-                });
-            } else if (picker.mode === 'copy') {
-                await axios.post('http://localhost:5001/drive/copy', {
-                    itemId: picker.item._id,
-                    targetParentId: targetFolderId,
+            if (picker.item.isShared) {
+                await axios.post('http://localhost:5001/copy-shared-to-drive', {
+                    materialId: picker.item._id,
+                    targetFolderId,
                     userId: userInfo.id
                 });
+                if (picker.mode === 'move') {
+                    await axios.post('http://localhost:5001/hide-shared-material', {
+                        materialId: picker.item._id,
+                        userId: userInfo.id
+                    });
+                }
+            } else {
+                if (picker.mode === 'move') {
+                    await axios.put(`http://localhost:5001/drive/move/${picker.item._id}`, {
+                        newParentId: targetFolderId
+                    });
+                } else if (picker.mode === 'copy') {
+                    await axios.post('http://localhost:5001/drive/copy', {
+                        itemId: picker.item._id,
+                        targetParentId: targetFolderId,
+                        userId: userInfo.id
+                    });
+                }
             }
             setPicker({ open: false, mode: null, item: null });
             fetchItems(currentFolder);
@@ -380,25 +528,72 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         }
     };
 
-    // --- Render Helpers ---
-    // --- Render Helpers ---
-    const getBreadcrumbString = () => {
-        if (searchQuery.trim()) return `Search Results for "${searchQuery}"`;
+    // View All State
+    const [showAllFolders, setShowAllFolders] = useState(false);
 
-        // If we have a path (from backend), use it
-        if (path && path.length > 0) {
-            const MAX_ITEMS = 4;
-            if (path.length > MAX_ITEMS) {
-                // Show: Root > ... > Parent > Current
-                const root = path[0].name;
-                const lastTwo = path.slice(-2).map(p => p.name).join(' > ');
-                return `${root} > ... > ${lastTwo}`;
-            }
-            return path.map(p => p.name).join(' > ');
+    // --- Render Helpers ---
+    const renderBreadcrumbs = () => {
+        if (searchQuery.trim()) {
+            return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span
+                        onClick={() => { setSearchQuery(''); navigateTo(null); }}
+                        style={{ cursor: 'pointer', color: '#6b7280', fontWeight: '500' }}
+                    >
+                        My Data
+                    </span>
+                    <span style={{ color: '#9ca3af' }}>{'>'}</span>
+                    <span style={{ fontWeight: '600', color: '#111827' }}>Search Results: "{searchQuery}"</span>
+                </div>
+            );
         }
 
-        if (!currentFolder) return "My Data";
-        return currentFolderData ? currentFolderData.name : "Loading...";
+        // If at root
+        if (!currentFolder) {
+            return <div style={{ fontWeight: '700', color: '#111827' }}>My Data</div>;
+        }
+
+        // Use path
+        const items = [];
+        // Root node
+        items.push(
+            <span
+                key="root"
+                onClick={() => navigateTo(null)}
+                style={{ cursor: 'pointer', color: '#6b7280', fontWeight: '500' }}
+            >
+                My Data
+            </span>
+        );
+
+        if (path && path.length > 0) {
+            // Filter out any path item that is "My Data" to prevent duplication with root
+            const cleanPath = path.filter(p => p.name.toLowerCase() !== 'my data');
+
+            cleanPath.forEach((folder, index) => {
+                items.push(<span key={`sep-${index}`} style={{ color: '#9ca3af' }}>{'>'}</span>);
+                const isLast = index === cleanPath.length - 1;
+                items.push(
+                    <span
+                        key={folder._id}
+                        onClick={() => !isLast && navigateTo(folder._id)}
+                        style={{
+                            cursor: isLast ? 'default' : 'pointer',
+                            color: isLast ? '#111827' : '#6b7280',
+                            fontWeight: isLast ? '700' : '500'
+                        }}
+                    >
+                        {folder.name}
+                    </span>
+                );
+            });
+        } else if (currentFolderData && currentFolderData.name.toLowerCase() !== 'my data') {
+            // Fallback if path empty but we have folder data
+            items.push(<span key="sep-fallback" style={{ color: '#9ca3af' }}>{'>'}</span>);
+            items.push(<span key="fallback" style={{ fontWeight: '700', color: '#111827' }}>{currentFolderData.name}</span>);
+        }
+
+        return <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto' }}>{items}</div>;
     };
 
     const formatBytes = (bytes, decimals = 2) => {
@@ -444,7 +639,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
                     <div className="breadcrumbs-modern">
                         <span className="crumb-icon"><FaFolder /></span>
-                        <span style={{ fontWeight: 600 }}>{getBreadcrumbString()}</span>
+                        {renderBreadcrumbs()}
                     </div>
                 </div>
 
@@ -462,27 +657,49 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                 </div>
             </div>
 
-            <div className="toolbar-row">
-                <div className="toolbar-group">
+            <div className="toolbar-row" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)', paddingBottom: '10px', marginBottom: '10px' }}>
+                <div className="toolbar-group" style={{ position: 'relative' }}>
                     <button
-                        className="drive-btn btn-new-folder"
+                        className="drive-btn new-btn"
                         onClick={(e) => {
                             e.stopPropagation();
-                            setInputVal('');
-                            setModal({ type: 'create_folder' });
+                            setShowNewMenu(!showNewMenu);
+                            setContextMenu(null);
                         }}
                     >
-                        <FaFolderPlus /> New Folder
+                        <FaPlus /> New
                     </button>
 
-                    <button className="drive-btn btn-upload" disabled={!!searchQuery} onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); }}>
-                        <FaCloudUploadAlt /> Upload Files
-                    </button>
+                    {showNewMenu && (
+                        <div className="new-dropdown-menu">
+                            <div className="new-menu-item" onClick={(e) => {
+                                e.stopPropagation();
+                                setInputVal('');
+                                setModal({ type: 'create_folder' });
+                                setShowNewMenu(false);
+                            }}>
+                                <FaFolderPlus /> New Folder
+                            </div>
+                            <div className="new-menu-divider"></div>
+                            <div className="new-menu-item" onClick={(e) => {
+                                e.stopPropagation();
+                                fileInputRef.current.click();
+                                setShowNewMenu(false);
+                            }}>
+                                <FaCloudUploadAlt /> File Upload
+                            </div>
+                            <div className="new-menu-item" onClick={(e) => {
+                                e.stopPropagation();
+                                folderInputRef.current.click();
+                                setShowNewMenu(false);
+                            }}>
+                                <FaFolder /> Folder Upload
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hidden Inputs */}
                     <input type="file" multiple hidden ref={fileInputRef} onChange={handleUploadFiles} />
-
-                    <button className="drive-btn btn-upload-folder" disabled={!!searchQuery} onClick={(e) => { e.stopPropagation(); folderInputRef.current.click(); }}>
-                        <FaFolder /> Upload Folder
-                    </button>
                     <input
                         type="file"
                         multiple
@@ -492,6 +709,8 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                         ref={folderInputRef}
                         onChange={handleUploadFolder}
                     />
+
+
                 </div>
 
                 <div className="toolbar-group">
@@ -516,11 +735,13 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                     >
                         <FaTrash /> Delete
                     </button>
+
                     {clipboard && (
                         <button className="drive-btn" style={{ background: '#e0e7ff', color: '#4338ca' }} onClick={(e) => { e.stopPropagation(); handlePaste(); }}>
                             <FaPaste /> Paste Item
                         </button>
                     )}
+
                     <button
                         className="drive-btn"
                         disabled={!selectedItem}
@@ -536,66 +757,168 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                         <FaMoveIcon /> Move To
                     </button>
                 </div>
+
+                {/* Sort Button */}
+                <div className="toolbar-group" style={{ position: 'relative' }}>
+                    <button
+                        className="drive-btn"
+                        onClick={(e) => { e.stopPropagation(); setShowSortMenu(!showSortMenu); setShowViewMenu(false); }}
+                    >
+                        <FaSortAmountDown /> Sort by
+                    </button>
+
+                    {showSortMenu && (
+                        <div className="new-dropdown-menu" style={{ width: '180px', right: 0, left: 'auto' }}>
+                            <div className="new-menu-item" onClick={() => { setSortConfig({ key: 'name', direction: 'asc' }); setShowSortMenu(false); }}>
+                                Name (A-Z) {sortConfig.key === 'name' && sortConfig.direction === 'asc' && '✓'}
+                            </div>
+                            <div className="new-menu-item" onClick={() => { setSortConfig({ key: 'name', direction: 'desc' }); setShowSortMenu(false); }}>
+                                Name (Z-A) {sortConfig.key === 'name' && sortConfig.direction === 'desc' && '✓'}
+                            </div>
+                            <div className="new-menu-divider"></div>
+                            <div className="new-menu-item" onClick={() => { setSortConfig({ key: 'date', direction: 'desc' }); setShowSortMenu(false); }}>
+                                Date (Newest) {sortConfig.key === 'date' && sortConfig.direction === 'desc' && '✓'}
+                            </div>
+                            <div className="new-menu-item" onClick={() => { setSortConfig({ key: 'date', direction: 'asc' }); setShowSortMenu(false); }}>
+                                Date (Oldest) {sortConfig.key === 'date' && sortConfig.direction === 'asc' && '✓'}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* View Toggle Button */}
+                <div className="toolbar-group" style={{ position: 'relative', borderRight: 'none' }}>
+                    <button
+                        className="drive-btn"
+                        onClick={(e) => { e.stopPropagation(); setShowViewMenu(!showViewMenu); setShowSortMenu(false); }}
+                    >
+                        {viewMode === 'grid' ? <FaThLarge /> : <FaList />} View
+                    </button>
+
+                    {showViewMenu && (
+                        <div className="new-dropdown-menu" style={{ width: '150px', right: 0, left: 'auto' }}>
+                            <div className="new-menu-item" onClick={() => { setViewMode('grid'); setShowViewMenu(false); }}>
+                                <FaThLarge /> Grid {viewMode === 'grid' && '✓'}
+                            </div>
+                            <div className="new-menu-item" onClick={() => { setViewMode('list'); setShowViewMenu(false); }}>
+                                <FaList /> List {viewMode === 'list' && '✓'}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
 
             {/* Grid */}
-            <div
-                className="drive-grid"
-                onContextMenu={(e) => {
-                    e.preventDefault();
-                    setContextMenu(null);
-                    // Could show background context menu (Paste, New Folder) here
-                }}
-            >
-                {/* List Header */}
-                <div className="drive-list-header">
-                    <div className="header-name">Name</div>
-                    {searchQuery && <div className="header-location" style={{ width: '150px', paddingLeft: '10px', borderLeft: '1px solid #e0e0e0', color: '#555', fontWeight: 600 }}>Location</div>}
-                    <div className="header-date">Date modified</div>
-                </div>
-                {loading && <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: 20 }}>Loading...</div>}
+            {/* Main Content Area */}
+            <div className="drive-content-scroll" onClick={handleBoxClick} onContextMenu={(e) => {
+                e.preventDefault();
+                setContextMenu(null);
+            }}>
+                {loading && <div className="loading-state">Loading...</div>}
 
                 {!loading && items.length === 0 && (
-                    <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#9ca3af', fontStyle: 'italic', padding: 40 }}>
+                    <div className="empty-state">
                         {searchQuery ? "No results found." : "This folder is empty."}
                     </div>
                 )}
 
-                {!loading && items.map(item => (
-                    <div
-                        key={item._id}
-                        className={`drive-item ${selectedItem?._id === item._id ? 'selected' : ''}`}
-                        onClick={(e) => handleItemClick(e, item)}
-                        onDoubleClick={(e) => {
-                            e.stopPropagation();
-                            if (item.type === 'folder') navigateTo(item._id);
-                            else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath);
-                        }}
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedItem(item);
-                            setContextMenu({ x: e.pageX, y: e.pageY, item });
-                        }}
-                    >
-                        <div className={`item-icon ${item.type === 'folder' ? 'folder-icon' : 'file-icon'}`}>
-                            {item.type === 'folder' ? <FaFolder /> : <FaFilePdf />}
-                        </div>
-                        <div className="item-name">{item.name}</div>
-                        {searchQuery && <div className="item-location" style={{ width: '150px', fontSize: '12px', color: '#888', paddingLeft: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {item.parent ? item.parent.name : 'My Data'}
-                        </div>}
-                        <div className="item-date">{formatDate(item.updatedAt)}</div>
-                    </div>
-                ))}
-            </div>
+                {!loading && items.length > 0 && (
+                    (() => {
+                        const folders = items.filter(i => i.type === 'folder');
+                        const files = items.filter(i => i.type === 'file');
+                        const isRoot = !currentFolder && !searchQuery; // Treat search results like a flat list or folder view
+
+                        // Unified View for ALL folders (Root or Sub)
+                        return (
+                            <>
+                                {/* Item count removed from here, moved to toolbar */}
+                                {viewMode === 'grid' ? (
+                                    <div className="folders-grid" style={{ marginTop: '20px' }}>
+                                        {sortedItems.map(item => (
+                                            <div
+                                                key={item._id}
+                                                className={`folder-card ${selectedItem?._id === item._id ? 'selected' : ''}`}
+                                                onClick={(e) => handleItemClick(e, item)}
+                                                onDoubleClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (item.type === 'folder') navigateTo(item._id);
+                                                    else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath);
+                                                }}
+                                                onContextMenu={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setSelectedItem(item);
+                                                    setContextMenu({ x: e.pageX, y: e.pageY, item });
+                                                }}
+                                            >
+                                                <div className="folder-card-icon">
+                                                    {item.type === 'folder' ? <FaFolder /> : getFileMeta(item.name).icon}
+                                                </div>
+                                                <div className="folder-card-name" title={item.name}>{item.name}</div>
+                                                <div className="folder-card-details">
+                                                    {item.type === 'folder'
+                                                        ? `${item.itemCount || '0'} items`
+                                                        : formatBytes(item.size || 0)}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    // List View
+                                    <div className="files-list-container" style={{ marginTop: '20px' }}>
+                                        <div className="files-list-header">
+                                            <div className="fl-col fl-name">Name</div>
+                                            <div className="fl-col fl-date">Date Modified</div>
+                                            <div className="fl-col fl-size">Size</div>
+                                        </div>
+                                        <div className="files-list-body">
+                                            {sortedItems.map(item => (
+                                                <div
+                                                    key={item._id}
+                                                    className={`file-row ${selectedItem?._id === item._id ? 'selected' : ''}`}
+                                                    onClick={(e) => handleItemClick(e, item)}
+                                                    onDoubleClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (item.type === 'folder') navigateTo(item._id);
+                                                        else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath);
+                                                    }}
+                                                    onContextMenu={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setSelectedItem(item);
+                                                        setContextMenu({ x: e.pageX, y: e.pageY, item });
+                                                    }}
+                                                >
+                                                    <div className="fl-col fl-name">
+                                                        <div className="file-icon-small">
+                                                            {item.type === 'folder' ? <FaFolder style={{ color: '#fbbf24', fontSize: '18px' }} /> : getFileMeta(item.name).icon}
+                                                        </div>
+                                                        <span>{item.name}</span>
+                                                    </div>
+                                                    <div className="fl-col fl-date">{formatDate(item.updatedAt || item.createdAt)}</div>
+                                                    <div className="fl-col fl-size">
+                                                        {item.type === 'folder' ? `${item.itemCount || '0'} items` : formatBytes(item.size || 0)}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        );
+                    })()
+                )}
+            </div >
 
             {/* Storage Indicator */}
             {
                 storageUsed !== null && (
-                    <div className="storage-indicator">
-                        Storage Used: <strong>{formatBytes(storageUsed)}</strong>
+                    <div className="storage-footer">
+                        <div className="storage-bar">
+                            <div className="storage-fill" style={{ width: `${Math.min((storageUsed / (1024 * 1024 * 100)) * 100, 100)}%` }}></div>
+                        </div>
+                        <span>{formatBytes(storageUsed)} used</span>
                     </div>
                 )
             }
@@ -607,6 +930,18 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                         className="context-menu"
                         style={{ top: contextMenu.y, left: contextMenu.x }}
                     >
+                        {/* Properties - Only for Files */}
+                        {contextMenu.item.type === 'file' && (
+                            <div className="context-menu-item" onClick={(e) => {
+                                e.stopPropagation();
+                                setModal({ type: 'properties', item: contextMenu.item });
+                                setContextMenu(null);
+                            }}>
+                                <FaInfoCircle /> Properties
+                            </div>
+                        )}
+                        {contextMenu.item.type === 'file' && <div className="new-menu-divider"></div>}
+
                         <div className="context-menu-item" onClick={(e) => {
                             e.stopPropagation();
                             setInputVal(contextMenu.item.name);
@@ -647,9 +982,9 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                 )
             }
 
-            {/* Modal */}
+            {/* Modal: Create/Rename */}
             {
-                modal.type && (
+                (modal.type === 'create_folder' || modal.type === 'rename') && (
                     <div className="modal-overlay" onClick={() => setModal({ type: null })}>
                         <div className="modal-content" onClick={e => e.stopPropagation()}>
                             <div className="modal-title">
@@ -674,6 +1009,48 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                 >
                                     {modal.type === 'create_folder' ? 'Create' : 'Save'}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Modal: Properties */}
+            {
+                modal.type === 'properties' && modal.item && (
+                    <div className="modal-overlay" onClick={() => setModal({ type: null })}>
+                        <div className="modal-content properties-modal" onClick={e => e.stopPropagation()}>
+                            <div className="modal-header-props">
+                                <div className="modal-title">File Properties</div>
+                                <button className="close-btn" onClick={() => setModal({ type: null })}>×</button>
+                            </div>
+
+                            <div className="props-body">
+                                <div className="props-icon-preview">
+                                    {getFileIcon(modal.item.name)}
+                                </div>
+                                <div className="props-name">{modal.item.name}</div>
+
+                                <div className="props-details-grid">
+                                    <div className="props-label">Type:</div>
+                                    <div className="props-value">{getFileMeta(modal.item.name).label}</div>
+
+                                    <div className="props-label">Size:</div>
+                                    <div className="props-value">{formatBytes(modal.item.size || 0)}</div>
+
+                                    <div className="props-label">Location:</div>
+                                    <div className="props-value">{getBreadcrumbString()}</div>
+
+                                    <div className="props-label">Created:</div>
+                                    <div className="props-value">{formatDate(modal.item.createdAt)}</div>
+
+                                    <div className="props-label">Modified:</div>
+                                    <div className="props-value">{formatDate(modal.item.updatedAt || modal.item.createdAt)}</div>
+                                </div>
+                            </div>
+
+                            <div className="modal-buttons" style={{ justifyContent: 'flex-end' }}>
+                                <button className="btn-confirm" onClick={() => setModal({ type: null })}>Close</button>
                             </div>
                         </div>
                     </div>

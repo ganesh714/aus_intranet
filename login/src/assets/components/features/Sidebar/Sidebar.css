@@ -7,14 +7,16 @@
     flex-direction: column;
     padding: 20px;
     flex-shrink: 0;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    height: 100%;
 }
 
 .sidebar-header {
     font-size: 20px;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     font-weight: 600;
 }
 
@@ -35,13 +37,13 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     cursor: pointer;
     transition: background 0.3s;
 }
 
 .category-header:hover {
-    background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .expanded .category-header {
@@ -69,7 +71,7 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out;
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .expanded .subcategory-list {
@@ -93,7 +95,7 @@
 
 .subcat-btn:hover {
     color: var(--primary-orange);
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Responsive adjustment for sidebar */

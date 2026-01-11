@@ -188,20 +188,22 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                         <h3>Upload Class Timetable (Excel)</h3>
                         <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '15px' }}>Note: Uploading will replace any existing timetable for this Year & Section.</p>
                         <div className="form-row">
-                            <div className="form-group half">
-                                <label>Target Year</label>
-                                <input type="number" required value={uploadForm.targetYear} onChange={e => setUploadForm({ ...uploadForm, targetYear: e.target.value })} />
+                            <div className="std-form-group half">
+                                <label className="std-label">Target Year</label>
+                                <input className="std-input" type="number" required value={uploadForm.targetYear} onChange={e => setUploadForm({ ...uploadForm, targetYear: e.target.value })} />
                             </div>
-                            <div className="form-group half">
-                                <label>Target Section</label>
-                                <input type="number" required value={uploadForm.targetSection} onChange={e => setUploadForm({ ...uploadForm, targetSection: e.target.value })} />
+                            <div className="std-form-group half">
+                                <label className="std-label">Target Section</label>
+                                <input className="std-input" type="number" required value={uploadForm.targetSection} onChange={e => setUploadForm({ ...uploadForm, targetSection: e.target.value })} />
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label>Excel File (.xlsx, .xls)</label>
-                            <input type="file" accept=".xlsx, .xls" required onChange={e => setUploadForm({ ...uploadForm, file: e.target.files[0] })} />
+                        <div className="std-form-group">
+                            <label className="std-label">Excel File (.xlsx, .xls)</label>
+                            <input className="std-file-input" type="file" accept=".xlsx, .xls" required onChange={e => setUploadForm({ ...uploadForm, file: e.target.files[0] })} />
                         </div>
-                        <button type="submit" className="send-btn">Upload & Replace</button>
+                        <div className="std-form-footer">
+                            <button type="submit" className="std-btn">Upload & Replace</button>
+                        </div>
                     </form>
                 </div>
             )}
@@ -211,8 +213,8 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                 <div className="timetable-filter-bar">
                     <p style={{ marginBottom: '10px', color: '#666', fontSize: '14px' }}>Enter your Year and Section to find your schedule:</p>
                     <div className="filter-inputs">
-                        <input type="number" className="modern-search" placeholder="Year (e.g. 2)" value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })} />
-                        <input type="number" className="modern-search" placeholder="Section (e.g. 1)" value={filters.section} onChange={(e) => setFilters({ ...filters, section: e.target.value })} />
+                        <input type="number" className="std-input" placeholder="Year (e.g. 2)" value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })} />
+                        <input type="number" className="std-input" placeholder="Section (e.g. 1)" value={filters.section} onChange={(e) => setFilters({ ...filters, section: e.target.value })} />
                     </div>
                 </div>
             )}
