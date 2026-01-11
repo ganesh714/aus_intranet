@@ -13,6 +13,8 @@ const materialSchema = new mongoose.Schema({
 
     targetIndividualIds: { type: [String], default: [] }, // Specific overrides
 
+    hiddenFor: { type: [String], default: [] }, // Users who have "deleted" (hidden) this shared file
+
     fileId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'File',
