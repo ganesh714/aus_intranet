@@ -540,6 +540,27 @@ app.put('/edit-announcement/:id', upload.single('file'), async (req, res) => {
     }
 });
 
+// Delete Announcement
+app.delete('/delete-announcement/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const announcementToDelete = await Announcement.findById(id);
+        if (announcementToDelete && announcementToDelete.fileId) {
+            // Look up file to get path
+            const fileRecord = await File.findById(announcementToDelete.fileId);
+            if (fileRecord && fileRecord.filePath) {
+                await storageService.deleteFile(fileRecord.filePath);
+                await File.findByIdAndDelete(announcementToDelete.fileId);
+            }
+        }
+        await Announcement.findByIdAndDelete(id);
+        res.json({ message: 'Announcement deleted successfully!' });
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+        res.status(500).json({ message: 'Error deleting announcement!', error });
+    }
+});
+
 // Delete PDF
 app.delete('/delete-pdf/:id', async (req, res) => {
     const { id } = req.params;
@@ -674,6 +695,10 @@ app.get('/get-materials', async (req, res) => {
         // Universal Check: Am I personally targeted?
         const userId = req.query.id;
 
+        if (userId) {
+            query.hiddenFor = { $ne: userId };
+        }
+
         let orConditions = [];
 
         // 1. Personally Targeted
@@ -733,6 +758,64 @@ app.get('/get-materials', async (req, res) => {
     } catch (error) {
         console.error("Error fetching materials:", error);
         res.status(500).json({ message: "Error fetching materials", error });
+    }
+});
+
+// 3. Copy Shared Material to My Data
+app.post('/copy-shared-to-drive', async (req, res) => {
+    const { materialId, targetFolderId, userId } = req.body;
+    try {
+        const material = await Material.findById(materialId).populate('fileId');
+        if (!material || !material.fileId) return res.status(404).json({ message: 'Material not found' });
+
+        const userUser = await User.findOne({ id: userId });
+        if (!userUser) return res.status(404).json({ message: 'User not found' });
+
+        // Clone the file record
+        // WARNING: This re-uses the physical filePath. Deleting this file in Drive might actally delete the shared file if backend isn't smart.
+        // Ideally we should physically copy the file.
+        const originalFile = await File.findById(material.fileId);
+
+        const newFile = new File({
+            fileName: material.title, // Use Material title as filename
+            filePath: originalFile.filePath, // Re-use path
+            fileType: originalFile.fileType,
+            fileSize: originalFile.fileSize,
+            uploadedBy: userUser._id,
+            usage: { isPersonal: true }
+        });
+        const savedFile = await newFile.save();
+
+        // Create Drive Item
+        const newDriveItem = new DriveItem({
+            name: material.title,
+            type: 'file',
+            parent: targetFolderId,
+            fileId: savedFile._id,
+            owner: userUser._id,
+            size: originalFile.fileSize,
+            mimeType: originalFile.fileType
+        });
+        await newDriveItem.save();
+
+        res.json({ message: 'Copied to My Data' });
+
+    } catch (error) {
+        console.error("Error coping shared file:", error);
+        res.status(500).json({ message: "Error copying file", error });
+    }
+});
+
+// 4. Hide Shared Material (Delete from View)
+app.post('/hide-shared-material', async (req, res) => {
+    const { materialId, userId } = req.body;
+    try {
+        await Material.findByIdAndUpdate(materialId, {
+            $addToSet: { hiddenFor: userId }
+        });
+        res.json({ message: 'Material hidden' });
+    } catch (error) {
+        res.status(500).json({ message: "Error hiding material", error });
     }
 });
 
@@ -837,10 +920,19 @@ app.get('/drive/items', async (req, res) => {
         // --- MIGRATION LOGIC END ---
 
         // Fetch items for the directory
-        const items = await DriveItem.find({
+        let items = await DriveItem.find({
             owner: user._id,
             parent: parentId
-        }).populate('fileId'); // Populate file details if it's a file
+        }).populate('fileId').lean(); // Use lean() to get plain objects we can modify
+
+        // Calculate itemCount for folders
+        items = await Promise.all(items.map(async (item) => {
+            if (item.type === 'folder') {
+                const count = await DriveItem.countDocuments({ parent: item._id });
+                return { ...item, itemCount: count };
+            }
+            return item;
+        }));
 
         // Fetch current folder metadata (for navigation)
         let currentFolder = null;
