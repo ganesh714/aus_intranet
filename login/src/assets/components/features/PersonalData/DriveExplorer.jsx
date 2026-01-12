@@ -6,7 +6,7 @@ import {
     FaCut, FaPaste, FaHome, FaCopy, FaArrowRight as FaMoveIcon, FaSearch,
     FaImage, FaFileAlt, FaVideo, FaInfoCircle,
     FaFileWord, FaFileExcel, FaFilePowerpoint, FaFileArchive, FaFileCode, FaFileAudio,
-    FaSortAmountDown, FaList, FaThLarge
+    FaSortAmountDown, FaList, FaThLarge, FaTimes
 } from 'react-icons/fa';
 import './DriveExplorer.css';
 import FolderPicker from './FolderPicker';
@@ -48,19 +48,28 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const [showViewMenu, setShowViewMenu] = useState(false);
 
     // Derived sorted items
-    const sortedItems = [...items].sort((a, b) => {
-        if (sortConfig.key === 'name') {
-            return sortConfig.direction === 'asc'
-                ? a.name.localeCompare(b.name)
-                : b.name.localeCompare(a.name);
-        }
-        if (sortConfig.key === 'date') {
-            return sortConfig.direction === 'asc'
-                ? new Date(a.createdAt) - new Date(b.createdAt)
-                : new Date(b.createdAt) - new Date(a.createdAt);
-        }
-        return 0;
-    });
+    // Derived sorted items
+    const sortedItems = React.useMemo(() => {
+        if (!Array.isArray(items)) return [];
+
+        return [...items].sort((a, b) => {
+            if (sortConfig.key === 'name') {
+                const nameA = a.name || '';
+                const nameB = b.name || '';
+                return sortConfig.direction === 'asc'
+                    ? nameA.localeCompare(nameB)
+                    : nameB.localeCompare(nameA);
+            }
+            if (sortConfig.key === 'date') {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return sortConfig.direction === 'asc'
+                    ? dateA - dateB
+                    : dateB - dateA;
+            }
+            return 0;
+        });
+    }, [items, sortConfig]);
 
     // Refs for file inputs
     const fileInputRef = useRef(null);
@@ -197,6 +206,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
     // --- Helpers ---
     const getFileMeta = (name) => {
+        if (!name) return { icon: <FaFileAlt style={{ color: '#9ca3af' }} />, label: 'Unknown File' };
         const lower = name.toLowerCase();
         // PDF
         if (lower.endsWith('.pdf')) return { icon: <FaFilePdf style={{ color: '#ef4444' }} />, label: 'PDF Document' };
@@ -623,6 +633,8 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         });
     };
 
+
+
     return (
         <div className="std-page-container" onClick={handleBoxClick}>
             {/* Header / Navigation */}
@@ -649,18 +661,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                     </div>
                 </div>
 
-                <div className="drive-search-modern">
-                    <FaSearch className="search-icon" />
-                    <input
-                        type="text"
-                        placeholder="Search My Data"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    {searchQuery && (
-                        <button className="clear-search" onClick={() => setSearchQuery('')}>×</button>
-                    )}
-                </div>
+
             </div>
 
             <div className="toolbar-row" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)', paddingBottom: '10px', marginBottom: '10px' }}>
@@ -792,6 +793,8 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                     )}
                 </div>
 
+
+
                 {/* View Toggle Button */}
                 <div className="toolbar-group" style={{ position: 'relative', borderRight: 'none' }}>
                     <button
@@ -812,6 +815,48 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                         </div>
                     )}
                 </div>
+
+                {/* Search Bar - Adjusted to Fill Space */}
+                <div className="toolbar-group" style={{ position: 'relative', borderRight: 'none', marginLeft: '10px', flex: 1, display: 'flex' }}>
+                    <div
+                        className="drive-btn"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'text',
+                            paddingRight: '12px',
+                            border: '1px solid transparent',
+                            width: '100%', // Expand to fill container
+                        }}
+                        onClick={() => document.getElementById('drive-search-input').focus()}
+                    >
+                        <input
+                            id="drive-search-input"
+                            type="text"
+                            placeholder="Search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                border: 'none',
+                                outline: 'none',
+                                background: 'transparent',
+                                fontSize: '14px',
+                                width: '100%',
+                                color: 'inherit',
+                                padding: 0,
+                                margin: 0,
+                                boxShadow: 'none' // No blue line
+                            }}
+                        />
+                        {searchQuery && (
+                            <FaTimes
+                                onClick={(e) => { e.stopPropagation(); setSearchQuery(''); }}
+                                style={{ cursor: 'pointer', opacity: 0.6, marginRight: '5px', flexShrink: 0 }}
+                            />
+                        )}
+                        <FaSearch style={{ opacity: 0.7, flexShrink: 0 }} />
+                    </div>
+                </div>
             </div>
 
 
@@ -823,16 +868,16 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
             }}>
                 {loading && <div className="loading-state">Loading...</div>}
 
-                {!loading && items.length === 0 && (
+                {!loading && (items?.length === 0 || !items) && (
                     <div className="empty-state">
                         {searchQuery ? "No results found." : "This folder is empty."}
                     </div>
                 )}
 
-                {!loading && items.length > 0 && (
+                {!loading && items?.length > 0 && (
                     (() => {
-                        const folders = items.filter(i => i.type === 'folder');
-                        const files = items.filter(i => i.type === 'file');
+                        const folders = sortedItems.filter(i => i.type === 'folder');
+                        const files = sortedItems.filter(i => i.type === 'file');
                         const isRoot = !currentFolder && !searchQuery; // Treat search results like a flat list or folder view
 
                         // Unified View for ALL folders (Root or Sub)

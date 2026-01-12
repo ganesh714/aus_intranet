@@ -337,6 +337,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                                         <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
                                             By: {item.uploadedBy?.username}
                                         </span>
+                                        <span className="click-hint">Click to View Schedule</span>
                                     </div>
                                 </div>
                             ))}

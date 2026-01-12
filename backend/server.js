@@ -1341,7 +1341,10 @@ app.get('/get-pinned-timetables', async (req, res) => {
     try {
         const user = await User.findOne({ id: userId }).populate({
             path: 'pinnedTimetables',
-            populate: { path: 'uploadedBy', select: 'username' } // Nested populate for uploader
+            populate: [
+                { path: 'uploadedBy', select: 'username' },
+                { path: 'fileId' }
+            ]
         });
 
         if (!user) return res.status(404).json({ message: "User not found" });
