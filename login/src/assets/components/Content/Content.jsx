@@ -8,7 +8,7 @@ import PersonalData from "../features/PersonalData/PersonalData";
 import AnnouncementManager from "../features/Announcements/AnnouncementManager";
 import CategoryViewer from "../features/Documents/CategoryViewer";
 import ResourceRepository from "../features/Documents/ResourceRepository";
-import PdfViewer from "../features/Documents/PdfViewer";
+import FileViewer from "../features/Documents/FileViewer";
 import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
 
@@ -19,7 +19,9 @@ const Content = () => {
     const userSubRole = sessionStorage.getItem('usersubRole');
 
     // --- STATE MANAGEMENT ---
-    const [selectedPdf, setSelectedPdf] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFileType, setSelectedFileType] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState(null);
     const [pdfLinks, setPdfLinks] = useState([]);
 
     // View State
@@ -117,18 +119,22 @@ const Content = () => {
         setActiveCategory(prev => prev === categoryName ? null : categoryName);
     };
 
-    const handlePdfClick = (pdfPath, event) => {
-        if (event) event.preventDefault();
-        if (!pdfPath) return;
+    const handleFileClick = (url, type = null, name = null) => {
+        if (!url) return;
 
-        // NEW (Correct - Uses Backend Proxy):
-        const pdfUrl = `http://localhost:5001/proxy-file/${pdfPath}`;
+        // Ensure proxy if it's a relative path (simplified check)
+        // If it starts with http, leave it. If not, prepent proxy.
+        const finalUrl = url.startsWith('http') ? url : `http://localhost:5001/proxy-file/${url}`;
 
-        setSelectedPdf(pdfUrl);
+        setSelectedFile(finalUrl);
+        setSelectedFileType(type);
+        setSelectedFileName(name);
     };
 
-    const handleBackClick = () => {
-        setSelectedPdf(null);
+    const handleCloseViewer = () => {
+        setSelectedFile(null);
+        setSelectedFileType(null);
+        setSelectedFileName(null);
     };
 
     // --- RENDER ACTIVE VIEW ---
@@ -142,7 +148,7 @@ const Content = () => {
                     <PersonalData
                         userId={userId}
                         userRole={userRole}
-                        onPdfClick={handlePdfClick}
+                        onFileClick={handleFileClick}
                     />
                 );
 
@@ -155,7 +161,7 @@ const Content = () => {
                         currentViewCategory={viewParams.category}
                         deptFilter={deptFilter}
                         setDeptFilter={setDeptFilter}
-                        onPdfClick={handlePdfClick}
+                        onPdfClick={handleFileClick} // Using file handler
                         initialMode="send" // Helper to open directly in send mode if needed
                     />
                 );
@@ -169,7 +175,7 @@ const Content = () => {
                         currentViewCategory={viewParams.category} // Pass category to filter announcements
                         deptFilter={deptFilter}
                         setDeptFilter={setDeptFilter}
-                        onPdfClick={handlePdfClick}
+                        onPdfClick={handleFileClick} // Using file handler
                         initialMode="view"
                     />
                 );
@@ -180,7 +186,7 @@ const Content = () => {
                         userRole={userRole}
                         userSubRole={userSubRole}
                         userId={userId}
-                        onPdfClick={handlePdfClick}
+                        onPdfClick={handleFileClick} // Using file handler
                     />
                 );
 
@@ -190,7 +196,8 @@ const Content = () => {
                     <TimetableManager
                         userRole={userRole}
                         userSubRole={userSubRole}
-                        userId={userId} // Passing ID
+                        userId={userId}
+                        onFileClick={handleFileClick}
                     />
                 );
 
@@ -243,11 +250,13 @@ const Content = () => {
                 {renderActiveView()}
             </div>
 
-            {/* PDF Viewer Modal */}
-            {selectedPdf && (
-                <PdfViewer
-                    fileUrl={selectedPdf}
-                    onClose={handleBackClick}
+            {/* File Viewer Modal */}
+            {selectedFile && (
+                <FileViewer
+                    fileUrl={selectedFile}
+                    fileType={selectedFileType}
+                    fileName={selectedFileName}
+                    onClose={handleCloseViewer}
                 />
             )}
         </div>

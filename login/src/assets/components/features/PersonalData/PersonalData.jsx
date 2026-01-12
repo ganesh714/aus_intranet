@@ -2,7 +2,7 @@
 import React from 'react';
 import DriveExplorer from './DriveExplorer';
 
-const PersonalData = ({ userId, userRole, onPdfClick }) => {
+const PersonalData = ({ userId, userRole, onFileClick }) => {
     // We delegate all logic to DriveExplorer.
     // userInfo needs to be an object with an 'id' and 'username' (if used). 
     // In DriveExplorer we used `userInfo.id`.
@@ -17,7 +17,7 @@ const PersonalData = ({ userId, userRole, onPdfClick }) => {
     return (
         <DriveExplorer
             userInfo={userInfo}
-            onPdfClick={onPdfClick}
+            onPdfClick={onFileClick} // Pass as onPdfClick to DriveExplorer (until we update DriveExplorer)
         />
     );
 };

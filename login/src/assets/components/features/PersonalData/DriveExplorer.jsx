@@ -849,7 +849,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                                 onDoubleClick={(e) => {
                                                     e.stopPropagation();
                                                     if (item.type === 'folder') navigateTo(item._id);
-                                                    else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath);
+                                                    else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath, item.fileId.fileType, item.name);
                                                 }}
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
@@ -887,7 +887,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                                     onDoubleClick={(e) => {
                                                         e.stopPropagation();
                                                         if (item.type === 'folder') navigateTo(item._id);
-                                                        else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath);
+                                                        else if (item.type === 'file' && item.fileId) onPdfClick(item.fileId.filePath, item.fileId.fileType, item.name);
                                                     }}
                                                     onContextMenu={(e) => {
                                                         e.preventDefault();
