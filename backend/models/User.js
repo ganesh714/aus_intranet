@@ -61,7 +61,8 @@ const userSchema = new mongoose.Schema({
         required: function () {
             return this.role === 'Student';
         }
-    }
+    },
+    pinnedTimetables: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timetable' }]
 });
 
 // Create and export the User model

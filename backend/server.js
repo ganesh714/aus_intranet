@@ -1306,6 +1306,54 @@ app.post('/drive/copy', async (req, res) => {
         res.status(500).json({ message: "Error copying", error });
     }
 });
+
+// --- TIMETABLE PINNING ---
+app.post('/toggle-pin-timetable', async (req, res) => {
+    const { userId, timetableId } = req.body;
+    try {
+        const user = await User.findOne({ id: userId });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Initialize if undefined
+        if (!user.pinnedTimetables) user.pinnedTimetables = [];
+
+        const isPinned = user.pinnedTimetables.some(id => id.toString() === timetableId);
+
+        if (isPinned) {
+            // Unpin
+            user.pinnedTimetables = user.pinnedTimetables.filter(id => id.toString() !== timetableId);
+        } else {
+            // Pin (Check limit)
+            if (user.pinnedTimetables.length >= 3) {
+                return res.status(400).json({ message: "You can only pin up to 3 timetables." });
+            }
+            user.pinnedTimetables.push(timetableId);
+        }
+
+        await user.save();
+        res.json({ message: isPinned ? "Unpinned" : "Pinned", pinned: !isPinned });
+    } catch (error) {
+        console.error("Error toggling pin:", error);
+        res.status(500).json({ message: "Error updating pin" });
+    }
+});
+
+app.get('/get-pinned-timetables', async (req, res) => {
+    const { userId } = req.query;
+    try {
+        const user = await User.findOne({ id: userId }).populate({
+            path: 'pinnedTimetables',
+            populate: { path: 'uploadedBy', select: 'username' } // Nested populate for uploader
+        });
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        res.json({ pinned: user.pinnedTimetables || [] });
+    } catch (error) {
+        console.error("Error fetching pinned:", error);
+        res.status(500).json({ message: "Error fetching pinned timetables" });
+    }
+});
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
