@@ -160,7 +160,7 @@ const Sidebar = ({
                                         return true;
                                     })
                                     .map((subCat) => (
-                                        <button key={subCat} className="subcat-btn" onClick={() => onSubCategoryClick(category.items, subCat, category.category)}>
+                                        <button key={subCat} className="std-tab-btn" style={{ width: '100%', justifyContent: 'flex-start', background: 'transparent', border: 'none' }} onClick={() => onSubCategoryClick(category.items, subCat, category.category)}>
                                             {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
                                         </button>
                                     ))}

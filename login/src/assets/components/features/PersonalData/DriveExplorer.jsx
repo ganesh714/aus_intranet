@@ -982,29 +982,34 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                 )
             }
 
-            {/* Modal: Create/Rename */}
-            {
+            {/* Modal: Create/Rename */
                 (modal.type === 'create_folder' || modal.type === 'rename') && (
-                    <div className="modal-overlay" onClick={() => setModal({ type: null })}>
-                        <div className="modal-content" onClick={e => e.stopPropagation()}>
-                            <div className="modal-title">
-                                {modal.type === 'create_folder' ? 'Create New Folder' : 'Rename Item'}
+                    <div className="std-modal-overlay" onClick={() => setModal({ type: null })}>
+                        <div className="std-modal" onClick={e => e.stopPropagation()}>
+                            <div className="std-modal-header">
+                                <h3 className="std-modal-title">
+                                    {modal.type === 'create_folder' ? 'Create New Folder' : 'Rename Item'}
+                                </h3>
+                                <button className="std-close-btn" onClick={() => setModal({ type: null })}>×</button>
                             </div>
-                            <input
-                                className="modal-input"
-                                autoFocus
-                                value={inputVal}
-                                onChange={(e) => setInputVal(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        modal.type === 'create_folder' ? handleCreateFolder() : handleRename();
-                                    }
-                                }}
-                            />
-                            <div className="modal-buttons">
-                                <button className="btn-cancel" onClick={() => setModal({ type: null })}>Cancel</button>
+                            <div className="std-modal-body">
+                                <input
+                                    className="std-input"
+                                    autoFocus
+                                    value={inputVal}
+                                    onChange={(e) => setInputVal(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            modal.type === 'create_folder' ? handleCreateFolder() : handleRename();
+                                        }
+                                    }}
+                                    placeholder={modal.type === 'create_folder' ? "Folder name" : "New name"}
+                                />
+                            </div>
+                            <div className="std-modal-footer">
+                                <button className="std-btn-secondary" onClick={() => setModal({ type: null })}>Cancel</button>
                                 <button
-                                    className="btn-confirm"
+                                    className="std-btn"
                                     onClick={modal.type === 'create_folder' ? handleCreateFolder : handleRename}
                                 >
                                     {modal.type === 'create_folder' ? 'Create' : 'Save'}
@@ -1012,20 +1017,18 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                             </div>
                         </div>
                     </div>
-                )
-            }
+                )}
 
-            {/* Modal: Properties */}
-            {
+            {/* Modal: Properties */
                 modal.type === 'properties' && modal.item && (
-                    <div className="modal-overlay" onClick={() => setModal({ type: null })}>
-                        <div className="modal-content properties-modal" onClick={e => e.stopPropagation()}>
-                            <div className="modal-header-props">
-                                <div className="modal-title">File Properties</div>
-                                <button className="close-btn" onClick={() => setModal({ type: null })}>×</button>
+                    <div className="std-modal-overlay" onClick={() => setModal({ type: null })}>
+                        <div className="std-modal" onClick={e => e.stopPropagation()}>
+                            <div className="std-modal-header">
+                                <h3 className="std-modal-title">File Properties</h3>
+                                <button className="std-close-btn" onClick={() => setModal({ type: null })}>×</button>
                             </div>
 
-                            <div className="props-body">
+                            <div className="std-modal-body">
                                 <div className="props-icon-preview">
                                     {getFileIcon(modal.item.name)}
                                 </div>
@@ -1049,13 +1052,12 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                 </div>
                             </div>
 
-                            <div className="modal-buttons" style={{ justifyContent: 'flex-end' }}>
-                                <button className="btn-confirm" onClick={() => setModal({ type: null })}>Close</button>
+                            <div className="std-modal-footer">
+                                <button className="std-btn-secondary" onClick={() => setModal({ type: null })}>Close</button>
                             </div>
                         </div>
                     </div>
-                )
-            }
+                )}
             {/* Folder Picker */}
             {
                 picker.open && (

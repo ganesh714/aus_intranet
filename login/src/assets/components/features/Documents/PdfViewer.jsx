@@ -20,15 +20,17 @@ const PdfViewer = ({ fileUrl, onClose }) => {
     }, [onClose]);
 
     return (
-        <div className="pdf-modal">
-            <div className="pdf-container">
-                <div className="pdf-header-bar">
-                    <button className="close-pdf-btn" onClick={onClose}><FaArrowLeft /> Back</button>
-                    <button className="close-icon-btn" onClick={onClose}><FaTimes /></button>
+        <div className="std-modal-overlay">
+            <div className="std-modal" style={{ width: '90%', height: '90vh', maxWidth: '1200px' }}>
+                <div className="std-modal-header">
+                    <h3 className="std-modal-title">PDF View</h3>
+                    <button className="std-close-btn" onClick={onClose}><FaTimes /></button>
                 </div>
-                <object data={fileUrl} type="application/pdf" className="pdf-object">
-                    <p>Your browser doesn't support viewing PDFs.</p>
-                </object>
+                <div className="std-modal-body" style={{ padding: 0 }}>
+                    <object data={fileUrl} type="application/pdf" className="pdf-object" style={{ width: '100%', height: '100%' }}>
+                        <p>Your browser doesn't support viewing PDFs.</p>
+                    </object>
+                </div>
             </div>
         </div>
     );

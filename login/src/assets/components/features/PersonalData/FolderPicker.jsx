@@ -55,12 +55,12 @@ const FolderPicker = ({ userInfo, onCancel, onSelect, actionTitle }) => {
     };
 
     return (
-        <div className="folder-picker-overlay">
-            <div className="folder-picker-modal">
-                <div className="picker-header">
-                    <span>{actionTitle || "Select Destination"}</span>
+        <div className="std-modal-overlay">
+            <div className="std-modal" style={{ width: '450px', height: '500px' }}>
+                <div className="std-modal-header">
+                    <h3 className="std-modal-title">{actionTitle || "Select Destination"}</h3>
                 </div>
-                <div className="picker-body">
+                <div className="std-modal-body">
                     {loading ? <p>Loading...</p> : (
                         <>
                             <div
@@ -73,10 +73,10 @@ const FolderPicker = ({ userInfo, onCancel, onSelect, actionTitle }) => {
                         </>
                     )}
                 </div>
-                <div className="picker-footer">
-                    <button className="picker-btn-cancel" onClick={onCancel}>Cancel</button>
+                <div className="std-modal-footer">
+                    <button className="std-btn-secondary" onClick={onCancel}>Cancel</button>
                     <button
-                        className="picker-btn-confirm"
+                        className="std-btn"
                         onClick={() => onSelect(selectedFolderId)}
                     >
                         Confirm

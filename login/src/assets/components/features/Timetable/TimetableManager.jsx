@@ -141,13 +141,13 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
 
                 <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
                     {userRole === 'HOD' && (
-                        <button className="quick-upload-btn" style={{ backgroundColor: '#4b5563' }} onClick={() => { setShowPermissions(!showPermissions); setIsUploading(false); }}>
+                        <button className="std-btn std-btn-secondary" style={{ backgroundColor: '#4b5563', color: 'white' }} onClick={() => { setShowPermissions(!showPermissions); setIsUploading(false); }}>
                             <FaUserCog /> Access Control
                         </button>
                     )}
 
                     {canUpload && (
-                        <button className="quick-upload-btn" onClick={() => { setIsUploading(!isUploading); setShowPermissions(false); }}>
+                        <button className="std-btn" onClick={() => { setIsUploading(!isUploading); setShowPermissions(false); }}>
                             <FaCloudUploadAlt /> {isUploading ? 'View List' : 'Upload Timetable'}
                         </button>
                     )}
@@ -248,13 +248,15 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
 
             {/* EXCEL VIEWER */}
             {viewingFile && (
-                <div className="excel-modal">
-                    <div className="excel-container">
-                        <div className="excel-header">
-                            <h3>Timetable View</h3>
-                            <button className="close-icon-btn" onClick={closeViewer}><FaTimes /></button>
+                <div className="std-modal-overlay">
+                    <div className="std-modal" style={{ width: '80%', maxWidth: '900px', height: '80vh' }}>
+                        <div className="std-modal-header">
+                            <h3 className="std-modal-title">Timetable View</h3>
+                            <button className="std-close-btn" onClick={closeViewer}><FaTimes /></button>
                         </div>
-                        <div className="excel-content" dangerouslySetInnerHTML={{ __html: excelData }} />
+                        <div className="std-modal-body">
+                            <div className="excel-content" dangerouslySetInnerHTML={{ __html: excelData }} />
+                        </div>
                     </div>
                 </div>
             )}

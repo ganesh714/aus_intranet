@@ -98,38 +98,7 @@
     align-items: center;
 }
 
-.close-pdf-btn {
-    background-color: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: bold;
-}
-
-.close-pdf-btn:hover {
-    background-color: #ea580c;
-}
-
-.close-icon-btn {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    font-size: 24px;
-    cursor: pointer;
-    transition: color 0.3s;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-}
-
-.close-icon-btn:hover {
-    color: white;
-}
+/* close-pdf-btn and close-icon-btn removed */
 
 .pdf-object {
     flex-grow: 1;
@@ -145,26 +114,7 @@
     gap: 20px;
 }
 
-.quick-upload-btn {
-    background-color: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: transform 0.2s, background-color 0.2s;
-}
-
-.quick-upload-btn:hover {
-    background-color: black;
-    color: var(--primary-orange);
-    transform: translateY(-2px);
-}
+/* quick-upload-btn removed */
 
 /* Simple Modal Styles */
 .upload-modal-overlay {

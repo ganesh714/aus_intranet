@@ -125,38 +125,43 @@ function Home() {
 
             {/* Change Password Modal */}
             {showPasswordModal && (
-                <div className="change-password-modal">
-                    <div className="modal-content">
-                        <h2 className='change-password-heading'>Change Password</h2>
-                        <form onSubmit={handleChangePassword}>
-                            <div className="std-form-group">
-                                <label className="std-label" htmlFor="currentPassword">Current Password</label>
-                                <input
-                                    className="std-input"
-                                    type="password"
-                                    id="currentPassword"
-                                    value={changePasswordData.currentPassword}
-                                    onChange={(e) => setChangePasswordData({ ...changePasswordData, currentPassword: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="std-form-group">
-                                <label className="std-label" htmlFor="newPassword">New Password</label>
-                                <input
-                                    className="std-input"
-                                    type="password"
-                                    id="newPassword"
-                                    value={changePasswordData.newPassword}
-                                    onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
-                                    required
-                                />
-                                {errorMessage && <div className="error-message">{errorMessage}</div>}
-                            </div>
-                            <div className="modal-actions">
-                                <button type="submit" className='std-btn'>Update</button>
-                                <button type="button" onClick={() => setShowPasswordModal(false)} className="std-btn std-btn-secondary">Close</button>
-                            </div>
-                        </form>
+                <div className="std-modal-overlay" onClick={() => setShowPasswordModal(false)}>
+                    <div className="std-modal" onClick={e => e.stopPropagation()}>
+                        <div className="std-modal-header">
+                            <h2 className="std-modal-title">Change Password</h2>
+                            <button className="std-close-btn" onClick={() => setShowPasswordModal(false)}>×</button>
+                        </div>
+                        <div className="std-modal-body">
+                            <form onSubmit={handleChangePassword}>
+                                <div className="std-form-group">
+                                    <label className="std-label" htmlFor="currentPassword">Current Password</label>
+                                    <input
+                                        className="std-input"
+                                        type="password"
+                                        id="currentPassword"
+                                        value={changePasswordData.currentPassword}
+                                        onChange={(e) => setChangePasswordData({ ...changePasswordData, currentPassword: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="std-form-group">
+                                    <label className="std-label" htmlFor="newPassword">New Password</label>
+                                    <input
+                                        className="std-input"
+                                        type="password"
+                                        id="newPassword"
+                                        value={changePasswordData.newPassword}
+                                        onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                                        required
+                                    />
+                                    {errorMessage && <div className="error-message">{errorMessage}</div>}
+                                </div>
+                            </form>
+                        </div>
+                        <div className="std-modal-footer">
+                            <button type="button" onClick={() => setShowPasswordModal(false)} className="std-btn std-btn-secondary">Close</button>
+                            <button type="button" className="std-btn" onClick={handleChangePassword}>Update</button>
+                        </div>
                     </div>
                 </div>
             )}

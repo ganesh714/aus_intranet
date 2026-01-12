@@ -2,11 +2,11 @@ import React from 'react';
 import './Documents.css';
 import { FaSearch, FaFilePdf, FaCloudUploadAlt } from 'react-icons/fa'; // Added Upload Icon
 
-const DocumentView = ({ 
-    type, 
-    documents, 
-    searchQuery, 
-    setSearchQuery, 
+const DocumentView = ({
+    type,
+    documents,
+    searchQuery,
+    setSearchQuery,
     onPdfClick,
     onUploadClick // <--- NEW PROP: Function to handle upload click
 }) => {
@@ -17,14 +17,14 @@ const DocumentView = ({
                     <h2>{type}</h2>
                     {/* Render Upload Button only if onUploadClick is provided */}
                     {onUploadClick && (
-                        <button className="quick-upload-btn" onClick={onUploadClick}>
+                        <button className="std-btn" onClick={onUploadClick}>
                             <FaCloudUploadAlt /> Upload New
                         </button>
                     )}
                 </div>
-                
+
                 <div className="search-input-wrapper">
-                    <FaSearch className="search-icon"/>
+                    <FaSearch className="search-icon" />
                     <input
                         type="text"
                         placeholder={`Search ${type}...`}
