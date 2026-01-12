@@ -13,8 +13,10 @@ const AnnouncementForm = ({
     onDelete // New prop
 }) => {
     return (
-        <div className="announce-container">
-            <h2>Send New Announcement</h2>
+        <div className="std-page-container">
+            <div className="std-page-header">
+                <h2>Send New Announcement</h2>
+            </div>
             <form className="announce-form" onSubmit={onSubmit}>
                 <div className="std-form-group">
                     <label className="std-label">Title</label>
@@ -26,13 +28,17 @@ const AnnouncementForm = ({
                 </div>
                 <div className="target-builder">
                     <label className="std-label">Target Audience</label>
-                    <div className="form-row">
-                        <div className="std-form-group half">
+
+                    <div className="target-controls-row">
+                        <div className="std-form-group">
+                            <label className="std-label" style={{ fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Role</label>
                             <select className="std-select" name="targetRole" value={formData.targetRole} onChange={onChange}>
                                 {roleOptions.map((r, i) => <option key={i} value={r}>{r}</option>)}
                             </select>
                         </div>
-                        <div className="std-form-group half">
+
+                        <div className="std-form-group">
+                            <label className="std-label" style={{ fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Department / Branch</label>
                             <select className="std-select" name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
                                 {(subRolesMapping[formData.targetRole] || ['All']).map((sr, i) => (
                                     <option key={i} value={sr}>{sr}</option>
@@ -42,7 +48,8 @@ const AnnouncementForm = ({
 
                         {/* Conditionally render Batch input for Students */}
                         {formData.targetRole === 'Student' && (
-                            <div className="std-form-group half">
+                            <div className="std-form-group">
+                                <label className="std-label" style={{ fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Batch (Optional)</label>
                                 <select
                                     name="targetBatch"
                                     value={formData.targetBatch || ''}
@@ -57,15 +64,16 @@ const AnnouncementForm = ({
                             </div>
                         )}
 
-                        <button
-                            type="button"
-                            className="std-btn"
-                            style={{ height: 'auto', alignSelf: 'flex-end', marginBottom: '4px' }}
-                            onClick={formData.onAddTarget}
-                            disabled={formData.targetRole === 'Student' && !formData.targetBatch}
-                        >
-                            Add
-                        </button>
+                        <div className="std-form-group add-btn-wrapper">
+                            <button
+                                type="button"
+                                className="std-btn"
+                                onClick={formData.onAddTarget}
+                                disabled={formData.targetRole === 'Student' && !formData.targetBatch}
+                            >
+                                + Add
+                            </button>
+                        </div>
                     </div>
 
                     {formData.targets && formData.targets.length > 0 && (

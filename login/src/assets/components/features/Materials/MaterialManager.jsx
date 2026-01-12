@@ -158,8 +158,8 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
 
     return (
-        <div className="materials-container">
-            <div className="materials-header">
+        <div className="std-page-container">
+            <div className="std-page-header">
                 <h2>{userRole === 'Student' ? 'Class Shared Documents' : 'Shared Documents'}</h2>
 
                 <div className="materials-tabs">
@@ -295,19 +295,39 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                         {/* SECTION 2: FILE DETAILS */}
                         <div className="form-section">
                             <label className="section-label">2. Document Details</label>
-                            <div className="doc-details-row">
-                                <div className="form-group">
-                                    <label>Title</label>
-                                    <input type="text" className="form-input" required value={uploadData.title} onChange={e => setUploadData({ ...uploadData, title: e.target.value })} placeholder="e.g. Unit 1 Notes" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Subject</label>
-                                    <input type="text" className="form-input" required value={uploadData.subject} onChange={e => setUploadData({ ...uploadData, subject: e.target.value })} placeholder="e.g. Data Structures" />
-                                </div>
+
+                            <div className="std-form-group">
+                                <label className="std-label">Title</label>
+                                <input
+                                    type="text"
+                                    className="std-input"
+                                    required
+                                    value={uploadData.title}
+                                    onChange={e => setUploadData({ ...uploadData, title: e.target.value })}
+                                    placeholder="e.g. Unit 1 Notes"
+                                />
                             </div>
-                            <div className="form-group">
-                                <label>File Attachment</label>
-                                <input type="file" className="file-input" required onChange={e => setUploadData({ ...uploadData, file: e.target.files[0] })} />
+
+                            <div className="std-form-group">
+                                <label className="std-label">Subject</label>
+                                <input
+                                    type="text"
+                                    className="std-input"
+                                    required
+                                    value={uploadData.subject}
+                                    onChange={e => setUploadData({ ...uploadData, subject: e.target.value })}
+                                    placeholder="e.g. Data Structures"
+                                />
+                            </div>
+
+                            <div className="std-form-group">
+                                <label className="std-label">File Attachment</label>
+                                <input
+                                    type="file"
+                                    className="std-file-input"
+                                    required
+                                    onChange={e => setUploadData({ ...uploadData, file: e.target.files[0] })}
+                                />
                             </div>
                         </div>
 

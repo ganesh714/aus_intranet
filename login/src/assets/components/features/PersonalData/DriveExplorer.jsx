@@ -618,7 +618,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     };
 
     return (
-        <div className="drive-container" onClick={handleBoxClick}>
+        <div className="std-page-container" onClick={handleBoxClick}>
             {/* Header / Navigation */}
             <div className="drive-header-remastered">
                 <div className="nav-controls">

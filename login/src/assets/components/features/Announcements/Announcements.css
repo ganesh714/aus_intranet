@@ -28,20 +28,7 @@
     gap: 5px;
 }
 
-.form-row {
-    display: flex;
-    gap: 20px;
-}
 
-.form-group.half {
-    flex: 1;
-}
-
-.announce-form label {
-    font-weight: 600;
-    color: var(--text-dark);
-    font-size: 14px;
-}
 
 /* Inputs now use global .std-input classes */
 .announce-form input[type="file"] {
@@ -299,6 +286,24 @@
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #e9ecef;
+}
+
+.target-controls-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.target-controls-row .std-form-group {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+    /* Override default bottom margin in row */
+}
+
+.target-controls-row .add-btn-wrapper {
+    flex: 0 0 auto;
 }
 
 

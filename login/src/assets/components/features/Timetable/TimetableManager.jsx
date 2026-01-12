@@ -135,8 +135,8 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     };
 
     return (
-        <div className="results-container">
-            <div className="search-header">
+        <div className="std-page-container">
+            <div className="std-page-header">
                 <h2>{userRole === 'Student' ? 'My Timetable' : 'Student Related / Time Table'}</h2>
 
                 <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>

@@ -28,8 +28,8 @@ const AnnouncementFeed = ({
     const deptAnnouncements = announcements.filter(ann => deptRoles.includes(ann.uploadedBy?.role));
 
     return (
-        <div className="results-container">
-            <div className="search-header">
+        <div className="std-page-container">
+            <div className="std-page-header">
                 <h2>Announcements</h2>
                 {canAccessFilter && (
                     <div className="search-input-wrapper" style={{ width: '200px', visibility: showFilter ? 'visible' : 'hidden' }}>
