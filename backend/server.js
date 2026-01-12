@@ -243,10 +243,8 @@ app.get('/get-timetables', async (req, res) => {
             }
         }
 
-        if (role === 'Student') {
-            if (year) query.targetYear = year;
-            if (section) query.targetSection = section;
-        }
+        if (year) query.targetYear = year;
+        if (section) query.targetSection = section;
 
         const timetables = await Timetable.find(query)
             .populate('fileId')

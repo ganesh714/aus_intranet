@@ -273,50 +273,77 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                 </div>
             )}
 
-            {/* STUDENT FILTERS (Moved to Top) */}
-            {userRole === 'Student' && (
-                <div className="timetable-filter-bar">
-                    <p style={{ marginBottom: '10px', color: '#666', fontSize: '14px' }}>Enter your Year and Section to find your schedule:</p>
-                    <div className="filter-inputs">
-                        <input type="number" className="std-input" placeholder="Year (e.g. 2)" value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })} />
-                        <input type="number" className="std-input" placeholder="Section (e.g. 1)" value={filters.section} onChange={(e) => setFilters({ ...filters, section: e.target.value })} />
-                    </div>
+
+
+            {/* UNIFIED FILTERS (Dropdowns for All Roles) */}
+            <div className="timetable-filter-bar" style={{ marginBottom: '20px' }}>
+                <p style={{ marginBottom: '10px', color: '#666', fontSize: '14px' }}>
+                    {userRole === 'Student' ? "Select your Year and Section:" : "Filter Timetables:"}
+                </p>
+                <div className="filter-inputs" style={{ display: 'flex', gap: '15px' }}>
+                    <select
+                        className="std-input"
+                        value={filters.year}
+                        onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+                        style={{ maxWidth: '150px' }}
+                    >
+                        <option value="">All Years</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                    </select>
+                    <select
+                        className="std-input"
+                        value={filters.section}
+                        onChange={(e) => setFilters({ ...filters, section: e.target.value })}
+                        style={{ maxWidth: '150px' }}
+                    >
+                        <option value="">All Sections</option>
+                        <option value="1">Section 1</option>
+                        <option value="2">Section 2</option>
+                        <option value="3">Section 3</option>
+                        <option value="4">Section 4</option>
+                    </select>
                 </div>
-            )}
+            </div>
+
 
             {/* STUDENT: PINNED TIMETABLES */}
-            {userRole === 'Student' && pinnedTimetables.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <h3 className="section-title" style={{ fontSize: '16px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <FaThumbtack style={{ transform: 'rotate(45deg)', color: '#F97316' }} /> Pinned Timetables
-                    </h3>
-                    <div className="items-grid">
-                        {pinnedTimetables.map((item) => (
-                            <div key={item._id} className="timetable-card pinned" onClick={(e) => handleViewClick(item.fileId, e)} style={{ borderColor: '#F97316', backgroundColor: '#fff7ed' }}>
-                                <button
-                                    className="pin-btn active"
-                                    onClick={(e) => handlePin(e, item._id)}
-                                    title="Unpin Timetable"
-                                >
-                                    <FaThumbtack />
-                                </button>
-                                <div className="tt-icon-box" style={{ backgroundColor: '#ffedd5', color: '#ea580c' }}>
-                                    <FaTable />
+            {
+                userRole === 'Student' && pinnedTimetables.length > 0 && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <h3 className="section-title" style={{ fontSize: '16px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaThumbtack style={{ transform: 'rotate(45deg)', color: '#F97316' }} /> Pinned Timetables
+                        </h3>
+                        <div className="items-grid">
+                            {pinnedTimetables.map((item) => (
+                                <div key={item._id} className="timetable-card pinned" onClick={(e) => handleViewClick(item.fileId, e)} style={{ borderColor: '#F97316', backgroundColor: '#fff7ed' }}>
+                                    <button
+                                        className="pin-btn active"
+                                        onClick={(e) => handlePin(e, item._id)}
+                                        title="Unpin Timetable"
+                                    >
+                                        <FaThumbtack />
+                                    </button>
+                                    <div className="tt-icon-box" style={{ backgroundColor: '#ffedd5', color: '#ea580c' }}>
+                                        <FaTable />
+                                    </div>
+                                    <div className="tt-info">
+                                        <span className="tt-title">Year {item.targetYear} - Section {item.targetSection}</span>
+                                        <span className="tt-meta">
+                                            <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString('en-GB')}
+                                        </span>
+                                        <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
+                                            By: {item.uploadedBy?.username}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="tt-info">
-                                    <span className="tt-title">Year {item.targetYear} - Section {item.targetSection}</span>
-                                    <span className="tt-meta">
-                                        <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString('en-GB')}
-                                    </span>
-                                    <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
-                                        By: {item.uploadedBy?.username}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* LIST OF TIMETABLES */}
             <div className="items-grid">
@@ -355,20 +382,22 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
             </div>
 
             {/* EXCEL VIEWER */}
-            {viewingFile && (
-                <div className="std-modal-overlay">
-                    <div className="std-modal" style={{ width: '80%', maxWidth: '900px', height: '80vh' }}>
-                        <div className="std-modal-header">
-                            <h3 className="std-modal-title">Timetable View</h3>
-                            <button className="std-close-btn" onClick={closeViewer}><FaTimes /></button>
-                        </div>
-                        <div className="std-modal-body">
-                            <div className="excel-content" dangerouslySetInnerHTML={{ __html: excelData }} />
+            {
+                viewingFile && (
+                    <div className="std-modal-overlay">
+                        <div className="std-modal" style={{ width: '80%', maxWidth: '900px', height: '80vh' }}>
+                            <div className="std-modal-header">
+                                <h3 className="std-modal-title">Timetable View</h3>
+                                <button className="std-close-btn" onClick={closeViewer}><FaTimes /></button>
+                            </div>
+                            <div className="std-modal-body">
+                                <div className="excel-content" dangerouslySetInnerHTML={{ __html: excelData }} />
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
