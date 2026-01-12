@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx'; // Requires: npm install xlsx
-import { FaTable, FaCloudUploadAlt, FaCalendarAlt, FaTimes, FaUserCog, FaCheck, FaBan, FaUser } from 'react-icons/fa';
+import { FaTable, FaCloudUploadAlt, FaCalendarAlt, FaTimes, FaUserCog, FaCheck, FaBan, FaUser, FaThumbtack } from 'react-icons/fa';
 import './Timetable.css';
 
 const TimetableManager = ({ userRole, userSubRole, userId }) => {
@@ -134,59 +134,124 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         setExcelData(null);
     };
 
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter Logic
+    const authorizedFaculty = deptFaculty.filter(f => f.canUploadTimetable);
+    const availableFaculty = deptFaculty.filter(f =>
+        !f.canUploadTimetable &&
+        (f.username.toLowerCase().includes(searchQuery.toLowerCase()) || f.id.includes(searchQuery))
+    );
+
+    // --- PINNING LOGIC (Students Only) ---
+    const [pinnedTimetables, setPinnedTimetables] = useState([]);
+
+    const fetchPinnedTimetables = async () => {
+        if (!userId) return;
+        try {
+            const response = await axios.get('http://localhost:5001/get-pinned-timetables', {
+                params: { userId }
+            });
+            setPinnedTimetables(response.data.pinned);
+        } catch (error) {
+            console.error("Error fetching pinned", error);
+        }
+    };
+
+    const handlePin = async (e, timetableId) => {
+        e.stopPropagation(); // Prevent opening the file
+        try {
+            await axios.post('http://localhost:5001/toggle-pin-timetable', {
+                userId,
+                timetableId
+            });
+            fetchPinnedTimetables(); // Re-fetch to ensure sync
+        } catch (error) {
+            alert(error.response?.data?.message || "Error pinning timetable");
+        }
+    };
+
+    useEffect(() => {
+        if (userRole === 'Student') {
+            fetchPinnedTimetables();
+        }
+    }, [userRole, userId]); // Added userId dependency
+
+
     return (
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>{userRole === 'Student' ? 'My Timetable' : 'Student Related / Time Table'}</h2>
 
-                <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
+                <div className="materials-tabs">
                     {userRole === 'HOD' && (
-                        <button className="std-btn std-btn-secondary" style={{ backgroundColor: '#4b5563', color: 'white' }} onClick={() => { setShowPermissions(!showPermissions); setIsUploading(false); }}>
+                        <button
+                            className={`std-tab-btn ${showPermissions ? 'active' : ''}`}
+                            onClick={() => { setShowPermissions(!showPermissions); setIsUploading(false); }}
+                        >
                             <FaUserCog /> Access Control
                         </button>
                     )}
 
                     {canUpload && (
-                        <button className="std-btn" onClick={() => { setIsUploading(!isUploading); setShowPermissions(false); }}>
+                        <button
+                            className={`std-tab-btn ${isUploading ? 'active' : ''}`}
+                            onClick={() => { setIsUploading(!isUploading); setShowPermissions(false); }}
+                        >
                             <FaCloudUploadAlt /> {isUploading ? 'View List' : 'Upload Timetable'}
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* HOD: PERMISSION MANAGER */}
+            {/* HOD: PERMISSION MANAGER (Code remains same) */}
             {showPermissions && userRole === 'HOD' && (
-                <div className="permission-manager" style={{ background: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ color: '#1E3A8A', marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Manage Faculty Upload Access</h3>
-                    <div className="faculty-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
-                        {deptFaculty.map(fac => (
-                            <div key={fac._id} className="faculty-perm-item" style={{ border: '1px solid #eee', padding: '15px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '5px', background: '#f9fafb' }}>
-                                <span className="fac-name" style={{ fontWeight: 'bold', color: '#333' }}><FaUser /> {fac.username}</span>
-                                <span className="fac-email" style={{ fontSize: '12px', color: '#666' }}>ID: {fac.id}</span>
-                                <button
-                                    className={`toggle-perm-btn`}
-                                    style={{
-                                        marginTop: '10px', padding: '8px', borderRadius: '4px', border: 'none', cursor: 'pointer',
-                                        background: fac.canUploadTimetable ? '#dcfce7' : '#fee2e2',
-                                        color: fac.canUploadTimetable ? '#166534' : '#991b1b',
-                                        fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                                    }}
-                                    onClick={() => togglePermission(fac.id, !!fac.canUploadTimetable)}
-                                >
-                                    {fac.canUploadTimetable ? <><FaCheck /> Access Granted</> : <><FaBan /> Access Denied</>}
-                                </button>
-                            </div>
-                        ))}
+                <div className="permission-manager">
+                    <div className="pm-header">
+                        <h3 className="pm-title">Authorized Faculty ({authorizedFaculty.length})</h3>
+                        <button className="std-btn" style={{ fontSize: '13px', padding: '6px 12px' }} onClick={() => setShowAddForm(!showAddForm)}>
+                            {showAddForm ? 'Cancel Adding' : '+ Add Person'}
+                        </button>
                     </div>
+
+                    {!showAddForm && (
+                        <div className="faculty-list">
+                            {authorizedFaculty.length > 0 ? authorizedFaculty.map(fac => (
+                                <div key={fac._id} className="target-chip chip-user-fac">
+                                    <FaUser /> <span>{fac.username}</span>
+                                    <span style={{ fontSize: '12px', color: '#684073', marginLeft: '5px' }}>({fac.id})</span>
+                                    <FaTimes className="chip-remove" style={{ marginLeft: '10px' }} onClick={() => togglePermission(fac.id, true)} title="Revoke Access" />
+                                </div>
+                            )) : <p className="empty-msg">No faculty members currently have upload access.</p>}
+                        </div>
+                    )}
+
+                    {showAddForm && (
+                        <div className="user-picker-box">
+                            <div className="targets-label">Search {userSubRole} Faculty</div>
+                            <div className="picker-filters-row">
+                                <input type="text" className="picker-input" placeholder="Search Name or ID..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
+                            </div>
+                            <div className="user-results-list">
+                                {availableFaculty.length > 0 ? availableFaculty.map(fac => (
+                                    <div key={fac._id} className="user-result-item" onClick={() => { togglePermission(fac.id, false); setSearchQuery(''); }}>
+                                        <span><b>{fac.username}</b> ({fac.id})</span>
+                                        <span style={{ color: '#059669', fontSize: '12px', fontWeight: 'bold' }}>+ Grant Access</span>
+                                    </div>
+                                )) : <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{searchQuery ? "No matching faculty found." : "Type to search faculty..."}</div>}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
             {/* UPLOAD FORM */}
             {isUploading && (
-                <div className="announce-container" style={{ marginBottom: '20px' }}>
-                    <form onSubmit={handleUpload} className="announce-form">
-                        <h3>Upload Class Timetable (Excel)</h3>
-                        <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '15px' }}>Note: Uploading will replace any existing timetable for this Year & Section.</p>
+                <div className="upload-section">
+                    <form onSubmit={handleUpload} className="std-form">
+                        <h3 className="section-title">Upload Class Timetable (Excel)</h3>
+                        <p className="warning-text">Note: Uploading will replace any existing timetable for this Year & Section.</p>
                         <div className="form-row">
                             <div className="std-form-group half">
                                 <label className="std-label">Target Year</label>
@@ -208,7 +273,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                 </div>
             )}
 
-            {/* STUDENT FILTERS */}
+            {/* STUDENT FILTERS (Moved to Top) */}
             {userRole === 'Student' && (
                 <div className="timetable-filter-bar">
                     <p style={{ marginBottom: '10px', color: '#666', fontSize: '14px' }}>Enter your Year and Section to find your schedule:</p>
@@ -219,17 +284,60 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
                 </div>
             )}
 
+            {/* STUDENT: PINNED TIMETABLES */}
+            {userRole === 'Student' && pinnedTimetables.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <h3 className="section-title" style={{ fontSize: '16px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaThumbtack style={{ transform: 'rotate(45deg)', color: '#F97316' }} /> Pinned Timetables
+                    </h3>
+                    <div className="items-grid">
+                        {pinnedTimetables.map((item) => (
+                            <div key={item._id} className="timetable-card pinned" onClick={(e) => handleViewClick(item.fileId, e)} style={{ borderColor: '#F97316', backgroundColor: '#fff7ed' }}>
+                                <button
+                                    className="pin-btn active"
+                                    onClick={(e) => handlePin(e, item._id)}
+                                    title="Unpin Timetable"
+                                >
+                                    <FaThumbtack />
+                                </button>
+                                <div className="tt-icon-box" style={{ backgroundColor: '#ffedd5', color: '#ea580c' }}>
+                                    <FaTable />
+                                </div>
+                                <div className="tt-info">
+                                    <span className="tt-title">Year {item.targetYear} - Section {item.targetSection}</span>
+                                    <span className="tt-meta">
+                                        <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString('en-GB')}
+                                    </span>
+                                    <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
+                                        By: {item.uploadedBy?.username}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* LIST OF TIMETABLES */}
             <div className="items-grid">
                 {timetables.length > 0 ? (
                     timetables.map((item) => (
-                        <div key={item._id} className="doc-card timetable-card" onClick={(e) => handleViewClick(item.fileId, e)}>
-                            <div className="doc-icon-box" style={{ background: '#ecfccb', color: '#65a30d' }}>
+                        <div key={item._id} className="timetable-card" onClick={(e) => handleViewClick(item.fileId, e)}>
+                            {userRole === 'Student' && (
+                                <button
+                                    className={`pin-btn ${pinnedTimetables.some(p => String(p._id) === String(item._id)) ? 'active' : ''}`}
+                                    onClick={(e) => handlePin(e, item._id)}
+                                    title={pinnedTimetables.some(p => String(p._id) === String(item._id)) ? "Unpin Timetable" : "Pin Timetable"}
+                                >
+                                    <FaThumbtack />
+                                </button>
+                            )}
+                            <div className="tt-icon-box">
                                 <FaTable />
                             </div>
-                            <div className="doc-info">
-                                <span className="doc-title">Year {item.targetYear} - Section {item.targetSection}</span>
-                                <span style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
+                            <div className="tt-info">
+                                <span className="tt-title">Year {item.targetYear} - Section {item.targetSection}</span>
+                                <span className="tt-meta">
                                     <FaCalendarAlt /> Updated: {new Date(item.uploadedAt).toLocaleDateString('en-GB')}
                                 </span>
                                 <span className="uploader-info" style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
