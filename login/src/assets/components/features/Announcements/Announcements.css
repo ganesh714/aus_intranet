@@ -11,7 +11,7 @@
 .announce-container h2 {
     color: var(--primary-blue);
     margin-bottom: 20px;
-    border-bottom: 2px solid #f3f4f6;
+    border-bottom: 2px solid var(--bg-light);
     padding-bottom: 10px;
 }
 
@@ -39,51 +39,19 @@
 
 .announce-form label {
     font-weight: 600;
-    color: #4b5563;
+    color: var(--text-dark);
     font-size: 14px;
 }
 
-.announce-form input[type="text"],
-.announce-form textarea,
-.announce-form select {
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.announce-form input:focus,
-.announce-form textarea:focus,
-.announce-form select:focus {
-    border-color: var(--primary-orange);
-}
-
+/* Inputs now use global .std-input classes */
 .announce-form input[type="file"] {
-    border: 1px dashed #d1d5db;
+    border: 1px dashed var(--border-color);
     padding: 10px;
-    background-color: #f9fafb;
+    background-color: var(--bg-light);
     border-radius: 6px;
 }
 
-.send-btn {
-    background-color: var(--primary-orange);
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    align-self: flex-start;
-    min-width: 200px;
-}
 
-.send-btn:hover {
-    background-color: #ea580c;
-}
 
 /* --- My Announcements List --- */
 .my-announcements-section {
@@ -158,24 +126,7 @@
     margin: 14px 0;
 }
 
-.tab-button {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: white;
-    cursor: pointer;
-    font-weight: 600;
-}
 
-.tab-button.active {
-    background: var(--primary-orange);
-    color: white;
-    border-color: var(--primary-orange);
-}
-
-.tab-button:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
 
 
 .ticker-track-wrapper {
@@ -208,9 +159,7 @@
     cursor: pointer;
 }
 
-.ticker-link .ticker-item {
-    /* animated text stays as before */
-}
+
 
 .ticker-link:hover .ticker-item {
     color: #c80000;
@@ -335,24 +284,7 @@
     text-transform: uppercase;
 }
 
-.dc-pdf-btn {
-    background-color: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.2s;
-}
 
-.dc-pdf-btn:hover {
-    background-color: #ea580c;
-}
 
 @media (max-width: 768px) {
     .scrolling-text {
@@ -369,20 +301,7 @@
     border: 1px solid #e9ecef;
 }
 
-.add-target-btn {
-    padding: 0 20px;
-    background: #ea580c;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    margin-left: 10px;
-    align-self: flex-end;
-    height: 42px;
-    /* Match input height */
-    margin-bottom: 15px;
-}
+
 
 .added-targets-list {
     display: flex;

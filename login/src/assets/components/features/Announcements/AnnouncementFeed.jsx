@@ -51,20 +51,20 @@ const AnnouncementFeed = ({
             {/* Tabs */}
             <div className="ann-tabs">
                 <button
-                    className={`tab-button ${activeTab === 'quick' ? 'active' : ''}`}
+                    className={`std-tab-btn ${activeTab === 'quick' ? 'active' : ''}`}
                     onClick={() => setActiveTab('quick')}
                 >
                     Quick reference
                 </button>
                 <button
-                    className={`tab-button ${activeTab === 'university' ? 'active' : ''}`}
+                    className={`std-tab-btn ${activeTab === 'university' ? 'active' : ''}`}
                     onClick={() => setActiveTab('university')}
                 >
                     University Announcements
                 </button>
                 {!isHigherOfficial && (
                     <button
-                        className={`tab-button ${activeTab === 'department' ? 'active' : ''}`}
+                        className={`std-tab-btn ${activeTab === 'department' ? 'active' : ''}`}
                         onClick={() => setActiveTab('department')}
                     >
                         Department Announcements
@@ -98,7 +98,7 @@ const AnnouncementFeed = ({
                                             </div>
                                             {ann.fileId?.filePath && (
                                                 <button
-                                                    className="dc-pdf-btn"
+                                                    className="std-btn std-btn-sm"
                                                     onClick={(e) => onPdfClick(ann.fileId.filePath, e)}
                                                 >
                                                     <FaFilePdf /> View PDF

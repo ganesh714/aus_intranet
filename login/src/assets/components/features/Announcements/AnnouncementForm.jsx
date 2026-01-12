@@ -59,7 +59,8 @@ const AnnouncementForm = ({
 
                         <button
                             type="button"
-                            className="add-target-btn"
+                            className="std-btn"
+                            style={{ height: 'auto', alignSelf: 'flex-end', marginBottom: '4px' }}
                             onClick={formData.onAddTarget}
                             disabled={formData.targetRole === 'Student' && !formData.targetBatch}
                         >
@@ -99,9 +100,9 @@ const AnnouncementForm = ({
                                         <span className="ac-date">{new Date(item.uploadedAt).toLocaleDateString('en-GB')}</span>
                                         <button
                                             type="button"
+                                            className="std-btn-danger std-btn-sm"
                                             onClick={() => onDelete(item._id)}
                                             title="Delete Announcement"
-                                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}
                                         >
                                             <FaTrash />
                                         </button>

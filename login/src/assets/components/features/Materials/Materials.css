@@ -30,30 +30,7 @@
     gap: 10px;
 }
 
-.material-tab-btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-    background-color: #f3f4f6;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-.material-tab-btn:hover {
-    background-color: #e5e7eb;
-}
-
-.material-tab-btn.active {
-    background-color: var(--primary-orange);
-    color: white;
-    box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2);
-}
 
 /* --- Upload Form --- */
 .upload-form-container {
@@ -96,23 +73,7 @@
     margin-bottom: 15px;
 }
 
-.toggle-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    background: transparent;
-    color: #64748b;
-    transition: all 0.2s;
-}
 
-.toggle-btn.active {
-    background-color: white;
-    color: var(--primary-blue);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
 
 /* Rule Builder */
 .rule-builder-box {
@@ -155,21 +116,7 @@
     background-color: white;
 }
 
-.add-rule-btn {
-    background-color: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
-}
 
-.add-rule-btn:hover {
-    background-color: #ea580c;
-}
 
 /* Selected Targets */
 .targets-summary {
@@ -287,21 +234,7 @@
     padding-top: 20px;
 }
 
-.upload-btn-primary {
-    background-color: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
 
-.upload-btn-primary:hover {
-    background-color: #ea580c;
-}
 
 /* --- Materials Grid --- */
 .materials-grid {

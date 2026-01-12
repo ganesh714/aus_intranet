@@ -164,19 +164,19 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
                 <div className="materials-tabs">
                     <button
-                        className={`material-tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
+                        className={`std-tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
                         onClick={() => setActiveTab('sent')}
                     >
                         Sent by Me
                     </button>
                     <button
-                        className={`material-tab-btn ${activeTab === 'received' ? 'active' : ''}`}
+                        className={`std-tab-btn ${activeTab === 'received' ? 'active' : ''}`}
                         onClick={() => setActiveTab('received')}
                     >
                         Sent to Me
                     </button>
                     <button
-                        className={`material-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+                        className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
                         onClick={() => setActiveTab('upload')}
                     >
                         <FaCloudUploadAlt /> Upload New
@@ -198,14 +198,14 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                 <button
                                     type="button"
                                     onClick={() => setUploadData(prev => ({ ...prev, activeInputMode: 'Group' }))}
-                                    className={`toggle-btn ${uploadData.activeInputMode === 'Group' ? 'active' : ''}`}
+                                    className={`std-toggle-btn ${uploadData.activeInputMode === 'Group' ? 'active' : ''}`}
                                 >
                                     Group Rule
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setUploadData(prev => ({ ...prev, activeInputMode: 'Specific' }))}
-                                    className={`toggle-btn ${uploadData.activeInputMode === 'Specific' ? 'active' : ''}`}
+                                    className={`std-toggle-btn ${uploadData.activeInputMode === 'Specific' ? 'active' : ''}`}
                                 >
                                     Specific People
                                 </button>
@@ -251,7 +251,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                             </select>
                                         </div>
                                     )}
-                                    <button type="button" onClick={addRule} className="add-rule-btn">+ Add</button>
+                                    <button type="button" onClick={addRule} className="std-btn">+ Add</button>
                                 </div>
                             ) : (
                                 <UserPicker
@@ -312,7 +312,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                         </div>
 
                         <div className="submit-section">
-                            <button type="submit" className="upload-btn-primary">
+                            <button type="submit" className="std-btn">
                                 Upload Material
                             </button>
                         </div>
