@@ -5,15 +5,15 @@ import logo from "../images/11.png";
 const Homepage = () => {
   const navigate = useNavigate();
 
-  return ( 
+  return (
     <div className="landing-container" >
-      <img 
+      <img
         src={logo}
-        alt="Logo" 
-        className="top-left-image" 
+        alt="Logo"
+        className="top-left-image"
       />
-      
-      <button className="button3" onClick={() => navigate('/LoginForm')}>
+
+      <button className="std-btn" onClick={() => navigate('/LoginForm')}>
         Login
       </button>
       <p>Welcome to Aditya University Intranet</p>

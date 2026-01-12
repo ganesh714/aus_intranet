@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './resetpassword.css';
 
 const ResetPassword = () => {
-    const [email, setEmail] = useState('');
+    const [id, setId] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -14,23 +14,21 @@ const ResetPassword = () => {
         e.preventDefault();
         setMessage('');
         setError('');
-        
-        // Basic email format validation
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            setError('Please enter a valid email address!');
+
+        if (!id.trim()) {
+            setError('Please enter a valid ID!');
             return;
         }
 
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5001/reset-password', { email });
+            const response = await axios.post('http://localhost:5001/reset-password', { id });
             setMessage(response.data.message);
-            setEmail(''); // Clear the email field after success
+            setId(''); // Clear the id field after success
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                setError('Invalid email address!');
+                setError('Invalid user ID!');
             } else {
                 setError('Error sending password reset email. Please try again.');
             }
@@ -48,18 +46,20 @@ const ResetPassword = () => {
             <div className="reset-container">
                 <h2 className="title">Reset Password</h2>
                 <form onSubmit={handleReset} className="reset-form">
-                    <input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="input"
-                    />
-                    <button type="submit" className="reset-button" disabled={loading}>
+                    <div className="std-form-group">
+                        <input
+                            type="text"
+                            placeholder="Enter your User ID"
+                            value={id}
+                            onChange={(e) => setId(e.target.value)}
+                            required
+                            className="std-input"
+                        />
+                    </div>
+                    <button type="submit" className="std-btn" style={{ width: '100%' }} disabled={loading}>
                         {loading ? 'Sending...' : 'Send Reset Link'}
                     </button>
-                    <button type="button" onClick={handleBack} className="reset-back-button">Back to Login</button>
+                    <button type="button" onClick={handleBack} className="std-btn std-btn-secondary" style={{ width: '100%', marginTop: '10px' }}>Back to Login</button>
                 </form>
                 {message && <p className="reset-message">{message}</p>}
                 {error && <p className="reset-error">{error}</p>}

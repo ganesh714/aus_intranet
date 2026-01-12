@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
 import './LoginForm.css';
 
 const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     const [isRegistering, setIsRegistering] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
+        id: '',
         password: '',
         confirmPassword: '',
-        role: '',  
+        role: '',
         subRole: '',
+        batch: '', // Added batch
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -23,13 +23,17 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     useEffect(() => {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         const role = sessionStorage.getItem('userRole');
-        const subRole = sessionStorage.getItem('usersubRole');
-        
+
         if (isLoggedIn) {
             setIsLoggedIn(true);
-            navigate(`/${role?.toLowerCase()}-page`);
+            const lowerRole = role?.toLowerCase() || '';
+            if (lowerRole.includes('asso') && lowerRole.includes('dean')) {
+                navigate('/asso.dean-page');
+            } else {
+                navigate(`/${lowerRole}-page`);
+            }
         }
-        
+
         document.body.classList.add('login-page');
         return () => {
             document.body.classList.remove('login-page');
@@ -49,98 +53,82 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        setErrorMessage('');
+
         if (isRegistering) {
-            // Registration logic
             if (formData.password !== formData.confirmPassword) {
-                alert('Passwords do not match!');
+                setErrorMessage('Passwords do not match!');
                 return;
             }
-            if (!validatePassword(formData.password)) {
-                alert(
-                    'Password must be 8 characters include letters, numbers, and special characters.'
-                );
-                return;
-            }
-    
+            // if (!validatePassword(formData.password)) {
+            //     setErrorMessage('Password must be 8 characters and include letters, numbers, and special characters.');
+            //     return;
+            // }
+
             try {
                 const response = await axios.post('http://localhost:5001/register', formData);
                 alert(response.data.message);
                 setFormData({
                     username: '',
-                    email: '',
+                    id: '',
                     password: '',
                     confirmPassword: '',
                     role: '',
                     subRole: '',
+                    batch: '',
                 });
                 setIsRegistering(false);
             } catch (error) {
                 console.error('Error during registration:', error);
-    
                 if (error.response) {
-                    // Server responded with a status code other than 2xx
-                    const errorMessage = error.response.data.message;
-    
-                    if (errorMessage.includes('User with this role and subRole already exists')) {
-                        alert('User already existed.');
-                    } else if (errorMessage.includes('Email already exists')) {
-                        alert('Email already existed.');
-                    } else {
-                        alert('Registration failed. Please try again.');
-                    }
-                } else if (error.request) {
-                    // Request was made but no response received
-                    console.error('Request error:', error.request);
-                    alert('Network error. Please try again later.');
+                    setErrorMessage(error.response.data.message || 'Registration failed.');
                 } else {
-                    // Something else caused the error
-                    console.error('General error:', error.message);
-                    alert('An unexpected error occurred. Please try again.');
+                    setErrorMessage('Network error. Please try again later.');
                 }
             }
-            
         } else {
-            // Login logic
             try {
                 const response = await axios.post('http://localhost:5001/login', {
-                    email: formData.email,
+                    id: formData.id,
                     password: formData.password,
                 });
 
-                const { email, username, role , subRole} = response.data.user;
+                const { id, username, role, subRole, canUploadTimetable, batch } = response.data.user;
 
                 sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('userEmail', email);
+                sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', role);
                 sessionStorage.setItem('usersubRole', subRole);
+                sessionStorage.setItem('userBatch', batch || ''); // Save Batch
                 sessionStorage.setItem('username', username);
+                sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
 
                 setIsLoggedIn(true);
                 setUserRole(role);
                 setUsersubRole(subRole);
-                
 
-                navigate(`/${role.toLowerCase()}-page`);
+                if (role === 'Student') {
+                    navigate('/student-page');
+                } else if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                    navigate('/asso.dean-page');
+                } else {
+                    navigate(`/${role.toLowerCase()}-page`);
+                }
             } catch (error) {
                 console.error(error);
-                setErrorMessage('Invalid credentials.');
+                setErrorMessage('Invalid credentials. Please check your ID and password.');
             }
         }
     };
 
     const renderSubRoleOptions = () => {
+        const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+
         if (formData.role === 'Officers') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Position:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Position:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Position</option>
                         <option value="DyPC">DyPC</option>
                         <option value="VC">VC</option>
@@ -152,15 +140,9 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
         }
         if (formData.role === 'Dean') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
                         <option value="IQAC">IQAC</option>
                         <option value="R&C">R&C</option>
@@ -176,18 +158,11 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
             );
         }
-
         if (formData.role === 'Asso.Dean') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
                         <option value="SOE">SOE</option>
                         <option value="IQAC">IQAC</option>
@@ -197,172 +172,110 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 </div>
             );
         }
-
-        if (formData.role === 'HOD') {
+        // Combined HOD, Faculty, and Student logic
+        if (formData.role === 'HOD' || formData.role === 'Faculty' || formData.role === 'Student') {
             return (
-                <div className="subrolecss">
-                    <label htmlFor="subRole">Department:</label>
-                    <select
-                        id="subRole"
-                        name="subRole"
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="subRole">Department:</label>
+                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
                         <option value="">Select Department</option>
-                        <option value="IT">IT</option>
-                        <option value="CSE">CSE</option>
-                        <option value="AIML">AIML</option>
-                        <option value="CE">CE</option>
-                        <option value="MECH">MECH</option>
-                        <option value="EEE">EEE</option>
-                        <option value="ECE">ECE</option>
-                        <option value="Ag.E">Ag.E</option>
-                        <option value="MPE">MPE</option>
-                        <option value="FED">FED</option>
+                        {commonDepartments.map(dept => (
+                            <option key={dept} value={dept}>{dept}</option>
+                        ))}
                     </select>
+
+                    {/* Conditionally render Batch input for Student */}
+                    {formData.role === 'Student' && (
+                        <div className="std-form-group" style={{ marginTop: '15px' }}>
+                            <label className="std-label" htmlFor="batch">Batch (Year):</label>
+                            <input
+                                type="text"
+                                id="batch"
+                                name="batch"
+                                value={formData.batch}
+                                onChange={handleChange}
+                                required
+                                placeholder="e.g. 2024"
+                                className="std-input"
+                            />
+                        </div>
+                    )}
                 </div>
             );
         }
-
-        if (formData.role === 'Faculty') {
-            return (
-                <div className="subrolecss">
-                    <label htmlFor="department">Department:</label>
-                    <select
-                        id="department"
-                        name="subRole"  
-                        value={formData.subRole}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">Select Department</option>
-                        <option value="IT">IT</option>
-                        <option value="CSE">CSE</option>
-                        <option value="AIML">AIML</option>
-                        <option value="CE">CE</option>
-                        <option value="MECH">MECH</option>
-                        <option value="EEE">EEE</option>
-                        <option value="ECE">ECE</option>
-                        <option value="Ag.E">Ag.E</option>
-                        <option value="MPE">MPE</option>
-                        <option value="FED">FED</option>
-                    </select>
-                </div>
-            );
-        }
-        
         return null;
     };
 
     return (
-        <div className={`login-container ${isRegistering ? 'registering' : ''}`}>
-            <h2 className="login-header">{isRegistering ? 'Register' : 'Login'}</h2>
+        <div className="login-container">
+            <h2 className="login-header">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
             <form onSubmit={handleSubmit}>
                 {isRegistering && (
                     <>
-                        <div className="login-form-group">
-                            <label htmlFor="username">Staff Name:</label>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                required
-                            />
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="username">Full Name</label>
+                            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" className="std-input" />
                         </div>
-                        <div className="login-form-group">
-                            <label htmlFor="role">Role:</label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                required
-                            >
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="role">Role</label>
+                            <select id="role" name="role" value={formData.role} onChange={handleChange} required className="std-select">
                                 <option value="">Select your role</option>
                                 <option value="Officers">Officers</option>
                                 <option value="Dean">Dean</option>
                                 <option value="Asso.Dean">Asso.Dean</option>
                                 <option value="HOD">HOD</option>
                                 <option value="Faculty">Faculty</option>
+                                <option value="Student">Student</option>
                                 <option value="Admin">Admin</option>
                             </select>
                         </div>
                         {renderSubRoleOptions()}
                     </>
                 )}
-                <div className="login-form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
+
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="id">User ID</label>
+                    <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" className="std-input" />
                 </div>
-                <div className="login-form-group">
-                    <label htmlFor="password">Password:</label>
+
+                <div className="std-form-group">
+                    <label className="std-label" htmlFor="password">Password</label>
                     <div className="password-input-container">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                        <span
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="password-toggle-icon"
-                        >
+                        <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="std-input" style={{ paddingRight: '40px' }} />
+                        <span onClick={() => setShowPassword(!showPassword)} className="password-toggle-icon">
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
-                    {errorMessage && <div className="error-message">{errorMessage}</div>}
                 </div>
+
                 {isRegistering && (
-                    <div className="login-form-group">
-                        <label htmlFor="confirmPassword">Confirm Password:</label>
+                    <div className="std-form-group">
+                        <label className="std-label" htmlFor="confirmPassword">Confirm Password</label>
                         <div className="password-input-container">
-                            <input
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                            />
-                            <span
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="password-toggle-icon"
-                            >
+                            <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className="std-input" style={{ paddingRight: '40px' }} />
+                            <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-icon">
                                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                     </div>
                 )}
-                <button type="submit" className="button1">
-                    {isRegistering ? 'Register' : 'Login'}
-                </button>
-                <p
-                    onClick={() => setIsRegistering(!isRegistering)}
-                    className="register-toggle"
-                >
-                    {isRegistering
-                        ? 'Already have an account? Login'
-                        : 'Don’t have an account? Register'}
+
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+                <button type="submit" className="std-btn" style={{ width: '100%' }}>{isRegistering ? 'Register' : 'Login'}</button>
+
+                <p onClick={() => {
+                    setIsRegistering(!isRegistering);
+                    setErrorMessage('');
+                    setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '', batch: '' });
+                }} className="register-toggle">
+                    {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
                 </p>
+
                 {!isRegistering && (
-                    <p
-                        id="forgot-password"
-                        onClick={() => navigate('/reset-password')}
-                    >
+                    <span id="forgot-password" onClick={() => navigate('/reset-password')}>
                         Forgot Password?
-                    </p>
+                    </span>
                 )}
             </form>
         </div>

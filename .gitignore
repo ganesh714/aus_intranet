@@ -1,6 +1,7 @@
 # Node
 node_modules/
 **/node_modules/
+**uploads/
 
 # Logs
 logs/
@@ -35,6 +36,7 @@ coverage/
 
 # Environment variables
 .env
+service-account-key.json
 .env.*.local
 .env.local
 
@@ -51,6 +53,7 @@ desktop.ini
 
 # Uploaded/generated files (backend uploads)
 backend/uploads/
+backend/uploads1/
 uploads/
 public/uploads/
 

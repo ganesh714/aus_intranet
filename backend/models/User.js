@@ -3,12 +3,16 @@ const mongoose = require('mongoose');
 // Define the schema for the user, including subRole that is only required for specific roles
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    id: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { 
-        type: String, 
-        required: true, 
-        enum: ['Officers', 'Dean','Asso.Dean', 'HOD', 'Faculty', 'Admin'] 
+
+    // Permission flag specifically for Faculty
+    // For HODs, this is effectively 'true' by virtue of their role.
+    canUploadTimetable: { type: Boolean, default: false },
+    role: {
+        type: String,
+        required: true,
+        enum: ['Student', 'Officers', 'Dean', 'Asso.Dean', 'HOD', 'Faculty', 'Admin']
     },
     subRole: {
         type: String,
@@ -16,14 +20,14 @@ const userSchema = new mongoose.Schema({
             'DyPC', 'VC', 'ProVC', 'Registrar',  // sub-roles for Officers
             'IQAC', 'R&D', 'CLM', 'CD',          // sub-roles for Dean
             'SOE', 'IQAC', 'ADMIN',       // sub-roles for Asso.Dean
-            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE','ECE', 'Ag.E', 'MPE', 'FED', // sub-roles
+            'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED', // sub-roles
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', // sub-roles for HOD
             'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE' // sub-roles for Faculty
         ],
         default: null,  // subRole can be null if it's not relevant for the role
         validate: {
             validator: function (v) {
-                // If the role is 'Officers', subRole must be one of 'DyPC', 'VC', etc.
+                // If the role is 'Leadership', subRole must be one of 'DyPC', 'VC', etc.
                 if (this.role === 'Officers' && !['DyPC', 'VC', 'ProVC', 'Registrar'].includes(v)) {
                     return false;
                 }
@@ -45,13 +49,20 @@ const userSchema = new mongoose.Schema({
                 if (this.role === 'Admin' && v !== null) {
                     return false;
                 }
-                
+
                 // If subRole is not provided and it's not needed for the role (e.g., Admin), it should be valid
                 return true;
             },
             message: 'Invalid subRole for the given role'
         }
     },
+    batch: {
+        type: String,
+        required: function () {
+            return this.role === 'Student';
+        }
+    },
+    pinnedTimetables: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timetable' }]
 });
 
 // Create and export the User model

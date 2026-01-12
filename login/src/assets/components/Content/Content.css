@@ -1,311 +1,91 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Kanit", sans-serif;
+/* src/assets/components/Content/Content.css */
+:root {
+    --primary-orange: #F97316;
+    --primary-blue: #1E3A8A;
+    --light-bg: #f3f4f6;
+    --text-dark: #1f2937;
 }
 
-.content {
+.content-wrapper {
+    display: flex;
+    height: calc(100vh - 90px);
+    overflow: hidden;
+    background-color: var(--light-bg);
+}
+
+/* --- Main Area Styling --- */
+.main-area {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.welcome-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid var(--primary-blue);
+    color: var(--text-dark);
+}
+
+.welcome-card h2 {
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.university-desc {
+    line-height: 1.6;
+    color: #4b5563;
+}
+
+/* --- Search Header (Shared) --- */
+.search-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px;
-    gap: 70px; /* Added gap between the left and right content */
-    width: 100%;
-    flex-wrap: wrap;
-    background-color: whitesmoke;
-    position: relative; /* Ensure the bottom PDF viewer can sit properly */
-}
-
-.leftNavBar { 
-    flex: 1;
-    min-width: 250px;
-    max-width: 400px;
-    background-color: black; /* Dark background for better contrast */
-    color: white; /* Light-colored text */
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.rightContent {
-    flex: 2;
-    width: 60%;
-    padding: 20px;
-    background-color: white; /* Lighter background for the right content */
-    color: white; /* Dark text color for readability */
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    text-align: justify;
-    flex-grow: 1; /* Allow right content area to grow */
-}
-
-.leftNavBar ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.leftNavBar ul li {
-    padding: 12px;
-    background-color: #333; /* Dark gray for list items */
-    border: 1px solid #444;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-    margin-bottom: 8px; /* Added spacing between items */
-}
-
-.leftNavBar ul li:hover {
-    background-color: #f66900; /* Red color on hover */
-    color: white; /* White text on hover */
-}
-.category-container {
-    position: relative;
-    width: 100%;
-}
-
-.category-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.6s ease, transform 0.6s ease;
-    padding: 8px 10px;
-    border-radius: 5px;
-    
-}
-
-.category-title:hover {
-    background-color: #f66900;
-}
-
-
-/* Dropdown options */
-.category-options {
-    position: relative;
-    width: 100%;
-    /* background-color: white; */
-    border-radius: 5px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
-    opacity: 0;
-    margin-bottom: 0;  /* No gap by default */
-}
-
-.category-container:hover .category-options {
-    opacity: 1;
-    max-height: 200px;
-    margin-bottom: 20px; 
-}
-
-.category-options button {
-    background-color: #000000;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.category-options button:hover {
-    background-color: #f66900;
-}
-
-
-.pdfLink {
-    text-decoration: none;
-    color: white; /* White text color for the links */
-    font-size: 16px;
-    padding: 6px 0;
-    display: block;
-    transition: color 0.3s ease-in-out;
-}
-
-.pdfLink:hover {
-    color: black; /* orange color on hover for the links */
-}
-
-.pdfViewer {
-    width: 90%;
-    height: 730px;
-    position: fixed;
-    bottom: 30px;   
-    left: 75px;
-    display: flex;
-    justify-content: center;
     align-items: center;
-    background-color: #fafafa;
-    border: 1.5px solid black;
-    padding: 10px;
-    z-index: 100;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 25px;
 }
 
-.pdfViewer object {
+.search-header h2 {
+    color: var(--primary-blue);
+    font-size: 24px;
+}
+
+.search-input-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    z-index: 2;
+    font-size: 18px;
+}
+
+.modern-search {
     width: 100%;
-    height: 100%;
-    border-radius: 8px;
+    padding: 12px 12px 12px 60px;
+    border: 1px solid #d1d5db;
+    border-radius: 30px;
+    outline: none;
+    transition: border-color 0.3s;
+    font-size: 15px;
 }
 
-a {
-    text-decoration: none;
+.modern-search:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
-.contentp {
-    text-align: justify;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-    .content {
+    .content-wrapper {
         flex-direction: column;
-        align-items: center;
-    }
-
-    .leftNavBar, .rightContent {
-        width: 90%;
-    }
-
-    .pdfViewer {
-        height: 500px;
-    }
-}
-
-@media (max-width: 430px) {
-    .pdfViewer {
-        height: 400px;
-    }
-}
-
-/* New styles for displaying PDFs in a grid format */
-.pdfGrid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Add space between PDF items */
-}
-
-.pdfItem {
-    /* width: calc(33.333% - 20px); Each PDF will take one-third of the width */
-    background-color: black; /* Light background for each PDF item */
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(223, 210, 210, 0.1);
-    text-align: center;
-    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for transform and shadow */
-}
-
-/* Hover effect for PDF items */
-.pdfItem:hover {
-    background-color: orangered; /* White background on hover */
-    transform: scale(1.05); /* Slight zoom effect on hover */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Shadow effect for a floating look */
-}
-
-/* Optional: Add text color changes or other effects for text inside the pdfItem */
-.pdfItem:hover h3, .pdfItem:hover p {
-    color: #f66900; /* Optional - Change text color to match the hover color */
-}
-
-
-
-@media (max-width: 768px) {
-    .pdfItem {
-        width: calc(50% - 20px); /* For medium screens, two PDFs per row */
-    }
-}
-
-@media (max-width: 430px) {
-    .pdfItem {
-        width: 100%; /* For small screens, one PDF per row */
-    }
-}
-
-
-/* Back Button Styles */
-.backButton {
-    position: absolute; /* Position it absolutely within its parent container */
-    bottom: 0px; /* 10px from the bottom of the container */
-    left: 0px; /* 10px from the left edge of the container */
-    padding: 10px; /* Adjust padding to suit the size of the 'X' */
-    font-size: 30px; /* Increase font size for visibility */
-    font-weight: bold; /* Make the arrow bold */
-    color: black; /* Orange color for the 'X' */
-    background-color:orangered; /* Transparent background */
-    border-radius: 50%; /* Make it circular */
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
-    z-index: 10; /* Ensure the button is above other elements */
-}
-
-.backButton:hover {
-    background-color: black; /* Light orange background on hover */
-    color: white; /* Change the 'X' color to white on hover */
-    transform: scale(1.1); /* Slight zoom effect on hover */
-}
-
-.backButton:focus {
-    outline: none; /* Remove outline when clicked */
-}
-
-
-
-.searchBar {
-    margin-bottom: 20px;
-    width: 50%;
-}
-
-.searchInput {
-    padding: 10px;
-    width: 100%;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.category-title.active {
-    background-color: orangered; /* Change to highlight color */
-    color: white;
-    font-weight: bold;
-}
-
-.documents-view {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Space between items */
-}
-.announcements-view ul{
-    overflow: hidden; /* Hide overflow to create the marquee effect */
-    white-space: nowrap;
-    padding: 10px;
-}
-
-.announcements-scroller {
-    display: inline-block; /* Ensure the content stays in a single line */
-    animation: marquee 20s linear infinite; /* Apply the animation */
-    
-}
-
-.announcements-scroller a,
-.announcements-scroller span {
-    color: rgb(237, 20, 56);
-    /* gap: 20px; */
-    padding: 12px;
-    border-radius: 8px;
-    min-width: 500px;
-    display: inline-block;
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(100%); /* Start off-screen to the right */
-    }
-    100% {
-        transform: translateX(-100%); /* Move to the left */
     }
 }

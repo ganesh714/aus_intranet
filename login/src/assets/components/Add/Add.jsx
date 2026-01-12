@@ -19,16 +19,10 @@ const Add = () => {
     const userRole = sessionStorage.getItem('userRole');
     const usersubRole = sessionStorage.getItem('usersubRole');  // Assuming subRole is stored in session storage
 
-
-
     const fetchCategories = async () => {
         const userRole = sessionStorage.getItem('userRole');
         const usersubRole = sessionStorage.getItem('usersubRole');
 
-        const departmentCategory = `Department ${usersubRole} related`;
-
-
-        // const departmentCategory= `Department ${subRole} related`;
         // Fetch categories with role and subRole filters
         const url = `http://localhost:5001/get-pdfs?role=${userRole}&subRole=${usersubRole}`;
         const response = await fetch(url);
@@ -37,12 +31,9 @@ const Add = () => {
         // Extract unique categories from the filtered PDFs
         const uniqueCategories = [...new Set(data.pdfs.map(pdf => pdf.category))];
 
-
-
-        // If the user is an Admin, modify the categories as per the logic
         // If the user is an Admin, modify the categories as per the logic
         if (userRole === 'Admin' || userRole === 'Officers') {
-            // Admin can modify categories, so add roles-specific categories if they are not already included
+            // Admin/Officers can modify categories
             if (!uniqueCategories.includes("University related")) {
                 uniqueCategories.push("University related");
             }
@@ -65,7 +56,7 @@ const Add = () => {
 
         } else if (userRole === 'Dean') {
             // Dean can modify 'Dean's related', 'HOD's related', and 'Faculty related'
-            const deanCategories = ["Dean's related","Asso.Dean's related", "HOD's related", "Faculty related"];
+            const deanCategories = ["Dean's related", "Asso.Dean's related", "HOD's related", "Faculty related"];
 
             deanCategories.forEach(category => {
                 if (!uniqueCategories.includes(category)) {
@@ -74,9 +65,7 @@ const Add = () => {
             });
 
         } else if (userRole === 'Asso.Dean') {
-            // Dean can modify 'Dean's related', 'HOD's related', and 'Faculty related'
             const deanCategories = ["Asso.Dean's related", "HOD's related", "Faculty related"];
-
             deanCategories.forEach(category => {
                 if (!uniqueCategories.includes(category)) {
                     uniqueCategories.push(category);
@@ -93,15 +82,12 @@ const Add = () => {
                 }
             });
         } else {
-            // If the user is not Admin, exclude the specific categories for Admin and other roles
-            const adminCategories = ["University related", "Dean's related","Asso.Dean's related", "HOD's related", "Faculty related"];
+            // If the user is not Admin/Leadership, exclude the specific categories
+            const adminCategories = ["University related", "Dean's related", "Asso.Dean's related", "HOD's related", "Faculty related"];
             const filteredCategories = uniqueCategories.filter(category => !adminCategories.includes(category));
-            setCategories(filteredCategories); // Only set categories that are not admin-related
+            setCategories(filteredCategories);
             return;
         }
-
-        // Set categories for both Admin and other roles, but other roles cannot modify
-
 
         if (userRole !== 'HOD') {
             const filtered = uniqueCategories.filter(category => category !== "Dept.Equipment");
@@ -110,10 +96,7 @@ const Add = () => {
         }
 
         setCategories(uniqueCategories);
-
     };
-
-
 
     const fetchFiles = async () => {
         if (!selectedOption2) return;
@@ -147,8 +130,6 @@ const Add = () => {
         }
     };
 
-
-
     const handleDeletePdf = async (pdfId) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this file?');
         if (!confirmDelete) return;
@@ -173,7 +154,6 @@ const Add = () => {
 
     // Update fileInputs when numOfFiles changes
     useEffect(() => {
-        // Initialize fileInputs array when numOfFiles is updated
         setFileInputs(Array.from({ length: numOfFiles }).map(() => ({ fileName: '', file: null })));
     }, [numOfFiles]);
 
@@ -186,7 +166,6 @@ const Add = () => {
             fetchFiles();
         }
     }, [selectedOption1, selectedOption2]);
-
 
     // Validate and submit form
     const handleSubmit = async (event) => {
@@ -244,7 +223,7 @@ const Add = () => {
                 setErrors({});
                 setSelectedSubCategory('');  // Reset sub-category on successful upload
                 alert('Successfully uploaded files');
-                navigate('/home-page'); // Navigate to the home page after successful upload
+                navigate('/home-page');
             } else {
                 alert(data.message || 'Error uploading files');
             }
@@ -280,10 +259,10 @@ const Add = () => {
                 </button>
 
                 {/* Action Selector (Create or Edit) */}
-                <div className="form-group">
-                    <label className="form-label">
+                <div className="std-form-group">
+                    <label className="std-label">
                         Action:
-                        <select value={selectedOption1} onChange={(e) => setSelectedOption1(e.target.value)} className="form-select">
+                        <select value={selectedOption1} onChange={(e) => setSelectedOption1(e.target.value)} className="std-select">
                             <option value="">Select...</option>
                             <option value="Create">Create</option>
                             <option value="Edit">Edit</option>
@@ -295,26 +274,26 @@ const Add = () => {
                 {/* New Category for Create Action */}
                 {selectedOption1 === 'Create' && (
                     <div>
-                        <div className="form-group">
-                            <label className="form-label">
+                        <div className="std-form-group">
+                            <label className="std-label">
                                 New Category:
                                 <input
                                     type="text"
                                     value={newCategory}
                                     onChange={(e) => setNewCategory(e.target.value)}
-                                    className="form-input"
+                                    className="std-input"
                                 />
                             </label>
                             {errors.newCategory && <p className="error-text">{errors.newCategory}</p>}
                         </div>
-                        <div className="form-group">
-                            <label className="form-label">
+                        <div className="std-form-group">
+                            <label className="std-label">
                                 New SubCategory:
                                 <input
                                     type="text"
                                     value={newSubCategory}
                                     onChange={(e) => setNewSubCategory(e.target.value)}
-                                    className="form-input"
+                                    className="std-input"
                                 />
                             </label>
                             {errors.newCategory && <p className="error-text">{errors.newCategory}</p>}
@@ -324,10 +303,10 @@ const Add = () => {
 
                 {/* Category for Edit Action */}
                 {selectedOption1 === 'Edit' && (
-                    <div className="form-group">
-                        <label className="form-label">
+                    <div className="std-form-group">
+                        <label className="std-label">
                             Category:
-                            <select value={selectedOption2} onChange={(e) => setSelectedOption2(e.target.value)} className="form-select">
+                            <select value={selectedOption2} onChange={(e) => setSelectedOption2(e.target.value)} className="std-select">
                                 <option value="">Select Category</option>
                                 {categories.map((category, index) => (
                                     <option key={index} value={category}>
@@ -341,13 +320,13 @@ const Add = () => {
                 )}
 
                 {selectedOption1 === 'Edit' && selectedOption2 && (
-                    <div className="form-group">
-                        <label className="form-label">
+                    <div className="std-form-group">
+                        <label className="std-label">
                             Sub Category:
                             <select
                                 value={selectedSubCategory}
                                 onChange={(e) => setSelectedSubCategory(e.target.value)}
-                                className="form-select"
+                                className="std-select"
                             >
                                 <option value="">Select Sub Category</option>
                                 {subCategories.map((subCat, index) => (
@@ -361,7 +340,7 @@ const Add = () => {
                     </div>
                 )}
                 {selectedOption1 === 'Edit' && selectedOption2 && selectedSubCategory && filesInCategory.length > 0 && (
-                    <div className="form-group row">
+                    <div className="std-form-group row">
                         <h4>Existing Files in "{selectedOption2}" Category - "{selectedSubCategory}" Subcategory:</h4>
                         {filesInCategory
                             .filter(file => file.subcategory === selectedSubCategory)
@@ -383,14 +362,14 @@ const Add = () => {
                 <br />
 
                 {/* Number of Files */}
-                <div className="form-group">
-                    <label className="form-label">
+                <div className="std-form-group">
+                    <label className="std-label">
                         Add Files:
                         <input
                             type="number"
                             value={numOfFiles}
                             onChange={(e) => setNumOfFiles(parseInt(e.target.value))}
-                            className="form-input"
+                            className="std-input"
                         />
                     </label>
                     {errors.numOfFiles && <p className="error-text">{errors.numOfFiles}</p>}
@@ -398,23 +377,23 @@ const Add = () => {
 
                 {/* File Inputs */}
                 {Array.from({ length: numOfFiles }).map((_, index) => (
-                    <div key={index} className="file-input-group">
-                        <label className="form-label">
+                    <div key={index} className="file-input-group std-form-group">
+                        <label className="std-label">
                             File Name:
                             <input
                                 type="text"
                                 value={fileInputs[index]?.fileName || ''}
                                 onChange={(e) => handleFileNameChange(e, index)}
-                                className="form-input"
+                                className="std-input"
                             />
                         </label>
                         {errors[`fileName${index}`] && <p className="error-text">{errors[`fileName${index}`]}</p>}
-                        <label className="form-label">
+                        <label className="std-label">
                             File:
                             <input
                                 type="file"
                                 onChange={(e) => handleFileChange(e, index)}
-                                className="form-input"
+                                className="std-file-input"
                             />
                         </label>
                         {errors[`file${index}`] && <p className="error-text">{errors[`file${index}`]}</p>}
@@ -422,7 +401,9 @@ const Add = () => {
                 ))}
 
                 {/* Submit Button */}
-                <button type="submit" className="add-form-button">Submit</button>
+                <div className="std-form-footer">
+                    <button type="submit" className="std-btn">Submit</button>
+                </div>
             </form>
         </div>
     );
