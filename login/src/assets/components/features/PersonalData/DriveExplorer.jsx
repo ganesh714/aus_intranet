@@ -605,6 +605,12 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
 
+    const getBreadcrumbString = () => {
+        if (!path || path.length === 0) return 'My Data';
+        const names = path.map(p => p.name);
+        return names.join(' > ');
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return '-';
         const date = new Date(dateString);
@@ -859,7 +865,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                                 <div className="folder-card-details">
                                                     {item.type === 'folder'
                                                         ? `${item.itemCount || '0'} items`
-                                                        : formatBytes(item.size || 0)}
+                                                        : formatBytes(item.size || (item.fileId && item.fileId.fileSize) || 0)}
                                                 </div>
                                             </div>
                                         ))}
@@ -898,7 +904,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                                     </div>
                                                     <div className="fl-col fl-date">{formatDate(item.updatedAt || item.createdAt)}</div>
                                                     <div className="fl-col fl-size">
-                                                        {item.type === 'folder' ? `${item.itemCount || '0'} items` : formatBytes(item.size || 0)}
+                                                        {item.type === 'folder' ? `${item.itemCount || '0'} items` : formatBytes(item.size || (item.fileId && item.fileId.fileSize) || 0)}
                                                     </div>
                                                 </div>
                                             ))}
@@ -1039,7 +1045,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                                     <div className="props-value">{getFileMeta(modal.item.name).label}</div>
 
                                     <div className="props-label">Size:</div>
-                                    <div className="props-value">{formatBytes(modal.item.size || 0)}</div>
+                                    <div className="props-value">{formatBytes(modal.item.size || (modal.item.fileId && modal.item.fileId.fileSize) || 0)}</div>
 
                                     <div className="props-label">Location:</div>
                                     <div className="props-value">{getBreadcrumbString()}</div>
