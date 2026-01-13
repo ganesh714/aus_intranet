@@ -2,7 +2,7 @@ import React from 'react';
 import './Sidebar.css';
 import { MdDashboard, MdCampaign } from 'react-icons/md';
 
-import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock } from 'react-icons/fa';
+import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy } from 'react-icons/fa';
 
 const Sidebar = ({
     userRole,
@@ -17,7 +17,8 @@ const Sidebar = ({
     onPersonalDataClick,
     onToggleCategory,
     onSubCategoryClick,
-    onDirectCategoryClick // <--- New Prop for direct clicking main categories
+    onDirectCategoryClick, // <--- New Prop for direct clicking main categories
+    onAchievementsClick // [NEW] Handler for achievements
 }) => {
 
     // Helper to check if a category should be a direct link for Students
@@ -51,6 +52,17 @@ const Sidebar = ({
                         <div className="category-header" onClick={onPersonalDataClick}>
                             <span className="cat-name">
                                 <FaFolder className="cat-icon" /> My Data
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* [NEW] My Achievements (Student, Faculty, HOD) */}
+                {(userRole === 'Student' || userRole === 'Faculty' || userRole === 'HOD') && (
+                    <div className={`category-item ${type === 'Achievements' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={onAchievementsClick}>
+                            <span className="cat-name">
+                                <FaTrophy className="cat-icon" /> My Achievements
                             </span>
                         </div>
                     </div>
