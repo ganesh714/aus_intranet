@@ -1,25 +1,33 @@
 /* src/assets/components/features/Achievements/Achievements.css */
+/* --- Main Container (Matches .materials-container) --- */
 .achievements-container {
-    padding: 20px;
-    height: 100%;
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
 }
 
+/* Main Header (Matches .materials-header) */
 .achievements-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f3f4f6;
 }
 
+/* Header Title (Matches .materials-header h2) */
 .achievements-title {
     font-size: 24px;
     font-weight: 700;
     color: var(--primary-blue);
     margin: 0;
+    margin-bottom: 20px;
+    /* Matching Materials.css quirk */
 }
 
 .add-achievement-btn {
@@ -51,18 +59,22 @@
 
 .achievement-card {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
-    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
+    cursor: pointer;
     position: relative;
-    overflow: hidden;
+    box-shadow: none;
+    /* Remove default shadow to match mat-card initially */
 }
 
 .achievement-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-orange);
 }
 
 .achievement-card::before {
@@ -128,12 +140,20 @@
 /* Replaced by global standard styles in form component, using specific overrides here if needed */
 
 /* --- Form Styles (Matching Materials/Shared Documents) --- */
+.achievement-form-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    width: 100%;
+}
+
 .upload-form-container {
+    /* Kept for backward compatibility or if used elsewhere */
     background-color: white;
     padding: 0;
-    /* Remove padding as it might be handled by parent or std-page-container */
     margin-bottom: 30px;
-    /* border: 1px solid #e2e8f0; Optional: match material manager if it has border */
 }
 
 .upload-form-header {
