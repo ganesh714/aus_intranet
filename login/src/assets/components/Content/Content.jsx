@@ -11,6 +11,7 @@ import ResourceRepository from "../features/Documents/ResourceRepository";
 import FileViewer from "../features/Documents/FileViewer";
 import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
+import AchievementManager from "../features/Achievements/AchievementManager"; // [NEW IMPORT]
 
 const Content = () => {
     // --- USER INFO ---
@@ -43,6 +44,11 @@ const Content = () => {
 
     const handlePersonalDataClick = () => {
         setActiveView('personal-data');
+        setActiveCategory(null);
+    };
+
+    const handleAchievementsClick = () => {
+        setActiveView('achievements');
         setActiveCategory(null);
     };
 
@@ -201,6 +207,14 @@ const Content = () => {
                     />
                 );
 
+            case 'achievements':
+                return (
+                    <AchievementManager
+                        userRole={userRole}
+                        userId={userId}
+                    />
+                );
+
             case 'category':
                 return (
                     <CategoryViewer
@@ -234,12 +248,13 @@ const Content = () => {
                 // Active highlighting flags
                 showContentP={activeView === 'dashboard'}
                 showSendAnnounce={activeView === 'announcements'}
-                type={activeView === 'announcements-feed' ? 'Announcements' : activeView === 'personal-data' ? 'Personal Data' : ''}
+                type={activeView === 'announcements-feed' ? 'Announcements' : activeView === 'personal-data' ? 'Personal Data' : activeView === 'achievements' ? 'Achievements' : ''}
 
                 onDashboardClick={handleDashboardClick}
                 onSendAnnounceClick={handleSendAnnounceClick}
                 onViewAnnouncementsClick={handleViewAnnouncementsClick}
                 onPersonalDataClick={handlePersonalDataClick}
+                onAchievementsClick={handleAchievementsClick} // [NEW] Passing handler
                 onToggleCategory={toggleCategory} // <--- FIXED: Passing handler
                 onSubCategoryClick={handleSubCategoryClick}
                 onDirectCategoryClick={handleDirectCategoryClick} // <--- New Prop for direct clicking main categories
