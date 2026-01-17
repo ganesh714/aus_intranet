@@ -60,18 +60,11 @@ const AchievementList = ({ achievements, onAddClick }) => {
     };
 
     return (
-        <div className="achievements-container">
-            <div className="achievements-header">
-                <h2 className="achievements-title">My Achievements</h2>
-                <button className="add-achievement-btn" onClick={onAddClick}>
-                    <FaTrophy /> Upload New Achievement
-                </button>
-            </div>
-
+        <>
             {achievements.length === 0 ? (
                 <div className="empty-state">
                     <h3>No achievements added yet</h3>
-                    <p>Click the "Upload New Achievement" button to showcase your accomplishments.</p>
+                    <p>Click the "Upload New" tab to showcase your accomplishments.</p>
                 </div>
             ) : (
                 <div className="achievements-grid">
@@ -97,7 +90,7 @@ const AchievementList = ({ achievements, onAddClick }) => {
                     ))}
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
