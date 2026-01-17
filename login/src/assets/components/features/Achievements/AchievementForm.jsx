@@ -383,13 +383,8 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
     };
 
     return (
-        <div className="achievement-form-container">
-            <div className="upload-form-header">
-                <button className="back-btn" onClick={onCancel} title="Back to List" style={{ padding: 0, border: 'none', background: 'none' }}>
-                    <FaArrowLeft size={16} />
-                </button>
-                <span>Upload New Achievement</span>
-            </div>
+        <div className="upload-form-container">
+            <h3 className="upload-form-header">Upload New Achievement</h3>
 
             <form onSubmit={handleSubmit}>
                 <div className="form-section">
