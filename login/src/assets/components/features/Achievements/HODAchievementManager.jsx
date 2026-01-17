@@ -6,12 +6,12 @@ import axios from 'axios';
 
 const HODAchievementManager = ({ userRole, userId }) => {
     // Determine allowed tabs based on permissions relative to userId
-    // Note: userId prop might be string or number, ensure loose equality check or consistencty later.
     const [permissions, setPermissions] = useState({});
 
-    // Derived permissions for current user (if Faculty)
-    const canSeeStudent = userRole === 'HOD' || (permissions[userId] && permissions[userId].student);
-    const canSeeFaculty = userRole === 'HOD' || (permissions[userId] && permissions[userId].faculty);
+    // Derived permissions
+    // USER UPDATE: All Faculty have access to Student and Faculty achievements by default now.
+    const canSeeStudent = userRole === 'HOD' || userRole === 'Faculty';
+    const canSeeFaculty = userRole === 'HOD' || userRole === 'Faculty';
     const canAccessControl = userRole === 'HOD';
 
     // Set initial tab based on permissions
@@ -20,9 +20,28 @@ const HODAchievementManager = ({ userRole, userId }) => {
     const [achievements, setAchievements] = useState([]);
     const [deptFaculty, setDeptFaculty] = useState([]);
 
+    const studentCategories = [
+        "Technical Certification",
+        "Placements & Internships",
+        "Competitions & Awards",
+        "Sports & Cultural Events",
+        "Innovation & Leadership"
+    ];
+
+    const facultyCategories = [
+        "Research Publications",
+        "Conference Presentations",
+        "Intellectual Property",
+        "Certifications & Online Courses",
+        "Professional Development",
+        "Research Consultancy",
+        "Mentorship & Student Training",
+        "Books & Literature"
+    ];
+
     // Filter State
     const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All');
+    const [categoryFilter, setCategoryFilter] = useState('All');
 
     // Access Control UI State
     const [showAddForm, setShowAddForm] = useState(false);
@@ -45,7 +64,11 @@ const HODAchievementManager = ({ userRole, userId }) => {
             if (canSeeStudent) setActiveTab('students');
             else if (canSeeFaculty) setActiveTab('faculty');
         }
-    }, [permissions, userRole, canSeeStudent, canSeeFaculty, canAccessControl]);
+
+        // Reset filter when tab changes
+        setCategoryFilter('All');
+        setSearchQuery('');
+    }, [activeTab, permissions, userRole, canSeeStudent, canSeeFaculty, canAccessControl]);
 
     useEffect(() => {
         // Load data when tab changes (or on mount if tab is valid)
@@ -54,7 +77,6 @@ const HODAchievementManager = ({ userRole, userId }) => {
         }
         if (activeTab === 'access' && canAccessControl) {
             fetchFaculty();
-            // loadPermissions already called on mount, but refreshing doesn't hurt if we want live updates
         }
     }, [activeTab]);
 
@@ -78,22 +100,22 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 userId: 'FAC001', userName: 'Dr. Smith', userRole: 'Faculty'
             },
             {
-                id: 'ach-102', title: 'National Hackathon Winner', type: 'Competition',
+                id: 'ach-102', title: 'National Hackathon Winner', type: 'Competitions & Awards',
                 issuingBody: 'Tech India', date: '2023-10-15', status: 'Approved',
                 userId: 'STU005', userName: 'Rahul Kumar', userRole: 'Student'
             },
             {
-                id: 'ach-103', title: 'Published in IEEE Journal', type: 'Publication',
+                id: 'ach-103', title: 'Published in IEEE Journal', type: 'Research Publications',
                 issuingBody: 'IEEE', date: '2023-09-10', status: 'Pending',
                 userId: 'FAC002', userName: 'Prof. Johnson', userRole: 'Faculty'
             },
             {
-                id: 'ach-104', title: 'Best Student Project Award', type: 'Award',
+                id: 'ach-104', title: 'Best Student Project Award', type: 'Competitions & Awards',
                 issuingBody: 'Anna University', date: '2023-12-01', status: 'Pending',
                 userId: 'STU012', userName: 'Priya S.', userRole: 'Student'
             },
             {
-                id: 'ach-105', title: 'Cloud Computing Certification', type: 'Certification',
+                id: 'ach-105', title: 'Cloud Computing Certification', type: 'Technical Certification',
                 issuingBody: 'Google Cloud', date: '2023-08-20', status: 'Rejected',
                 userId: 'STU008', userName: 'Amit V.', userRole: 'Student'
             }
@@ -154,12 +176,11 @@ const HODAchievementManager = ({ userRole, userId }) => {
     };
 
     const grantAccess = (facId) => {
-        // Default to granting only Student access initially
         const newPerms = { ...permissions, [facId]: { student: true, faculty: false } };
         setPermissions(newPerms);
         localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
-        setAccessSearch(''); // Clear search
-        setShowAddForm(false); // Go back to list
+        setAccessSearch('');
+        setShowAddForm(false);
     };
 
     const revokeAccess = (facId) => {
@@ -193,20 +214,20 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 ach.type.toLowerCase().includes(searchLower) ||
                 (ach.userName && ach.userName.toLowerCase().includes(searchLower));
 
-            const statusMatch = statusFilter === 'All' ? true : ach.status === statusFilter;
+            const categoryMatch = categoryFilter === 'All' ? true : ach.type === categoryFilter;
 
-            return textMatch && statusMatch;
+            return textMatch && categoryMatch;
         });
     };
 
     // Calculate active approvers count
     const activeApprovers = Object.keys(permissions).filter(k => !!permissions[k]);
+    const currentCategories = activeTab === 'students' ? studentCategories : facultyCategories;
 
     return (
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>Department Achievements</h2>
-                {/* Tabs moved BELOW header to match Announcements style */}
             </div>
 
             <div className="achievements-tabs">
@@ -234,7 +255,6 @@ const HODAchievementManager = ({ userRole, userId }) => {
                         <div className="toolbar-text">
                             Manage {activeTab === 'students' ? 'Student' : 'Faculty'} submissions
                         </div>
-                        {/* REPLICATING AchievementManager.jsx LAYOUT EXACTLY */}
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <input
                                 type="text"
@@ -246,14 +266,14 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             />
                             <select
                                 className="std-select"
-                                style={{ width: 'auto', minWidth: '150px' }}
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                style={{ width: '250px' }} // Fixed width to prevent layout shift
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
                             >
-                                <option value="All">All Statuses</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Rejected">Rejected</option>
+                                <option value="All">All Categories</option>
+                                {currentCategories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -315,6 +335,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
             {/* ACCESS CONTROL VIEW */}
             {activeTab === 'access' && canAccessControl && (
                 <div className="permission-manager">
+                    {/* ... (Unchanged Access Control UI) ... */}
                     <div className="pm-header">
                         <h3 className="pm-title">Authorized Approvers ({activeApprovers.length})</h3>
                         <button className="std-btn" style={{ fontSize: '13px', padding: '6px 12px' }} onClick={() => setShowAddForm(!showAddForm)}>
@@ -324,7 +345,6 @@ const HODAchievementManager = ({ userRole, userId }) => {
 
                     {!showAddForm && (
                         <div className="faculty-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {/* Header Row for Clarity */}
                             {activeApprovers.length > 0 && (
                                 <div className="user-result-item" style={{ backgroundColor: '#f8fafc', fontWeight: 'bold', borderBottom: '2px solid #e2e8f0' }}>
                                     <span style={{ flex: 1 }}>Faculty Member</span>
@@ -400,7 +420,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             </div>
                             <div className="user-results-list">
                                 {deptFaculty
-                                    .filter(f => !permissions[f.id]) // Show those who DON'T have permission
+                                    .filter(f => !permissions[f.id])
                                     .filter(f => f.username.toLowerCase().includes(accessSearch.toLowerCase()))
                                     .map(fac => (
                                         <div key={fac.id} className="user-result-item" onClick={() => grantAccess(fac.id)}>
