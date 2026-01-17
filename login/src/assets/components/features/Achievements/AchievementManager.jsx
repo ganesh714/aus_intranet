@@ -69,13 +69,34 @@ const AchievementManager = ({ userRole, userId }) => {
         setAchievements([...sampleAchievements, ...userAchievements]);
     }, [userId]);
 
-    // --- FILTER ---
+    // --- FILTER & SEARCH ---
     const [statusFilter, setStatusFilter] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Derived list
     const displayedAchievements = achievements.filter(ach => {
-        if (statusFilter === 'All') return true;
-        return ach.status === statusFilter;
+        // Status Filter
+        if (statusFilter !== 'All' && ach.status !== statusFilter) return false;
+
+        // Search Filter
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const searchableText = [
+                ach.title,
+                ach.type,
+                ach.issuingBody,
+                ach.organizer,
+                ach.publisher,
+                ach.provider,
+                ach.eventName,
+                ach.companyName,
+                ach.certificationName
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            if (!searchableText.includes(query)) return false;
+        }
+
+        return true;
     });
 
     const handleSave = (newAchievement) => {
@@ -125,17 +146,28 @@ const AchievementManager = ({ userRole, userId }) => {
                     <p className="toolbar-description">
                         Manage and track your professional achievements
                     </p>
-                    <select
-                        className="std-select"
-                        style={{ width: 'auto', minWidth: '150px' }}
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="All">All Status</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <input
+                            type="text"
+                            className="std-input"
+                            placeholder="Search achievements..."
+                            style={{ width: '250px', padding: '8px 12px' }}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <select
+                            className="std-select"
+                            style={{ width: 'auto', minWidth: '150px' }}
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <option value="All">All Status</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
                 </div>
             )}
 

@@ -26,10 +26,12 @@
 /* List Styles */
 .achievements-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     overflow-y: auto;
     padding-bottom: 20px;
+    padding-top: 5px;
+    /* Prevent top row overlap/clipping */
 }
 
 @media (max-width: 1024px) {
@@ -58,15 +60,7 @@
     border-color: var(--primary-orange);
 }
 
-.achievement-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background-color: var(--primary-blue);
-}
+/* Side bar removed as per user request for simpler design */
 
 /* --- Filter Toolbar --- */
 .achievements-toolbar {
