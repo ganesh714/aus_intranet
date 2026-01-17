@@ -121,23 +121,23 @@ const AchievementManager = ({ userRole, userId }) => {
 
     return (
         <div className="std-page-container">
-            <div className="std-page-header">
+            <div className="std-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>My Achievements</h2>
-            </div>
 
-            <div className="achievements-tabs">
-                <button
-                    className={`std-tab-btn ${activeTab === 'list' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('list')}
-                >
-                    <FaList /> View All
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('upload')}
-                >
-                    <FaCloudUploadAlt /> Upload New
-                </button>
+                <div className="achievements-tabs" style={{ margin: 0 }}>
+                    <button
+                        className={`std-tab-btn ${activeTab === 'list' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('list')}
+                    >
+                        <FaList /> View All
+                    </button>
+                    <button
+                        className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('upload')}
+                    >
+                        <FaCloudUploadAlt /> Upload New
+                    </button>
+                </div>
             </div>
 
             {/* FILTER TOOLBAR (Only in List View) */}
