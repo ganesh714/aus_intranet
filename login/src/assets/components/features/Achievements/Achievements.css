@@ -3,6 +3,8 @@
 .achievements-tabs {
     display: flex;
     gap: 10px;
+    margin: 14px 0;
+    /* Added spacing to match Announcements tabs */
 }
 
 .add-achievement-btn {
@@ -76,6 +78,12 @@
     color: #64748b;
     font-weight: 500;
     margin: 0;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 /* Status Badges (Inline) */

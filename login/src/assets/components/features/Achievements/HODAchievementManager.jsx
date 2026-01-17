@@ -1,61 +1,144 @@
 import React, { useState, useEffect } from 'react';
-import { FaChartPie, FaUserGraduate, FaChalkboardTeacher, FaCheck, FaTimes, FaUserCog, FaSearch, FaUser } from 'react-icons/fa';
-import './Achievements.css'; // Re-use existing styles
+import { FaUserGraduate, FaChalkboardTeacher, FaCheck, FaTimes, FaUserCog, FaSearch, FaUser, FaFilter, FaCalendarAlt, FaCheckSquare, FaSquare } from 'react-icons/fa';
+import './Achievements.css';
+import '../Timetable/Timetable.css'; // Import Timetable styles for Access Control
 import axios from 'axios';
 
 const HODAchievementManager = ({ userRole, userId }) => {
-    const [activeTab, setActiveTab] = useState('dashboard');
+    // Determine allowed tabs based on permissions relative to userId
+    // Note: userId prop might be string or number, ensure loose equality check or consistencty later.
+    const [permissions, setPermissions] = useState({});
+
+    // Derived permissions for current user (if Faculty)
+    const canSeeStudent = userRole === 'HOD' || (permissions[userId] && permissions[userId].student);
+    const canSeeFaculty = userRole === 'HOD' || (permissions[userId] && permissions[userId].faculty);
+    const canAccessControl = userRole === 'HOD';
+
+    // Set initial tab based on permissions
+    const [activeTab, setActiveTab] = useState('students');
+
     const [achievements, setAchievements] = useState([]);
     const [deptFaculty, setDeptFaculty] = useState([]);
-    const [permissions, setPermissions] = useState({}); // { facultyId: true/false }
-    const [searchQuery, setSearchQuery] = useState('');
 
-    // Load Data
+    // Filter State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+
+    // Access Control UI State
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [accessSearch, setAccessSearch] = useState('');
+
     useEffect(() => {
-        loadAchievements();
-        if (activeTab === 'access') {
+        // Load permisisons FIRST to determine correct initial tab
+        loadPermissions();
+    }, [userId]);
+
+    useEffect(() => {
+        // Redirect if on forbidden tab
+        if (activeTab === 'students' && !canSeeStudent) {
+            if (canSeeFaculty) setActiveTab('faculty');
+            else if (canAccessControl) setActiveTab('access');
+        } else if (activeTab === 'faculty' && !canSeeFaculty) {
+            if (canSeeStudent) setActiveTab('students');
+            else if (canAccessControl) setActiveTab('access');
+        } else if (activeTab === 'access' && !canAccessControl) {
+            if (canSeeStudent) setActiveTab('students');
+            else if (canSeeFaculty) setActiveTab('faculty');
+        }
+    }, [permissions, userRole, canSeeStudent, canSeeFaculty, canAccessControl]);
+
+    useEffect(() => {
+        // Load data when tab changes (or on mount if tab is valid)
+        if (activeTab === 'students' || activeTab === 'faculty') {
+            loadAchievements();
+        }
+        if (activeTab === 'access' && canAccessControl) {
             fetchFaculty();
-            loadPermissions();
+            // loadPermissions already called on mount, but refreshing doesn't hurt if we want live updates
         }
     }, [activeTab]);
 
     const loadAchievements = () => {
         const stored = localStorage.getItem('user_achievements');
+        let currentData = [];
+
         if (stored) {
             try {
-                setAchievements(JSON.parse(stored));
+                currentData = JSON.parse(stored);
             } catch (e) {
                 console.error("Failed to parse achievements", e);
             }
         }
+
+        // --- REALISTIC DATA INJECTION (If empty or needs top-up for demo) ---
+        const fakeData = [
+            {
+                id: 'ach-101', title: 'Data Science Summit Speaker', type: 'Guest Lecture',
+                issuingBody: 'Intl Data Corp', date: '2023-11-20', status: 'Pending',
+                userId: 'FAC001', userName: 'Dr. Smith', userRole: 'Faculty'
+            },
+            {
+                id: 'ach-102', title: 'National Hackathon Winner', type: 'Competition',
+                issuingBody: 'Tech India', date: '2023-10-15', status: 'Approved',
+                userId: 'STU005', userName: 'Rahul Kumar', userRole: 'Student'
+            },
+            {
+                id: 'ach-103', title: 'Published in IEEE Journal', type: 'Publication',
+                issuingBody: 'IEEE', date: '2023-09-10', status: 'Pending',
+                userId: 'FAC002', userName: 'Prof. Johnson', userRole: 'Faculty'
+            },
+            {
+                id: 'ach-104', title: 'Best Student Project Award', type: 'Award',
+                issuingBody: 'Anna University', date: '2023-12-01', status: 'Pending',
+                userId: 'STU012', userName: 'Priya S.', userRole: 'Student'
+            },
+            {
+                id: 'ach-105', title: 'Cloud Computing Certification', type: 'Certification',
+                issuingBody: 'Google Cloud', date: '2023-08-20', status: 'Rejected',
+                userId: 'STU008', userName: 'Amit V.', userRole: 'Student'
+            }
+        ];
+
+        const finalData = [...currentData];
+        fakeData.forEach(fake => {
+            if (!finalData.some(d => d.id === fake.id)) {
+                finalData.push(fake);
+            }
+        });
+        finalData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setAchievements(finalData);
     };
 
     const fetchFaculty = async () => {
-        // Mocking or Fetching - attempting similar fetch as TimetableManager
-        // If backend fails, will fallback to empty or mock
-        try {
-            // Assuming we can get faculty for the current HOD's dept. 
-            // Since we don't have dept prop passed explicitly in Content.jsx often, 
-            // we'll rely on what TimetableManager did or just generic fetch.
-            // For now, let's try a generic fetch or use a hardcoded list for reliability if API is unknown.
-            const response = await axios.get('http://localhost:5001/get-all-users'); // Hypothetical endpoint
-            const allUsers = response.data || [];
-            const faculty = allUsers.filter(u => u.role === 'Faculty');
-            setDeptFaculty(faculty);
-        } catch (error) {
-            console.warn("Could not fetch faculty, using mock data for demo.");
-            setDeptFaculty([
-                { id: 'FAC001', username: 'Dr. Smith', role: 'Faculty' },
-                { id: 'FAC002', username: 'Prof. Johnson', role: 'Faculty' },
-                { id: 'FAC003', username: 'Dr. Emily', role: 'Faculty' },
-            ]);
-        }
+        // Mock Faculty List
+        setDeptFaculty([
+            { id: 'FAC001', username: 'Dr. Smith', role: 'Faculty' },
+            { id: 'FAC002', username: 'Prof. Johnson', role: 'Faculty' },
+            { id: 'FAC003', username: 'Dr. Emily', role: 'Faculty' },
+            { id: 'FAC004', username: 'Prof. Alan', role: 'Faculty' },
+            { id: 'FAC005', username: 'Dr. Rose', role: 'Faculty' },
+        ]);
     };
 
     const loadPermissions = () => {
         const storedPerms = localStorage.getItem('achievement_permissions');
         if (storedPerms) {
-            setPermissions(JSON.parse(storedPerms));
+            try {
+                const parsed = JSON.parse(storedPerms);
+                const isNewFormat = Object.values(parsed).every(val => typeof val === 'object');
+                if (isNewFormat) {
+                    setPermissions(parsed);
+                } else {
+                    const migrated = {};
+                    Object.keys(parsed).forEach(k => {
+                        migrated[k] = { student: parsed[k], faculty: parsed[k] };
+                    });
+                    setPermissions(migrated);
+                }
+            } catch (e) {
+                setPermissions({});
+            }
         }
     };
 
@@ -70,142 +153,271 @@ const HODAchievementManager = ({ userRole, userId }) => {
         localStorage.setItem('user_achievements', JSON.stringify(updated));
     };
 
-    const togglePermission = (facId) => {
-        const newPerms = { ...permissions, [facId]: !permissions[facId] };
+    const grantAccess = (facId) => {
+        // Default to granting only Student access initially
+        const newPerms = { ...permissions, [facId]: { student: true, faculty: false } };
+        setPermissions(newPerms);
+        localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
+        setAccessSearch(''); // Clear search
+        setShowAddForm(false); // Go back to list
+    };
+
+    const revokeAccess = (facId) => {
+        const newPerms = { ...permissions };
+        delete newPerms[facId];
         setPermissions(newPerms);
         localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
     };
 
-    // --- COMPUTED STATS ---
-    const stats = {
-        total: achievements.length,
-        student: achievements.filter(a => !a.userRole || a.userRole === 'Student').length, // Assuming userRole field exists or default to student
-        faculty: achievements.filter(a => a.userRole === 'Faculty').length,
-        pending: achievements.filter(a => a.status === 'Pending').length,
-        approved: achievements.filter(a => a.status === 'Approved').length,
-        rejected: achievements.filter(a => a.status === 'Rejected').length,
+    const togglePermissionType = (facId, type) => {
+        const current = permissions[facId];
+        if (!current) return;
+
+        const updated = { ...current, [type]: !current[type] };
+        const newPerms = { ...permissions, [facId]: updated };
+        setPermissions(newPerms);
+        localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
     };
 
-    const getPendingRequests = (role) => {
-        // Filter by role (approximate if userRole not always saved, assuming defaults)
-        return achievements.filter(ach =>
-            ach.status === 'Pending' &&
-            (role === 'Student' ? (!ach.userRole || ach.userRole === 'Student') : ach.userRole === 'Faculty')
-        );
+    const getFilteredRequests = (role) => {
+        return achievements.filter(ach => {
+            const roleMatch = role === 'Student'
+                ? (!ach.userRole || ach.userRole === 'Student')
+                : ach.userRole === 'Faculty';
+
+            if (!roleMatch) return false;
+
+            const searchLower = searchQuery.toLowerCase();
+            const textMatch =
+                ach.title.toLowerCase().includes(searchLower) ||
+                ach.type.toLowerCase().includes(searchLower) ||
+                (ach.userName && ach.userName.toLowerCase().includes(searchLower));
+
+            const statusMatch = statusFilter === 'All' ? true : ach.status === statusFilter;
+
+            return textMatch && statusMatch;
+        });
     };
+
+    // Calculate active approvers count
+    const activeApprovers = Object.keys(permissions).filter(k => !!permissions[k]);
 
     return (
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>Department Achievements</h2>
-                <div className="achievements-tabs">
-                    <button className={`std-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-                        <FaChartPie /> Dashboard
+                {/* Tabs moved BELOW header to match Announcements style */}
+            </div>
+
+            <div className="achievements-tabs">
+                {canSeeStudent && (
+                    <button className={`std-tab-btn ${activeTab === 'students' ? 'active' : ''}`} onClick={() => { setActiveTab('students'); setSearchQuery(''); }}>
+                        <FaUserGraduate /> Student Achievements
                     </button>
-                    <button className={`std-tab-btn ${activeTab === 'students' ? 'active' : ''}`} onClick={() => setActiveTab('students')}>
-                        <FaUserGraduate /> Student Requests
+                )}
+                {canSeeFaculty && (
+                    <button className={`std-tab-btn ${activeTab === 'faculty' ? 'active' : ''}`} onClick={() => { setActiveTab('faculty'); setSearchQuery(''); }}>
+                        <FaChalkboardTeacher /> Faculty Achievements
                     </button>
-                    <button className={`std-tab-btn ${activeTab === 'faculty' ? 'active' : ''}`} onClick={() => setActiveTab('faculty')}>
-                        <FaChalkboardTeacher /> Faculty Requests
-                    </button>
+                )}
+                {canAccessControl && (
                     <button className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`} onClick={() => setActiveTab('access')}>
                         <FaUserCog /> Access Control
                     </button>
-                </div>
+                )}
             </div>
 
-            {/* DASHBOARD VIEW */}
-            {activeTab === 'dashboard' && (
-                <div className="achievements-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                    <div className="achievement-card" style={{ textAlign: 'center', backgroundColor: '#f8fafc' }}>
-                        <h3 style={{ fontSize: '36px', color: 'var(--primary-blue)', margin: '10px 0' }}>{stats.total}</h3>
-                        <p className="card-subtitle">Total Submissions</p>
+            {/* REQUESTS VIEWS */}
+            {((activeTab === 'students' && canSeeStudent) || (activeTab === 'faculty' && canSeeFaculty)) && (
+                <>
+                    <div className="achievements-toolbar">
+                        <div className="toolbar-text">
+                            Manage {activeTab === 'students' ? 'Student' : 'Faculty'} submissions
+                        </div>
+                        {/* REPLICATING AchievementManager.jsx LAYOUT EXACTLY */}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                type="text"
+                                className="std-input"
+                                placeholder="Search achievements..."
+                                style={{ width: '250px', padding: '8px 12px' }}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <select
+                                className="std-select"
+                                style={{ width: 'auto', minWidth: '150px' }}
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                                <option value="All">All Statuses</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="achievement-card" style={{ textAlign: 'center', backgroundColor: '#f0fdf4' }}>
-                        <h3 style={{ fontSize: '36px', color: '#166534', margin: '10px 0' }}>{stats.approved}</h3>
-                        <p className="card-subtitle">Approved</p>
-                    </div>
-                    <div className="achievement-card" style={{ textAlign: 'center', backgroundColor: '#fefce8' }}>
-                        <h3 style={{ fontSize: '36px', color: '#854d0e', margin: '10px 0' }}>{stats.pending}</h3>
-                        <p className="card-subtitle">Pending Review</p>
-                    </div>
-                </div>
-            )}
 
-            {/* REQUESTS VIEWS (Shared Layout) */}
-            {(activeTab === 'students' || activeTab === 'faculty') && (
-                <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
-                    {getPendingRequests(activeTab === 'students' ? 'Student' : 'Faculty').length === 0 ? (
-                        <div className="empty-state">No pending requests found.</div>
-                    ) : (
-                        getPendingRequests(activeTab === 'students' ? 'Student' : 'Faculty').map(ach => (
-                            <div key={ach.id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div>
-                                    <div className="card-title">{ach.title}</div>
-                                    <div className="card-subtitle">{ach.type} | {ach.issuingBody}</div>
-                                    <div className="card-details">
-                                        <span>Submitted by: <strong>{ach.userName || 'Unknown User'}</strong> ({ach.userId})</span>
-                                        <span>Date: {ach.date}</span>
+                    <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
+                        {getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty').length === 0 ? (
+                            <div className="empty-state">No achievements found matching your criteria.</div>
+                        ) : (
+                            getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty').map(ach => (
+                                <div key={ach.id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div className="card-title">{ach.title}</div>
+                                            <span className={`status-badge status-${ach.status ? ach.status.toLowerCase() : 'pending'}`} style={{ position: 'static', marginTop: 0 }}>
+                                                {ach.status || 'Pending'}
+                                            </span>
+                                        </div>
+                                        <div className="card-subtitle" style={{ color: 'var(--primary-orange)' }}>
+                                            {ach.type} | {ach.issuingBody}
+                                        </div>
+                                        <div className="card-details" style={{ display: 'flex', gap: '15px', color: '#64748b' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <FaUser /> <strong>{ach.userName || 'Unknown User'}</strong>
+                                            </span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <FaCalendarAlt /> {ach.date}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginLeft: '20px' }}>
+                                        {ach.status !== 'Rejected' && (
+                                            <button
+                                                className="std-btn"
+                                                style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
+                                                onClick={() => handleApproval(ach.id, 'Rejected')}
+                                                title="Reject Submission"
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                        )}
+                                        {ach.status !== 'Approved' && (
+                                            <button
+                                                className="std-btn"
+                                                style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
+                                                onClick={() => handleApproval(ach.id, 'Approved')}
+                                                title="Approve Submission"
+                                            >
+                                                <FaCheck />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button
-                                        className="std-btn"
-                                        style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
-                                        onClick={() => handleApproval(ach.id, 'Rejected')}
-                                    >
-                                        <FaTimes /> Reject
-                                    </button>
-                                    <button
-                                        className="std-btn"
-                                        style={{ backgroundColor: '#22c55e', borderColor: '#22c55e' }}
-                                        onClick={() => handleApproval(ach.id, 'Approved')}
-                                    >
-                                        <FaCheck /> Approve
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
+                            ))
+                        )}
+                    </div>
+                </>
             )}
 
             {/* ACCESS CONTROL VIEW */}
-            {activeTab === 'access' && (
+            {activeTab === 'access' && canAccessControl && (
                 <div className="permission-manager">
                     <div className="pm-header">
-                        <h3 className="pm-title">Manage Approval Permissions</h3>
+                        <h3 className="pm-title">Authorized Approvers ({activeApprovers.length})</h3>
+                        <button className="std-btn" style={{ fontSize: '13px', padding: '6px 12px' }} onClick={() => setShowAddForm(!showAddForm)}>
+                            {showAddForm ? 'Cancel Adding' : '+ Add Person'}
+                        </button>
                     </div>
 
-                    <div className="user-picker-box">
-                        <div className="picker-filters-row">
-                            <input
-                                type="text"
-                                className="picker-input"
-                                placeholder="Search Faculty..."
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <div className="user-results-list">
-                            {deptFaculty
-                                .filter(f => f.username.toLowerCase().includes(searchQuery.toLowerCase()))
-                                .map(fac => (
-                                    <div key={fac.id} className="user-result-item" onClick={() => togglePermission(fac.id)}>
-                                        <span><b>{fac.username}</b> ({fac.id})</span>
-                                        {permissions[fac.id] ? (
-                                            <span style={{ color: '#059669', fontSize: '12px', fontWeight: 'bold' }}>
-                                                <FaCheck /> Can Approve
-                                            </span>
-                                        ) : (
-                                            <span style={{ color: '#9ca3af', fontSize: '12px' }}>
-                                                No Access
-                                            </span>
-                                        )}
+                    {!showAddForm && (
+                        <div className="faculty-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {/* Header Row for Clarity */}
+                            {activeApprovers.length > 0 && (
+                                <div className="user-result-item" style={{ backgroundColor: '#f8fafc', fontWeight: 'bold', borderBottom: '2px solid #e2e8f0' }}>
+                                    <span style={{ flex: 1 }}>Faculty Member</span>
+                                    <div style={{ display: 'flex', gap: '30px', marginRight: '60px' }}>
+                                        <span style={{ width: '100px', textAlign: 'center' }}>Student Appr.</span>
+                                        <span style={{ width: '100px', textAlign: 'center' }}>Faculty Appr.</span>
                                     </div>
-                                ))}
+                                    <span style={{ width: '30px' }}></span>
+                                </div>
+                            )}
+
+                            {activeApprovers.length > 0 ? (
+                                deptFaculty.filter(f => permissions[f.id]).map(fac => {
+                                    const p = permissions[fac.id];
+                                    return (
+                                        <div key={fac.id} className="user-result-item">
+                                            <span style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <FaUser /> <b>{fac.username}</b>
+                                                </span>
+                                                <span style={{ fontSize: '11px', color: '#666', marginLeft: '24px' }}>({fac.id})</span>
+                                            </span>
+
+                                            <div style={{ display: 'flex', gap: '30px', marginRight: '60px' }}>
+                                                <div
+                                                    className="perm-toggle"
+                                                    onClick={() => togglePermissionType(fac.id, 'student')}
+                                                    style={{ width: '100px', display: 'flex', justifyContent: 'center', cursor: 'pointer', color: p.student ? '#16a34a' : '#cbd5e1' }}
+                                                    title="Toggle Student Approval Right"
+                                                >
+                                                    {p.student ? <FaCheckSquare size={20} /> : <FaSquare size={20} />}
+                                                </div>
+
+                                                <div
+                                                    className="perm-toggle"
+                                                    onClick={() => togglePermissionType(fac.id, 'faculty')}
+                                                    style={{ width: '100px', display: 'flex', justifyContent: 'center', cursor: 'pointer', color: p.faculty ? '#16a34a' : '#cbd5e1' }}
+                                                    title="Toggle Faculty Approval Right"
+                                                >
+                                                    {p.faculty ? <FaCheckSquare size={20} /> : <FaSquare size={20} />}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                className="std-btn"
+                                                style={{ padding: '5px 10px', backgroundColor: '#fee2e2', color: '#991b1b', border: 'none' }}
+                                                onClick={() => revokeAccess(fac.id)}
+                                                title="Revoke All Access"
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="empty-msg">No faculty members currently have approval access.</p>
+                            )}
                         </div>
-                    </div>
+                    )}
+
+                    {showAddForm && (
+                        <div className="user-picker-box">
+                            <div className="targets-label">Search Faculty to Add</div>
+                            <div className="picker-filters-row">
+                                <input
+                                    type="text"
+                                    className="picker-input"
+                                    placeholder="Search Name or ID..."
+                                    value={accessSearch}
+                                    onChange={e => setAccessSearch(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="user-results-list">
+                                {deptFaculty
+                                    .filter(f => !permissions[f.id]) // Show those who DON'T have permission
+                                    .filter(f => f.username.toLowerCase().includes(accessSearch.toLowerCase()))
+                                    .map(fac => (
+                                        <div key={fac.id} className="user-result-item" onClick={() => grantAccess(fac.id)}>
+                                            <span><b>{fac.username}</b> ({fac.id})</span>
+                                            <span style={{ color: '#059669', fontSize: '13px', fontWeight: 'bold', padding: '5px 10px', backgroundColor: '#dcfce7', borderRadius: '4px' }}>
+                                                + Grant Access
+                                            </span>
+                                        </div>
+                                    ))}
+                                {deptFaculty.filter(f => !permissions[f.id]).length === 0 && (
+                                    <div style={{ padding: '20px', textAlign: 'center', color: '#999', fontSize: '13px' }}>
+                                        All available faculty already have access.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
