@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { FaCloudUploadAlt, FaList } from 'react-icons/fa';
 import AchievementList from './AchievementList';
 import AchievementForm from './AchievementForm';
 import './Achievements.css';
 
 const AchievementManager = ({ userRole, userId }) => {
-    const [view, setView] = useState('list'); // 'list' or 'form'
+    const [activeTab, setActiveTab] = useState('list'); // 'list' or 'upload'
     const [achievements, setAchievements] = useState([]);
 
     // Load achievements from localStorage on mount
@@ -21,14 +22,6 @@ const AchievementManager = ({ userRole, userId }) => {
             }
         }
     }, [userId]);
-
-    const handleAddClick = () => {
-        setView('form');
-    };
-
-    const handleCancel = () => {
-        setView('list');
-    };
 
     const handleSave = (newAchievement) => {
         // Save to state
@@ -47,26 +40,46 @@ const AchievementManager = ({ userRole, userId }) => {
 
         localStorage.setItem('user_achievements', JSON.stringify(allAchievements));
 
-        setView('list');
+        setActiveTab('list');
     };
 
     return (
-        <>
-            {view === 'list' && (
+        <div className="std-page-container">
+            <div className="std-page-header">
+                <h2>My Achievements</h2>
+
+                <div className="achievements-tabs">
+                    <button
+                        className={`std-tab-btn ${activeTab === 'list' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('list')}
+                    >
+                        <FaList /> View All
+                    </button>
+                    <button
+                        className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('upload')}
+                    >
+                        <FaCloudUploadAlt /> Upload New
+                    </button>
+                </div>
+            </div>
+
+            {activeTab === 'list' && (
                 <AchievementList
                     achievements={achievements}
-                    onAddClick={handleAddClick}
+                    onAddClick={() => setActiveTab('upload')}
                 />
             )}
-            {view === 'form' && (
+
+            {activeTab === 'upload' && (
                 <AchievementForm
                     userRole={userRole}
                     userId={userId}
-                    onCancel={handleCancel}
+                    onCancel={() => setActiveTab('list')}
                     onSave={handleSave}
                 />
             )}
-        </>
+        </div>
     );
 };
 
