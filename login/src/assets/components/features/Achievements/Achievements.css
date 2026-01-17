@@ -1,33 +1,8 @@
 /* src/assets/components/features/Achievements/Achievements.css */
-/* --- Main Container (Matches .materials-container) --- */
-.achievements-container {
-    background-color: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    min-height: 80vh;
+/* --- Tab Navigation --- */
+.achievements-tabs {
     display: flex;
-    flex-direction: column;
-}
-
-/* Main Header (Matches .materials-header) */
-.achievements-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f3f4f6;
-}
-
-/* Header Title (Matches .materials-header h2) */
-.achievements-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-blue);
-    margin: 0;
-    margin-bottom: 20px;
-    /* Matching Materials.css quirk */
+    gap: 10px;
 }
 
 .add-achievement-btn {
@@ -95,7 +70,7 @@
     color: var(--primary-blue);
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -109,13 +84,13 @@
 }
 
 .card-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: #4b5563;
     margin-bottom: 12px;
 }
 
 .card-details {
-    font-size: 13px;
+    font-size: 12px;
     color: #6b7280;
     display: flex;
     flex-direction: column;
