@@ -69,31 +69,15 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] HOD/Faculty Department Achievements */}
-                {(userRole === 'HOD' || (userRole === 'Faculty' && (() => {
-                    // Check if current faculty has ANY permission
-                    try {
-                        const storedPerms = localStorage.getItem('achievement_permissions');
-                        if (!storedPerms) return false;
-                        const perms = JSON.parse(storedPerms);
-                        // User ID might be passed as a prop, but here we don't have it in props yet.
-                        // Sidebar is usually used where userId is available in parent.
-                        // Let's assume we can read it from session or we need to pass it.
-                        // Wait, Sidebar doesn't receive userId. We must rely on session or pass it.
-                        // Checking main Content wrapper, userId is usually available.
-                        // For now, let's look at sessionStorage 'userId' if available or rely on prop which we need to add.
-                        const sUserId = sessionStorage.getItem('userId');
-                        if (!sUserId || !perms[sUserId]) return false;
-                        return perms[sUserId].student || perms[sUserId].faculty;
-                    } catch (e) { return false; }
-                })())) && (
-                        <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
-                                <span className="cat-name">
-                                    <FaTrophy className="cat-icon" style={{ color: '#ea580c' }} /> Achievements (Dept)
-                                </span>
-                            </div>
+                {(userRole === 'HOD' || userRole === 'Faculty') && (
+                    <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
+                            <span className="cat-name">
+                                <FaTrophy className="cat-icon" style={{ color: '#ea580c' }} /> Achievements (Dept)
+                            </span>
                         </div>
-                    )}
+                    </div>
+                )}
 
                 {/* Send Announcements (Non-Students) */}
                 {userRole !== 'Student' && (
