@@ -59,6 +59,15 @@ const AchievementList = ({ achievements, onAddClick }) => {
         return details;
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Approved': return 'status-approved';
+            case 'Rejected': return 'status-rejected';
+            case 'Pending': return 'status-pending';
+            default: return '';
+        }
+    };
+
     return (
         <>
             {achievements.length === 0 ? (
@@ -70,13 +79,24 @@ const AchievementList = ({ achievements, onAddClick }) => {
                 <div className="achievements-grid">
                     {achievements.map((ach) => (
                         <div key={ach.id} className="achievement-card">
-                            <span className="card-type-badge">{ach.type}</span>
+                            <div className="mat-icon-wrapper">
+                                {getIcon(ach.type)}
+                            </div>
+
                             <div className="card-title">
                                 {ach.title || ach.certificationName || ach.eventName || ach.companyName || ach.projectName || ach.courseName}
                             </div>
-                            <div className="card-subtitle">
+
+                            {/* Type as Subject Line - Matches Materials */}
+                            <div className="card-subtitle" style={{ color: 'var(--primary-orange)', fontWeight: '600' }}>
+                                {ach.type}
+                            </div>
+
+                            {/* Issuing Body / Subtitle */}
+                            <div className="card-subtitle" style={{ fontSize: '13px', marginBottom: '15px' }}>
                                 {ach.issuingBody || ach.organizer || ach.publisher || ach.provider}
                             </div>
+
                             <div className="card-details">
                                 {renderDetails(ach)}
                                 {ach.proof && (
@@ -84,6 +104,15 @@ const AchievementList = ({ achievements, onAddClick }) => {
                                         <FaFilePdf style={{ marginRight: '6px' }} />
                                         {ach.proof}
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Footer for Status Badge - Prevents overlap */}
+                            <div className="card-meta" style={{ marginTop: 'auto', paddingTop: '15px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end' }}>
+                                {ach.status && (
+                                    <span className={`status-badge-inline ${getStatusColor(ach.status)}`}>
+                                        {ach.status}
+                                    </span>
                                 )}
                             </div>
                         </div>
