@@ -11,7 +11,8 @@ import ResourceRepository from "../features/Documents/ResourceRepository";
 import FileViewer from "../features/Documents/FileViewer";
 import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
-import AchievementManager from "../features/Achievements/AchievementManager"; // [NEW IMPORT]
+import AchievementManager from "../features/Achievements/AchievementManager";
+import HODAchievementManager from "../features/Achievements/HODAchievementManager"; // [NEW IMPORT]
 
 const Content = () => {
     // --- USER INFO ---
@@ -117,6 +118,9 @@ const Content = () => {
                 subCategory: 'Announcements'
             });
             setActiveCategory('Faculty related');
+        } else if (categoryName === 'HODAchievements') {
+            setActiveView('hod-achievements');
+            setActiveCategory('HODAchievements');
         }
     };
 
@@ -215,6 +219,14 @@ const Content = () => {
                     />
                 );
 
+            case 'hod-achievements':
+                return (
+                    <HODAchievementManager
+                        userRole={userRole}
+                        userId={userId}
+                    />
+                );
+
             case 'category':
                 return (
                     <CategoryViewer
@@ -248,7 +260,12 @@ const Content = () => {
                 // Active highlighting flags
                 showContentP={activeView === 'dashboard'}
                 showSendAnnounce={activeView === 'announcements'}
-                type={activeView === 'announcements-feed' ? 'Announcements' : activeView === 'personal-data' ? 'Personal Data' : activeView === 'achievements' ? 'Achievements' : ''}
+                type={
+                    activeView === 'announcements-feed' ? 'Announcements' :
+                        activeView === 'personal-data' ? 'Personal Data' :
+                            activeView === 'achievements' ? 'Achievements' :
+                                activeView === 'hod-achievements' ? 'HODAchievements' : ''
+                }
 
                 onDashboardClick={handleDashboardClick}
                 onSendAnnounceClick={handleSendAnnounceClick}

@@ -68,6 +68,17 @@ const Sidebar = ({
                     </div>
                 )}
 
+                {/* [NEW] HOD Department Achievements */}
+                {userRole === 'HOD' && (
+                    <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
+                            <span className="cat-name">
+                                <FaTrophy className="cat-icon" style={{ color: '#ea580c' }} /> Achievements (Dept)
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Send Announcements (Non-Students) */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
