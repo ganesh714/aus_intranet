@@ -19,6 +19,8 @@ const DriveItem = require('./models/DriveItem');
 
 // Import Storage Service (Modular Logic)
 const storageService = require('./services/storageService');
+// Import Routes
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use(cors());
 app.use(bodyParser.json());
 // Note: 'uploads' static folder is no longer needed for drive, but kept if you have legacy files.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/dashboard', dashboardRoutes);
 
 // --- MULTER CONFIG (Memory Storage for Cloud Uploads) ---
 const storage = multer.memoryStorage();
