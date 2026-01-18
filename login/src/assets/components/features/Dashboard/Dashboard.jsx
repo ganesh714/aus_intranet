@@ -1,9 +1,9 @@
 import React from 'react';
-import axios from 'axios';
 import './Dashboard.css';
 import {
     FaUserGraduate, FaChalkboardTeacher, FaClipboardList, FaTrophy,
-    FaCalendarAlt, FaBullhorn, FaArrowRight, FaClock, FaFileUpload, FaDatabase, FaBook
+    FaCalendarAlt, FaBullhorn, FaArrowRight, FaClock, FaFileUpload, FaDatabase, FaBook,
+    FaCheckCircle, FaExclamationCircle, FaUserTie
 } from 'react-icons/fa';
 
 const Dashboard = ({
@@ -14,43 +14,79 @@ const Dashboard = ({
     onAchievementsClick,
     onSendAnnounceClick,
     onViewAnnouncementsClick,
-    onDirectCategoryClick // For Time Table, Material etc.
+    onDirectCategoryClick
 }) => {
-
-
 
     // --- STATE & DATA FETCHING ---
     const [statsData, setStatsData] = React.useState({
         announcements: 0,
         sharedResources: 0,
         storageUsed: 0,
-        facultyCount: 0
+        facultyCount: 25, // Mock
+        studentCount: 450, // Mock
+        pendingApprovals: 0,
+        myAchievements: 0,
+        recentAnnouncements: []
+    });
+
+    const [studentMockStats] = React.useState({
+        attendance: 87,
+        cgpa: 8.2,
+        pendingAssignments: 3
     });
 
     React.useEffect(() => {
-        const fetchStats = async () => {
+        const loadDashboardData = () => {
             try {
-                // Fetch user batch if needed, but for now we rely on backend valid lookup or passed params if we had them.
-                // We don't have batch in props readily available unless we read sessionStorage or fetch user first.
-                // Let's rely on backend user lookup for batch.
+                // 1. Load Announcements
+                const storedAnnouncements = localStorage.getItem('announcements');
+                let announcements = [];
+                if (storedAnnouncements) {
+                    announcements = JSON.parse(storedAnnouncements);
+                }
 
-                const response = await axios.get(`http://localhost:5001/dashboard/stats`, {
-                    params: {
-                        role: userRole,
-                        subRole: userSubRole,
-                        id: userId
-                    }
+                // 2. Load Achievements (For Pending Approvals & My Counts)
+                const storedAchievements = localStorage.getItem('user_achievements');
+                let achievements = [];
+                if (storedAchievements) {
+                    achievements = JSON.parse(storedAchievements);
+                }
+
+                // Calculate Metrics
+                let pendingCount = 0;
+                let myAchCount = 0;
+
+                if (userRole === 'Student') {
+                    // Count my achievements
+                    myAchCount = achievements.filter(a => a.userId === userId).length;
+                } else if (userRole === 'Faculty') {
+                    // Pending Student requests
+                    pendingCount = achievements.filter(a => a.userRole === 'Student' && a.status === 'Pending').length;
+                    // My achievements
+                    myAchCount = achievements.filter(a => a.userId === userId).length;
+                } else if (userRole === 'HOD') {
+                    // All pending requests
+                    pendingCount = achievements.filter(a => a.status === 'Pending').length;
+                }
+
+                setStatsData({
+                    announcements: announcements.length,
+                    sharedResources: 15, // Mock for now
+                    storageUsed: 450 * 1024 * 1024, // Mock 450MB
+                    facultyCount: 28,
+                    studentCount: 512,
+                    pendingApprovals: pendingCount,
+                    myAchievements: myAchCount,
+                    recentAnnouncements: announcements.reverse().slice(0, 3) // Top 3 Recent
                 });
-                setStatsData(response.data);
+
             } catch (error) {
-                console.error("Error loading dashboard stats", error);
+                console.error("Error loading dashboard data from local storage", error);
             }
         };
 
-        if (userId) {
-            fetchStats();
-        }
-    }, [userRole, userSubRole, userId]);
+        loadDashboardData();
+    }, [userRole, userId]);
 
 
     // Helper to format bytes
@@ -63,24 +99,25 @@ const Dashboard = ({
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
 
-    // --- MOCK DATA (Merged with Real Data) ---
+    // --- CONFIGURABLE STATS CARDS ---
     const stats = {
         Student: [
-            // Removed Attendance, Assignments, Classes
-            { id: 1, label: 'My Achievements', value: '5', icon: <FaTrophy />, color: '#10b981' }, // Static
-            { id: 2, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' }, // Dynamic
-            { id: 3, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }, // Dynamic
+            { id: 1, label: 'Attendance', value: `${studentMockStats.attendance}%`, icon: <FaCheckCircle />, color: '#10b981' },
+            { id: 2, label: 'CGPA', value: studentMockStats.cgpa, icon: <FaUserGraduate />, color: '#3b82f6' },
+            { id: 3, label: 'My Achievements', value: statsData.myAchievements, icon: <FaTrophy />, color: '#f59e0b' },
+            { id: 4, label: 'Announcements', value: statsData.announcements, icon: <FaBullhorn />, color: '#6366f1' },
         ],
         Faculty: [
-            { id: 1, label: 'Pending Approvals', value: '2', icon: <FaClipboardList />, color: '#ef4444' }, // Static
-            { id: 2, label: 'Dept. Achievements', value: '12', icon: <FaTrophy />, color: '#f59e0b' }, // Static
-            { id: 3, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' } // Dynamic
+            { id: 1, label: 'Pending Approvals', value: statsData.pendingApprovals, icon: <FaExclamationCircle />, color: '#ef4444' }, // Real Data
+            { id: 2, label: 'My Achievements', value: statsData.myAchievements, icon: <FaTrophy />, color: '#f59e0b' },
+            { id: 3, label: 'Classes Today', value: '3', icon: <FaChalkboardTeacher />, color: '#3b82f6' }, // Mock
+            { id: 4, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' }
         ],
         HOD: [
-            { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' }, // Dynamic
-            { id: 2, label: 'Dept. Achievements', value: '15', icon: <FaTrophy />, color: '#f59e0b' }, // Static
-            { id: 3, label: 'Pending Requests', value: '5', icon: <FaClipboardList />, color: '#ef4444' }, // Static
-            { id: 4, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' } // Dynamic
+            { id: 1, label: 'Actions Needed', value: statsData.pendingApprovals, icon: <FaExclamationCircle />, color: '#ef4444' }, // Real Data
+            { id: 2, label: 'Faculty Count', value: statsData.facultyCount, icon: <FaChalkboardTeacher />, color: '#3b82f6' },
+            { id: 3, label: 'Total Students', value: statsData.studentCount, icon: <FaUserGraduate />, color: '#10b981' },
+            { id: 4, label: 'Dept Achievements', value: '45', icon: <FaTrophy />, color: '#f59e0b' } // Mock
         ]
     };
 
@@ -127,19 +164,22 @@ const Dashboard = ({
                     </div>
                     <div className="activity-list">
                         {statsData.recentAnnouncements && statsData.recentAnnouncements.length > 0 ? (
-                            statsData.recentAnnouncements.map(item => {
-                                const dateObj = new Date(item.uploadedAt);
+                            statsData.recentAnnouncements.map((item, index) => {
+                                const dateObj = new Date(item.date || new Date()); // Handle missing date
                                 const month = dateObj.toLocaleString('default', { month: 'short' });
                                 const day = dateObj.getDate();
 
                                 return (
-                                    <div key={item._id} className="activity-item">
+                                    <div key={index} className="activity-item">
                                         <div className="activity-date">
                                             <span>{month}</span>
                                             <strong>{day}</strong>
                                         </div>
                                         <div className="activity-content">
                                             <h4>{item.title}</h4>
+                                            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                                                {item.sender || 'Admin'}
+                                            </p>
                                         </div>
                                     </div>
                                 );
@@ -150,7 +190,7 @@ const Dashboard = ({
                     </div>
                 </div>
 
-                {/* Right Column: Quick Actions (For All Roles now since Schedule is removed) */}
+                {/* Right Column: Quick Actions */}
                 <div className="widget-card">
                     <div className="widget-header">
                         <h2><FaFileUpload className="widget-icon" /> Quick Actions</h2>
@@ -165,6 +205,9 @@ const Dashboard = ({
                                 </button>
                                 <button className="action-btn" onClick={onAchievementsClick}>
                                     <FaTrophy /> My Achievements
+                                </button>
+                                <button className="action-btn" onClick={() => onDirectCategoryClick('Time Table')}>
+                                    <FaClock /> Timetable
                                 </button>
                             </>
                         )}
