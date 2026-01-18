@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserGraduate, FaChalkboardTeacher, FaCheck, FaTimes, FaUserCog, FaSearch, FaUser, FaFilter, FaCalendarAlt, FaCheckSquare, FaSquare } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaCheck, FaTimes, FaUserCog, FaSearch, FaUser, FaFilter, FaCalendarAlt, FaCheckSquare, FaSquare, FaLayerGroup } from 'react-icons/fa';
 import './Achievements.css';
 import '../Timetable/Timetable.css'; // Import Timetable styles for Access Control
 import axios from 'axios';
@@ -15,7 +15,10 @@ const HODAchievementManager = ({ userRole, userId }) => {
     const canAccessControl = userRole === 'HOD';
 
     // Set initial tab based on permissions
-    const [activeTab, setActiveTab] = useState('students');
+    const [activeTab, setActiveTab] = useState('overview');
+
+    const [overviewRoleFilter, setOverviewRoleFilter] = useState('All'); // 'All', 'Student', 'Faculty'
+    const [overviewTimeFilter, setOverviewTimeFilter] = useState('All'); // 'All', '1M', '3M', '6M', '1Y'
 
     const [achievements, setAchievements] = useState([]);
     const [deptFaculty, setDeptFaculty] = useState([]);
@@ -42,6 +45,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
     // Filter State
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
+
+    // UI State
+    const [showFilters, setShowFilters] = useState(false);
 
     // Access Control UI State
     const [showAddForm, setShowAddForm] = useState(false);
@@ -72,7 +78,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
 
     useEffect(() => {
         // Load data when tab changes (or on mount if tab is valid)
-        if (activeTab === 'students' || activeTab === 'faculty') {
+        if (activeTab === 'students' || activeTab === 'faculty' || activeTab === 'overview') {
             loadAchievements();
         }
         if (activeTab === 'access' && canAccessControl) {
@@ -220,6 +226,39 @@ const HODAchievementManager = ({ userRole, userId }) => {
         });
     };
 
+    const getOverviewData = () => {
+        return achievements.filter(ach => {
+            // 1. Status Check: Must be Approved
+            if (ach.status !== 'Approved') return false;
+
+            // 2. Role FIlter
+            if (overviewRoleFilter === 'Student' && ach.userRole !== 'Student') return false;
+            if (overviewRoleFilter === 'Faculty' && ach.userRole !== 'Faculty') return false;
+
+            // 3. Time Filter
+            if (overviewTimeFilter !== 'All') {
+                const achDate = new Date(ach.date);
+                const now = new Date();
+                const diffTime = Math.abs(now - achDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (overviewTimeFilter === '1M' && diffDays > 30) return false;
+                if (overviewTimeFilter === '3M' && diffDays > 90) return false;
+                if (overviewTimeFilter === '6M' && diffDays > 180) return false;
+                if (overviewTimeFilter === '1Y' && diffDays > 365) return false;
+            }
+
+            // 4. Search Filter
+            const searchLower = searchQuery.toLowerCase();
+            const textMatch =
+                ach.title.toLowerCase().includes(searchLower) ||
+                ach.type.toLowerCase().includes(searchLower) ||
+                (ach.userName && ach.userName.toLowerCase().includes(searchLower));
+
+            return textMatch;
+        });
+    };
+
     // Calculate active approvers count
     const activeApprovers = Object.keys(permissions).filter(k => !!permissions[k]);
     const currentCategories = activeTab === 'students' ? studentCategories : facultyCategories;
@@ -231,6 +270,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
             </div>
 
             <div className="achievements-tabs">
+                <button className={`std-tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => { setActiveTab('overview'); setSearchQuery(''); }}>
+                    <FaLayerGroup /> Overview
+                </button>
                 {canSeeStudent && (
                     <button className={`std-tab-btn ${activeTab === 'students' ? 'active' : ''}`} onClick={() => { setActiveTab('students'); setSearchQuery(''); }}>
                         <FaUserGraduate /> Student Achievements
@@ -249,11 +291,14 @@ const HODAchievementManager = ({ userRole, userId }) => {
             </div>
 
             {/* REQUESTS VIEWS */}
-            {((activeTab === 'students' && canSeeStudent) || (activeTab === 'faculty' && canSeeFaculty)) && (
+            {((activeTab === 'students' && canSeeStudent) || (activeTab === 'faculty' && canSeeFaculty) || activeTab === 'overview') && (
                 <>
                     <div className="achievements-toolbar">
                         <div className="toolbar-text">
-                            Manage {activeTab === 'students' ? 'Student' : 'Faculty'} submissions
+                            {activeTab === 'overview'
+                                ? 'All Approved Department Achievements'
+                                : `Manage ${activeTab === 'students' ? 'Student' : 'Faculty'} submissions`
+                            }
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <input
@@ -264,25 +309,91 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
-                            <select
-                                className="std-select"
-                                style={{ width: '250px' }} // Fixed width to prevent layout shift
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                            >
-                                <option value="All">All Categories</option>
-                                {currentCategories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
+
+                            {/* MULTI-FILTER TOGGLE (Only for Overview) */}
+                            {activeTab === 'overview' && (
+                                <button
+                                    className={`std-btn ${showFilters ? 'active' : ''}`}
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        backgroundColor: showFilters ? '#e0f2fe' : 'white',
+                                        color: showFilters ? '#0284c7' : '#64748b',
+                                        border: `1px solid ${showFilters ? '#0284c7' : '#cbd5e1'}`
+                                    }}
+                                >
+                                    <FaFilter /> Filters
+                                </button>
+                            )}
+
+                            {/* INLINE SINGLE FILTER (For Student/Faculty Tabs) */}
+                            {activeTab !== 'overview' && (
+                                <select
+                                    className="std-select"
+                                    style={{ width: '250px' }}
+                                    value={categoryFilter}
+                                    onChange={(e) => setCategoryFilter(e.target.value)}
+                                >
+                                    <option value="All">All Categories</option>
+                                    {currentCategories.map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            )}
                         </div>
                     </div>
 
+                    {/* FILTER PANEL (Only for Overview) */}
+                    {showFilters && activeTab === 'overview' && (
+                        <div className="filter-panel" style={{
+                            display: 'flex',
+                            gap: '20px',
+                            backgroundColor: '#f8fafc',
+                            padding: '15px',
+                            borderRadius: '8px',
+                            marginBottom: '20px',
+                            border: '1px solid #e2e8f0',
+                            flexWrap: 'wrap'
+                        }}>
+                            {/* OVERVIEW FILTERS */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>User Role</label>
+                                <select
+                                    className="std-select"
+                                    style={{ width: '200px' }}
+                                    value={overviewRoleFilter}
+                                    onChange={(e) => setOverviewRoleFilter(e.target.value)}
+                                >
+                                    <option value="All">All Records</option>
+                                    <option value="Student">Students Only</option>
+                                    <option value="Faculty">Faculty Only</option>
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>Time Period</label>
+                                <select
+                                    className="std-select"
+                                    style={{ width: '200px' }}
+                                    value={overviewTimeFilter}
+                                    onChange={(e) => setOverviewTimeFilter(e.target.value)}
+                                >
+                                    <option value="All">All Time</option>
+                                    <option value="1M">Last Month</option>
+                                    <option value="3M">Last 3 Months</option>
+                                    <option value="6M">Last 6 Months</option>
+                                    <option value="1Y">Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
-                        {getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty').length === 0 ? (
+                        {(activeTab === 'overview' ? getOverviewData() : getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty')).length === 0 ? (
                             <div className="empty-state">No achievements found matching your criteria.</div>
                         ) : (
-                            getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty').map(ach => (
+                            (activeTab === 'overview' ? getOverviewData() : getFilteredRequests(activeTab === 'students' ? 'Student' : 'Faculty')).map(ach => (
                                 <div key={ach.id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -303,28 +414,32 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                             </span>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '10px', marginLeft: '20px' }}>
-                                        {ach.status !== 'Rejected' && (
-                                            <button
-                                                className="std-btn"
-                                                style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
-                                                onClick={() => handleApproval(ach.id, 'Rejected')}
-                                                title="Reject Submission"
-                                            >
-                                                <FaTimes />
-                                            </button>
-                                        )}
-                                        {ach.status !== 'Approved' && (
-                                            <button
-                                                className="std-btn"
-                                                style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
-                                                onClick={() => handleApproval(ach.id, 'Approved')}
-                                                title="Approve Submission"
-                                            >
-                                                <FaCheck />
-                                            </button>
-                                        )}
-                                    </div>
+
+                                    {/* Only show Approve/Reject buttons in Manage Tabs, NOT Overview */}
+                                    {activeTab !== 'overview' && (
+                                        <div style={{ display: 'flex', gap: '10px', marginLeft: '20px' }}>
+                                            {ach.status !== 'Rejected' && (
+                                                <button
+                                                    className="std-btn"
+                                                    style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
+                                                    onClick={() => handleApproval(ach.id, 'Rejected')}
+                                                    title="Reject Submission"
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            )}
+                                            {ach.status !== 'Approved' && (
+                                                <button
+                                                    className="std-btn"
+                                                    style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
+                                                    onClick={() => handleApproval(ach.id, 'Approved')}
+                                                    title="Approve Submission"
+                                                >
+                                                    <FaCheck />
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))
                         )}
