@@ -151,7 +151,19 @@ const Content = () => {
     const renderActiveView = () => {
         switch (activeView) {
             case 'dashboard':
-                return <Dashboard />;
+                return <Dashboard
+                    userRole={userRole}
+                    userId={userId}
+                    userSubRole={userSubRole}
+                    // Pass Navigation Handlers
+                    onPersonalDataClick={handlePersonalDataClick}
+                    onAchievementsClick={handleAchievementsClick}
+                    onSendAnnounceClick={handleSendAnnounceClick}
+                    onViewAnnouncementsClick={handleViewAnnouncementsClick}
+                    onDirectCategoryClick={handleDirectCategoryClick}
+                    // For subcategory navigations if needed in future
+                    onSubCategoryClick={handleSubCategoryClick}
+                />;
 
             case 'personal-data':
                 return (
