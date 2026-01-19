@@ -190,19 +190,19 @@ app.post('/add-timetable', upload.single('file'), async (req, res) => {
             uploadedBy: { $in: userIdsInDept }
         }).populate('fileId');
 
+        // 1. Upload new file via Service FIRST (Fix Race Condition)
+        const fileIdFromStorage = await storageService.saveFile(req.file);
+
         if (existingTimetable) {
-            // 1. Delete file using Service
+            // 2. Delete old file using Service
             if (existingTimetable.fileId && existingTimetable.fileId.filePath) {
                 await storageService.deleteFile(existingTimetable.fileId.filePath);
             }
-            // 2. Delete DB records
+            // 3. Delete old DB records
             await File.findByIdAndDelete(existingTimetable.fileId._id);
             await Timetable.findByIdAndDelete(existingTimetable._id);
             console.log(`Replaced existing timetable for Y:${targetYear} S:${targetSection}`);
         }
-
-        // Upload new file via Service
-        const fileIdFromStorage = await storageService.saveFile(req.file);
 
         const newFile = new File({
             fileName: req.file.originalname,
@@ -773,13 +773,14 @@ app.post('/copy-shared-to-drive', async (req, res) => {
         if (!userUser) return res.status(404).json({ message: 'User not found' });
 
         // Clone the file record
-        // WARNING: This re-uses the physical filePath. Deleting this file in Drive might actally delete the shared file if backend isn't smart.
-        // Ideally we should physically copy the file.
         const originalFile = await File.findById(material.fileId);
+
+        // Physically copy the file in Drive (Fix Shared Deletion Bug)
+        const newFileIdFromStorage = await storageService.copyFile(originalFile.filePath);
 
         const newFile = new File({
             fileName: material.title, // Use Material title as filename
-            filePath: originalFile.filePath, // Re-use path
+            filePath: newFileIdFromStorage, // Use NEW path
             fileType: originalFile.fileType,
             fileSize: originalFile.fileSize,
             uploadedBy: userUser._id,
