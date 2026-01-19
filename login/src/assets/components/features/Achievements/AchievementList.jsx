@@ -40,7 +40,22 @@ const AchievementList = ({ achievements, onAddClick }) => {
 
         // Student Fields
         addInfo("Issued By", ach.issuingBody);
-        addInfo("Date", ach.date);
+        addInfo("Issued By", ach.issuingBody);
+
+        // Custom Row for Date + Approved By (Parallel)
+        if (ach.date) {
+            details.push(
+                <div key="date-approved" className="card-detail-item" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Date: <strong>{ach.date}</strong></span>
+                    {ach.status === 'Approved' && ach.approvedBy && (
+                        <span style={{ color: '#16a34a', fontSize: '12px', fontWeight: '600' }}>
+                            Approved By: {ach.approvedBy}
+                        </span>
+                    )}
+                </div>
+            );
+        }
+
         addInfo("Company", ach.companyName);
         addInfo("Role", ach.jobProfile || ach.role);
         addInfo("Package/Stipend", ach.package);
