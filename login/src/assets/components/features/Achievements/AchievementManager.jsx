@@ -32,6 +32,7 @@ const AchievementManager = ({ userRole, userId }) => {
                 issuingBody: 'Amazon Web Services',
                 date: '2023-11-15',
                 status: 'Approved',
+                approvedBy: 'Dr. HOD (Head of Dept)',
                 proof: 'aws_cert.pdf'
             },
             {
@@ -42,6 +43,7 @@ const AchievementManager = ({ userRole, userId }) => {
                 rank: '1st Runner Up',
                 date: '2023-09-20',
                 status: 'Approved',
+                approvedBy: 'Dr. Faculty (HOD)',
                 proof: 'hackathon_cert.pdf'
             },
             {
