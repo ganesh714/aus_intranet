@@ -17,7 +17,7 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .category-list {
@@ -55,7 +55,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .chevron {
@@ -90,6 +90,7 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
+    font-weight: 500;
     transition: color 0.2s;
 }
 
