@@ -14,13 +14,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 90px;
-    padding: 0 30px;
+    height: 70px;
+    padding: 0 24px;
     background-color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     position: relative;
     z-index: 10;
-    border-bottom: 4px solid var(--primary-orange);
+    border-bottom: 3px solid var(--primary-orange);
 }
 
 .logo-section {
