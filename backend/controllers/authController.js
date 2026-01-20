@@ -1,10 +1,10 @@
 // backend/controllers/authController.js
 
-const User = require('./models/User');
+const User = require('../models/User');
+const UserFactory = require('../factories/UserFactory');
 
 const register = async (req, res) => {
     const { username, id, password, role, subRole, batch } = req.body;
-    const normalizedId = id.toUpperCase(); // Standardize new users to Uppercase
 
     // Check for existing user (Case Insensitive)
     const existingUserById = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
@@ -23,14 +23,13 @@ const register = async (req, res) => {
         return res.status(400).json({ message: 'subRole (department) is required' });
     }
 
-    const newUser = new User({
+    const newUser = UserFactory.create({
         username,
-        id: normalizedId,
+        id,
         password,
         role,
-        subRole: role === 'Admin' ? null : subRole,
-        batch: role === 'Student' ? batch : null, // Pass batch if Student
-        canUploadTimetable: false
+        subRole,
+        batch,
     });
 
     try {
