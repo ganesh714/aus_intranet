@@ -15,6 +15,7 @@ const Material = require('./models/Material');
 const Announcement = require('./models/Announcement');
 const Timetable = require('./models/Timetable');
 const DriveItem = require('./models/DriveItem');
+const User = require('./models/User');
 
 // Import Storage Service (Modular Logic)
 const storageService = require('./services/storageService');
