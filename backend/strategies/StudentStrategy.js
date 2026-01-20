@@ -26,6 +26,14 @@ class StudentStrategy extends DefaultStrategy {
             { targetAudience: { $elemMatch: { role: 'All' } } },
             { targetAudience: { $elemMatch: { $or: criteria } } }
         ];
+
+        // Also show my own uploads
+        if (userId) {
+            const User = require('../models/User');
+            const user = await User.findOne({ id: userId });
+            if (user) orConditions.push({ 'uploadedBy': user._id });
+        }
+
         return await this._executeQuery(orConditions);
     }
 }

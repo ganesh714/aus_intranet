@@ -28,10 +28,14 @@ class DefaultStrategy {
 
     async _executeQuery(orConditions) {
         if (orConditions.length === 0) return [];
-        return await Announcement.find({ $or: orConditions })
+        const results = await Announcement.find({ $or: orConditions })
             .populate('fileId')
             .populate('uploadedBy', 'username role id')
             .sort({ uploadedAt: -1 });
+
+        // Deduplicate results by _id
+        const uniqueResults = [...new Map(results.map(item => [item['id'], item])).values()];
+        return uniqueResults;
     }
 }
 

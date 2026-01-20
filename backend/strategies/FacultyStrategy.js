@@ -16,9 +16,12 @@ class FacultyStrategy extends DefaultStrategy {
             });
         }
 
-        // Add "My Uploads" logic from parent
-        // (For brevity, we are duplicating a bit here, but in real OOP we'd call super or compose)
-        // ... omitted for simplicity, let's just use the query ...
+        // Also show my own uploads
+        if (userId) {
+            const User = require('../models/User'); // Lazy import to avoid circular dependency issues if any
+            const user = await User.findOne({ id: userId });
+            if (user) orConditions.push({ 'uploadedBy': user._id });
+        }
 
         return await this._executeQuery(orConditions);
     }
