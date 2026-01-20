@@ -5,7 +5,7 @@ const StorageAdapter = require('./StorageAdapter');
 class GoogleDriveAdapter extends StorageAdapter {
     constructor() {
         super();
-        const KEYFILEPATH = path.join(__dirname, '..', '..', 'serviceaccount.json');
+        const KEYFILEPATH = path.join(__dirname, '..', 'service-account-key.json');
         const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
         try {
