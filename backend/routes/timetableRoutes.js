@@ -4,8 +4,16 @@ const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() }); // Basic config
 
 const timetableController = require('../controllers/timetableController');
+const { protect } = require('../middleware/authMiddleware');
+const { authorize } = require('../middleware/roleMiddleware');
 
-// Define the route
-router.post('/add-timetable', upload.single('file'), timetableController.addTimetable);
+// CHAIN OF RESPONSIBILITY:
+// 1. Upload (Multer) -> 2. Protect (Auth) -> 3. Controller
+router.post('/add-timetable',
+    upload.single('file'),
+    protect,
+    // restrict to Faculty/HOD/Admin if needed, e.g.: authorize('Faculty', 'HOD', 'Admin'),
+    timetableController.addTimetable
+);
 
 module.exports = router;
