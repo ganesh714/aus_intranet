@@ -22,6 +22,7 @@ const storageService = require('./services/storageService');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const authRoutes = require('./routes/authRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 const app = express();
 
@@ -237,86 +238,7 @@ app.get('/get-pdfs', async (req, res) => {
     }
 });
 
-// Get Announcements
-app.get('/get-announcements', async (req, res) => {
-    const { role, subRole, id } = req.query;
-    try {
-        const orConditions = [];
 
-        if (id) {
-            const user = await User.findOne({ id });
-            if (user) orConditions.push({ 'uploadedBy': user._id });
-        }
-
-        if (role) {
-            if (subRole && subRole !== 'null') {
-                const criteria = [
-                    { role: role, subRole: subRole },
-                    { role: role, subRole: 'All' }
-                ];
-
-                // If it's a student and we have a batch, filter by batch
-                if (role === 'Student' && req.query.batch) {
-                    // Match specific batch
-                    const batch = req.query.batch;
-                    orConditions.push({
-                        targetAudience: {
-                            $elemMatch: {
-                                $or: [
-                                    // 1. Exact match: Role + SubRole + Batch
-                                    { role: role, subRole: subRole, batch: batch },
-                                    // 2. Role + SubRole + No Batch (Legacy/General) -> logic: if batch is NOT stored in DB, it's for everyone? 
-                                    // Actually, if sender specified batch, it must match. If sender didn't specify batch (null/undefined), it's for all batches.
-                                    // Ideally, "All Batches" should be explicit or handled by missing field. 
-                                    // Let's assume if batch field is missing in DB target, it's for all batches.
-                                    { role: role, subRole: subRole, batch: { $exists: false } },
-                                    { role: role, subRole: subRole, batch: null },
-                                    { role: role, subRole: subRole, batch: '' },
-
-                                    // 3. Role + All + Batch
-                                    { role: role, subRole: 'All', batch: batch },
-                                    // 4. Role + All + No Batch
-                                    { role: role, subRole: 'All', batch: { $exists: false } },
-                                    { role: role, subRole: 'All', batch: null },
-                                    { role: role, subRole: 'All', batch: '' }
-                                ]
-                            }
-                        }
-                    });
-                } else {
-                    // Original logic for non-students or students without batch (legacy)
-                    orConditions.push({
-                        targetAudience: {
-                            $elemMatch: {
-                                $or: criteria
-                            }
-                        }
-                    });
-                }
-            } else {
-                orConditions.push({
-                    targetAudience: { $elemMatch: { role: role } }
-                });
-            }
-        }
-
-        orConditions.push({ targetAudience: { $elemMatch: { role: 'All' } } });
-
-        if (orConditions.length === 0) return res.json({ announcements: [] });
-
-        const query = { $or: orConditions };
-
-        const announcements = await Announcement.find(query)
-            .populate('fileId')
-            .populate('uploadedBy', 'username role id')
-            .sort({ uploadedAt: -1 });
-
-        res.json({ announcements });
-    } catch (error) {
-        console.error('Error fetching announcements:', error);
-        res.status(500).json({ message: 'Error fetching announcements!', error });
-    }
-});
 
 // Add Announcement
 app.post('/add-announcement', upload.single('file'), async (req, res) => {
@@ -1245,6 +1167,7 @@ app.get('/get-pinned-timetables', async (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/', timetableRoutes);
+app.use('/', announcementRoutes);
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
