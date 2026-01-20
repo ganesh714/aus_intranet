@@ -21,6 +21,8 @@ const storageService = require('./services/storageService');
 // Import Routes
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const authRoutes = require('./routes/authRoutes');
+const timetableRoutes = require('./routes/timetableRoutes');
+
 const app = express();
 
 app.use(cors());
@@ -110,72 +112,6 @@ app.post('/toggle-timetable-permission', async (req, res) => {
     }
 });
 
-// 3. Add/Replace Timetable
-app.post('/add-timetable', upload.single('file'), async (req, res) => {
-    try {
-        const { targetYear, targetSection } = req.body;
-        const userJson = JSON.parse(req.body.user);
-
-        const userDb = await User.findOne({ id: userJson.id });
-        if (!userDb) return res.status(404).json({ message: 'User not found' });
-        if (!req.file) return res.status(400).json({ message: 'No file uploaded!' });
-
-        const isHOD = userDb.role === 'HOD';
-        const isAuthorizedFaculty = userDb.role === 'Faculty' && userDb.canUploadTimetable;
-
-        if (!isHOD && !isAuthorizedFaculty) {
-            return res.status(403).json({ message: 'You do not have permission to upload time tables.' });
-        }
-
-        // Check for existing timetable
-        const usersInDept = await User.find({ subRole: userDb.subRole }).select('_id');
-        const userIdsInDept = usersInDept.map(u => u._id);
-
-        const existingTimetable = await Timetable.findOne({
-            targetYear: targetYear,
-            targetSection: targetSection,
-            uploadedBy: { $in: userIdsInDept }
-        }).populate('fileId');
-
-        // 1. Upload new file via Service FIRST (Fix Race Condition)
-        const fileIdFromStorage = await storageService.saveFile(req.file);
-
-        if (existingTimetable) {
-            // 2. Delete old file using Service
-            if (existingTimetable.fileId && existingTimetable.fileId.filePath) {
-                await storageService.deleteFile(existingTimetable.fileId.filePath);
-            }
-            // 3. Delete old DB records
-            await File.findByIdAndDelete(existingTimetable.fileId._id);
-            await Timetable.findByIdAndDelete(existingTimetable._id);
-            console.log(`Replaced existing timetable for Y:${targetYear} S:${targetSection}`);
-        }
-
-        const newFile = new File({
-            fileName: req.file.originalname,
-            filePath: fileIdFromStorage, // Store the ID/URL
-            fileType: req.file.mimetype,
-            fileSize: req.file.size,
-            uploadedBy: userDb._id,
-            usage: { isDeptDocument: true }
-        });
-        const savedFile = await newFile.save();
-
-        const newTimetable = new Timetable({
-            targetYear,
-            targetSection,
-            fileId: savedFile._id,
-            uploadedBy: userDb._id
-        });
-
-        await newTimetable.save();
-        res.json({ message: 'Timetable uploaded successfully (Previous version replaced)!', timetable: newTimetable });
-
-    } catch (error) {
-        console.error("Error uploading timetable:", error);
-        res.status(500).json({ message: "Error uploading timetable", error });
-    }
-});
 
 // 4. Get Timetables
 app.get('/get-timetables', async (req, res) => {
@@ -1308,6 +1244,8 @@ app.get('/get-pinned-timetables', async (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/', timetableRoutes);
+
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
