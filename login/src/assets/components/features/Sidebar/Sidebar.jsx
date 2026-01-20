@@ -79,7 +79,18 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* Send Announcements (Non-Students) */}
+                {/* [NEW] Announcements (Faculty Related) - Moved here to be before Send Announcements */}
+                {(userRole === 'Faculty' || userRole === 'HOD') && pdfLinks.find(cat => cat.category === 'Faculty related') && (
+                    <div className={`category-item ${activeCategory === 'Faculty related' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Faculty related')}>
+                            <span className="cat-name">
+                                {getIcon('Faculty related')} Announcements
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Send Announcements (Non-Students)  */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onSendAnnounceClick}>
@@ -136,6 +147,11 @@ const Sidebar = ({
 
                     // NEW: Remove "Student Related" for Faculty and HOD
                     if ((userRole === 'Faculty' || userRole === 'HOD') && category.category === 'Student Related') {
+                        return null;
+                    }
+
+                    // NEW: Exclude "Faculty related" (Announcements) from loop as it is now rendered manually above
+                    if ((userRole === 'Faculty' || userRole === 'HOD') && category.category === 'Faculty related') {
                         return null;
                     }
 
