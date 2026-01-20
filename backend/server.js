@@ -24,6 +24,14 @@ const authRoutes = require('./routes/authRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 
+// Import Events
+const authEmitter = require('./events/AuthEvents');
+
+// Import Services
+const emailService = require('./services/EmailService');
+// Initialize Services
+emailService.init();
+
 const app = express();
 
 app.use(cors());
@@ -656,28 +664,16 @@ app.post('/reset-password', async (req, res) => {
     const { id } = req.body;
     const user = await User.findOne({ id });
     if (!user) return res.status(404).json({ message: 'User not found!' });
-
     const newPassword = randomstring.generate({ length: 8, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' });
     user.password = newPassword;
     await user.save();
-
-    const transporter = nodemailer.createTransport({
-        service: "Gmail", host: "smtp.gmail.com", port: 465, secure: true,
-        auth: { user: process.env.GOOGLE_EMAIL, pass: process.env.GOOGLE_PASS },
-    });
-
-    const mailOptions = {
-        from: process.env.GOOGLE_EMAIL, to: id,
-        subject: 'Your New Password', text: `Your new password is: ${newPassword}. Use this password to log in to the system.`
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.json({ message: 'Password reset email sent with the new password!' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error sending email!' });
-    }
+    // NOTIFY OBSERVERS
+    // We just emit the event. We don't wait for email to send. 
+    // This makes the response faster!
+    authEmitter.emit('passwordReset', { email: id, newPassword });
+    res.json({ message: 'Password reset processed. If the ID is valid, an email will be sent.' });
 });
+
 
 const port = 5001;
 
