@@ -12,7 +12,9 @@ import FileViewer from "../features/Documents/FileViewer";
 import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
 import AchievementManager from "../features/Achievements/AchievementManager";
-import HODAchievementManager from "../features/Achievements/HODAchievementManager"; // [NEW IMPORT]
+import HODAchievementManager from "../features/Achievements/HODAchievementManager";
+import WorkshopManager from "../features/Workshops/WorkshopManager"; // [NEW]
+import HODWorkshopManager from "../features/Workshops/HODWorkshopManager"; // [NEW]
 
 const Content = () => {
     // --- USER INFO ---
@@ -121,6 +123,12 @@ const Content = () => {
         } else if (categoryName === 'HODAchievements') {
             setActiveView('hod-achievements');
             setActiveCategory('HODAchievements');
+        } else if (categoryName === 'Workshops') { // [NEW]
+            setActiveView('workshops');
+            setActiveCategory('Workshops');
+        } else if (categoryName === 'HODWorkshops') { // [NEW]
+            setActiveView('hod-workshops');
+            setActiveCategory('HODWorkshops');
         }
     };
 
@@ -239,6 +247,22 @@ const Content = () => {
                     />
                 );
 
+            // [NEW] Workshop Module Routes
+            case 'workshops':
+                return (
+                    <WorkshopManager
+                        userRole={userRole}
+                        userId={userId}
+                    />
+                );
+
+            case 'hod-workshops':
+                return (
+                    <HODWorkshopManager
+                        userRole={userRole}
+                    />
+                );
+
             case 'category':
                 return (
                     <CategoryViewer
@@ -246,7 +270,7 @@ const Content = () => {
                         userSubRole={userSubRole}
                         categoryName={viewParams.category}
                         subCategoryName={viewParams.subCategory}
-                        onPdfClick={handlePdfClick}
+                        onPdfClick={handleFileClick}
                     />
                 );
 
@@ -276,7 +300,9 @@ const Content = () => {
                     activeView === 'announcements-feed' ? 'Announcements' :
                         activeView === 'personal-data' ? 'Personal Data' :
                             activeView === 'achievements' ? 'Achievements' :
-                                activeView === 'hod-achievements' ? 'HODAchievements' : ''
+                                activeView === 'hod-achievements' ? 'HODAchievements' :
+                                    activeView === 'workshops' ? 'Workshops' : // [NEW]
+                                        activeView === 'hod-workshops' ? 'HODWorkshops' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}

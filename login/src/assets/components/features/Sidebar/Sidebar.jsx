@@ -2,7 +2,7 @@ import React from 'react';
 import './Sidebar.css';
 import { MdDashboard, MdCampaign } from 'react-icons/md';
 
-import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy } from 'react-icons/fa';
+import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy, FaChalkboardTeacher } from 'react-icons/fa';
 
 const Sidebar = ({
     userRole,
@@ -79,7 +79,20 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* Send Announcements (Non-Students) */}
+
+
+                {/* [NEW] Announcements (Faculty Related) - Moved here to be before Send Announcements */}
+                {(userRole === 'Faculty' || userRole === 'HOD') && pdfLinks.find(cat => cat.category === 'Faculty related') && (
+                    <div className={`category-item ${activeCategory === 'Faculty related' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Faculty related')}>
+                            <span className="cat-name">
+                                {getIcon('Faculty related')} Announcements
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Send Announcements (Non-Students)  */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onSendAnnounceClick}>
@@ -139,6 +152,11 @@ const Sidebar = ({
                         return null;
                     }
 
+                    // NEW: Exclude "Faculty related" (Announcements) from loop as it is now rendered manually above
+                    if ((userRole === 'Faculty' || userRole === 'HOD') && category.category === 'Faculty related') {
+                        return null;
+                    }
+
                     // Check if this is a direct link (Students or Dept.Equipment)
                     const isDirectLink = (catName) => {
                         if (['Material', 'Time Table'].includes(catName)) return true; // Direct link for everyone who has it
@@ -191,6 +209,29 @@ const Sidebar = ({
                         </div>
                     );
                 })}
+
+                {/* [NEW] Workshops Module (Moved to Bottom) */}
+                {/* 1. Faculty Link (Access Granted to ALL Faculty as per request) */}
+                {userRole === 'Faculty' && (
+                    <div className={`category-item ${type === 'Workshops' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Workshops')}>
+                            <span className="cat-name">
+                                <FaChalkboardTeacher className="cat-icon" /> Workshops conducted
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* 2. HOD Link (Always Visible for HOD) */}
+                {userRole === 'HOD' && (
+                    <div className={`category-item ${type === 'HODWorkshops' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('HODWorkshops')}>
+                            <span className="cat-name">
+                                <FaChalkboardTeacher className="cat-icon" /> Workshops (Dept)
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
