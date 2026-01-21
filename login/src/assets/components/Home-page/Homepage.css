@@ -1,37 +1,26 @@
 /* Global Font Import (if not already handled in index.css) */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* --- Reset & Base --- */
 .landing-page {
-    font-family: 'Lexend', sans-serif;
+    font-family: var(--font-primary);
     min-height: 100vh;
     width: 100%;
-    background: radial-gradient(circle at top right, #1E3A8A, #111827),
-        radial-gradient(circle at bottom left, #0f172a, #1E3A8A);
+    background: var(--bg-app);
     background-size: 200% 200%;
     animation: backgroundPulse 12s ease-in-out infinite alternate;
-    color: #F3F4F6;
-    /* Light gray text for high contrast on dark bg */
+    color: var(--text-main);
+    font-weight: 700;
     overflow-x: hidden;
     position: relative;
 }
 
-@keyframes backgroundPulse {
-    0% {
-        background-position: 0% 0%;
-        filter: brightness(1);
-    }
 
-    50% {
-        background-position: 100% 100%;
-        filter: brightness(1.2);
-    }
 
-    100% {
-        background-position: 50% 50%;
-        filter: brightness(0.9);
-    }
-}
+
+
+/* Removed redundant backgroundPulse - moved to index.css */
+
 
 /* --- Glassmorphism Utilities --- */
 .glass-nav {
@@ -39,33 +28,64 @@
     top: 0;
     left: 0;
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 0.8rem 2rem;
+    /* Compressed */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(17, 24, 39, 0.7);
-    /* Dark semi-transparent bg */
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-sidebar);
+    backdrop-filter: var(--glass-effect);
+    border-bottom: 1px solid var(--border-dim);
     z-index: 50;
 }
 
-.glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    color: #fff;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.glass-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.1);
+
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-effect);
+    border: 1px solid var(--border-dim);
+    border-radius: 20px;
+    /* More rounded */
+    padding: 24px;
+    color: var(--text-main);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 800;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
+
+.light-mode .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(14, 165, 233, 0.2);
+    border-top: 3px solid var(--primary-orange);
+    /* Vibrant accent */
+    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.05);
+}
+
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    background: var(--bg-card);
+    border-color: var(--primary-orange);
+}
+
+.light-mode .glass-card:hover {
+    box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1);
+}
+
+/* Specific Hero Card Tints */
+.light-mode .hero-visuals .glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.9));
+    border-color: rgba(14, 165, 233, 0.2);
+}
+
+
 
 /* --- Navigation --- */
 .nav-logo {
@@ -80,22 +100,25 @@
 }
 
 .nav-logo span {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
+    font-size: 1.15rem;
+    /* Compressed */
+    font-weight: 900;
+    color: var(--text-header);
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .nav-btn-glass {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--border-dim);
+    color: var(--text-main);
+    padding: 8px 24px;
+    /* Compressed */
     border-radius: 9999px;
-    /* Pill shape */
-    font-weight: 500;
+    font-weight: 800;
     cursor: pointer;
     transition: all 0.3s;
+    text-transform: uppercase;
 }
 
 .nav-btn-glass:hover {
@@ -103,6 +126,33 @@
     border-color: #F97316;
     /* Orange accent border on hover */
 }
+
+/* --- Header Icons (Theme Toggle) --- */
+.header-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-icon-btn:hover {
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    transform: translateY(-2px);
+}
+
+.theme-toggle svg {
+    font-size: 18px;
+}
+
 
 /* --- Hero Section --- */
 .hero-section {
@@ -125,25 +175,24 @@
 
 .hero-title {
     font-size: 3.5rem;
-    font-weight: 800;
-    line-height: 1.2;
+    font-weight: 900;
+    line-height: 1.1;
     margin-bottom: 24px;
-    color: #fff;
+    color: var(--text-header);
 }
 
 .highlight-text {
-    color: #F97316;
-    /* Vibrant Orange for key text */
-    text-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+    color: var(--primary-orange);
 }
 
 .hero-subtitle {
-    font-size: 1.125rem;
-    color: #D1D5DB;
-    /* Light gray for readability */
+    font-size: 1.1rem;
+    color: var(--text-main);
     line-height: 1.6;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    /* Compressed */
     max-width: 480px;
+    font-weight: 700;
 }
 
 .hero-actions {
@@ -163,8 +212,10 @@
 
 .cta-btn.primary {
     background: linear-gradient(135deg, #F97316, #ea580c);
-    color: white;
+    color: #111827;
+    /* Dark text for max visibility on orange */
     box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    font-weight: 900;
 }
 
 .cta-btn.primary:hover {
@@ -173,14 +224,15 @@
 }
 
 .cta-btn.secondary {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #fff;
+    background: rgba(234, 179, 8, 0.05);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #eab308;
+    font-weight: 900;
 }
 
 .cta-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #fff;
+    background: rgba(234, 179, 8, 0.15);
+    color: #f97316;
 }
 
 /* --- Hero Visuals (Cards) --- */
@@ -213,6 +265,13 @@
     border-radius: 12px;
 }
 
+.light-mode .hero-visuals .icon {
+    background: rgba(14, 165, 233, 0.1);
+    color: var(--primary-orange);
+}
+
+
+
 .card-content {
     display: flex;
     flex-direction: column;
@@ -222,14 +281,16 @@
 .hero-visuals h3 {
     font-size: 1.25rem;
     margin: 0;
-    font-weight: 700;
+    font-weight: 800;
+    color: var(--text-header);
 }
 
 .hero-visuals p {
-    color: #9CA3AF;
+    color: var(--text-main);
     font-size: 0.9rem;
     margin: 0;
     line-height: 1.4;
+    font-weight: 700;
 }
 
 .card-1 {
@@ -247,10 +308,10 @@
 .landing-footer {
     text-align: center;
     padding: 24px;
-    color: #6B7280;
+    color: #eab308;
     font-size: 0.875rem;
     margin-top: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(234, 179, 8, 0.2);
 }
 
 /* --- Animations --- */

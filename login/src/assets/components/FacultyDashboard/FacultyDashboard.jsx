@@ -2,10 +2,10 @@ import React from 'react';
 import RenderHome from "../render-content/render-home";
 import Content from "../Content/Content";
 
-const FacultyDashboard = () => {
+const FacultyDashboard = ({ theme, setTheme }) => {
     return (
         <>
-            <RenderHome />
+            <RenderHome theme={theme} setTheme={setTheme} />
             <Content />
         </>
     );

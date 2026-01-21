@@ -263,36 +263,46 @@ const Content = () => {
                 setPdfLinks={setPdfLinks}
             />
 
-            {/* Sidebar */}
-            <Sidebar
-                userRole={userRole}
-                pdfLinks={pdfLinks}
-                activeCategory={activeCategory} // <--- FIXED: Passing state
+            {/* Main Layout Section: Sidebar + Content */}
+            <div className="shell-top-section">
+                {/* Sidebar */}
+                <Sidebar
+                    userRole={userRole}
+                    pdfLinks={pdfLinks}
+                    activeCategory={activeCategory} // <--- FIXED: Passing state
 
-                // Active highlighting flags
-                showContentP={activeView === 'dashboard'}
-                showSendAnnounce={activeView === 'announcements'}
-                type={
-                    activeView === 'announcements-feed' ? 'Announcements' :
-                        activeView === 'personal-data' ? 'Personal Data' :
-                            activeView === 'achievements' ? 'Achievements' :
-                                activeView === 'hod-achievements' ? 'HODAchievements' : ''
-                }
+                    // Active highlighting flags
+                    showContentP={activeView === 'dashboard'}
+                    showSendAnnounce={activeView === 'announcements'}
+                    type={
+                        activeView === 'announcements-feed' ? 'Announcements' :
+                            activeView === 'personal-data' ? 'Personal Data' :
+                                activeView === 'achievements' ? 'Achievements' :
+                                    activeView === 'hod-achievements' ? 'HODAchievements' : ''
+                    }
 
-                onDashboardClick={handleDashboardClick}
-                onSendAnnounceClick={handleSendAnnounceClick}
-                onViewAnnouncementsClick={handleViewAnnouncementsClick}
-                onPersonalDataClick={handlePersonalDataClick}
-                onAchievementsClick={handleAchievementsClick} // [NEW] Passing handler
-                onToggleCategory={toggleCategory} // <--- FIXED: Passing handler
-                onSubCategoryClick={handleSubCategoryClick}
-                onDirectCategoryClick={handleDirectCategoryClick} // <--- New Prop for direct clicking main categories
-            />
+                    onDashboardClick={handleDashboardClick}
+                    onSendAnnounceClick={handleSendAnnounceClick}
+                    onViewAnnouncementsClick={handleViewAnnouncementsClick}
+                    onPersonalDataClick={handlePersonalDataClick}
+                    onAchievementsClick={handleAchievementsClick} // [NEW] Passing handler
+                    onToggleCategory={toggleCategory} // <--- FIXED: Passing handler
+                    onSubCategoryClick={handleSubCategoryClick}
+                    onDirectCategoryClick={handleDirectCategoryClick} // <--- New Prop for direct clicking main categories
+                />
 
-            {/* Main Content Area */}
-            <div className="main-area">
-                {renderActiveView()}
+                {/* Main Content Area */}
+                <div className="main-area">
+                    <div className="active-view-container">
+                        {renderActiveView()}
+                    </div>
+                </div>
             </div>
+
+            {/* Global Corporate Footer - Full width spreading across the page */}
+            <footer className="landing-footer">
+                <p>&copy; {new Date().getFullYear()} Aditya University. All rights reserved.</p>
+            </footer>
 
             {/* File Viewer Modal */}
             {selectedFile && (

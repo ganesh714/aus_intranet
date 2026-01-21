@@ -1,17 +1,19 @@
-.plus{
+.plus {
     height: 50px;
     width: 50px;
-    background-color:#ff6900 ;
+    background-color: #f97316;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
+    color: #111827;
     font-size: 30px;
-    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+    font-weight: 900;
+    transition: all 0.3s ease;
 }
 
-.plus:hover{
-    color:black;
-    transform: scale(1.2); /* Slight zoom effect on hover */
-} 
+.plus:hover {
+    color: black;
+    transform: scale(1.2);
+    /* Slight zoom effect on hover */
+}

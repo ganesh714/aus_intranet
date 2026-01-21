@@ -6,38 +6,104 @@
     --text-dark: #1f2937;
 }
 
+/* Content.css - Main Layout & Global Background */
 .content-wrapper {
     display: flex;
-    height: calc(100vh - 90px);
-    overflow: hidden;
-    background-color: var(--light-bg);
+    flex-direction: column;
+    /* Changed to column for full-width footer */
+    width: 100%;
+    min-height: 100vh;
+    padding-top: 68px;
+    /* Offset for Fixed Header */
+    position: relative;
+    /* Removed redundant background/animation - handled by body in index.css */
 }
 
-/* --- Main Area Styling --- */
+.shell-top-section {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+/* Removed redundant backgroundPulse - moved to index.css */
+
+
 .main-area {
-    flex-grow: 1;
-    padding: 30px;
-    overflow-y: auto;
-    height: 100%;
+    flex: 1;
+    padding: 0;
+    /* Changed to handle internal scrolling */
+    color: var(--text-main);
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    /* Removed overflow-y: auto to sync with global scroll */
 }
 
-.welcome-card {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border-top: 4px solid var(--primary-blue);
-    color: var(--text-dark);
+.active-view-container {
+    flex: 1;
+    padding: 30px;
+    /* Increased padding */
+    margin: 30px;
+    /* Stronger 'Island' Margin */
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-effect);
+    border-radius: 24px;
+    /* More rounded for premium feel */
+    border: 1px solid var(--border-dim);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    min-height: calc(100vh - 180px);
+    /* Adjust for larger margins */
+    display: flex;
+    flex-direction: column;
+    animation: viewSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.light-mode .active-view-container {
+    background: var(--bg-modal);
+    /* More opaque in light mode for separation */
+    box-shadow: 0 20px 50px rgba(249, 115, 22, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    border-color: rgba(249, 115, 22, 0.15);
+}
+
+@keyframes viewSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.light-mode .active-view-container {
+    box-shadow: 0 15px 35px rgba(249, 115, 22, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+    border-color: rgba(249, 115, 22, 0.1);
+}
+
+.main-area h1,
+.main-area h2,
+.main-area h3 {
+    color: var(--text-header);
+    /* Semantic Variable */
+    font-weight: 900;
+    letter-spacing: -0.02em;
 }
 
 .welcome-card h2 {
-    color: var(--primary-blue);
+    color: #f97316;
     margin-bottom: 15px;
+    font-weight: 900;
 }
 
 .university-desc {
     line-height: 1.6;
-    color: #4b5563;
+    color: var(--text-main);
+    /* Semantic Variable */
+    font-weight: 700;
 }
 
 /* --- Search Header (Shared) --- */
@@ -49,8 +115,11 @@
 }
 
 .search-header h2 {
-    color: var(--primary-blue);
-    font-size: 24px;
+    color: #f97316;
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .search-input-wrapper {
@@ -70,22 +139,49 @@
 
 .modern-search {
     width: 100%;
-    padding: 12px 12px 12px 60px;
-    border: 1px solid #d1d5db;
+    padding: 14px 14px 14px 60px;
+    border: 1px solid rgba(234, 179, 8, 0.3);
     border-radius: 30px;
+    background: rgba(17, 24, 39, 0.6);
+    color: #eab308;
     outline: none;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
     font-size: 15px;
+    font-weight: 800;
 }
 
 .modern-search:focus {
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    border-color: #f97316;
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+.modern-search::placeholder {
+    color: rgba(234, 179, 8, 0.5);
+}
+
+/* --- Synced Footer Styling --- */
+.landing-footer {
+    text-align: center;
+    padding: 20px;
+    color: #eab308;
+    font-size: 0.8125rem;
+    background: rgba(17, 24, 39, 0.4);
+    /* Subtle background to anchor the footer */
+    border-top: 1px solid rgba(234, 179, 8, 0.2);
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    width: 100%;
+    z-index: 10;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .content-wrapper {
+        flex-direction: column;
+    }
+
+    .shell-top-section {
         flex-direction: column;
     }
 }

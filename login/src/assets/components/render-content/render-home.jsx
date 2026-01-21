@@ -3,17 +3,20 @@ import './render-home.css';
 import img1 from '../images/11.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaLock, FaSignOutAlt, FaUserCircle, FaCog, FaBell, FaChevronDown } from 'react-icons/fa'; // Added Icons
+import { FaLock, FaSignOutAlt, FaUserCircle, FaCog, FaBell, FaChevronDown, FaSun, FaMoon } from 'react-icons/fa'; // Added Theme Icons
 
-function Home() {
+function Home({ theme, setTheme }) {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [changePasswordData, setChangePasswordData] = useState({
         currentPassword: '',
         newPassword: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
-    const [showProfileMenu, setShowProfileMenu] = useState(false); // [NEW] Profile Menu State
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    // [REMOVED LOCAL THEME STATE - NOW USING PROPS]
     const navigate = useNavigate();
+
+
 
     // Fetch User Details
     const id = sessionStorage.getItem('userId');
@@ -65,6 +68,15 @@ function Home() {
                     <div className="header-right-section">
                         {/* 1. Header Icons (Settings, Notification) */}
                         <div className="header-icons-group">
+                            {/* Theme Toggle Button */}
+                            <div
+                                className="header-icon-btn theme-toggle"
+                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                            >
+                                {theme === 'dark' ? <FaSun /> : <FaMoon />}
+                            </div>
+
                             <div className="header-icon-btn" title="Settings">
                                 <FaCog />
                             </div>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft, FaSun, FaMoon } from 'react-icons/fa'; // [NEW] Theme Icons
 import logo from "../images/11.png";
 import './LoginForm.css';
 
-const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
+const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole, theme, setTheme }) => {
     const [isRegistering, setIsRegistering] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
@@ -216,12 +216,21 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     <span>Intranet</span>
                 </div>
                 <div className="nav-links">
+                    <div
+                        className="header-icon-btn theme-toggle"
+                        style={{ marginRight: '15px' }}
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    >
+                        {theme === 'dark' ? <FaSun /> : <FaMoon />}
+                    </div>
                     <button className="back-btn-nav" onClick={() => navigate('/')} title="Back to Home">
                         <FaArrowLeft /> Back to Home
                     </button>
                 </div>
             </nav>
 
+            {/* Main Content Area */}
             <div className="login-content-area">
                 <div className="login-container">
                     <h2 className="login-header">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>

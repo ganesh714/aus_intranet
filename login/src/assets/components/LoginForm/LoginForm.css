@@ -1,5 +1,5 @@
 /* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
     --primary-orange: #F97316;
@@ -15,30 +15,16 @@ body.login-page {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    font-family: 'Lexend', sans-serif;
-    background: radial-gradient(circle at top right, #1E3A8A, #111827),
-        radial-gradient(circle at bottom left, #0f172a, #1E3A8A);
+    font-family: var(--font-primary);
+    background: var(--bg-app);
     background-size: 200% 200%;
     animation: backgroundPulse 12s ease-in-out infinite alternate;
     overflow-x: hidden;
+    overflow-y: auto;
+    /* Explicitly allow vertical scroll */
 }
 
-@keyframes backgroundPulse {
-    0% {
-        background-position: 0% 0%;
-        filter: brightness(1);
-    }
 
-    50% {
-        background-position: 100% 100%;
-        filter: brightness(1.2);
-    }
-
-    100% {
-        background-position: 50% 50%;
-        filter: brightness(0.9);
-    }
-}
 
 .login-page-wrapper {
     display: flex;
@@ -47,19 +33,23 @@ body.login-page {
     width: 100%;
 }
 
+
+
+
 /* --- Shared Navigation --- */
 .glass-nav {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 0.8rem 2rem;
+    /* Compressed */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(17, 24, 39, 0.7);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-sidebar);
+    backdrop-filter: var(--glass-effect);
+    border-bottom: 1px solid var(--border-dim);
     z-index: 50;
 }
 
@@ -75,22 +65,25 @@ body.login-page {
 
 .nav-logo span {
     font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 900;
+    color: #f97316;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .back-btn-nav {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 10px 20px;
+    background: rgba(234, 179, 8, 0.05);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    color: #eab308;
+    padding: 10px 24px;
     border-radius: 9999px;
-    font-weight: 500;
+    font-weight: 900;
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    text-transform: uppercase;
 }
 
 .back-btn-nav:hover {
@@ -98,29 +91,67 @@ body.login-page {
     border-color: #F97316;
 }
 
+/* --- Header Icons (Theme Toggle) --- */
+.header-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-icon-btn:hover {
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    transform: translateY(-2px);
+}
+
+.theme-toggle svg {
+    font-size: 18px;
+}
+
+
 /* --- Content Area --- */
 .login-content-area {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 120px 20px 60px;
-    /* Space for nav and footer */
+    /* Center horizontally and vertically inside island */
+    padding: 60px 20px;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
 }
 
 /* Modern Glassmorphic Login Card */
 .login-container {
     width: 100%;
     max-width: 440px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-top: 4px solid var(--primary-orange);
+    background: var(--bg-modal);
+    /* More opaque than island for focus */
+    backdrop-filter: blur(20px);
+    padding: 45px;
+    border-radius: 24px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-dim);
+    border-top: 6px solid #f97316;
     animation: slideUp 0.5s ease-out;
 }
+
+.light-mode .login-container {
+    background: #ffffff;
+    box-shadow: 0 40px 100px rgba(249, 115, 22, 0.1);
+}
+
 
 @keyframes slideUp {
     from {
@@ -138,19 +169,21 @@ body.login-page {
 .landing-footer {
     text-align: center;
     padding: 24px;
-    color: #6B7280;
+    color: #eab308;
     font-size: 0.875rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(234, 179, 8, 0.2);
     background: rgba(17, 24, 39, 0.3);
 }
 
 /* Header Styling */
 .login-header {
     text-align: center;
-    color: var(--primary-blue);
-    margin-bottom: 32px;
-    font-size: 28px;
-    font-weight: 700;
+    color: #f97316;
+    margin-bottom: 35px;
+    font-size: 30px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Form Groups */
@@ -163,30 +196,40 @@ body.login-page {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-main);
     font-size: 14px;
+    opacity: 0.9;
 }
+
 
 /* Input Fields & Selects */
 .std-input,
 .std-select {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
+    padding: 14px 18px;
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
     font-size: 15px;
-    color: #1F2937;
-    background-color: #F9FAFB;
-    transition: all 0.2s ease;
+    color: var(--text-main);
+    background: var(--bg-input);
+    transition: all 0.3s ease;
     outline: none;
+    font-weight: 700;
 }
 
 .std-input:focus,
 .std-select:focus {
-    border-color: var(--primary-orange);
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    border-color: #f97316;
+    background: var(--bg-input);
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
 }
+
+.light-mode .std-input,
+.light-mode .std-select {
+    background: #f8fafc;
+    border-color: rgba(14, 165, 233, 0.2);
+}
+
 
 /* Password Container */
 .password-input-container {
@@ -215,17 +258,29 @@ body.login-page {
 /* Primary Button */
 .std-btn {
     width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #F97316, #ea580c);
-    color: white;
+    padding: 16px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #111827;
+    /* High-contrast dark text */
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-    transition: all 0.2s;
-    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    transition: all 0.3s;
+    margin-top: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.login-box h2 {
+    color: #f97316;
+    /* Corporate Orange */
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 30px;
+    text-align: center;
 }
 
 .std-btn:hover {
@@ -257,6 +312,15 @@ body.login-page {
     font-weight: 600;
     cursor: pointer;
     transition: opacity 0.2s;
+}
+
+.login-box label {
+    color: #eab308;
+    /* Saturated Gold */
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: block;
 }
 
 #forgot-password:hover {

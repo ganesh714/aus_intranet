@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
 import logo from "../images/11.png";
+import { FaSun, FaMoon } from 'react-icons/fa'; // [NEW] Theme Icons
 
-const Homepage = () => {
+const Homepage = ({ theme, setTheme }) => {
   const navigate = useNavigate();
 
   return (
@@ -14,6 +15,13 @@ const Homepage = () => {
           <span>Intranet</span>
         </div>
         <div className="nav-links">
+          <div
+            className="header-icon-btn theme-toggle"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {theme === 'dark' ? <FaSun /> : <FaMoon />}
+          </div>
           <button className="nav-btn-glass" onClick={() => navigate('/LoginForm')}>
             Faculty / Student Login
           </button>

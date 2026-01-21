@@ -58,8 +58,8 @@
 }
 
 .add-form-button {
-    background-color:#ff6900;
-    color: white;
+    background-color: #ff6900;
+    color: #111827;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
@@ -70,9 +70,10 @@
 }
 
 .add-form-button:hover {
-    background-color:black;
-    color:#ff6900;
-    transform: scale(1.05); /* Slight zoom effect on hover */
+    background-color: black;
+    color: #ff6900;
+    transform: scale(1.05);
+    /* Slight zoom effect on hover */
 }
 
 /* Delete Button */
@@ -83,7 +84,7 @@
     border: none;
     width: 30px;
     background-color: transparent;
-    color:blue;
+    color: blue;
     padding-bottom: 20px with no color;
     transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
 }
@@ -91,8 +92,9 @@
 
 .add-delete-button:hover {
     background-color: blue;
-    color:white;
-    transform: scale(1.1); /* Slight zoom effect on hover */
+    color: #f97316;
+    transform: scale(1.1);
+    /* Slight zoom effect on hover */
 }
 
 /* Responsive Layout */
@@ -118,7 +120,7 @@
 /* Focused Input Fields */
 .form-input:focus,
 .form-select:focus {
-    border-color:#ff6900;
+    border-color: #ff6900;
     outline: none;
 }
 
@@ -127,18 +129,19 @@
     top: 20px;
     left: 20px;
     width: 50px;
-    background-color:#ff6900;
-    color: white;
+    background-color: #ff6900;
+    color: #111827;
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
-    
+
 }
 
 .add-back-button:hover {
-    background-color:black;
-    color:#ff6900;
-    transform: scale(1.2); /* Slight zoom effect on hover */
+    background-color: black;
+    color: #ff6900;
+    transform: scale(1.2);
+    /* Slight zoom effect on hover */
 }

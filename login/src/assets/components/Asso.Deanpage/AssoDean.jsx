@@ -5,10 +5,10 @@ import Add from "../Icon/Icon";
 import { Link, useNavigate } from 'react-router-dom';
 import './AssoDean.css';
 
-function AssoDean() {
+function AssoDean({ theme, setTheme }) {
     return (
         <>
-            <RenderHome />  {/* Using the correct component name */}
+            <RenderHome theme={theme} setTheme={setTheme} />  {/* Using the correct component name */}
             <Content />
         </>
     );

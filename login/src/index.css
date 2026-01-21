@@ -1,49 +1,183 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+body {
+  overflow-x: hidden;
+}
+
+html {
+  font-size: 15px;
+  /* Global 'Unzoom' / Compression */
+}
+
 :root {
-  /* Global Color Palette */
+  /* Global Color Palette (Corporate Dark Refined) */
   --primary-orange: #F97316;
   --primary-orange-dark: #ea580c;
   --primary-blue: #1e3a8a;
   --primary-blue-dark: #172554;
   --danger-red: #ef4444;
   --success-green: #16a34a;
-  --text-dark: #374151;
-  --text-light: #6b7280;
-  --bg-light: #f9fafb;
-  --border-color: #d1d5db;
+
+  /* Semantic Theme Variables - Dark Mode (Default) */
+  --bg-app: radial-gradient(circle at top right, #1E3A8A, #111827),
+    radial-gradient(circle at bottom left, #0f172a, #1E3A8A);
+  --bg-sidebar: rgba(17, 24, 39, 0.9);
+  --bg-card: rgba(15, 23, 42, 0.6);
+  --bg-modal: rgba(17, 24, 39, 0.98);
+  --bg-input: rgba(15, 23, 42, 0.5);
+
+  --text-main: #eab308;
+  /* Saturated Gold */
+  --text-header: #f97316;
+  /* Corporate Orange */
+  --text-dim: rgba(234, 179, 8, 0.7);
+
+  --border-dim: rgba(234, 179, 8, 0.2);
+  --glass-effect: blur(12px);
+
+  /* Typography Pairing */
+  --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Plus Jakarta Sans', sans-serif;
 }
+
+/* Light Mode - Premium 'Warm Glass' Redesign */
+.light-mode {
+  --bg-app: radial-gradient(circle at top right, #f0f9ff, #fffbeb),
+    radial-gradient(circle at bottom left, #ffffff, #f0f9ff);
+  --bg-sidebar: rgba(255, 255, 255, 0.95);
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-modal: rgba(255, 255, 255, 0.98);
+  --bg-input: #ffffff;
+
+  --text-main: #0f172a;
+  /* Near Black Slate for readability */
+  --text-header: #c2410c;
+  /* High-contrast Professional Orange */
+  --text-dim: #64748b;
+
+  --border-dim: rgba(14, 165, 233, 0.15);
+  /* Subtle Sky Blue Tinted Border */
+  --glass-effect: blur(12px) saturate(180%);
+}
+
+@keyframes backgroundPulse {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  25% {
+    background-position: 100% 50%;
+  }
+
+  50% {
+    background-position: 50% 100%;
+  }
+
+  75% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+
+@keyframes backgroundDrift {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  33% {
+    background-position: 100% 33%;
+  }
+
+  66% {
+    background-position: 33% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg-app);
+  background-size: 200% 200%;
+  position: relative;
+  transition: background 0.5s ease;
+}
+
+/* Background Pulse Layer - Isolated to avoid breaking 'fixed' positioning */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: inherit;
+  background-size: inherit;
+  z-index: -1;
+  animation: backgroundPulse 15s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.light-mode body::before {
+  animation: backgroundDrift 30s ease-in-out infinite alternate;
+}
+
 
 /* Standard Page Layout */
 .std-page-container {
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
+  /* Compressed */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   margin: 0;
   height: 100%;
   overflow-y: auto;
+  border: 1px solid var(--border-dim);
+}
+
+/* Island Consistency: Remove nested container styles when inside the Content Island */
+.active-view-container .std-page-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  height: auto !important;
 }
 
 .std-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 15px;
+  /* Compressed */
+  padding-bottom: 10px;
+  /* Compressed */
+  border-bottom: 1px solid var(--border-dim);
 }
 
 .std-page-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--primary-blue-dark);
+  font-size: 1.25rem;
+  /* Compressed */
+  font-weight: 800;
+  color: var(--text-header);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Material Symbols settings */
@@ -52,11 +186,8 @@
   font-size: 24px;
 }
 
-body {
-  overflow: hidden;
-  height: 100vh;
-  font-family: 'Lexend', sans-serif;
-}
+/* Removed redundant body selector - moved to top */
+
 
 /* --- Global Standard Form Styles --- */
 .std-form-group {
@@ -66,23 +197,29 @@ body {
 .std-label {
   display: block;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--text-main);
   margin-bottom: 6px;
-  font-size: 14px;
+  font-size: 12px;
+  /* Compressed */
+  font-family: var(--font-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .std-input,
 .std-select,
 .std-textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  padding: 8px 10px;
+  /* Compressed */
+  border: 1px solid var(--border-dim);
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14px;
+  /* Compressed */
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-color: white;
-  color: #1f2937;
+  transition: all 0.2s;
+  background-color: var(--bg-input);
+  color: var(--text-main);
 }
 
 .std-input:focus,
@@ -100,18 +237,21 @@ body {
 .std-file-input {
   display: block;
   width: 100%;
-  padding: 10px;
-  background-color: var(--bg-light);
-  border: 1px dashed var(--border-color);
-  border-radius: 6px;
+  padding: 12px;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px dashed rgba(234, 179, 8, 0.4);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  color: var(--text-dark);
+  color: #eab308;
+  font-weight: 800;
 }
 
 .std-btn {
   background-color: var(--primary-orange);
-  color: white;
+  color: #111827;
+  /* Dark text on orange */
   border: none;
   padding: 12px 30px;
   border-radius: 6px;
@@ -141,7 +281,9 @@ body {
 
 .std-btn-danger {
   background-color: var(--danger-red);
-  color: white;
+  color: #111827;
+  /* Dark text on danger red or similar? Red usually needs white, but user wants NO white. Let's use light-gold for high contrast on red if needed, or stick to dark for "official" feel. Actually, let's use a very light gold #fef3c7 for text on banners if white is forbidden. */
+  color: #eab308;
   border: none;
   padding: 12px 30px;
   border-radius: 6px;
@@ -168,18 +310,16 @@ body {
 
 /* Tab Buttons */
 .std-tab-btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
+  /* Compressed */
   border-radius: 8px;
-  border: 1px solid transparent;
-  /* Consistent border box */
+  border: 1px solid var(--border-dim);
   cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   transition: all 0.2s;
-  background-color: #f3f4f6;
-  /* Gray-100 */
-  color: #6b7280;
-  /* Gray-500 */
+  background-color: var(--bg-card);
+  color: var(--text-main);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -192,35 +332,33 @@ body {
 
 .std-tab-btn.active {
   background-color: #F97316;
-  color: white;
+  color: #111827;
   box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2);
 }
 
 /* Toggle Buttons (Group/Specific) */
 .std-toggle-btn {
-  padding: 8px 16px;
+  padding: 6px 14px;
+  /* Compressed */
   border-radius: 6px;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 12px;
   background: transparent;
-  color: #64748b;
+  color: var(--text-dim);
   transition: all 0.2s;
 }
 
 .std-toggle-btn.active {
-  background-color: white;
-  color: #F97316;
-  /* Primary Orange or Blue depending on original? Original was Blue #1d4ed8 but let's stick to Orange for consistency or Blue if it's primary. Let's use Primary Orange for consistency as requested */
-  color: #1d4ed8;
-  /* Keeping Blue as it was in materials for now, or change to Orange? User asked for consistency. Let's make it Orange to match std-btn. */
-  color: #F97316;
+  background-color: var(--bg-input);
+  color: var(--primary-orange);
+  border-color: var(--border-dim);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .std-toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(249, 115, 22, 0.05);
 }
 
 .std-form-footer {
@@ -247,48 +385,60 @@ body {
 }
 
 .std-modal {
-  background: white;
-  border-radius: 16px;
+  background: var(--bg-modal);
+  backdrop-filter: var(--glass-effect);
+  border: 1px solid var(--border-dim);
+  border-radius: 12px;
+  /* Compressed */
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   width: 90%;
-  max-width: 500px;
+  max-width: 450px;
+  /* Compressed */
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.3s ease-out;
-  border: 1px solid #f3f4f6;
 }
 
 .std-modal-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(234, 179, 8, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.std-modal.fs-results {
+  font-size: 14px;
+  color: #eab308;
+  font-weight: 900;
 }
 
 .std-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
+  font-size: 20px;
+  font-weight: 900;
+  color: #f97316;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .std-modal-body {
-  padding: 24px;
+  padding: 16px 20px;
+  /* Compressed */
   overflow-y: auto;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .std-modal-footer {
   padding: 16px 24px;
-  background-color: #f9fafb;
-  border-top: 1px solid #f3f4f6;
+  background-color: rgba(17, 24, 39, 0.95);
+  border-top: 1px solid rgba(234, 179, 8, 0.2);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -298,8 +448,8 @@ body {
   background: transparent;
   border: none;
   font-size: 20px;
-  color: #9ca3af;
-  cursor: pointer;
+  color: #eab308;
+  font-weight: 900;
   padding: 4px;
   border-radius: 4px;
   display: flex;

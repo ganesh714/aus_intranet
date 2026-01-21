@@ -41,6 +41,17 @@ const App = () => {
   );
   const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole') || '');
   const [usersubRole, setUsersubRole] = useState(sessionStorage.getItem('usersubRole') || '');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  // Global Theme Effect
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     sessionStorage.setItem('isLoggedIn', isLoggedIn);
@@ -57,39 +68,39 @@ const App = () => {
 
   return (
     <Routes>
-      <Route path='/' element={<Homepage />} />
+      <Route path='/' element={<Homepage theme={theme} setTheme={setTheme} />} />
       <Route
         path='/LoginForm'
-        element={<LoginForm setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} setUsersubRole={setUsersubRole} />}
+        element={<LoginForm setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} setUsersubRole={setUsersubRole} theme={theme} setTheme={setTheme} />}
       />
 
       {isLoggedIn && userRole === 'HOD' && (
-        <Route path='/hod-page' element={<HodPage />} />
+        <Route path='/hod-page' element={<HodPage theme={theme} setTheme={setTheme} />} />
       )}
 
       {/* Normalized path for Asso.Dean */}
       {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean') && (
-        <Route path='/asso.dean-page' element={<Adeanpage />} />
+        <Route path='/asso.dean-page' element={<Adeanpage theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && userRole === 'Dean' && (
-        <Route path='/dean-page' element={<DeanPage />} />
+        <Route path='/dean-page' element={<DeanPage theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && userRole === 'Officers' && (
-        <Route path='/officers-page' element={<OfficersPage />} />
+        <Route path='/officers-page' element={<OfficersPage theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && userRole === 'Admin' && (
-        <Route path='/admin-page' element={<Adminpage />} />
+        <Route path='/admin-page' element={<Adminpage theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && userRole === 'Faculty' && (
-        <Route path='/faculty-page' element={<FacultyDashboard />} />
+        <Route path='/faculty-page' element={<FacultyDashboard theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && userRole === 'Student' && (
-        <Route path='/student-page' element={<StudentDashboard />} />
+        <Route path='/student-page' element={<StudentDashboard theme={theme} setTheme={setTheme} />} />
       )}
 
       {isLoggedIn && (
