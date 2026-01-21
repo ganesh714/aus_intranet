@@ -14,37 +14,37 @@ const Developers = () => {
     const developers = [
         {
             name: 'K. B. Surya',
-            role: 'Full Stack Developer',
-            status: 'Contributor',
+            role: 'Project Lead & Analyst', // Updated
+            status: 'Lead',
             image: getFakePhoto('K. B. Surya'),
-            description: 'Serving as the project SPOC, he bridged the gap between requirements and technical implementation. Conducted initial database schema research and coordinated team efforts to ensure project milestones were met.',
+            description: 'Served as the primary point of contact, bridging the gap between client requirements and technical implementation. Conducted initial database schema research and coordinated team efforts.',
             github: 'https://github.com/rtrter',
             linkedin: '#',
         },
         {
             name: 'Venkata Ganesh',
-            role: 'Full Stack Developer',
+            role: 'System Architect & Full Stack Dev', // Updated
             status: 'Contributor',
             image: venkat_ganesh,
-            description: 'Architected the core backend infrastructure by refactoring monolithic services into modular, scalable systems using SOLID principles. Spearheaded the frontend redesign and developed key functional modules like the Dashboard and Timetable.',
+            description: 'Engineered the core system architecture, refactoring the backend into modular services using SOLID principles. Spearheaded the frontend development and delivered key modules like the Dashboard.',
             github: 'https://github.com/ganesh714',
             linkedin: 'https://www.linkedin.com/in/venkata-ganesh-934072291/',
         },
         {
             name: 'Siva Ganesh',
-            role: 'Full Stack Developer',
+            role: 'UI/UX & Full Stack Developer', // Updated
             status: 'Lead Developer',
             image: sivaImg,
-            description: 'Established the frontend project architecture and file structure. Managed complex backend service integrations and contributed the initial UI/UX design concepts that defined the application’s visual identity.',
+            description: 'Established the frontend file structure and design system. Created the initial UI concepts in Stitch and handled complex backend integrations to ensure a seamless user experience.',
             github: 'https://github.com/SivaGaneshv1729',
             linkedin: 'https://www.linkedin.com/in/siva-ganesh-vemula/',
         },
         {
             name: 'Naga Veeranna',
-            role: 'Full Stack Developer',
+            role: 'Quality Assurance Engineer', // Updated
             status: 'Contributor',
             image: veeranna,
-            description: 'Oversaw system stability through rigorous testing and quality assurance. Managed data integrity during schema migrations and facilitated seamless communication between development phases.',
+            description: 'Ensured system stability through rigorous testing and validation. Managed data integrity during schema updates and handled operational communication during deployment phases.',
             github: 'https://github.com/NagaVeeranna',
             linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
         }
