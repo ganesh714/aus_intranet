@@ -52,21 +52,11 @@ const changePassword = async (req, res) => {
 const togglePinTimetable = async (req, res) => {
     try {
         const { userId, timetableId } = req.body;
-        // Delegate to UserService if desired, or keep logic here since it's simple
-        const user = await UserService.togglePinTimetable(userId, timetableId);
-        // Note: UserService needs this method. 
-        // If it returns a boolean or status, we send response.
-        res.json({ message: "Pin updated", pinned: user.pinnedTimetables.includes(timetableId) });
+        const result = await UserService.togglePin(userId, timetableId);
+        res.json(result);
     } catch (error) {
-        // If UserService isn't ready, let's just do logic here for safety or add to UserService
-        // Let's add to UserService in next step to be clean.
-        // For now, I'll inline standard controller logic that calls Service.
-        try {
-            const result = await UserService.togglePin(userId, timetableId);
-            res.json(result);
-        } catch (e) {
-            res.status(500).json({ message: "Error updating pin" });
-        }
+        console.error("Error toggling pin:", error);
+        res.status(500).json({ message: "Error updating pin", error: error.message });
     }
 };
 
