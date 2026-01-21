@@ -64,6 +64,8 @@ app.use('/auth', authRoutes);
 app.use('/', timetableRoutes);
 app.use('/', announcementRoutes);
 
+const port = process.env.PORT || 5001;
+
 app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
