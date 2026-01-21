@@ -11,7 +11,8 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
         "Placements & Internships",
         "Competitions & Awards",
         "Sports & Cultural Events",
-        "Innovation & Leadership"
+        "Innovation & Leadership",
+        "Others"
     ];
 
     const facultyCategories = [
@@ -22,7 +23,8 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
         "Professional Development",
         "Research Consultancy",
         "Mentorship & Student Training",
-        "Books & Literature"
+        "Books & Literature",
+        "Others"
     ];
 
     const categories = isStudent ? studentCategories : facultyCategories;
@@ -368,6 +370,33 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                     <div className="std-form-group">
                         <label className="std-label">Year</label>
                         <input name="date" className="std-input" placeholder="Year" onChange={handleChange} />
+                    </div>
+                </>
+            )
+        }
+
+        if (type === "Others") {
+            return (
+                <>
+                    <div className="std-form-group full-width">
+                        <label className="std-label">Achievement Title</label>
+                        <input name="title" className="std-input" required onChange={handleChange} />
+                    </div>
+                    <div className="std-form-group">
+                        <label className="std-label">Issuing Org / Provider</label>
+                        <input name="issuingBody" className="std-input" required onChange={handleChange} />
+                    </div>
+                    <div className="std-form-group">
+                        <label className="std-label">Position / Status / Rank</label>
+                        <input name="rank" className="std-input" placeholder="e.g. Completed, Winner, Participant" onChange={handleChange} />
+                    </div>
+                    <div className="std-form-group">
+                        <label className="std-label">Date</label>
+                        <input name="date" type="date" className="std-input" required onChange={handleChange} />
+                    </div>
+                    <div className="std-form-group full-width">
+                        <label className="std-label">Description (Optional)</label>
+                        <textarea name="description" className="std-input" rows="2" onChange={handleChange} placeholder="Any additional details..."></textarea>
                     </div>
                 </>
             )
