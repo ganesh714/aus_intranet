@@ -1,5 +1,5 @@
-/* Import fonts if not globally available, though index.css usually handles this */
-@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 
 :root {
     --primary-orange: #F97316;
@@ -10,113 +10,202 @@
     --bg-light: #f3f4f6;
 }
 
-/* Ensure background image only applies on the login page */
+/* Base Body Style for Login Page */
 body.login-page {
     margin: 0;
     padding: 0;
+    min-height: 100vh;
+    font-family: 'Lexend', sans-serif;
+    background: radial-gradient(circle at top right, #1E3A8A, #111827),
+        radial-gradient(circle at bottom left, #0f172a, #1E3A8A);
+    background-size: 200% 200%;
+    animation: backgroundPulse 12s ease-in-out infinite alternate;
+    overflow-x: hidden;
+}
+
+@keyframes backgroundPulse {
+    0% {
+        background-position: 0% 0%;
+        filter: brightness(1);
+    }
+
+    50% {
+        background-position: 100% 100%;
+        filter: brightness(1.2);
+    }
+
+    100% {
+        background-position: 50% 50%;
+        filter: brightness(0.9);
+    }
+}
+
+.login-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* --- Shared Navigation --- */
+.glass-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 50;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-logo img {
+    height: 40px;
+}
+
+.nav-logo span {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.back-btn-nav {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #F97316;
+}
+
+/* --- Content Area --- */
+.login-content-area {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    /* Use your existing background image */
-    background-image: url("C:\Users\Administrator\Desktop\latest version\login\src\assets\components\images\18129294.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
+    padding: 120px 20px 60px;
+    /* Space for nav and footer */
 }
 
-/* Modern Login Card */
+/* Modern Glassmorphic Login Card */
 .login-container {
     width: 100%;
-    max-width: 420px;
-    /* Semi-transparent white for glassmorphism feel, fully opaque for readability */
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
     padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    z-index: 10;
-    margin: 20px;
-    border-top: 5px solid var(--primary-orange);
-    transition: all 0.3s ease;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--primary-orange);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* --- Shared Footer --- */
+.landing-footer {
+    text-align: center;
+    padding: 24px;
+    color: #6B7280;
+    font-size: 0.875rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(17, 24, 39, 0.3);
 }
 
 /* Header Styling */
 .login-header {
     text-align: center;
     color: var(--primary-blue);
-    margin-bottom: 30px;
+    margin-bottom: 32px;
     font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.5px;
 }
 
-/* Form Group */
-.login-form-group {
-    margin-bottom: 20px;
-}
-
-.subrolecss {
+/* Form Groups */
+.std-form-group {
     margin-bottom: 20px;
 }
 
 /* Labels */
-label {
+.std-label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #374151;
     font-size: 14px;
 }
 
 /* Input Fields & Selects */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
+.std-input,
+.std-select {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #E5E7EB;
     border-radius: 8px;
     font-size: 15px;
-    color: var(--text-dark);
-    background-color: #fff;
-    transition: all 0.2s ease-in-out;
+    color: #1F2937;
+    background-color: #F9FAFB;
+    transition: all 0.2s ease;
     outline: none;
 }
 
-/* Focus States - Matches your Orange theme */
-input:focus,
-select:focus {
+.std-input:focus,
+.std-select:focus {
     border-color: var(--primary-orange);
+    background-color: #fff;
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
-/* Password Container for Eye Icon */
+/* Password Container */
 .password-input-container {
     position: relative;
     width: 100%;
 }
 
-input[type="password"],
-input[type="text"] {
-    /* Ensure padding for icon doesn't overlap text */
-    padding-right: 40px;
-}
-
-/* Eye Icon */
 .password-toggle-icon {
     position: absolute;
-    right: 12px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: var(--text-gray);
+    color: #9CA3AF;
     font-size: 18px;
-    display: flex;
-    align-items: center;
     transition: color 0.2s;
+    background: transparent;
+    border: none;
+    display: flex;
 }
 
 .password-toggle-icon:hover {
@@ -124,32 +213,31 @@ input[type="text"] {
 }
 
 /* Primary Button */
-.button1 {
+.std-btn {
     width: 100%;
-    padding: 12px;
-    background-color: var(--primary-blue);
-    /* Changed to Blue for primary action */
+    padding: 14px;
+    background: linear-gradient(135deg, #F97316, #ea580c);
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+    transition: all 0.2s;
     margin-top: 10px;
 }
 
-.button1:hover {
-    background-color: var(--primary-orange);
-    /* Orange on hover */
+.std-btn:hover {
     transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(249, 115, 22, 0.5);
 }
 
-/* Toggle Link (Register/Login) */
+/* Links */
 .register-toggle {
-    margin-top: 20px;
+    margin-top: 24px;
     text-align: center;
-    color: var(--text-gray);
+    color: #6B7280;
     font-size: 14px;
     cursor: pointer;
     transition: color 0.2s;
@@ -160,42 +248,38 @@ input[type="text"] {
     text-decoration: underline;
 }
 
-/* Forgot Password Link */
 #forgot-password {
     display: block;
     text-align: center;
-    margin-top: 15px;
+    margin-top: 16px;
     color: var(--primary-orange);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: opacity 0.2s;
 }
 
 #forgot-password:hover {
-    color: #c2410c;
-    /* Darker orange */
+    opacity: 0.8;
 }
 
 /* Error Message */
 .error-message {
-    color: #ef4444;
+    color: #B91C1C;
+    /* Dark red for better visibility */
     font-size: 13px;
-    margin-top: 6px;
-    background-color: #fef2f2;
-    padding: 8px;
+    margin-top: 8px;
+    background-color: #FEF2F2;
+    padding: 10px;
     border-radius: 6px;
-    border: 1px solid #fee2e2;
+    border: 1px solid #FECACA;
+    text-align: center;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
     .login-container {
-        margin: 15px;
-        padding: 30px 20px;
-    }
-
-    .login-header {
-        font-size: 24px;
+        margin: 16px;
+        padding: 24px;
     }
 }

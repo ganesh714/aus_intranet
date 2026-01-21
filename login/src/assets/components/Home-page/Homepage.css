@@ -1,74 +1,362 @@
+/* Global Font Import (if not already handled in index.css) */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 
-.landing-container {
+/* --- Reset & Base --- */
+.landing-page {
+    font-family: 'Lexend', sans-serif;
+    min-height: 100vh;
+    width: 100%;
+    background: radial-gradient(circle at top right, #1E3A8A, #111827),
+        radial-gradient(circle at bottom left, #0f172a, #1E3A8A);
+    background-size: 200% 200%;
+    animation: backgroundPulse 12s ease-in-out infinite alternate;
+    color: #F3F4F6;
+    /* Light gray text for high contrast on dark bg */
+    overflow-x: hidden;
     position: relative;
+}
+
+@keyframes backgroundPulse {
+    0% {
+        background-position: 0% 0%;
+        filter: brightness(1);
+    }
+
+    50% {
+        background-position: 100% 100%;
+        filter: brightness(1.2);
+    }
+
+    100% {
+        background-position: 50% 50%;
+        filter: brightness(0.9);
+    }
+}
+
+/* --- Glassmorphism Utilities --- */
+.glass-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(17, 24, 39, 0.7);
+    /* Dark semi-transparent bg */
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 50;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Navigation --- */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.nav-logo span {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.nav-btn-glass {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    /* Pill shape */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.nav-btn-glass:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #F97316;
+    /* Orange accent border on hover */
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 140px 5% 60px;
+    /* Top padding accounts for fixed nav */
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 90vh;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 600px;
+    animation: slideInLeft 0.8s ease-out;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+.highlight-text {
+    color: #F97316;
+    /* Vibrant Orange for key text */
+    text-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+}
+
+.hero-subtitle {
+    font-size: 1.125rem;
+    color: #D1D5DB;
+    /* Light gray for readability */
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 480px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.cta-btn {
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.cta-btn.primary {
+    background: linear-gradient(135deg, #F97316, #ea580c);
+    color: white;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+}
+
+.cta-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
+}
+
+.cta-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.cta-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* --- Hero Visuals (Cards) --- */
+.hero-visuals {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 30px;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    /* Center them for better structure on larger screens too */
+    position: relative;
+    animation: slideInRight 1s ease-out;
+}
+
+.hero-visuals .glass-card {
+    width: 320px;
+    display: flex;
+    flex-direction: row;
+    /* Horizontal layout for content inside cards */
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+}
+
+.hero-visuals .icon {
+    font-size: 40px;
+    color: #F97316;
+    background: rgba(249, 115, 22, 0.1);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hero-visuals h3 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+.hero-visuals p {
+    color: #9CA3AF;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.card-1 {
+    align-self: flex-start;
+    /* Staggered effect */
+    margin-left: 10%;
+}
+
+.card-2 {
+    align-self: flex-end;
+    margin-right: 10%;
+}
+
+/* --- Footer --- */
+.landing-footer {
     text-align: center;
-    background-image: url('C:\Users\Administrator\Desktop\latest version\login\src\assets\components\images\18129294.jpg'); 
-    background-size: cover;   
-    background-position: center;
-    background-repeat: no-repeat; 
+    padding: 24px;
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.top-left-image {
-    position: absolute;
-    top: 10px;
-    left: 20px;
-    width: 500px;
-    height: auto;
-}
-
-.landing-container p {
-    margin-bottom: 20px;
-    font-size: 60px;
-    white-space: nowrap;
-    overflow: hidden;
-    border-right: 3px solid #ff6900;
-    width: 0;
-    animation: typing 6s steps(30) forwards, blink 0.7s steps(1) 6s 3, remove-cursor 0.1s forwards 3.5s;
-}
-
-@keyframes typing {
+/* --- Animations --- */
+@keyframes slideInLeft {
     from {
-        width: 0;
+        opacity: 0;
+        transform: translateX(-50px);
     }
+
     to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsibility */
+@media (max-width: 1024px) {
+    .hero-section {
+        flex-direction: column;
+        padding-top: 120px;
+        text-align: center;
+        gap: 60px;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+
+    .hero-visuals {
         width: 100%;
+        align-items: center;
+    }
+
+    .card-1,
+    .card-2 {
+        margin: 0;
+        align-self: center;
     }
 }
 
-@keyframes blink {
-    50% { 
-        border-color: transparent;
+@media (max-width: 768px) {
+    .glass-nav {
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-logo span {
+        font-size: 1rem;
+    }
+
+    .hero-title {
+        font-size: 2.25rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .cta-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .hero-visuals .glass-card {
+        width: 290px;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .hero-visuals .icon {
+        font-size: 32px;
+        padding: 8px;
     }
 }
 
-@keyframes remove-cursor {
-    to {
-        border-right: none;
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.85rem;
     }
-}
 
-.button3 {
-    position: absolute;
-    top: 40px;
-    right: 20px;
-    background-color: #ff6900;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 150px;
-    font-size: 16px;
-    transition: background-color 0.6s ease, transform 0.6s ease, color 0.6s ease;
-}
-
-.button3:hover {
-    background-color: black;
-    color: #ff6900;
-    transform: scale(1.05);
+    .hero-visuals .glass-card {
+        width: 260px;
+    }
 }

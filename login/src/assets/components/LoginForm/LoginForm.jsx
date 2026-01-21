@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import logo from "../images/11.png";
 import './LoginForm.css';
 
 const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
@@ -207,77 +208,99 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
     };
 
     return (
-        <div className="login-container">
-            <h2 className="login-header">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
-            <form onSubmit={handleSubmit}>
-                {isRegistering && (
-                    <>
-                        <div className="std-form-group">
-                            <label className="std-label" htmlFor="username">Full Name</label>
-                            <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" className="std-input" />
-                        </div>
-                        <div className="std-form-group">
-                            <label className="std-label" htmlFor="role">Role</label>
-                            <select id="role" name="role" value={formData.role} onChange={handleChange} required className="std-select">
-                                <option value="">Select your role</option>
-                                <option value="Officers">Officers</option>
-                                <option value="Dean">Dean</option>
-                                <option value="Asso.Dean">Asso.Dean</option>
-                                <option value="HOD">HOD</option>
-                                <option value="Faculty">Faculty</option>
-                                <option value="Student">Student</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
-                        {renderSubRoleOptions()}
-                    </>
-                )}
-
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="id">User ID</label>
-                    <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" className="std-input" />
+        <div className="login-page-wrapper">
+            {/* Navigation Bar - Same as Homepage */}
+            <nav className="glass-nav">
+                <div className="nav-logo">
+                    <img src={logo} alt="Aditya University Logo" />
+                    <span>Intranet</span>
                 </div>
-
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="password">Password</label>
-                    <div className="password-input-container">
-                        <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="std-input" style={{ paddingRight: '40px' }} />
-                        <span onClick={() => setShowPassword(!showPassword)} className="password-toggle-icon">
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                        </span>
-                    </div>
+                <div className="nav-links">
+                    <button className="back-btn-nav" onClick={() => navigate('/')} title="Back to Home">
+                        <FaArrowLeft /> Back to Home
+                    </button>
                 </div>
+            </nav>
 
-                {isRegistering && (
-                    <div className="std-form-group">
-                        <label className="std-label" htmlFor="confirmPassword">Confirm Password</label>
-                        <div className="password-input-container">
-                            <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className="std-input" style={{ paddingRight: '40px' }} />
-                            <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-icon">
-                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            <div className="login-content-area">
+                <div className="login-container">
+                    <h2 className="login-header">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
+                    <form onSubmit={handleSubmit}>
+                        {isRegistering && (
+                            <>
+                                <div className="std-form-group">
+                                    <label className="std-label" htmlFor="username">Full Name</label>
+                                    <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required placeholder="Enter your full name" className="std-input" />
+                                </div>
+                                <div className="std-form-group">
+                                    <label className="std-label" htmlFor="role">Role</label>
+                                    <select id="role" name="role" value={formData.role} onChange={handleChange} required className="std-select">
+                                        <option value="">Select your role</option>
+                                        <option value="Officers">Officers</option>
+                                        <option value="Dean">Dean</option>
+                                        <option value="Asso.Dean">Asso.Dean</option>
+                                        <option value="HOD">HOD</option>
+                                        <option value="Faculty">Faculty</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
+                                </div>
+                                {renderSubRoleOptions()}
+                            </>
+                        )}
+
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="id">User ID</label>
+                            <input type="text" id="id" name="id" value={formData.id} onChange={handleChange} required placeholder="Enter User ID" className="std-input" />
+                        </div>
+
+                        <div className="std-form-group">
+                            <label className="std-label" htmlFor="password">Password</label>
+                            <div className="password-input-container">
+                                <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="std-input" style={{ paddingRight: '40px' }} />
+                                <span onClick={() => setShowPassword(!showPassword)} className="password-toggle-icon">
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </span>
+                            </div>
+                        </div>
+
+                        {isRegistering && (
+                            <div className="std-form-group">
+                                <label className="std-label" htmlFor="confirmPassword">Confirm Password</label>
+                                <div className="password-input-container">
+                                    <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className="std-input" style={{ paddingRight: '40px' }} />
+                                    <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="password-toggle-icon">
+                                        {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+                        <button type="submit" className="std-btn" style={{ width: '100%' }}>{isRegistering ? 'Register' : 'Login'}</button>
+
+                        <p onClick={() => {
+                            setIsRegistering(!isRegistering);
+                            setErrorMessage('');
+                            setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '', batch: '' });
+                        }} className="register-toggle">
+                            {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
+                        </p>
+
+                        {!isRegistering && (
+                            <span id="forgot-password" onClick={() => navigate('/reset-password')}>
+                                Forgot Password?
                             </span>
-                        </div>
-                    </div>
-                )}
+                        )}
+                    </form>
+                </div>
+            </div>
 
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
-
-                <button type="submit" className="std-btn" style={{ width: '100%' }}>{isRegistering ? 'Register' : 'Login'}</button>
-
-                <p onClick={() => {
-                    setIsRegistering(!isRegistering);
-                    setErrorMessage('');
-                    setFormData({ username: '', id: '', password: '', confirmPassword: '', role: '', subRole: '', batch: '' });
-                }} className="register-toggle">
-                    {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
-                </p>
-
-                {!isRegistering && (
-                    <span id="forgot-password" onClick={() => navigate('/reset-password')}>
-                        Forgot Password?
-                    </span>
-                )}
-            </form>
+            {/* Simple Footer - Same as Homepage */}
+            <footer className="landing-footer">
+                <p>&copy; {new Date().getFullYear()} Aditya University. All rights reserved.</p>
+            </footer>
         </div>
     );
 };
