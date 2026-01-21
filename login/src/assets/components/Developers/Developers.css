@@ -1,0 +1,172 @@
+/* src/assets/components/Developers/Developers.css */
+.developers-container {
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: #1f2937;
+    /* Dark text */
+    background-color: #ffffff;
+    /* Clean White Background */
+    padding-bottom: 60px;
+}
+
+/* Remove Overlay */
+.dev-overlay {
+    display: none;
+}
+
+.dev-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.dev-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+/* Header Typography matching reference */
+.dev-header h1 {
+    font-size: 42px;
+    color: #000000;
+    /* Black */
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.dev-header p {
+    color: #6b7280;
+    /* Gray 500 */
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* --- Card Design --- */
+.dev-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.dev-card {
+    background: #ffffff;
+    border-radius: 12px;
+    /* Smoother radius */
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    /* Subtle shadow */
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f3f4f6;
+    /* Very subtle border */
+}
+
+.dev-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Card Header */
+.dev-card-header {
+    background-color: #f3f4f6;
+    /* Light Gray Header used in reference */
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dev-identity {
+    text-align: left;
+}
+
+.dev-identity h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    /* Gray 900 */
+}
+
+.dev-identity .dev-role {
+    display: block;
+    font-size: 14px;
+    color: #6b7280;
+    /* Gray 500 */
+    margin-top: 4px;
+}
+
+.dev-image-wrapper {
+    width: 70px;
+    /* Slightly smaller to match reference proportions */
+    height: 70px;
+    flex-shrink: 0;
+    margin-left: 15px;
+}
+
+.dev-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    /* No border in reference, just the image */
+}
+
+/* Card Body */
+.dev-card-body {
+    padding: 24px;
+    flex-grow: 1;
+    text-align: left;
+    background: white;
+}
+
+.dev-card-body p {
+    color: #4b5563;
+    /* Gray 600 */
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Card Footer */
+.dev-card-footer {
+    padding: 0 24px 24px 24px;
+    display: flex;
+    gap: 12px;
+    background: white;
+    flex-wrap: wrap;
+}
+
+.dev-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #e5e7eb;
+    /* Gray 200 pill */
+    color: #374151;
+    /* Gray 700 */
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    flex: 1;
+}
+
+.dev-btn:hover {
+    background-color: #d1d5db;
+    /* Gray 300 */
+    color: #111827;
+}
+
+@media (max-width: 768px) {
+    .dev-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dev-header h1 {
+        font-size: 32px;
+    }
+}
