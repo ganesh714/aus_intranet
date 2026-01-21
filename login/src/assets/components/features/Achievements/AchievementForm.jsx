@@ -63,11 +63,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
         onSave(newAchievement);
     };
 
-    // [NEW] Handle File Selection (Fake Upload)
+    // [NEW] Handle File Selection (Real Upload)
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData(prev => ({ ...prev, proof: file.name }));
+            setFormData(prev => ({ ...prev, proof: file }));
         }
     };
 
