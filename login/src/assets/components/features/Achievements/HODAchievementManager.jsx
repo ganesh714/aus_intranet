@@ -349,7 +349,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             <div className="empty-state">No records found.</div>
                         ) : (
                             displayData.map(ach => (
-                                <div key={ach.id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div key={ach._id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div className="card-title">{ach.title}</div>
@@ -395,7 +395,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <button
                                                     className="std-btn"
                                                     style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach.id, 'Rejected')}
+                                                    onClick={() => handleApproval(ach._id, 'Rejected')}
                                                     title="Reject"
                                                 >
                                                     <FaTimes />
@@ -405,7 +405,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <button
                                                     className="std-btn"
                                                     style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach.id, 'Approved')}
+                                                    onClick={() => handleApproval(ach._id, 'Approved')}
                                                     title="Approve"
                                                 >
                                                     <FaCheck />
