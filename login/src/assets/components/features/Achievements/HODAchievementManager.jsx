@@ -111,13 +111,20 @@ const HODAchievementManager = ({ userRole, userId }) => {
     };
 
     const fetchFaculty = async () => {
-        setDeptFaculty([
-            { id: 'FAC001', username: 'Dr. Smith', role: 'Faculty' },
-            { id: 'FAC002', username: 'Prof. Johnson', role: 'Faculty' },
-            { id: 'FAC003', username: 'Dr. Emily', role: 'Faculty' },
-            { id: 'FAC004', username: 'Prof. Alan', role: 'Faculty' },
-            { id: 'FAC005', username: 'Dr. Rose', role: 'Faculty' },
-        ]);
+        try {
+            const userDept = sessionStorage.getItem('usersubRole');
+            if (!userDept) {
+                console.warn("No department found for HOD in session.");
+                return;
+            }
+
+            const response = await axios.get('http://localhost:5001/get-dept-faculty', {
+                params: { dept: userDept }
+            });
+            setDeptFaculty(response.data.faculty || []);
+        } catch (error) {
+            console.error("Error fetching faculty:", error);
+        }
     };
 
     const loadPermissions = () => {
