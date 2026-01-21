@@ -99,7 +99,10 @@ const AnnouncementFeed = ({
                                             {ann.fileId?.filePath && (
                                                 <button
                                                     className="std-btn std-btn-sm"
-                                                    onClick={(e) => onPdfClick(ann.fileId.filePath, e)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onPdfClick(ann.fileId.filePath, ann.fileId.fileType, ann.title);
+                                                    }}
                                                 >
                                                     <FaFilePdf /> View PDF
                                                 </button>

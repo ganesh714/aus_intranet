@@ -42,6 +42,8 @@ const AnnouncementManager = ({
         'HOD': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
         'Dean': ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
         'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
+        'Associate Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'], // [NEW] Alias
+        'Assoc Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],     // [NEW] Alias
         'Officers': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
         'Admin': ['All'],
         'All': ['All']
@@ -51,7 +53,9 @@ const AnnouncementManager = ({
         switch (userRole) {
             case 'Faculty': return ['Student'];
             case 'HOD': return ['Student', 'Faculty'];
-            case 'Asso.Dean': return ['Student', 'Faculty', 'HOD'];
+            case 'Asso.Dean':
+            case 'Associate Dean':
+            case 'Assoc Dean': return ['Student', 'Faculty', 'HOD'];
             case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
             case 'Officers':
             case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'];

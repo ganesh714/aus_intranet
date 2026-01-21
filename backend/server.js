@@ -15,6 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const driveRoutes = require('./routes/driveRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
 
 // Import Services
 const emailService = require('./services/EmailService');
@@ -59,6 +60,7 @@ app.use('/', driveRoutes); // Mounted at root to preserve routes
 
 // --- MATERIAL ROUTES ---
 app.use('/', materialRoutes); // Mounted at root to preserve routes
+app.use('/', achievementRoutes);
 
 app.use('/auth', authRoutes);
 app.use('/', timetableRoutes);

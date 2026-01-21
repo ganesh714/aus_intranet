@@ -26,6 +26,8 @@ const AchievementList = ({ achievements, onAddClick }) => {
                 return <FaChalkboardTeacher />;
             case 'Sports & Cultural Events':
                 return <FaMedal />;
+            case 'Others':
+                return <FaTrophy />;
             default:
                 return <FaTrophy />;
         }

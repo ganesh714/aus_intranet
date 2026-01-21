@@ -162,26 +162,28 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
             <div className="std-page-header">
                 <h2>{userRole === 'Student' ? 'Class Shared Documents' : 'Shared Documents'}</h2>
 
-                <div className="materials-tabs">
-                    <button
-                        className={`std-tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('sent')}
-                    >
-                        Sent by Me
-                    </button>
-                    <button
-                        className={`std-tab-btn ${activeTab === 'received' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('received')}
-                    >
-                        Sent to Me
-                    </button>
-                    <button
-                        className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('upload')}
-                    >
-                        <FaCloudUploadAlt /> Upload New
-                    </button>
-                </div>
+                {userRole !== 'Student' && (
+                    <div className="materials-tabs">
+                        <button
+                            className={`std-tab-btn ${activeTab === 'sent' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('sent')}
+                        >
+                            Sent by Me
+                        </button>
+                        <button
+                            className={`std-tab-btn ${activeTab === 'received' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('received')}
+                        >
+                            Sent to Me
+                        </button>
+                        <button
+                            className={`std-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('upload')}
+                        >
+                            <FaCloudUploadAlt /> Upload New
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* --- UPLOAD FORM --- */}
@@ -348,7 +350,10 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                             <div
                                 key={item._id}
                                 className="mat-card"
-                                onClick={(e) => onPdfClick(item.fileId?.filePath, e)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onPdfClick(item.fileId?.filePath, item.fileId?.fileType, item.title);
+                                }}
                             >
                                 <div className="mat-icon-wrapper">
                                     <FaBook />
@@ -385,8 +390,9 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                         </div>
                     )}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 
