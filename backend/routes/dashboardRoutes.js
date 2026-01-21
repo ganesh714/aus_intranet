@@ -127,51 +127,54 @@ router.get('/stats', async (req, res) => {
             } else {
                 stats.facultyCount = 0;
             }
-            // 5. Achievement Stats
+        }
+    }
+
+        // 5. Achievement Stats
             const Achievement = require('../models/Achievement');
 
-            // A. My Achievements (All Roles) -> Count of approved/all achievements for the user
-            // Usually "My Achievements" implies approved or total. Let's show Approved count for "Trophy".
-            const myAchCount = await Achievement.countDocuments({ userId: id, status: 'Approved' });
-            stats.userAchievements = myAchCount;
+    // A. My Achievements (All Roles) -> Count of approved/all achievements for the user
+    // Usually "My Achievements" implies approved or total. Let's show Approved count for "Trophy".
+    const myAchCount = await Achievement.countDocuments({ userId: id, status: 'Approved' });
+    stats.userAchievements = myAchCount;
 
-            // B. Department Stats (Faculty/HOD)
-            if (role === 'Faculty' || role === 'HOD') {
-                if (subRole) {
-                    // Dept Achievements (Approved)
-                    const deptAchCount = await Achievement.countDocuments({ dept: subRole, status: 'Approved' });
-                    stats.deptAchievements = deptAchCount;
+    // B. Department Stats (Faculty/HOD)
+    if (role === 'Faculty' || role === 'HOD') {
+        if (subRole) {
+            // Dept Achievements (Approved)
+            const deptAchCount = await Achievement.countDocuments({ dept: subRole, status: 'Approved' });
+            stats.deptAchievements = deptAchCount;
 
-                    // Pending Approvals (For HOD/Faculty who have approval rights)
-                    // HODs approve Faculty & Students? Or just Faculty?
-                    // Logic in HODAchievementManager suggests HOD sees all.
-                    // Faculty sees Student approvals?
+            // Pending Approvals (For HOD/Faculty who have approval rights)
+            // HODs approve Faculty & Students? Or just Faculty?
+            // Logic in HODAchievementManager suggests HOD sees all.
+            // Faculty sees Student approvals?
 
-                    // Let's count all 'Pending' in the department.
-                    // Refinements can be made if Faculty only approve Students.
-                    let pendingQuery = { dept: subRole, status: 'Pending' };
+            // Let's count all 'Pending' in the department.
+            // Refinements can be made if Faculty only approve Students.
+            let pendingQuery = { dept: subRole, status: 'Pending' };
 
-                    // If Faculty, maybe only show Student pending requests?
-                    // Based on HODAchievementManager logic:
-                    // Faculty can see Student approvals.
-                    if (role === 'Faculty') {
-                        pendingQuery.userRole = 'Student';
-                    }
-
-                    const pendingCount = await Achievement.countDocuments(pendingQuery);
-                    stats.pendingApprovals = pendingCount;
-                } else {
-                    stats.deptAchievements = 0;
-                    stats.pendingApprovals = 0;
-                }
+            // If Faculty, maybe only show Student pending requests?
+            // Based on HODAchievementManager logic:
+            // Faculty can see Student approvals.
+            if (role === 'Faculty') {
+                pendingQuery.userRole = 'Student';
             }
 
-            res.json(stats);
-
-        } catch (error) {
-            console.error("Error fetching dashboard stats:", error);
-            res.status(500).json({ message: "Error fetching stats", error });
+            const pendingCount = await Achievement.countDocuments(pendingQuery);
+            stats.pendingApprovals = pendingCount;
+        } else {
+            stats.deptAchievements = 0;
+            stats.pendingApprovals = 0;
         }
+    }
+
+    res.json(stats);
+
+} catch (error) {
+    console.error("Error fetching dashboard stats:", error);
+    res.status(500).json({ message: "Error fetching stats", error });
+}
     });
 
 module.exports = router;
