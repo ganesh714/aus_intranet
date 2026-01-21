@@ -23,6 +23,8 @@ const getNavigatePath = (role, subRole) => {
   if (lowerRole.includes("asso") && lowerRole.includes("dean")) {
     return "/asso.dean-page";
   }
+  // Fallback for full string match if needed (redundant given above, but safe)
+  if (lowerRole === 'associate dean') return "/asso.dean-page";
 
   if (lowerRole === "faculty") {
     return `/${subRole.toLowerCase()}-faculty-page`;
@@ -67,8 +69,8 @@ const App = () => {
         <Route path='/hod-page' element={<HodPage />} />
       )}
 
-      {/* Normalized path for Asso.Dean */}
-      {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean') && (
+      {/* Normalized path for Asso.Dean and aliases */}
+      {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean' || userRole === 'Associate Dean') && (
         <Route path='/asso.dean-page' element={<Adeanpage />} />
       )}
 
