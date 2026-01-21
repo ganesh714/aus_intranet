@@ -14,6 +14,7 @@ import Homepage from "./assets/components/Home-page/Homepage";
 
 import FacultyDashboard from "./assets/components/FacultyDashboard/FacultyDashboard";
 import StudentDashboard from "./assets/components/StudentDashboard/StudentDashboard";
+import Developers from "./assets/components/Developers/Developers"; // [NEW]
 
 const getNavigatePath = (role, subRole) => {
   if (!role) return "/";
@@ -99,6 +100,7 @@ const App = () => {
       )}
 
       <Route path='/reset-password' element={<ResetPassword />} />
+      <Route path='/developers' element={<Developers />} /> {/* [NEW] */}
 
       <Route
         path="*"

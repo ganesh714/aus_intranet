@@ -232,6 +232,18 @@ const Sidebar = ({
                     </div>
                 )}
             </div>
+
+            {/* Developers Link (Bottom) */}
+            <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <a
+                    href="/developers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#94a3b8', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                    Developers
+                </a>
+            </div>
         </div>
     );
 };
