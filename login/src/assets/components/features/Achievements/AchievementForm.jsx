@@ -79,19 +79,27 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
 
         // --- STUDENT FORMS ---
         if (type === "Technical Certification" || type === "Certifications & Online Courses") {
+            // This is a global replace to remove 'required' attributes as requested.
+            // Since individual replacements for every single line would be massive,
+            // I will target specific blocks or restart with a multi-replace approach if the user prefers,
+            // but for now I will try to be as targeted as possible with regex-like efficiency in thought, 
+            // but tool restrictions mean I likely need a giant block or many chunks.
+            // Given the file size, I will use multiple chunks to cover the different form sections.
+
+            // CHUNK 1: Student Forms
             return (
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Certification/Course Name</label>
-                        <input name="certificationName" className="std-input" required onChange={handleChange} />
+                        <input name="certificationName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Issuing Body / Provider</label>
-                        <input name="issuingBody" className="std-input" required onChange={handleChange} placeholder="e.g. Microsoft, Coursera" />
+                        <input name="issuingBody" className="std-input" onChange={handleChange} placeholder="e.g. Microsoft, Coursera" />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Date of Completion</label>
-                        <input name="date" type="date" className="std-input" required onChange={handleChange} />
+                        <input name="date" type="date" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">{type === "Technical Certification" ? "Certificate ID" : "Score / Status"}</label>
@@ -112,15 +120,15 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Company Name</label>
-                        <input name="companyName" className="std-input" required onChange={handleChange} />
+                        <input name="companyName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Job Profile / Role</label>
-                        <input name="jobProfile" className="std-input" required onChange={handleChange} />
+                        <input name="jobProfile" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Package (LPA) / Stipend</label>
-                        <input name="package" className="std-input" required onChange={handleChange} />
+                        <input name="package" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Location</label>
@@ -143,15 +151,15 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Event / Tournament Name</label>
-                        <input name="eventName" className="std-input" required onChange={handleChange} />
+                        <input name="eventName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Organizing Institution</label>
-                        <input name="organizer" className="std-input" required onChange={handleChange} />
+                        <input name="organizer" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Rank / Position / Status</label>
-                        <input name="rank" className="std-input" required onChange={handleChange} placeholder="e.g. 1st Prize, Finalist" />
+                        <input name="rank" className="std-input" onChange={handleChange} placeholder="e.g. 1st Prize, Finalist" />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Date</label>
@@ -166,11 +174,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Activity Name</label>
-                        <input name="activityName" className="std-input" required onChange={handleChange} placeholder="e.g. Smart India Hackathon" />
+                        <input name="activityName" className="std-input" onChange={handleChange} placeholder="e.g. Smart India Hackathon" />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Role</label>
-                        <input name="role" className="std-input" required onChange={handleChange} placeholder="e.g. Team Lead" />
+                        <input name="role" className="std-input" onChange={handleChange} placeholder="e.g. Team Lead" />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Type</label>
@@ -195,11 +203,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Paper Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Journal Name</label>
-                        <input name="journalName" className="std-input" required onChange={handleChange} />
+                        <input name="journalName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Indexing</label>
@@ -231,11 +239,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Presentation Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Conference Name</label>
-                        <input name="conferenceName" className="std-input" required onChange={handleChange} />
+                        <input name="conferenceName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Organizer</label>
@@ -266,11 +274,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Application / Reg. Number</label>
-                        <input name="appNumber" className="std-input" required onChange={handleChange} />
+                        <input name="appNumber" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Status</label>
@@ -289,7 +297,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">FDP / Program Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Role</label>
@@ -300,7 +308,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Organizing Body</label>
-                        <input name="organizer" className="std-input" required onChange={handleChange} />
+                        <input name="organizer" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Duration</label>
@@ -315,15 +323,15 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Project Name</label>
-                        <input name="projectName" className="std-input" required onChange={handleChange} />
+                        <input name="projectName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Industry Partner</label>
-                        <input name="partner" className="std-input" required onChange={handleChange} />
+                        <input name="partner" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Role</label>
-                        <input name="role" className="std-input" required onChange={handleChange} />
+                        <input name="role" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Status / Outcomes</label>
@@ -338,11 +346,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Program Name</label>
-                        <input name="programName" className="std-input" required onChange={handleChange} />
+                        <input name="programName" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">No. of Students Trained</label>
-                        <input name="studentsTrained" type="number" className="std-input" required onChange={handleChange} />
+                        <input name="studentsTrained" type="number" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Certification Body</label>
@@ -357,15 +365,15 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Book Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Publisher</label>
-                        <input name="publisher" className="std-input" required onChange={handleChange} />
+                        <input name="publisher" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">ISBN</label>
-                        <input name="isbn" className="std-input" required onChange={handleChange} />
+                        <input name="isbn" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Year</label>
@@ -380,11 +388,11 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Achievement Title</label>
-                        <input name="title" className="std-input" required onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Issuing Org / Provider</label>
-                        <input name="issuingBody" className="std-input" required onChange={handleChange} />
+                        <input name="issuingBody" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Position / Status / Rank</label>
@@ -392,7 +400,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Date</label>
-                        <input name="date" type="date" className="std-input" required onChange={handleChange} />
+                        <input name="date" type="date" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group full-width">
                         <label className="std-label">Description (Optional)</label>
@@ -406,7 +414,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
         return (
             <div className="std-form-group full-width">
                 <label className="std-label">Title / Description</label>
-                <input name="title" className="std-input" required onChange={handleChange} />
+                <input name="title" className="std-input" onChange={handleChange} />
             </div>
         );
     };
@@ -463,15 +471,15 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <div className="form-section">
                     <label className="section-label">3. Proof of Achievement</label>
                     <div className="std-form-group full-width">
-                        <label className="std-label">Upload Proof (PDF/DOCX)</label>
+                        <label className="std-label">Upload Proof (PDF/JPG/PNG)</label>
                         <input
                             type="file"
-                            accept=".pdf,.doc,.docx"
+                            accept=".pdf,.jpg,.jpeg,.png"
                             className="std-file-input"
                             onChange={handleFileChange}
                         />
                         <small style={{ color: '#6b7280', fontSize: '12px' }}>
-                            Upload a document to validate this achievement.
+                            Upload a document/image to validate this achievement.
                         </small>
                     </div>
                 </div>
