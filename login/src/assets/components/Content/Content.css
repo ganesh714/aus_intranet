@@ -41,24 +41,22 @@
 
 .active-view-container {
     flex: 1;
-    padding: 30px;
-    /* Increased padding */
-    margin: 30px;
-    /* Stronger 'Island' Margin */
+    padding: var(--space-lg);
+    margin: var(--space-lg);
     background: var(--bg-card);
     backdrop-filter: var(--glass-effect);
     border-radius: 24px;
-    /* More rounded for premium feel */
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
     min-height: calc(100vh - 180px);
-    /* Adjust for larger margins */
     display: flex;
     flex-direction: column;
     animation: viewSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
 }
+
 
 .light-mode .active-view-container {
     background: var(--bg-modal);
@@ -175,13 +173,102 @@
     z-index: 10;
 }
 
+/* Mobile Toggle FAB (Hamburger) */
+.mobile-toggle-fab {
+    display: none;
+    position: fixed;
+    bottom: var(--space-xl);
+    right: var(--space-xl);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-dark));
+    border: none;
+    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4);
+    z-index: 2000;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-toggle-fab:active {
+    transform: scale(0.9);
+}
+
+.hamburger-bar {
+    width: 24px;
+    height: 2px;
+    background: #111827;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.hamburger-bar::before,
+.hamburger-bar::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: #111827;
+    left: 0;
+    transition: all 0.3s;
+}
+
+.hamburger-bar::before {
+    top: -8px;
+}
+
+.hamburger-bar::after {
+    bottom: -8px;
+}
+
+.hamburger-bar.open {
+    background: transparent;
+}
+
+.hamburger-bar.open::before {
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.hamburger-bar.open::after {
+    top: 0;
+    transform: rotate(-45deg);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .content-wrapper {
         flex-direction: column;
     }
 
+    .mobile-toggle-fab {
+        display: flex;
+    }
+
     .shell-top-section {
         flex-direction: column;
+    }
+
+    .active-view-container {
+        margin: var(--space-md);
+        padding: var(--space-md);
+        border-radius: 16px;
+        min-height: calc(100vh - 140px);
+    }
+
+    .main-area {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .active-view-container {
+        margin: var(--space-sm);
+        padding: var(--space-sm);
+        border-radius: 12px;
+        border-width: 1px;
+        /* Lighter borders for very small screens */
     }
 }

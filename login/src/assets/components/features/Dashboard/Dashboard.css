@@ -1,9 +1,9 @@
-/* Dashboard.css - Internal View Styles */
 .dashboard-container {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: var(--space-xl);
 }
+
 
 .dashboard-header {
     display: flex;
@@ -34,17 +34,18 @@
     font-family: var(--font-secondary);
     background: var(--bg-card);
     padding: 8px 16px;
-    /* Compressed */
     border-radius: 12px;
     color: var(--text-header);
     font-size: 13px;
     display: flex;
     align-items: center;
     gap: 10px;
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     backdrop-filter: var(--glass-effect);
     font-weight: 700;
 }
+
 
 /* Stats Grid - Using Global Glass Card style if possible but defined here for specificity */
 .stats-grid {
@@ -57,27 +58,79 @@
     background: var(--bg-card);
     backdrop-filter: var(--glass-effect);
     padding: 16px;
-    /* Compressed */
-    border-radius: 12px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     gap: 15px;
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-header);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+
 .light-mode .stat-card {
     box-shadow: 0 10px 20px rgba(249, 115, 22, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
-.stat-card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-5px);
-    border-color: var(--primary-orange);
-    box-shadow: 0 15px 30px rgba(249, 115, 22, 0.15);
+/* High-Density Stats Grid */
+.stats-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
 }
+
+.stat-card-mini {
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-effect);
+    border: 1.5px solid var(--border-dim);
+    border-radius: 16px;
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    transition: all 0.3s ease;
+}
+
+
+.stat-card-mini:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary-orange);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-icon-mini {
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.stat-info-mini {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin: 0;
+}
+
+.mini-value {
+    font-size: 1.25rem;
+    font-weight: 900;
+    margin: 2px 0 0;
+    color: var(--text-header);
+}
+
 
 .stat-icon-wrapper {
     width: 60px;
@@ -128,11 +181,13 @@
     background: var(--bg-card);
     backdrop-filter: var(--glass-effect);
     border-radius: 20px;
-    padding: 24px;
-    border: 1px solid var(--border-dim);
+    padding: var(--space-lg);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
+
 
 .light-mode .widget-card {
     box-shadow: 0 8px 16px rgba(249, 115, 22, 0.05);
@@ -144,8 +199,10 @@
     align-items: center;
     margin-bottom: 24px;
     padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1.5px solid var(--border-dim);
+    /* Defined Border */
 }
+
 
 .widget-header h2 {
     font-size: 17px;
@@ -302,14 +359,51 @@
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: var(--space-sm);
     }
 
     .date-display {
         display: none;
     }
 
-    .dashboard-container {
-        padding: 0;
+    .stats-grid-compact {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
     }
+
+    .stat-card-mini {
+        padding: var(--space-md);
+    }
+
+    .dashboard-widgets {
+        gap: var(--space-lg);
+    }
+
+    .activity-item {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+
+    .activity-date {
+        min-width: 50px;
+        padding: 6px;
+    }
+
+    .activity-date strong {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header h1 {
+        font-size: 20px;
+    }
+
+    .stat-info-mini h3 {
+        font-size: 1.1rem;
+    }
+}
+
+.dashboard-container {
+    padding: 0;
 }

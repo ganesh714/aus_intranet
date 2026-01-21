@@ -32,40 +32,75 @@ const Homepage = ({ theme, setTheme }) => {
       <header className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            Welcome to <span className="highlight-text">Aditya University</span>
+            Centralized Hub for <span className="highlight-text">Aditya University</span>
           </h1>
           <p className="hero-subtitle">
-            The central hub for Students, Faculty, and Administration.
-            Access your dashboard, manage resources, and stay connected.
+            Seamlessly access your dashboard, manage institutional resources,
+            and stay connected with the academic community.
           </p>
           <div className="hero-actions">
             <button className="cta-btn primary" onClick={() => navigate('/LoginForm')}>
-              Get Started
+              Member Portal Login
             </button>
-            <button className="cta-btn secondary" onClick={() => window.open('https://aditya.ac.in', '_blank')}>
+            <button className="cta-btn secondary" onClick={() => window.open('https://adityauniversity.in/', '_blank')}>
               Visit Main Site
             </button>
           </div>
         </div>
 
-        {/* Decorative Glass Cards (Visual Only) */}
         <div className="hero-visuals">
-          <div className="glass-card card-1">
-            <span className="material-symbols-outlined icon">school</span>
+          <div className="glass-card card-highlight">
+            <span className="material-symbols-outlined icon">verified</span>
             <div className="card-content">
-              <h3>Students</h3>
-              <p>Access Timetables & Material</p>
-            </div>
-          </div>
-          <div className="glass-card card-2">
-            <span className="material-symbols-outlined icon">badge</span>
-            <div className="card-content">
-              <h3>Faculty</h3>
-              <p>Manage Classes & Resources</p>
+              <h3>Secure Access</h3>
+              <p>SSO Integration for Students & Faculty</p>
             </div>
           </div>
         </div>
       </header>
+
+      {/* NEW: Quick Stats Module */}
+      <section className="stats-banner">
+        <div className="stats-grid-container">
+          <div className="stat-pill">
+            <span className="stat-num">50k+</span>
+            <span className="stat-label">Students Globally</span>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-pill">
+            <span className="stat-num">150+</span>
+            <span className="stat-label">Academic Programs</span>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat-pill">
+            <span className="stat-num">100%</span>
+            <span className="stat-label">Digital Presence</span>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: Campus Highlights Module */}
+      <section className="highlights-section">
+        <h2 className="section-title">Institutional Features</h2>
+        <div className="highlights-grid">
+          <div className="glass-card h-card">
+            <span className="material-symbols-outlined h-icon">hub</span>
+            <h3>Unified Dashboard</h3>
+            <p>Single-window access to all academic and administrative tools.</p>
+          </div>
+          <div className="glass-card h-card">
+            <span className="material-symbols-outlined h-icon">cloud_upload</span>
+            <h3>E-Resources</h3>
+            <p>Access high-quality study materials and teaching resources anywhere.</p>
+          </div>
+          <div className="glass-card h-card">
+            <span className="material-symbols-outlined h-icon">notifications_active</span>
+            <h3>Quick Alerts</h3>
+            <p>Real-time notifications for official announcements and events.</p>
+          </div>
+        </div>
+      </section>
+
 
       {/* Simple Footer */}
       <footer className="landing-footer">

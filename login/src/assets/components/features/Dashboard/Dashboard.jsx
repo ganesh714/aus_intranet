@@ -136,20 +136,21 @@ const Dashboard = ({
                 </div>
             </div>
 
-            {/* 2. Stats Grid */}
-            <div className="stats-grid">
+            {/* 2. Stats Grid - High Density */}
+            <div className="stats-grid-compact">
                 {currentStats.map((stat) => (
-                    <div key={stat.id} className="stat-card">
-                        <div className="stat-icon-wrapper" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                    <div key={stat.id} className="stat-card-mini">
+                        <div className="stat-icon-mini" style={{ color: stat.color }}>
                             {stat.icon}
                         </div>
-                        <div className="stat-info">
-                            <h3>{stat.value}</h3>
-                            <p>{stat.label}</p>
+                        <div className="stat-info-mini">
+                            <p className="mini-label">{stat.label}</p>
+                            <h3 className="mini-value">{stat.value}</h3>
                         </div>
                     </div>
                 ))}
             </div>
+
 
             {/* 3. Main Content Widgets (Split View) */}
             <div className="dashboard-widgets">

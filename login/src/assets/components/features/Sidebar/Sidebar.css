@@ -1,15 +1,15 @@
 .sidebar {
     width: 255px;
-    /* Compressed (Unzoom) */
     background: var(--bg-sidebar);
     backdrop-filter: var(--glass-effect);
     color: var(--text-main);
     display: flex;
     flex-direction: column;
-    padding: 20px 15px;
-    /* Compressed */
+    padding: var(--space-lg) var(--space-md);
     flex-shrink: 0;
-    border-right: 1px solid var(--border-dim);
+    border-right: 1.5px solid var(--border-dim);
+    /* Proper Border */
+
     overflow-y: auto;
     height: calc(100vh - 68px);
     /* Synced with fixed header */
@@ -37,7 +37,9 @@
     color: var(--text-header);
     margin-bottom: 20px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-dim);
+    border-bottom: 1.5px solid var(--border-dim);
+    /* Proper Border */
+
     font-weight: 800;
 }
 
@@ -184,14 +186,48 @@
     background: rgba(249, 115, 22, 0.05) !important;
 }
 
-/* Sidebar for Mobile */
+/* Sidebar for Mobile (Drawer System) */
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+        position: fixed;
+        left: -100%;
+        /* Hidden by default */
+        top: 68px;
+        width: 280px;
+        height: calc(100vh - 68px);
+        background: var(--bg-modal);
+        z-index: 1500;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+        border-right: 1.5px solid var(--border-dim);
+        border-bottom: none;
+        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar.mobile-active {
+        left: 0;
+    }
+
+    /* Add a subtle overlay when active */
+    .mobile-menu-active::before {
+        content: '';
+        position: fixed;
         top: 0;
-        border-right: none;
-        border-bottom: 1px solid var(--border-dim);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1400;
+        animation: fadeIn 0.3s ease;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
     }
 }

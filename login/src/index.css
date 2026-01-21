@@ -10,9 +10,17 @@ body {
 }
 
 html {
-  font-size: 15px;
-  /* Global 'Unzoom' / Compression */
+  font-size: 16px;
+  /* Base size */
 }
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+    /* Compress fonts on mobile */
+  }
+}
+
 
 :root {
   /* Global Color Palette (Corporate Dark Refined) */
@@ -38,32 +46,50 @@ html {
   --text-dim: rgba(234, 179, 8, 0.7);
 
   --border-dim: rgba(234, 179, 8, 0.2);
-  --glass-effect: blur(12px);
+  --glass-effect: blur(12px) saturate(160%);
 
-  /* Typography Pairing */
-  --font-primary: 'Inter', sans-serif;
-  --font-secondary: 'Plus Jakarta Sans', sans-serif;
+  /* --- Efficiency Spacing System (Global) --- */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
 }
+
+@media (max-width: 768px) {
+  :root {
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-xxl: 32px;
+  }
+}
+
+
 
 /* Light Mode - Premium 'Warm Glass' Redesign */
 .light-mode {
-  --bg-app: radial-gradient(circle at top right, #f0f9ff, #fffbeb),
-    radial-gradient(circle at bottom left, #ffffff, #f0f9ff);
+  --bg-app: radial-gradient(circle at top right, #f8fafc, #f1f5f9),
+    radial-gradient(circle at bottom left, #ffffff, #eff6ff);
   --bg-sidebar: rgba(255, 255, 255, 0.95);
-  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(255, 255, 255, 0.85);
   --bg-modal: rgba(255, 255, 255, 0.98);
   --bg-input: #ffffff;
 
   --text-main: #0f172a;
-  /* Near Black Slate for readability */
   --text-header: #c2410c;
-  /* High-contrast Professional Orange */
   --text-dim: #64748b;
 
-  --border-dim: rgba(14, 165, 233, 0.15);
-  /* Subtle Sky Blue Tinted Border */
-  --glass-effect: blur(12px) saturate(180%);
+  --border-dim: rgba(14, 165, 233, 0.25);
+  /* More visible border */
+  --glass-effect: blur(16px) saturate(180%);
 }
+
+
+
 
 @keyframes backgroundPulse {
   0% {
@@ -106,6 +132,40 @@ html {
   }
 }
 
+/* Ethereal Silk Layer */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  background: radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(249, 115, 22, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(80px);
+  animation: etherealSilk 25s ease-in-out infinite alternate;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.light-mode body::after {
+  opacity: 1;
+}
+
+@keyframes etherealSilk {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: translate(3%, 3%) rotate(2deg) scale(1.1);
+  }
+
+  100% {
+    transform: translate(-2%, 5%) rotate(-1deg) scale(1);
+  }
+}
+
+
 
 
 body {
@@ -138,15 +198,18 @@ body::before {
 /* Standard Page Layout */
 .std-page-container {
   background-color: var(--bg-card);
-  border-radius: 8px;
-  padding: 12px;
-  /* Compressed */
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 20px;
+  padding: var(--space-lg);
+  /* Proper Breathing Room */
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1),
+    inset 0 0 15px rgba(255, 255, 255, 0.05);
   margin: 0;
   height: 100%;
   overflow-y: auto;
-  border: 1px solid var(--border-dim);
+  border: 1.5px solid var(--border-dim);
+  /* Proper Border */
 }
+
 
 /* Island Consistency: Remove nested container styles when inside the Content Island */
 .active-view-container .std-page-container {

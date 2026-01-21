@@ -24,7 +24,9 @@
     /* Compressed */
     background: var(--bg-modal);
     backdrop-filter: var(--glass-effect);
-    border-bottom: 2px solid var(--border-dim);
+    border-bottom: 1.5px solid var(--border-dim);
+    /* Proper Border */
+
     position: fixed;
     /* Guaranteed Sticky */
     top: 0;
@@ -74,7 +76,9 @@
     border-radius: 10px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
+
 }
 
 .header-icon-btn:hover {

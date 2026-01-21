@@ -17,9 +17,17 @@ const Sidebar = ({
     onPersonalDataClick,
     onToggleCategory,
     onSubCategoryClick,
-    onDirectCategoryClick, // <--- New Prop for direct clicking main categories
-    onAchievementsClick // [NEW] Handler for achievements
+    onDirectCategoryClick,
+    onAchievementsClick,
+    isMobileOpen, // [NEW]
+    onCloseMobile // [NEW]
 }) => {
+    // Utility to wrap clicks with mobile close
+    const handleNavClick = (callback, ...args) => {
+        callback(...args);
+        if (onCloseMobile) onCloseMobile();
+    };
+
 
     // Helper to check if a category should be a direct link for Students
     const isStudentDirectLink = (catName) => {
@@ -34,22 +42,24 @@ const Sidebar = ({
     }
 
     return (
-        <div className="sidebar">
+        <div className={`sidebar ${isMobileOpen ? 'mobile-active' : ''}`}>
+
 
             <div className="category-list">
                 {/* Dashboard */}
                 <div className={`category-item ${showContentP ? "expanded" : ""}`}>
-                    <div className="category-header" onClick={onDashboardClick}>
+                    <div className="category-header" onClick={() => handleNavClick(onDashboardClick)}>
                         <span className="cat-name">
                             <MdDashboard className="cat-icon" /> Dashboard
                         </span>
                     </div>
                 </div>
 
+
                 {/* My Data (Non-Admin) */}
                 {userRole !== 'Admin' && (
                     <div className={`category-item ${type === 'Personal Data' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={onPersonalDataClick}>
+                        <div className="category-header" onClick={() => handleNavClick(onPersonalDataClick)}>
                             <span className="cat-name">
                                 <FaFolder className="cat-icon" /> My Data
                             </span>
@@ -57,10 +67,11 @@ const Sidebar = ({
                     </div>
                 )}
 
+
                 {/* [NEW] My Achievements (Student, Faculty, HOD) */}
                 {(userRole === 'Student' || userRole === 'Faculty' || userRole === 'HOD') && (
                     <div className={`category-item ${type === 'Achievements' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={onAchievementsClick}>
+                        <div className="category-header" onClick={() => handleNavClick(onAchievementsClick)}>
                             <span className="cat-name">
                                 <FaTrophy className="cat-icon" /> My Achievements
                             </span>
@@ -68,10 +79,11 @@ const Sidebar = ({
                     </div>
                 )}
 
+
                 {/* [NEW] HOD/Faculty Department Achievements */}
                 {(userRole === 'HOD' || userRole === 'Faculty') && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
+                        <div className="category-header" onClick={() => handleNavClick(onDirectCategoryClick, 'HODAchievements')}>
                             <span className="cat-name">
                                 <FaTrophy className="cat-icon" style={{ color: '#ea580c' }} /> Achievements (Dept)
                             </span>
@@ -79,10 +91,11 @@ const Sidebar = ({
                     </div>
                 )}
 
+
                 {/* Send Announcements (Non-Students) */}
                 {userRole !== 'Student' && (
                     <div className={`category-item ${showSendAnnounce ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={onSendAnnounceClick}>
+                        <div className="category-header" onClick={() => handleNavClick(onSendAnnounceClick)}>
                             <span className="cat-name">
                                 <MdCampaign className="cat-icon" /> Send Announcements
                             </span>
@@ -90,16 +103,18 @@ const Sidebar = ({
                     </div>
                 )}
 
+
                 {/* View Announcements (Students) */}
                 {userRole === 'Student' && (
                     <div className={`category-item ${type === 'Announcements' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={onViewAnnouncementsClick}>
+                        <div className="category-header" onClick={() => handleNavClick(onViewAnnouncementsClick)}>
                             <span className="cat-name">
                                 <FaBullhorn className="cat-icon" /> Announcements
                             </span>
                         </div>
                     </div>
                 )}
+
 
                 {/* Dynamic Categories */}
                 {pdfLinks.map((category, index) => {
@@ -149,23 +164,23 @@ const Sidebar = ({
                     if (isDirectLink(category.category)) {
                         return (
                             <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                                <div className="category-header" onClick={() => onDirectCategoryClick(category.category)}>
+                                <div className="category-header" onClick={() => handleNavClick(onDirectCategoryClick, category.category)}>
                                     <span className="cat-name">
                                         {getIcon(category.category)}
                                         {category.category === 'Faculty related' ? 'Announcements' :
                                             category.category === 'Material' ? 'Shared Documents' :
                                                 category.category}
                                     </span>
-                                    {/* No Chevron for direct links */}
                                 </div>
                             </div>
                         );
                     }
 
+
                     // Default Accordion Behavior
                     return (
                         <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={() => onToggleCategory(category.category)}>
+                            <div className="category-header" onClick={() => handleNavClick(onToggleCategory, category.category)}>
                                 <span className="cat-name"><FaFolder className="cat-icon" /> {category.category}</span>
                                 <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`} />
                             </div>

@@ -49,15 +49,16 @@
 .glass-card {
     background: var(--bg-card);
     backdrop-filter: var(--glass-effect);
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Reinforced Border */
     border-radius: 20px;
-    /* More rounded */
     padding: 24px;
     color: var(--text-main);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 800;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
+
 
 .light-mode .glass-card {
     background: rgba(255, 255, 255, 0.7);
@@ -124,7 +125,115 @@
 .nav-btn-glass:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: #F97316;
-    /* Orange accent border on hover */
+}
+
+/* --- Quick Stats Module --- */
+.stats-banner {
+    padding: var(--space-xxl) var(--space-lg);
+    background: linear-gradient(to right, transparent, var(--bg-card), transparent);
+    border-top: 1.5px solid var(--border-dim);
+    border-bottom: 1.5px solid var(--border-dim);
+    margin: var(--space-xl) 0;
+}
+
+
+.stats-grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-orange);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+.stat-divider {
+    width: 2px;
+    height: 60px;
+    background: var(--border-dim);
+}
+
+/* --- Highlights Section --- */
+.highlights-section {
+    max-width: 1200px;
+    margin: var(--space-xxl) auto;
+    padding: 0 var(--space-lg);
+    text-align: center;
+}
+
+
+.section-title {
+    font-size: 2rem;
+    color: var(--text-header);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.h-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.h-icon {
+    font-size: 48px;
+    color: var(--primary-orange);
+    background: rgba(249, 115, 22, 0.1);
+    padding: 20px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.light-mode .h-icon {
+    background: rgba(14, 165, 233, 0.1);
+    color: var(--text-header);
+}
+
+.h-card h3 {
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.h-card p {
+    font-size: 1rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+}
+
+.h-card:hover {
+    border-color: var(--primary-orange);
+    transform: scale(1.02) translateY(-5px);
 }
 
 /* --- Header Icons (Theme Toggle) --- */
@@ -156,15 +265,14 @@
 
 /* --- Hero Section --- */
 .hero-section {
+    padding: 140px 10% var(--space-xxl);
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 140px 5% 60px;
-    /* Top padding accounts for fixed nav */
+    gap: var(--space-xl);
+    min-height: calc(100vh - 100px);
     max-width: 1400px;
     margin: 0 auto;
-    min-height: 90vh;
 }
 
 .hero-content {
@@ -339,13 +447,13 @@
     }
 }
 
-/* Responsibility */
+/* Responsive Design */
 @media (max-width: 1024px) {
     .hero-section {
         flex-direction: column;
         padding-top: 120px;
         text-align: center;
-        gap: 60px;
+        gap: var(--space-xl);
     }
 
     .hero-content {
@@ -355,62 +463,63 @@
         align-items: center;
     }
 
-    .hero-title {
-        font-size: 3rem;
-    }
-
     .hero-visuals {
         width: 100%;
         align-items: center;
     }
 
-    .card-1,
-    .card-2 {
-        margin: 0;
+    .card-highlight {
         align-self: center;
+        margin: 0;
     }
 }
 
 @media (max-width: 768px) {
     .glass-nav {
-        padding: 0.75rem 1rem;
+        padding: var(--space-sm) var(--space-md);
     }
 
     .nav-logo span {
-        font-size: 1rem;
+        display: none;
+        /* Hide 'Intranet' text on very small screens */
     }
 
     .hero-title {
-        font-size: 2.25rem;
+        font-size: 2.5rem;
     }
 
     .hero-subtitle {
         font-size: 1rem;
-        margin-bottom: 30px;
+        margin-bottom: var(--space-lg);
     }
 
     .hero-actions {
         flex-direction: column;
         width: 100%;
         max-width: 300px;
+        gap: var(--space-sm);
     }
 
     .cta-btn {
         width: 100%;
-        text-align: center;
+        padding: 12px 24px;
     }
 
-    .hero-visuals .glass-card {
-        width: 290px;
-        padding: 16px;
-        gap: 12px;
+    .stats-grid-container {
+        flex-direction: column;
+        gap: var(--space-lg);
     }
 
-    .hero-visuals .icon {
-        font-size: 32px;
-        padding: 8px;
+    .stat-divider {
+        width: 60px;
+        height: 2px;
+    }
+
+    .highlights-grid {
+        grid-template-columns: 1fr;
     }
 }
+
 
 @media (max-width: 480px) {
     .hero-title {

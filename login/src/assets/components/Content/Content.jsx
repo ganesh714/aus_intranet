@@ -28,6 +28,7 @@ const Content = () => {
 
     // View State
     const [activeView, setActiveView] = useState('dashboard');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // [NEW] Mobile Sidebar State
     const [viewParams, setViewParams] = useState({
         category: null,
         subCategory: null
@@ -255,6 +256,11 @@ const Content = () => {
         }
     };
 
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+
     return (
         <div className="content-wrapper">
             {/* Resource Repository - Handles PDF fetching side effects */}
@@ -264,12 +270,24 @@ const Content = () => {
             />
 
             {/* Main Layout Section: Sidebar + Content */}
-            <div className="shell-top-section">
+            <div className={`shell-top-section ${isMobileMenuOpen ? 'mobile-menu-active' : ''}`}>
+                {/* Mobile Hamburger Button */}
+                <button
+                    className="mobile-toggle-fab"
+                    onClick={toggleMobileMenu}
+                    aria-label="Toggle Menu"
+                >
+                    <div className={`hamburger-bar ${isMobileMenuOpen ? 'open' : ''}`}></div>
+                </button>
+
                 {/* Sidebar */}
                 <Sidebar
                     userRole={userRole}
                     pdfLinks={pdfLinks}
-                    activeCategory={activeCategory} // <--- FIXED: Passing state
+                    activeCategory={activeCategory}
+                    isMobileOpen={isMobileMenuOpen} // [NEW] Pass state to Sidebar
+                    onCloseMobile={() => setIsMobileMenuOpen(false)} // [NEW] Close handler
+
 
                     // Active highlighting flags
                     showContentP={activeView === 'dashboard'}

@@ -42,16 +42,17 @@ body.login-page {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 0.8rem 2rem;
-    /* Compressed */
+    padding: var(--space-sm) var(--space-xl);
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--bg-sidebar);
     backdrop-filter: var(--glass-effect);
-    border-bottom: 1px solid var(--border-dim);
+    border-bottom: 1.5px solid var(--border-dim);
+    /* Proper Border */
     z-index: 50;
 }
+
 
 .nav-logo {
     display: flex;
@@ -99,12 +100,14 @@ body.login-page {
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     border-radius: 12px;
     color: var(--text-main);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 
 .header-icon-btn:hover {
     background: rgba(249, 115, 22, 0.1);
@@ -137,15 +140,16 @@ body.login-page {
     width: 100%;
     max-width: 440px;
     background: var(--bg-modal);
-    /* More opaque than island for focus */
     backdrop-filter: blur(20px);
-    padding: 45px;
+    padding: var(--space-xxl);
     border-radius: 24px;
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     border-top: 6px solid #f97316;
     animation: slideUp 0.5s ease-out;
 }
+
 
 .light-mode .login-container {
     background: #ffffff;
@@ -341,9 +345,30 @@ body.login-page {
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+    .glass-nav {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .nav-logo span {
+        display: none;
+        /* Simplify on mobile */
+    }
+
+    .login-container {
+        width: 92%;
+        padding: var(--space-lg);
+        margin: var(--space-md) auto;
+    }
+}
+
 @media (max-width: 480px) {
     .login-container {
-        margin: 16px;
-        padding: 24px;
+        width: 95%;
+        padding: var(--space-md);
+    }
+
+    .login-header h1 {
+        font-size: 24px;
     }
 }

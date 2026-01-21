@@ -33,9 +33,11 @@
     background: var(--bg-card);
     backdrop-filter: var(--glass-effect);
     border-radius: 16px;
-    border: 1px solid var(--border-dim);
+    border: 1.5px solid var(--border-dim);
+    /* Proper Border */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 
 .light-mode .drive-header-remastered {
     box-shadow: 0 8px 24px rgba(249, 115, 22, 0.05);
@@ -246,6 +248,10 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
+    /* Added for compatibility */
+    overflow: hidden;
+    margin: 4px 0 0;
 }
 
 /* Files List Table */
