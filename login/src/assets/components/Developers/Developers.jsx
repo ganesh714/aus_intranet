@@ -22,7 +22,7 @@ const Developers = () => {
             linkedin: '#',
         },
         {
-            name: 'E.V.V.Ganesh',
+            name: 'Venkata Ganesh',
             role: 'Full Stack Developer',
             status: 'Contributor',
             image: venkat_ganesh,
