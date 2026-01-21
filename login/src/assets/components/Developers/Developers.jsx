@@ -2,19 +2,10 @@ import React from 'react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import './Developers.css';
 
-// ----------------------------------------------------------------------
-// INSTRUCTIONS FOR ADDING PHOTOS:
-// 1. Place your photo files (jpg, png) in this folder:
-//    src/assets/components/images/
-// 
-// 2. Import them at the top like this:
-//    import sivaPhoto from "../images/siva.jpg";
-// 
-// 3. Use the variable (e.g., sivaPhoto) in the 'image' field below.
-// ----------------------------------------------------------------------
-
 // Example Import (Uncomment and change filename when you have the photo):
-// import sivaImg from "../images/siva.jpg"; 
+import sivaImg from "../images/siva_ganesh_v.png";
+import venkat_ganesh from "../images/venkat_ganesh.jpg";
+import veeranna from "../images/veeranna.jpeg";
 
 const Developers = () => {
     // Fake photos using UI Avatars for now (Delete this helper once you have real photos)
@@ -25,16 +16,16 @@ const Developers = () => {
             name: 'K. B. Surya',
             role: 'Full Stack Developer',
             status: 'Contributor',
-            image: getFakePhoto('Sunil Garbana'),
+            image: getFakePhoto('K. B. Surya'),
             description: 'Focuses on UI components and responsive design. Implements modern CSS framework features for a seamless look.',
-            github: '#',
+            github: 'https://github.com/rtrter',
             linkedin: '#',
         },
         {
             name: 'E.V.V.Ganesh',
             role: 'Full Stack Developer',
             status: 'Contributor',
-            image: getFakePhoto('E.V.V.Ganesh'),
+            image: venkat_ganesh,
             description: 'Designs and implements the user-facing part of the website using Reactjs. Focuses on performance and user experience.',
             github: 'https://github.com/ganesh714',
             linkedin: 'https://www.linkedin.com/in/venkata-ganesh-934072291/',
@@ -43,7 +34,7 @@ const Developers = () => {
             name: 'Siva Ganesh',
             role: 'Full Stack Developer',
             status: 'Lead Developer',
-            image: getFakePhoto('Siva Ganesh'), // CHANGE THIS TO: image: sivaImg,
+            image: sivaImg,
             description: 'Handles both frontend and backend development of the website. Integrates data from the scraper into the web app and ensures end-to-end functionality.',
             github: 'https://github.com/SivaGaneshv1729',
             linkedin: 'https://www.linkedin.com/in/siva-ganesh-vemula/',
@@ -52,30 +43,11 @@ const Developers = () => {
             name: 'Naga Veeranna',
             role: 'Full Stack Developer',
             status: 'Contributor',
-            image: getFakePhoto('Pavan Gollapalli'),
+            image: veeranna,
             description: 'Contributes to backend architecture and API optimization. Ensures smooth data flow and efficient database management.',
-            github: '#',
-            linkedin: '#',
+            github: 'https://github.com/NagaVeeranna',
+            linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
         }
-
-        // {
-        //     name: 'Lalu Prasad',
-        //     role: 'Frontend Developer',
-        //     status: 'Contributor',
-        //     image: getFakePhoto('Lalu Prasad'),
-        //     description: 'Specializes in interactive elements and animations. enhancing user engagement through dynamic interface behaviors.',
-        //     github: '#',
-        //     linkedin: '#',
-        // },
-        // {
-        //     name: 'Praneeth',
-        //     role: 'Backend Developer',
-        //     status: 'Contributor',
-        //     image: getFakePhoto('Praneeth'),
-        //     description: 'Works on server-side logic and authentication security. Maintains the integrity and safety of user data.',
-        //     github: '#',
-        //     linkedin: '#',
-        // }
     ];
 
     return (
