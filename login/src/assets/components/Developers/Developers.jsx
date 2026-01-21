@@ -17,7 +17,7 @@ const Developers = () => {
             role: 'Full Stack Developer',
             status: 'Contributor',
             image: getFakePhoto('K. B. Surya'),
-            description: 'Focuses on UI components and responsive design. Implements modern CSS framework features for a seamless look.',
+            description: 'Serving as the project SPOC, he bridged the gap between requirements and technical implementation. Conducted initial database schema research and coordinated team efforts to ensure project milestones were met.',
             github: 'https://github.com/rtrter',
             linkedin: '#',
         },
@@ -26,7 +26,7 @@ const Developers = () => {
             role: 'Full Stack Developer',
             status: 'Contributor',
             image: venkat_ganesh,
-            description: 'Designs and implements the user-facing part of the website using Reactjs. Focuses on performance and user experience.',
+            description: 'Architected the core backend infrastructure by refactoring monolithic services into modular, scalable systems using SOLID principles. Spearheaded the frontend redesign and developed key functional modules like the Dashboard and Timetable.',
             github: 'https://github.com/ganesh714',
             linkedin: 'https://www.linkedin.com/in/venkata-ganesh-934072291/',
         },
@@ -35,7 +35,7 @@ const Developers = () => {
             role: 'Full Stack Developer',
             status: 'Lead Developer',
             image: sivaImg,
-            description: 'Handles both frontend and backend development of the website. Integrates data from the scraper into the web app and ensures end-to-end functionality.',
+            description: 'Established the frontend project architecture and file structure. Managed complex backend service integrations and contributed the initial UI/UX design concepts that defined the application’s visual identity.',
             github: 'https://github.com/SivaGaneshv1729',
             linkedin: 'https://www.linkedin.com/in/siva-ganesh-vemula/',
         },
@@ -44,7 +44,7 @@ const Developers = () => {
             role: 'Full Stack Developer',
             status: 'Contributor',
             image: veeranna,
-            description: 'Contributes to backend architecture and API optimization. Ensures smooth data flow and efficient database management.',
+            description: 'Oversaw system stability through rigorous testing and quality assurance. Managed data integrity during schema migrations and facilitated seamless communication between development phases.',
             github: 'https://github.com/NagaVeeranna',
             linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
         }
@@ -57,7 +57,6 @@ const Developers = () => {
 
             <div className="dev-content">
                 <div className="dev-header">
-                    {/* Logo Removed as requested */}
                     <h1>Meet Our Developers</h1>
                     <p>The talented team behind the Intranet Portal</p>
                 </div>
