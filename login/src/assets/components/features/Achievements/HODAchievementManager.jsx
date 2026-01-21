@@ -73,50 +73,41 @@ const HODAchievementManager = ({ userRole, userId }) => {
         } else if (canAccessControl) {
             fetchFaculty();
         }
-    }, [activeTab]);
+    }, [activeTab, approvalRoleFilter]); // Reload when role filter changes in Approvals tab
 
-    const loadAchievements = () => {
-        const stored = localStorage.getItem('user_achievements');
-        let currentData = [];
-        if (stored) {
-            try { currentData = JSON.parse(stored); } catch (e) { }
-        }
+    const loadAchievements = async () => {
+        try {
+            // Determine filter params
+            let params = {};
 
-        // --- REALISTIC DATA INJECTION (If empty or needs top-up for demo) ---
-        const fakeData = [
-            // --- APPROVED FACULTY (For Faculty Tab) ---
-            { id: 'ach-101', title: 'Data Science Summit Keynote', type: 'Guest Lecture', issuingBody: 'Intl Data Corp', date: '2023-11-20', status: 'Approved', approvedBy: 'Dr. HOD (HOD)', userId: 'FAC001', userName: 'Dr. Smith', userRole: 'Faculty' },
-            { id: 'ach-103', title: 'Published in IEEE Journal', type: 'Research Publications', issuingBody: 'IEEE', date: '2023-09-10', status: 'Approved', approvedBy: 'Dr. HOD (HOD)', userId: 'FAC002', userName: 'Prof. Johnson', userRole: 'Faculty' },
-            { id: 'ach-106', title: 'AI Ethics Workshop Lead', type: 'Professional Development', issuingBody: 'AI Safety Inst', date: '2023-12-05', status: 'Approved', approvedBy: 'Prof. Alan (Faculty)', userId: 'FAC003', userName: 'Dr. Emily', userRole: 'Faculty' },
-            { id: 'ach-107', title: 'Patent Granted: IoT Security', type: 'Intellectual Property', issuingBody: 'USPTO', date: '2023-10-22', status: 'Approved', approvedBy: 'Dr. HOD (HOD)', userId: 'FAC001', userName: 'Dr. Smith', userRole: 'Faculty' },
+            // NOTE: Ideally, the backend should handle complex filtering.
+            // For now, we will fetch based on the 'activeTab' and 'approvalRoleFilter' context.
 
-            // --- APPROVED STUDENTS (For Student Tab) ---
-            { id: 'ach-102', title: 'National Hackathon Winner', type: 'Competitions & Awards', issuingBody: 'Tech India', date: '2023-10-15', status: 'Approved', approvedBy: 'Dr. Smith (Faculty)', userId: 'STU005', userName: 'Rahul Kumar', userRole: 'Student' },
-            { id: 'ach-108', title: 'Google Summer of Code', type: 'Placements & Internships', issuingBody: 'Google', date: '2023-08-15', status: 'Approved', approvedBy: 'Prof. Johnson (Faculty)', userId: 'STU015', userName: 'Anita Raj', userRole: 'Student' },
-
-            // --- PENDING REQUESTS (For Approvals Tab) ---
-            // Faculty Pending
-            { id: 'ach-109', title: 'Research Grant: Green Energy', type: 'Research Consultancy', issuingBody: 'Dept of Science', date: '2024-01-10', status: 'Pending', userId: 'FAC004', userName: 'Prof. Alan', userRole: 'Faculty' },
-            { id: 'ach-110', title: 'Certified Kubernetes Admin', type: 'Certifications & Online Courses', issuingBody: 'CNCF', date: '2024-01-12', status: 'Pending', userId: 'FAC005', userName: 'Dr. Rose', userRole: 'Faculty' },
-
-            // Student Pending
-            { id: 'ach-104', title: 'Best Student Project Award', type: 'Competitions & Awards', issuingBody: 'Anna University', date: '2023-12-01', status: 'Pending', userId: 'STU012', userName: 'Priya S.', userRole: 'Student' },
-            { id: 'ach-105', title: 'Cloud Computing Certification', type: 'Technical Certification', issuingBody: 'Google Cloud', date: '2023-08-20', status: 'Pending', userId: 'STU008', userName: 'Amit V.', userRole: 'Student' },
-            { id: 'ach-111', title: 'Inter-College Football Winner', type: 'Sports & Cultural Events', issuingBody: 'Sports Authority', date: '2024-01-05', status: 'Pending', userId: 'STU020', userName: 'Karthik M.', userRole: 'Student' }
-        ];
-
-        const finalData = [...currentData];
-        fakeData.forEach(fake => {
-            const index = finalData.findIndex(d => d.id === fake.id);
-            if (index !== -1) {
-                // If it exists, update it with new fake props (to ensure fields like approvedBy are added)
-                finalData[index] = { ...finalData[index], ...fake };
-            } else {
-                finalData.push(fake);
+            // 1. Approvals Tab: Filter mainly by Role (Student/Faculty) and Status=Pending (Backend can filter status if we start adding it params)
+            if (activeTab === 'approvals') {
+                params.role = approvalRoleFilter;
+                params.status = 'Pending';
             }
-        });
-        finalData.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setAchievements(finalData);
+            // 2. Overviews: Fetch Approved for specific role
+            else if (activeTab === 'student_overview') {
+                params.role = 'Student';
+                params.status = 'Approved';
+            }
+            else if (activeTab === 'faculty_overview') {
+                params.role = 'Faculty';
+                params.status = 'Approved';
+            }
+            // Assume we are fetching for the HOD's department.
+            // We need to pass the HOD's department context. Assuming it's available via props or session.
+            // For now, we rely on backend knowing the user or passing dept.
+            params.dept = 'CSE'; // HARDCODED for now, should be dynamic based on HOD's profile if available.
+
+            const response = await axios.get('http://localhost:5001/get-achievements', { params });
+            setAchievements(response.data.achievements || []);
+
+        } catch (error) {
+            console.error("Error loading achievements:", error);
+        }
     };
 
     const fetchFaculty = async () => {
@@ -136,14 +127,27 @@ const HODAchievementManager = ({ userRole, userId }) => {
         }
     };
 
-    const handleApproval = (id, status) => {
+    const handleApproval = async (id, status) => {
         const approverName = sessionStorage.getItem('username') || 'Unknown';
         const approverRole = sessionStorage.getItem('userRole') || '';
-        const approvedByString = `${approverName} (${approverRole})`;
+        const approverId = sessionStorage.getItem('userId');
 
-        const updated = achievements.map(ach => ach.id === id ? { ...ach, status: status, approvedBy: status === 'Approved' ? approvedByString : null } : ach);
-        setAchievements(updated);
-        localStorage.setItem('user_achievements', JSON.stringify(updated));
+        try {
+            await axios.put('http://localhost:5001/update-achievement-status', {
+                id,
+                status,
+                approverId,
+                approverName,
+                approverRole
+            });
+
+            // Refresh List
+            loadAchievements();
+
+        } catch (error) {
+            console.error("Error updating achievement:", error);
+            alert("Failed to update status");
+        }
     };
 
     // --- ACCESS CONTROL HELPERS (Same as before) ---
@@ -161,64 +165,42 @@ const HODAchievementManager = ({ userRole, userId }) => {
         setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
     };
 
-    // --- DATA FILTERS ---
-
-    // 1. Get Approved Data (For Overviews)
-    const getApprovedData = (targetRole) => {
-        return achievements.filter(ach => {
-            // Must be Approved AND correct role
-            if (ach.status !== 'Approved') return false;
-            if (ach.userRole !== targetRole) return false;
-
-            // Time Filter
-            if (timeFilter !== 'All') {
-                const achDate = new Date(ach.date);
-                const now = new Date();
-                const diffDays = Math.ceil(Math.abs(now - achDate) / (1000 * 60 * 60 * 24));
-                if (timeFilter === '1M' && diffDays > 30) return false;
-                if (timeFilter === '3M' && diffDays > 90) return false;
-                if (timeFilter === '6M' && diffDays > 180) return false;
-                if (timeFilter === '1Y' && diffDays > 365) return false;
-            }
-
-            // Search
-            const searchLower = searchQuery.toLowerCase();
-            return (
-                ach.title.toLowerCase().includes(searchLower) ||
-                ach.type.toLowerCase().includes(searchLower) ||
-                (ach.userName && ach.userName.toLowerCase().includes(searchLower))
-            );
-        });
-    };
-
-    // 2. Get Pending Data (For Approvals Tab)
-    const getPendingData = () => {
-        return achievements.filter(ach => {
-            // Must NOT be Approved
-            if (ach.status === 'Approved') return false;
-
-            // Filter by selected role in the Approvals tab
-            if (approvalRoleFilter === 'Student' && ach.userRole !== 'Student') return false;
-            if (approvalRoleFilter === 'Faculty' && ach.userRole !== 'Faculty') return false;
-
-            // Filter by Category
-            if (categoryFilter !== 'All' && ach.type !== categoryFilter) return false;
-
-            // Search
-            const searchLower = searchQuery.toLowerCase();
-            return (
-                ach.title.toLowerCase().includes(searchLower) ||
-                ach.type.toLowerCase().includes(searchLower) ||
-                (ach.userName && ach.userName.toLowerCase().includes(searchLower))
-            );
-        });
-    };
-
     // Determine which data to show
-    let displayData = [];
-    if (activeTab === 'student_overview') displayData = getApprovedData('Student');
-    else if (activeTab === 'faculty_overview') displayData = getApprovedData('Faculty');
-    else if (activeTab === 'approvals') displayData = getPendingData();
+    // The 'achievements' state is already filtered by the API call in 'loadAchievements' based on the active tab context.
+    // So distinct filtering functions like getApprovedData locally are no longer needed for the main list.
+    // However, if we want to support client-side filtering (like search field), we can keep a derivation.
+
+    let displayData = achievements;
+
+    // Apply Client-Side Filters (Search & Date Range) on top of the API results
+    displayData = displayData.filter(ach => {
+        // Search
+        if (searchQuery) {
+            const searchLower = searchQuery.toLowerCase();
+            const matches = (
+                ach.title.toLowerCase().includes(searchLower) ||
+                ach.type.toLowerCase().includes(searchLower) ||
+                (ach.userName && ach.userName.toLowerCase().includes(searchLower))
+            );
+            if (!matches) return false;
+        }
+
+        // Category Filter (Approvals Tab)
+        if (activeTab === 'approvals' && categoryFilter !== 'All' && ach.type !== categoryFilter) return false;
+
+        // Time Filter (Overview Tabs)
+        if ((activeTab === 'student_overview' || activeTab === 'faculty_overview') && timeFilter !== 'All') {
+            const achDate = new Date(ach.date);
+            const now = new Date();
+            const diffDays = Math.ceil(Math.abs(now - achDate) / (1000 * 60 * 60 * 24));
+            if (timeFilter === '1M' && diffDays > 30) return false;
+            if (timeFilter === '3M' && diffDays > 90) return false;
+            if (timeFilter === '6M' && diffDays > 180) return false;
+            if (timeFilter === '1Y' && diffDays > 365) return false;
+        }
+
+        return true;
+    });
 
     // Helper for active approvers
     const activeApprovers = Object.keys(permissions).filter(k => !!permissions[k]);
@@ -383,6 +365,13 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                     </span>
                                                 )}
                                             </div>
+
+                                            {/* Proof File Link */}
+                                            {ach.proof && (
+                                                <div style={{ marginTop: '8px', fontSize: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    <FaClipboardList /> Proof: <strong>{ach.proof}</strong>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

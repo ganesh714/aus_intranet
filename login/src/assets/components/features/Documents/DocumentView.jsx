@@ -38,7 +38,13 @@ const DocumentView = ({
             <div className="items-grid">
                 {documents.length > 0 ? (
                     documents.map((item, index) => (
-                        <div key={index} className="doc-card" onClick={(event) => (item.filePath || item.fileId?.filePath) && onPdfClick(item.filePath || item.fileId?.filePath, event)}>
+                        <div key={index} className="doc-card" onClick={(event) => {
+                            event.stopPropagation();
+                            const path = item.filePath || item.fileId?.filePath;
+                            const name = item.name || item.fileName;
+                            const type = item.fileId?.fileType || null; // Pass null for legacy PDFs
+                            if (path) onPdfClick(path, type, name);
+                        }}>
                             <div className="doc-icon-box"><FaFilePdf /></div>
                             <div className="doc-info">
                                 {/* Use optional chaining for safety */}

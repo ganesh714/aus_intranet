@@ -204,10 +204,24 @@ const FileViewer = ({ fileUrl, fileType, fileName, onClose }) => {
 
                 <div className="std-modal-body" style={{ padding: 0, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     {isImage ? renderImageViewer() : (
-                        <object data={fileUrl} type="application/pdf" className="pdf-object" style={{ width: '100%', height: '100%' }}>
-                            <div style={{ padding: '20px', textAlign: 'center' }}>
-                                <p>Your browser doesn't support viewing this file directly.</p>
-                                <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="std-btn">Download File</a>
+                        <object
+                            data={fileUrl}
+                            type={(typeof fileType === 'string' && fileType) ? fileType : "application/pdf"}
+                            className="pdf-object"
+                            style={{ width: '100%', height: '100%' }}
+                        >
+                            {/* Fallback for files that cannot be embedded (like Word docs, or if PDF fails) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '20px', textAlign: 'center', color: '#333' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '20px', color: '#ccc' }}>
+                                    <span role="img" aria-label="document">📄</span>
+                                </div>
+                                <h3 style={{ marginBottom: '10px' }}>Preview Not Available</h3>
+                                <p style={{ marginBottom: '20px', maxWidth: '300px' }}>
+                                    This file type ({fileType || 'Unknown'}) cannot be displayed directly in the browser.
+                                </p>
+                                <a href={fileUrl} className="std-btn">
+                                    Download to View
+                                </a>
                             </div>
                         </object>
                     )}

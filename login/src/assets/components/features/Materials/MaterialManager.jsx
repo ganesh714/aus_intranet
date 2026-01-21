@@ -348,7 +348,10 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                             <div
                                 key={item._id}
                                 className="mat-card"
-                                onClick={(e) => onPdfClick(item.fileId?.filePath, e)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onPdfClick(item.fileId?.filePath, item.fileId?.fileType, item.title);
+                                }}
                             >
                                 <div className="mat-icon-wrapper">
                                     <FaBook />
@@ -385,8 +388,9 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                         </div>
                     )}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 

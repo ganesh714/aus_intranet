@@ -3,73 +3,27 @@ import { FaCloudUploadAlt, FaList } from 'react-icons/fa';
 import AchievementList from './AchievementList';
 import AchievementForm from './AchievementForm';
 import './Achievements.css';
+import axios from 'axios';
 
 const AchievementManager = ({ userRole, userId }) => {
     const [activeTab, setActiveTab] = useState('list'); // 'list' or 'upload'
     const [achievements, setAchievements] = useState([]);
 
-    // Load achievements from localStorage on mount
+    // Load achievements from API on mount
     useEffect(() => {
-        const stored = localStorage.getItem('user_achievements');
-        let userAchievements = [];
-
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                // Filter by current user
-                userAchievements = parsed.filter(a => a.userId === userId);
-            } catch (e) {
-                console.error("Failed to parse achievements", e);
-            }
-        }
-
-        // --- SAMPLE DATA for DEMO ---
-        const sampleAchievements = [
-            {
-                id: 'sample-1',
-                type: 'Technical Certification',
-                title: 'AWS Certified Solutions Architect',
-                issuingBody: 'Amazon Web Services',
-                date: '2023-11-15',
-                status: 'Approved',
-                approvedBy: 'Dr. HOD (Head of Dept)',
-                proof: 'aws_cert.pdf'
-            },
-            {
-                id: 'sample-2',
-                type: 'Competitions & Awards',
-                eventName: 'National Coding Hackathon 2023',
-                organizer: 'TechIndia',
-                rank: '1st Runner Up',
-                date: '2023-09-20',
-                status: 'Approved',
-                approvedBy: 'Dr. Faculty (HOD)',
-                proof: 'hackathon_cert.pdf'
-            },
-            {
-                id: 'sample-3',
-                type: 'Placements & Internships',
-                companyName: 'Google',
-                jobProfile: 'SDE Intern',
-                package: '1.5 Lakh/mo',
-                status: 'Pending',
-                offerType: 'Internship'
-            },
-            {
-                id: 'sample-4',
-                type: 'Sports & Cultural Events',
-                eventName: 'Inter-University Cricket Tournament',
-                organizer: 'Sports Association',
-                rank: 'Winner',
-                date: '2023-02-10',
-                status: 'Rejected',
-                proof: 'winner_photo.jp'
-            }
-        ];
-
-        // Combine samples with user data (Prepend samples for visibility)
-        setAchievements([...sampleAchievements, ...userAchievements]);
+        fetchAchievements();
     }, [userId]);
+
+    const fetchAchievements = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/get-achievements`, {
+                params: { userId }
+            });
+            setAchievements(response.data.achievements || []);
+        } catch (error) {
+            console.error("Failed to fetch achievements", error);
+        }
+    };
 
     // --- FILTER & SEARCH ---
     const [statusFilter, setStatusFilter] = useState('All');
@@ -101,24 +55,46 @@ const AchievementManager = ({ userRole, userId }) => {
         return true;
     });
 
-    const handleSave = (newAchievement) => {
-        // ... (save logic same as before)
-        const updated = [newAchievement, ...achievements];
-        setAchievements(updated);
+    const handleSave = async (newAchievement) => {
+        try {
+            // Need to construct FormData if sending files
+            // NOTE: The `AchievementForm` typically passes a JSON object. 
+            // If it supports file uploads, we need to adapt it.
+            // Assuming `newAchievement` object structure is what form gives.
 
-        // Update localStorage
-        const stored = localStorage.getItem('user_achievements');
-        let allAchievements = [];
-        if (stored) {
-            try {
-                allAchievements = JSON.parse(stored);
-            } catch (e) { }
+            // Construct FormData from the newAchievement object
+            const formData = new FormData();
+
+            // Append explicit fields expected by backend
+            formData.append('title', newAchievement.title);
+            formData.append('type', newAchievement.type);
+            formData.append('description', newAchievement.description || ''); // Safety check
+            formData.append('date', newAchievement.date);
+            formData.append('issuingBody', newAchievement.issuingBody || newAchievement.organizer || newAchievement.companyName || '');
+
+            // Append user ID package
+            const userJson = JSON.stringify({ id: userId });
+            formData.append('user', userJson);
+
+            // Append File if exists (Accommodate file object from form)
+            // Note: Check how AchievementForm returns the file. 
+            // For now, assuming it might be in `newAchievement.proof` (as File object)
+            if (newAchievement.proof && newAchievement.proof instanceof File) {
+                formData.append('proof', newAchievement.proof);
+            }
+
+            await axios.post('http://localhost:5001/add-achievement', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            // Refresh list
+            fetchAchievements();
+            setActiveTab('list');
+
+        } catch (error) {
+            console.error("Error saving achievement:", error);
+            alert("Failed to save achievement");
         }
-        allAchievements.push(newAchievement);
-
-        localStorage.setItem('user_achievements', JSON.stringify(allAchievements));
-
-        setActiveTab('list');
     };
 
     return (
