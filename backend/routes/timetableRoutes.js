@@ -16,4 +16,6 @@ router.post('/add-timetable',
     timetableController.addTimetable
 );
 
+router.get('/get-timetables', timetableController.getTimetables);
+
 module.exports = router;
