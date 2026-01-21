@@ -97,10 +97,16 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 params.role = 'Faculty';
                 params.status = 'Approved';
             }
-            // Assume we are fetching for the HOD's department.
-            // We need to pass the HOD's department context. Assuming it's available via props or session.
-            // For now, we rely on backend knowing the user or passing dept.
-            params.dept = 'CSE'; // HARDCODED for now, should be dynamic based on HOD's profile if available.
+            // 3. Department Context:
+            // Get from session, similar to fetchFaculty
+            const userDept = sessionStorage.getItem('usersubRole');
+            if (userDept) {
+                params.dept = userDept;
+            } else {
+                console.warn("HOD Department not found in session, fetching all or defaulting.");
+                // Optional: Don't set params.dept to fetch all, or default to 'General'
+                // params.dept = 'General'; 
+            }
 
             const response = await axios.get('http://localhost:5001/get-achievements', { params });
             setAchievements(response.data.achievements || []);
