@@ -13,9 +13,10 @@ const Homepage = () => {
         className="top-left-image"
       />
 
-      <button className="std-btn" onClick={() => navigate('/LoginForm')}>
+      <button className="button3" onClick={() => navigate('/LoginForm')}>
         Login
       </button>
+
       <p>Welcome to Aditya University Intranet</p>
     </div>
   );
