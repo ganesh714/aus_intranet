@@ -345,7 +345,20 @@ const HODAchievementManager = ({ userRole, userId }) => {
                     )}
 
                     <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
-                        {displayData.length === 0 ? (
+                        {/* Access Denied Check for Faculty */}
+                        {/* Access Denied Check for Faculty - ONLY IN APPROVALS TAB */}
+                        {activeTab === 'approvals' && userRole === 'Faculty' && (
+                            (approvalRoleFilter === 'Student' && !permissions[userId]?.student) ||
+                            (approvalRoleFilter === 'Faculty' && !permissions[userId]?.faculty)
+                        ) ? (
+                            <div className="empty-state" style={{ color: '#ef4444', backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
+                                <FaTimes style={{ marginBottom: '10px', fontSize: '24px' }} />
+                                <div>Access Denied</div>
+                                <div style={{ fontSize: '13px', fontWeight: 'normal', marginTop: '5px' }}>
+                                    You do not have permission to approve {approvalRoleFilter} achievements.
+                                </div>
+                            </div>
+                        ) : displayData.length === 0 ? (
                             <div className="empty-state">No records found.</div>
                         ) : (
                             displayData.map(ach => (
