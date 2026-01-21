@@ -20,6 +20,6 @@ const Homepage = () => {
       <p>Welcome to Aditya University Intranet</p>
     </div>
   );
-};
+};  
 
 export default Homepage;
