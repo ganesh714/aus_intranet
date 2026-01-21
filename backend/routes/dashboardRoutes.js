@@ -167,6 +167,14 @@ router.get('/stats', async (req, res) => {
                 stats.deptAchievements = 0;
                 stats.pendingApprovals = 0;
             }
+
+            if (subRole) {
+                // Student Count
+                const studentCount = await User.countDocuments({ role: 'Student', subRole: subRole });
+                stats.studentCount = studentCount;
+            } else {
+                stats.studentCount = 0;
+            }
         }
 
         res.json(stats);
