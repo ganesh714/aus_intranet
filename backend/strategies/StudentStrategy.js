@@ -12,11 +12,25 @@ class StudentStrategy extends DefaultStrategy {
         // 4. Student + My Dept + My Batch
 
         const criteria = [
-            { role: 'Student', subRole: 'All' },
-            { role: 'Student', subRole: this.subRole } // General Dept announcements
+            // 1. Core General Matches (Must NOT have a specific batch)
+            // Logic: If role=Student & subRole=All, but batch is unspecified (null/exists:false)
+            {
+                role: 'Student',
+                subRole: 'All',
+                $or: [{ batch: { $exists: false } }, { batch: null }, { batch: '' }]
+            },
+            // 2. Dept General Matches (Must NOT have a specific batch)
+            {
+                role: 'Student',
+                subRole: this.subRole,
+                $or: [{ batch: { $exists: false } }, { batch: null }, { batch: '' }]
+            }
         ];
+
         if (this.batch) {
+            // 3. Dept + Batch Match
             criteria.push({ role: 'Student', subRole: this.subRole, batch: this.batch });
+            // 4. All + Batch Match
             criteria.push({ role: 'Student', subRole: 'All', batch: this.batch });
         }
         // Logic for "Batch exists or matches" is tricky in Mongo, 
