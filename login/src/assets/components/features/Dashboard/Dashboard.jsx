@@ -74,22 +74,24 @@ const Dashboard = ({
         ],
         Faculty: [
             { id: 1, label: 'Pending Approvals', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' }, // Dynamic
-            { id: 2, label: 'Dept. Achievements', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' }, // Dynamic
-            { id: 3, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' }, // Dynamic
-            // Standardized stats from lower roles
-            { id: 4, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
-            { id: 5, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
-            { id: 6, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
-        ],
-        HOD: [
-            { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' }, // Dynamic
-            { id: 2, label: 'Dept. Achievements', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' }, // Dynamic
-            { id: 3, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' }, // Dynamic
+            { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' }, // Dynamic
+            { id: 3, label: 'Dept. Achievements', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' }, // Dynamic
             { id: 4, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' }, // Dynamic
             // Standardized stats from lower roles
             { id: 5, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
             { id: 6, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
             { id: 7, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
+        ],
+        HOD: [
+            { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' }, // Dynamic
+            { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' }, // Dynamic
+            { id: 3, label: 'Dept. Achievements', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' }, // Dynamic
+            { id: 4, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' }, // Dynamic
+            { id: 5, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' }, // Dynamic
+            // Standardized stats from lower roles
+            { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
+            { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
+            { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
         ]
     };
 
