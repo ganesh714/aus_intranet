@@ -10,6 +10,26 @@
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Custom scrollbar for webkit browsers (Chrome, Safari, Edge) */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .sidebar-header {
@@ -56,6 +76,8 @@
     align-items: center;
     gap: 10px;
     font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .chevron {
@@ -75,7 +97,7 @@
 }
 
 .expanded .subcategory-list {
-    max-height: 200px;
+    max-height: 250px;
 }
 
 .subcat-btn {
