@@ -6,6 +6,7 @@ import './Developers.css';
 import sivaImg from "../images/siva_ganesh_v.png";
 import venkat_ganesh from "../images/venkat_ganesh.jpg";
 import veeranna from "../images/veeranna.jpeg";
+import surya from "../images/surya.jpeg";
 
 const Developers = () => {
     // Fake photos using UI Avatars for now (Delete this helper once you have real photos)
@@ -13,13 +14,13 @@ const Developers = () => {
 
     const developers = [
         {
-            name: 'K. B. Surya',
+            name: 'K. B. S. V. Shankar',
             role: 'Project Lead & Analyst', // Updated
             status: 'Lead',
-            image: getFakePhoto('K. B. Surya'),
+            image: surya,
             description: 'Served as the primary point of contact, bridging the gap between client requirements and technical implementation. Conducted initial database schema research and coordinated team efforts.',
-            github: 'https://github.com/rtrter',
-            linkedin: '#',
+            github: 'https://github.com/kuntella-surya',
+            linkedin: 'https://www.linkedin.com/in/suryakuntella/',
         },
         {
             name: 'Venkata Ganesh',
