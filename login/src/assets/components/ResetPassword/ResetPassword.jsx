@@ -23,7 +23,7 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5001/reset-password', { id });
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/reset-password`, { id });
             setMessage(response.data.message);
             setId(''); // Clear the id field after success
         } catch (error) {

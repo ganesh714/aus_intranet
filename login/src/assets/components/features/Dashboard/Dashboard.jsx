@@ -34,7 +34,7 @@ const Dashboard = ({
                 // We don't have batch in props readily available unless we read sessionStorage or fetch user first.
                 // Let's rely on backend user lookup for batch.
 
-                const response = await axios.get(`http://localhost:5001/dashboard/stats`, {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/stats`, {
                     params: {
                         role: userRole,
                         subRole: userSubRole,

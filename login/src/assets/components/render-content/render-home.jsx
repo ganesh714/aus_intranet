@@ -41,7 +41,7 @@ function Home() {
             return;
         }
         try {
-            const response = await axios.post('http://localhost:5001/change-password', {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
                 id,
                 currentPassword: changePasswordData.currentPassword,
                 newPassword: changePasswordData.newPassword,

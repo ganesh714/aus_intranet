@@ -131,7 +131,7 @@ const AnnouncementManager = ({
                 subRoleParam = deptFilter;
             }
 
-            const response = await axios.get('http://localhost:5001/get-announcements', {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-announcements`, {
                 params: {
                     role: roleParam,
                     subRole: subRoleParam,
@@ -206,7 +206,7 @@ const AnnouncementManager = ({
         }));
 
         try {
-            await axios.post('http://localhost:5001/add-announcement', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-announcement`, formData);
             alert('Announcement Sent Successfully!');
             setAnnounceForm({
                 title: '',
@@ -227,7 +227,7 @@ const AnnouncementManager = ({
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this announcement?")) return;
         try {
-            await axios.delete(`http://localhost:5001/delete-announcement/${id}`);
+            await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-announcement/${id}`);
             alert('Announcement deleted successfully!');
             fetchAnnouncements(); // Refresh list
         } catch (error) {

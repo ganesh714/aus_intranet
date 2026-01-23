@@ -5,7 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',  // Allow access from any device on the network
-    port: 81,        // Port 3000 (you can change this if needed)
+    host: '0.0.0.0',   // Allow access from any device on the network
+    port: 80,          // Port 3000 (you can change this if needed)
+    allowedHosts: [
+      'intranet.adityauniversity.in', // Add your allowed host here
+      'localhost'                     // You can add more hosts if needed
+    ],
   },
 })

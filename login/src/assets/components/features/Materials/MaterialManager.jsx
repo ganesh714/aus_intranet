@@ -72,7 +72,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                 batch: viewFilters.batch,
                 id: userId // Pass My ID for specific targeting check
             };
-            const response = await axios.get('http://localhost:5001/get-materials', { params });
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-materials`, { params });
             setMaterials(response.data.materials);
         } catch (error) {
             console.error("Error fetching materials", error);
@@ -141,7 +141,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
         }));
 
         try {
-            await axios.post('http://localhost:5001/add-material', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-material`, formData);
             alert('Material Uploaded Successfully!');
             setActiveTab('sent');
             setUploadData({
@@ -418,7 +418,7 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) 
             if (filters.dept === 'All' && !filters.search && !filters.batch) {
                 // optional: skip generic fetch
             }
-            const res = await axios.get('http://localhost:5001/get-users', { params });
+            const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, { params });
             setAvailableUsers(res.data.users);
         } catch (err) {
             console.error(err);
