@@ -97,10 +97,16 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 params.role = 'Faculty';
                 params.status = 'Approved';
             }
-            // Assume we are fetching for the HOD's department.
-            // We need to pass the HOD's department context. Assuming it's available via props or session.
-            // For now, we rely on backend knowing the user or passing dept.
-            params.dept = 'CSE'; // HARDCODED for now, should be dynamic based on HOD's profile if available.
+            // 3. Department Context:
+            // Get from session, similar to fetchFaculty
+            const userDept = sessionStorage.getItem('usersubRole');
+            if (userDept) {
+                params.dept = userDept;
+            } else {
+                console.warn("HOD Department not found in session, fetching all or defaulting.");
+                // Optional: Don't set params.dept to fetch all, or default to 'General'
+                // params.dept = 'General'; 
+            }
 
             const response = await axios.get('http://localhost:5001/get-achievements', { params });
             setAchievements(response.data.achievements || []);
@@ -111,13 +117,20 @@ const HODAchievementManager = ({ userRole, userId }) => {
     };
 
     const fetchFaculty = async () => {
-        setDeptFaculty([
-            { id: 'FAC001', username: 'Dr. Smith', role: 'Faculty' },
-            { id: 'FAC002', username: 'Prof. Johnson', role: 'Faculty' },
-            { id: 'FAC003', username: 'Dr. Emily', role: 'Faculty' },
-            { id: 'FAC004', username: 'Prof. Alan', role: 'Faculty' },
-            { id: 'FAC005', username: 'Dr. Rose', role: 'Faculty' },
-        ]);
+        try {
+            const userDept = sessionStorage.getItem('usersubRole');
+            if (!userDept) {
+                console.warn("No department found for HOD in session.");
+                return;
+            }
+
+            const response = await axios.get('http://localhost:5001/get-dept-faculty', {
+                params: { dept: userDept }
+            });
+            setDeptFaculty(response.data.faculty || []);
+        } catch (error) {
+            console.error("Error fetching faculty:", error);
+        }
     };
 
     const loadPermissions = () => {
@@ -332,11 +345,24 @@ const HODAchievementManager = ({ userRole, userId }) => {
                     )}
 
                     <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
-                        {displayData.length === 0 ? (
+                        {/* Access Denied Check for Faculty */}
+                        {/* Access Denied Check for Faculty - ONLY IN APPROVALS TAB */}
+                        {activeTab === 'approvals' && userRole === 'Faculty' && (
+                            (approvalRoleFilter === 'Student' && !permissions[userId]?.student) ||
+                            (approvalRoleFilter === 'Faculty' && !permissions[userId]?.faculty)
+                        ) ? (
+                            <div className="empty-state" style={{ color: '#ef4444', backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
+                                <FaTimes style={{ marginBottom: '10px', fontSize: '24px' }} />
+                                <div>Access Denied</div>
+                                <div style={{ fontSize: '13px', fontWeight: 'normal', marginTop: '5px' }}>
+                                    You do not have permission to approve {approvalRoleFilter} achievements.
+                                </div>
+                            </div>
+                        ) : displayData.length === 0 ? (
                             <div className="empty-state">No records found.</div>
                         ) : (
                             displayData.map(ach => (
-                                <div key={ach.id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div key={ach._id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div className="card-title">{ach.title}</div>
@@ -382,7 +408,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <button
                                                     className="std-btn"
                                                     style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach.id, 'Rejected')}
+                                                    onClick={() => handleApproval(ach._id, 'Rejected')}
                                                     title="Reject"
                                                 >
                                                     <FaTimes />
@@ -392,7 +418,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <button
                                                     className="std-btn"
                                                     style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach.id, 'Approved')}
+                                                    onClick={() => handleApproval(ach._id, 'Approved')}
                                                     title="Approve"
                                                 >
                                                     <FaCheck />

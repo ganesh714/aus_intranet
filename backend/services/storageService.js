@@ -1,113 +1,24 @@
-// backend/services/storageService.js
-const { google } = require('googleapis');
-const { Readable } = require('stream'); // Updated import
+const GoogleDriveAdapter = require('../adapters/GoogleDriveAdapter');
+const LocalStorageAdapter = require('../adapters/LocalStorageAdapter');
 require('dotenv').config();
+class StorageService {
+    constructor() {
+        // Check .env for STORAGE_TYPE
+        const storageType = process.env.STORAGE_TYPE || 'LOCAL';
 
-// --- CONFIGURATION ---
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
-const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
-const UPLOAD_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+        if (storageType === 'DRIVE') {
+            console.log("📂 Storage Provider: Google Drive");
+            this.adapter = new GoogleDriveAdapter();
+        } else {
+            console.log("💻 Storage Provider: Local Disk (uploads/)");
+            this.adapter = new LocalStorageAdapter();
+        }
+    }
 
-let driveClient;
-
-try {
-    const oauth2Client = new google.auth.OAuth2(
-        CLIENT_ID,
-        CLIENT_SECRET,
-        REDIRECT_URI
-    );
-
-    oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-
-    driveClient = google.drive({ version: 'v3', auth: oauth2Client });
-    console.log("✅ Storage Service: Google Drive (OAuth) initialized");
-
-} catch (error) {
-    console.error("❌ Storage Service Error: Could not initialize Google Drive", error.message);
+    async saveFile(file) { return this.adapter.saveFile(file); }
+    async deleteFile(fileId) { return this.adapter.deleteFile(fileId); }
+    async getFileStream(fileId) { return this.adapter.getFileStream(fileId); }
+    async copyFile(fileId) { return this.adapter.copyFile(fileId); }
 }
-
-/**
- * Uploads a file to Google Drive.
- */
-const saveFile = async (fileObject) => {
-    if (!driveClient) throw new Error("Storage service is not available.");
-
-    try {
-        const response = await driveClient.files.create({
-            requestBody: {
-                name: fileObject.originalname,
-                parents: [UPLOAD_FOLDER_ID],
-            },
-            media: {
-                mimeType: fileObject.mimetype,
-                // Using Readable.from is more stable for buffers than PassThrough
-                body: Readable.from(fileObject.buffer),
-            },
-            fields: 'id',
-        });
-
-        console.log(`[Storage] File saved. ID: ${response.data.id}`);
-        return response.data.id;
-    } catch (error) {
-        console.error("[Storage] Upload failed:", error.message);
-        throw error;
-    }
-};
-
-/**
- * Deletes a file from Google Drive.
- */
-const deleteFile = async (fileId) => {
-    if (!driveClient || !fileId) return;
-
-    try {
-        await driveClient.files.delete({ fileId: fileId });
-        console.log(`[Storage] File deleted. ID: ${fileId}`);
-    } catch (error) {
-        console.error(`[Storage] Delete failed for ID ${fileId}:`, error.message);
-    }
-};
-
-/**
- * Fetches a file stream from Google Drive (for Proxying).
- */
-const getFileStream = async (fileId) => {
-    if (!driveClient) throw new Error("Storage service is not available.");
-
-    try {
-        const response = await driveClient.files.get(
-            { fileId: fileId, alt: 'media' },
-            { responseType: 'stream' }
-        );
-        return response.data;
-    } catch (error) {
-        console.error(`[Storage] Error fetching file ${fileId}:`, error.message);
-        throw error;
-    }
-};
-
-/**
- * Copies a file on Google Drive.
- */
-const copyFile = async (fileId) => {
-    if (!driveClient || !fileId) throw new Error("Storage service is not available.");
-
-    try {
-        const response = await driveClient.files.copy({
-            fileId: fileId,
-            requestBody: {
-                parents: [UPLOAD_FOLDER_ID] // Copy to same upload folder
-            },
-            fields: 'id, name'
-        });
-        console.log(`[Storage] File copied. New ID: ${response.data.id}`);
-        return response.data.id;
-    } catch (error) {
-        console.error(`[Storage] Copy failed for ID ${fileId}:`, error.message);
-        throw error;
-    }
-};
-
-module.exports = { saveFile, deleteFile, getFileStream, copyFile };
+// Singleton Pattern: Export a single instance
+module.exports = new StorageService();

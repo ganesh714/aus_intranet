@@ -14,6 +14,7 @@ import Homepage from "./assets/components/Home-page/Homepage";
 
 import FacultyDashboard from "./assets/components/FacultyDashboard/FacultyDashboard";
 import StudentDashboard from "./assets/components/StudentDashboard/StudentDashboard";
+import Developers from "./assets/components/Developers/Developers"; // [NEW]
 
 const getNavigatePath = (role, subRole) => {
   if (!role) return "/";
@@ -23,6 +24,8 @@ const getNavigatePath = (role, subRole) => {
   if (lowerRole.includes("asso") && lowerRole.includes("dean")) {
     return "/asso.dean-page";
   }
+  // Fallback for full string match if needed (redundant given above, but safe)
+  if (lowerRole === 'associate dean') return "/asso.dean-page";
 
   if (lowerRole === "faculty") {
     return `/${subRole.toLowerCase()}-faculty-page`;
@@ -67,8 +70,8 @@ const App = () => {
         <Route path='/hod-page' element={<HodPage />} />
       )}
 
-      {/* Normalized path for Asso.Dean */}
-      {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean') && (
+      {/* Normalized path for Asso.Dean and aliases */}
+      {isLoggedIn && (userRole === 'Asso.Dean' || userRole === 'Assoc Dean' || userRole === 'Associate Dean') && (
         <Route path='/asso.dean-page' element={<Adeanpage />} />
       )}
 
@@ -97,6 +100,7 @@ const App = () => {
       )}
 
       <Route path='/reset-password' element={<ResetPassword />} />
+      <Route path='/developers' element={<Developers />} /> {/* [NEW] */}
 
       <Route
         path="*"

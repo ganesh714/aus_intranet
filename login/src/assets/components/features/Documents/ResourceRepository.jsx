@@ -33,9 +33,9 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
 
                     if (userRole === 'Officers') ensureCategory("University related");
                     if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
-                    if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    if (['HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
-                    if (['Faculty', 'HOD', 'Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
+                    if (['Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    if (['HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
+                    if (['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
 
                     // if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                     //     ensureCategory('Teaching Material');
@@ -63,8 +63,9 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                         }
 
                         // Determine Permissions
-                        const isHighLevel = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
-                        const isFacultyLevel = ['HOD', 'Faculty'].includes(userRole);
+                        const isHighLevel = ['Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers', 'Admin'].includes(userRole);
+                        // UPDATED: Include Deans in Faculty Level to grant access to Material/TimeTable
+                        const isFacultyLevel = ['HOD', 'Faculty', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean'].includes(userRole);
 
                         // 1. Announcements (Everyone gets this if the sidebar supports it, or specific per role)
                         // const hasAnnouncements = groupedPdfs['Student Related'].some(i => i.subcategory === 'Announcements');
@@ -72,7 +73,7 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                         //    groupedPdfs['Student Related'].push({ category: 'Student Related', subcategory: 'Announcements' });
                         // }
 
-                        // 2. Material & Time Table (Only HOD & Faculty)
+                        // 2. Material & Time Table (Only HOD & Faculty & Deans)
                         if (isFacultyLevel) {
                             // Ensure main categories exist
                             if (!groupedPdfs['Material']) {

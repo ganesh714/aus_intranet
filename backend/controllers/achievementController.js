@@ -1,0 +1,116 @@
+const Achievement = require('../models/Achievement');
+const User = require('../models/User');
+const File = require('../models/File');
+const storageService = require('../services/storageService');
+const mongoose = require('mongoose');
+
+// 1. Add Achievement
+exports.addAchievement = async (req, res) => {
+    try {
+        const { user: userJson, ...details } = req.body;
+        const userObj = JSON.parse(userJson);
+        const userId = userObj.id;
+
+        // Fetch User details for snapshotting
+        const user = await User.findOne({ id: userId });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let proofFileId = null;
+        let proofFilename = null;
+
+        // Handle File Upload
+        if (req.file) {
+            const fileIdFromStorage = await storageService.saveFile(req.file);
+
+            const newFile = new File({
+                fileName: req.file.originalname,
+                filePath: fileIdFromStorage,
+                fileType: req.file.mimetype,
+                fileSize: req.file.size,
+                uploadedBy: user._id,
+                usage: { isPersonal: false } // Not personal drive file
+            });
+            const savedFile = await newFile.save();
+            proofFileId = savedFile._id;
+            proofFilename = req.file.originalname;
+        }
+
+        const newAchievement = new Achievement({
+            ...details,
+            userId: user.id,
+            userRole: user.role,
+            userName: user.username,
+            dept: user.subRole || 'General', // Use subRole as Department (e.g. CSE, IT)
+            proofFileId: proofFileId,
+            proof: proofFilename,
+            status: 'Pending',
+            date: details.date || new Date()
+        });
+
+        await newAchievement.save();
+        res.status(201).json({ message: 'Achievement added successfully', achievement: newAchievement });
+
+    } catch (error) {
+        console.error("Error adding achievement:", error);
+        res.status(500).json({ message: 'Error adding achievement', error: error.message });
+    }
+};
+
+// 2. Get Achievements (Filtered)
+exports.getAchievements = async (req, res) => {
+    try {
+        const { userId, role, dept, status, limit } = req.query;
+        let filter = {};
+
+        if (userId) filter.userId = userId;
+        if (role) filter.userRole = role; // Use userRole field
+
+        // Department Filter:
+        // Ideally backend stores full Dept Name, but frontend might pass code.
+        // If data is inconsistent, use regex or exact match depending on data quality.
+        if (dept) filter.dept = dept;
+
+        if (status) filter.status = status;
+
+        const achievements = await Achievement.find(filter)
+            .sort({ date: -1 })
+            .limit(parseInt(limit) || 100);
+
+        res.json({ achievements });
+
+    } catch (error) {
+        console.error("Error fetching achievements:", error);
+        res.status(500).json({ message: 'Error fetching achievements', error: error.message });
+    }
+};
+
+// 3. Update Status (Approve/Reject)
+exports.updateAchievementStatus = async (req, res) => {
+    try {
+        const { id, status, approverId, approverName, approverRole } = req.body;
+
+        const achievement = await Achievement.findById(id);
+        if (!achievement) return res.status(404).json({ message: 'Achievement not found' });
+
+        achievement.status = status;
+        if (status === 'Approved' || status === 'Rejected') {
+            achievement.approvedBy = approverName;
+            achievement.approverId = approverId;
+            achievement.approverRole = approverRole;
+        } else {
+            // Reset if moved back to Pending
+            achievement.approvedBy = undefined;
+            achievement.approverId = undefined;
+            achievement.approverRole = undefined;
+        }
+
+        await achievement.save();
+        res.json({ message: `Achievement ${status}`, achievement });
+
+    } catch (error) {
+        console.error("Error updating achievement:", error);
+        res.status(500).json({ message: 'Error updating status', error: error.message });
+    }
+};
