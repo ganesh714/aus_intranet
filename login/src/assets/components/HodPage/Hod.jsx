@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import AnnouncementPreview from "../announcments/announcmentspreview";
@@ -43,5 +44,22 @@ const Hod = () => {
     </>
   );
 };
+=======
+import React from 'react';
+import RenderHome from "../render-content/render-home";  // Fixing the import name
+import Content from "../Content/Content";
+import Add from "../Icon/Icon";
+import { Link, useNavigate } from 'react-router-dom';
+import './Hod.css';
+
+function Hod() {
+    return (
+        <>
+            <RenderHome />  {/* Using the correct component name */}
+            <Content />
+        </>
+    );
+}
+>>>>>>> dfe66e3069dc2dac4650c1c8b66b6542e7e97295
 
 export default Hod;

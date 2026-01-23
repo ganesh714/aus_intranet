@@ -1,0 +1,129 @@
+/* src/assets/components/features/Sidebar/Sidebar.css */
+.sidebar {
+    width: 280px;
+    background-color: var(--primary-blue);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex-shrink: 0;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Custom scrollbar for webkit browsers (Chrome, Safari, Edge) */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-header {
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 700;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.category-item {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.category-header:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.expanded .category-header {
+    background-color: var(--primary-orange);
+    color: white;
+}
+
+.cat-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.chevron {
+    font-size: 12px;
+    transition: transform 0.3s;
+}
+
+.rotate {
+    transform: rotate(90deg);
+}
+
+.subcategory-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.expanded .subcategory-list {
+    max-height: 250px;
+}
+
+.subcat-btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px 10px 35px;
+    background: none;
+    border: none;
+    color: #e5e7eb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.subcat-btn:hover {
+    color: var(--primary-orange);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive adjustment for sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+    }
+}

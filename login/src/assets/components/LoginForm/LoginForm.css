@@ -1,3 +1,15 @@
+/* Import fonts if not globally available, though index.css usually handles this */
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+
+:root {
+    --primary-orange: #F97316;
+    --primary-blue: #1E3A8A;
+    --text-dark: #1f2937;
+    --text-gray: #6b7280;
+    --border-color: #d1d5db;
+    --bg-light: #f3f4f6;
+}
+
 /* Ensure background image only applies on the login page */
 body.login-page {
     margin: 0;
@@ -5,178 +17,185 @@ body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
+    /* Use your existing background image */
     background-image: url("C:\Users\Administrator\Desktop\latest version\login\src\assets\components\images\18129294.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: Arial, sans-serif;
+
 }
 
-/* Transparent login container */
+/* Modern Login Card */
 .login-container {
-    max-width: 900px;
-    width: 400px;
-    background-color: rgba(255, 255, 255, 0.6);  /* Transparent white background */
-    padding: 35px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Optional: shadow effect for better contrast */
-    z-index: 10; /* Ensure the form is above the background image */
-    height: auto; /* Ensure the container adjusts height automatically */
-    overflow: hidden; /* Prevent overflow */
+    width: 100%;
+    max-width: 420px;
+    /* Semi-transparent white for glassmorphism feel, fully opaque for readability */
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    z-index: 10;
+    margin: 20px;
+    border-top: 5px solid var(--primary-orange);
+    transition: all 0.3s ease;
 }
 
-/* Adjust container for registration form */
-.login-container.registering {
-    padding: 30px; /* Slightly smaller padding for registration */
-}
-
-/* Header for login/register */
+/* Header Styling */
 .login-header {
     text-align: center;
-    color: rgb(6, 37, 177);
+    color: var(--primary-blue);
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Form Group */
+.login-form-group {
     margin-bottom: 20px;
 }
 
-/* Form group styling */
-.login-form-group {
-    margin-bottom: 15px;
-    color: black;
-    padding-right: 20px;
+.subrolecss {
+    margin-bottom: 20px;
 }
 
-.subrolecss{
-    margin-bottom: 15px;
-    width:93%;
-}
-
-/* Label styling */
+/* Labels */
 label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
 }
 
-/* Input field styling */
+/* Input Fields & Selects */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid black;
-    border-radius: 4px;
-    transition: border-color 0.3s;
-}
-
-/* Focus styles for inputs */
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-select:focus {
-    border-color: #ff6900;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--text-dark);
+    background-color: #fff;
+    transition: all 0.2s ease-in-out;
     outline: none;
 }
 
-/* Button styles */
-.button1 {
-    background-color: #ff6900;
-    color:white;
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 95%;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+/* Focus States - Matches your Orange theme */
+input:focus,
+select:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
-/* Button hover effect */
-.button1:hover {
-    background-color: black;
-    color: #ff6900;
-    transform: scale(1.05); /* Slight zoom effect on hover */
-}
-
-/* Error message styles */
-.error-message {
-    color:red;
-    margin-top: 5px;
-    font-size: 0.9rem;
-}
-
-/* Password input container styling */
+/* Password Container for Eye Icon */
 .password-input-container {
     position: relative;
+    width: 100%;
 }
 
-/* Eye icon styles */
+input[type="password"],
+input[type="text"] {
+    /* Ensure padding for icon doesn't overlap text */
+    padding-right: 40px;
+}
+
+/* Eye Icon */
 .password-toggle-icon {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: black; /* Set initial color */
-    font-size: 18px; /* Adjust size */
+    color: var(--text-gray);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
 }
 
-/* Eye icon hover styles */
 .password-toggle-icon:hover {
-    color: #ff6900; /* Change icon color on hover */
+    color: var(--primary-orange);
 }
 
-/* Add some padding-right to inputs for space for the eye icon */
-input[type="password"],
-input[type="text"] {
-    padding-right: 30px; /* Space for the eye icon */
-}
-
-/* Spacing between "Register/Login" and "Forgot Password" links */
-p {
-    margin-top: 15px;
-    text-align: center;
-    color: black;
-    font-weight: bolder;
+/* Primary Button */
+.button1 {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-blue);
+    /* Changed to Blue for primary action */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
 }
 
-/* Add hover effect for Register/Login toggle link */
+.button1:hover {
+    background-color: var(--primary-orange);
+    /* Orange on hover */
+    transform: translateY(-1px);
+}
+
+/* Toggle Link (Register/Login) */
 .register-toggle {
-    margin-top: 15px;
-    color: black;
-    font-weight: bold;
+    margin-top: 20px;
+    text-align: center;
+    color: var(--text-gray);
+    font-size: 14px;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.2s;
 }
 
 .register-toggle:hover {
-    color: #ff6900;  /* Change color to orange on hover */
+    color: var(--primary-blue);
+    text-decoration: underline;
 }
 
-/* Added extra spacing between the "Register/Login" toggle and "Forgot Password" */
-.register-toggle {
-    margin-bottom: 20px;
-}
-
-/* Styling for "Forgot Password?" link */
+/* Forgot Password Link */
 #forgot-password {
-    color: black; /* Initial color */
-    cursor: pointer;
+    display: block;
     text-align: center;
-    margin-top: 20px;
-    font-weight: bold;
-    transition: color 0.3s ease; /* Smooth transition effect */
+    margin-top: 15px;
+    color: var(--primary-orange);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
 }
 
-/* Hover effect for "Forgot Password?" link */
 #forgot-password:hover {
-    color: #ff6900; /* Change color to orange on hover */
+    color: #c2410c;
+    /* Darker orange */
 }
 
-/* Additional responsive styles for smaller screens */
-@media (max-width: 600px) {
+/* Error Message */
+.error-message {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 6px;
+    background-color: #fef2f2;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #fee2e2;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
     .login-container {
-        width: 90%;
+        margin: 15px;
+        padding: 30px 20px;
+    }
+
+    .login-header {
+        font-size: 24px;
     }
 }

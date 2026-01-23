@@ -1,45 +1,23 @@
-
-.landing-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
-    background-image: url('C:\Users\Administrator\Desktop\latest version\login\src\assets\components\images\18129294.jpg'); 
-    background-size: cover;   
-    background-position: center;
-    background-repeat: no-repeat; 
+/* Cleaned for Tailwind Redesign */
+.hero-gradient {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
-.top-left-image {
-    position: absolute;
-    top: 10px;
-    left: 20px;
-    width: 500px;
-    height: auto;
-}
-
-.landing-container p {
-    margin-bottom: 20px;
-    font-size: 60px;
-    white-space: nowrap;
-    overflow: hidden;
-    border-right: 3px solid #ff6900;
-    width: 0;
-    animation: typing 6s steps(30) forwards, blink 0.7s steps(1) 6s 3, remove-cursor 0.1s forwards 3.5s;
-}
-
-@keyframes typing {
-    from {
-        width: 0;
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotateX(2deg) rotateY(-2deg) scale(1.02);
     }
-    to {
-        width: 100%;
+
+    50% {
+        transform: translateY(-15px) rotateX(5deg) rotateY(-5deg) scale(1.05);
+    }
+
+    100% {
+        transform: translateY(0px) rotateX(2deg) rotateY(-2deg) scale(1.02);
     }
 }
 
+<<<<<<< HEAD
 @keyframes blink {
     50% { 
         border-color: transparent;
@@ -83,3 +61,11 @@ div.inside {
     height: 100px;
     background-color: red;
 }
+=======
+/* 
+.animate-float {
+    animation: float 8s ease-in-out infinite;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+} */
+>>>>>>> dfe66e3069dc2dac4650c1c8b66b6542e7e97295
