@@ -12,17 +12,23 @@ const Homepage = () => {
     <div className="min-h-screen bg-gray-50 font-sans text-gray-800 overflow-x-hidden">
       {/* Navbar */}
       <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <img src={logo} alt="Aditya University Logo" className="h-16 w-auto" />
           </div>
 
           <div className="hidden md:flex space-x-8 text-sm font-semibold text-gray-600">
-            {['Home', 'About Us', 'Developers', 'Contact'].map((item) => (
-              <a key={item} href="#" className="hover:text-orange-600 transition-colors relative group">
+            {['Home', 'Developers'].map((item) => (
+              <button
+                key={item}
+                onClick={() => {
+                  if (item === 'Developers') navigate('/developers');
+                }}
+                className="hover:text-orange-600 transition-colors relative group bg-transparent border-none cursor-pointer"
+              >
                 {item}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all group-hover:w-full"></span>
-              </a>
+              </button>
             ))}
           </div>
 
@@ -44,7 +50,7 @@ const Homepage = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="pt-24 pb-16 md:pt-32 md:pb-24 max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-12">
+      <div className="pt-16 pb-12 md:pt-20 md:pb-20 max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-8">
         <div className="md:w-1/2 text-left space-y-6 animate-fade-in-up">
           <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 font-bold text-xs uppercase tracking-wider rounded-full mb-2 border border-blue-100">
             Welcome to the Future of Learning
