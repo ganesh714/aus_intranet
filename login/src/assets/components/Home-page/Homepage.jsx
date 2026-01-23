@@ -27,17 +27,17 @@ const Homepage = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button
+            {/* <button
               onClick={() => navigate('/LoginForm')}
               className="px-6 py-2 text-blue-900 font-semibold hover:text-orange-600 transition-colors"
             >
               Log In
-            </button>
+            </button> */}
             <button
               onClick={() => navigate('/LoginForm')}
               className="px-6 py-2.5 bg-orange-600 text-white font-semibold rounded-full hover:bg-orange-700 transition-all shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-0.5"
             >
-              Student Portal
+              Log in
             </button>
           </div>
         </div>
@@ -64,11 +64,11 @@ const Homepage = () => {
             >
               Access Intranet
             </button>
-            <button
+            {/* <button
               className="px-8 py-3.5 bg-white text-gray-700 border border-gray-200 text-base font-bold rounded-full hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600 transition-all shadow-md"
             >
               Explore Courses
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -112,7 +112,7 @@ const Homepage = () => {
       </div>
 
       {/* Team Section */}
-      <div className="py-20 px-6 bg-gray-50">
+      {/* <div className="py-20 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Meet Our Expert Faculty</h2>
@@ -139,10 +139,10 @@ const Homepage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* How It Works */}
-      <div className="py-20 px-6 bg-blue-900 text-white relative overflow-hidden">
+      {/* <div className="py-20 px-6 bg-blue-900 text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
@@ -167,10 +167,10 @@ const Homepage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Testimonials */}
-      <div className="py-20 px-6 bg-white">
+      {/* <div className="py-20 px-6 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
             <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1470" alt="Students" className="rounded-2xl shadow-2xl" />
@@ -187,7 +187,7 @@ const Homepage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16 px-6">
@@ -208,7 +208,7 @@ const Homepage = () => {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <h4 className="text-white font-bold mb-6">Quick Links</h4>
             <ul className="space-y-3 text-sm">
               <li className="hover:text-orange-500 cursor-pointer transition-colors">About Us</li>
@@ -226,15 +226,15 @@ const Homepage = () => {
               <li className="hover:text-orange-500 cursor-pointer transition-colors">Library</li>
               <li className="hover:text-orange-500 cursor-pointer transition-colors">Examinations</li>
             </ul>
-          </div>
+          </div> */}
 
           <div>
             <h4 className="text-white font-bold mb-6">Contact Us</h4>
             <ul className="space-y-3 text-sm text-gray-400">
               <li>Aditya Nagar, ADB Road, Surampalem</li>
               <li>East Godavari District, A.P - 533437</li>
-              <li className="pt-2"><span className="text-orange-500">Phone:</span> +91 99999 99999</li>
-              <li><span className="text-orange-500">Email:</span> info@aditya.ac.in</li>
+              {/* <li className="pt-2"><span className="text-orange-500">Phone:</span> +91 </li>
+              <li><span className="text-orange-500">Email:</span> info@aditya.ac.in</li> */}
             </ul>
           </div>
         </div>
