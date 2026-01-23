@@ -14,7 +14,7 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
                     subRole: subRole || ''
                 };
 
-                const response = await axios.get('http://localhost:5001/get-pdfs', {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-pdfs`, {
                     params: queryParams
                 });
 

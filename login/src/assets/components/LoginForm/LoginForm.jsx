@@ -66,7 +66,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             // }
 
             try {
-                const response = await axios.post('http://localhost:5001/auth/register', formData);
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, formData);
                 alert(response.data.message);
                 setFormData({
                     username: '',
@@ -88,7 +88,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
             }
         } else {
             try {
-                const response = await axios.post('http://localhost:5001/auth/login', {
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
                     id: formData.id,
                     password: formData.password,
                 });

@@ -108,7 +108,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 // params.dept = 'General'; 
             }
 
-            const response = await axios.get('http://localhost:5001/get-achievements', { params });
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-achievements`, { params });
             setAchievements(response.data.achievements || []);
 
         } catch (error) {
@@ -124,7 +124,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 return;
             }
 
-            const response = await axios.get('http://localhost:5001/get-dept-faculty', {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-dept-faculty`, {
                 params: { dept: userDept }
             });
             setDeptFaculty(response.data.faculty || []);
@@ -146,7 +146,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
         const approverId = sessionStorage.getItem('userId');
 
         try {
-            await axios.put('http://localhost:5001/update-achievement-status', {
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-achievement-status`, {
                 id,
                 status,
                 approverId,

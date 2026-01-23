@@ -24,7 +24,7 @@ const Add = () => {
         const usersubRole = sessionStorage.getItem('usersubRole');
 
         // Fetch categories with role and subRole filters
-        const url = `http://localhost:5001/get-pdfs?role=${userRole}&subRole=${usersubRole}`;
+        const url = `${import.meta.env.VITE_BACKEND_URL}/get-pdfs?role=${userRole}&subRole=${usersubRole}`;
         const response = await fetch(url);
         const data = await response.json();
 
@@ -105,7 +105,7 @@ const Add = () => {
             const userRole = sessionStorage.getItem('userRole');
             const usersubRole = sessionStorage.getItem('usersubRole');
 
-            const url = `http://localhost:5001/get-pdfs?role=${userRole}&subRole=${usersubRole}&category=${encodeURIComponent(selectedOption2)}`;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/get-pdfs?role=${userRole}&subRole=${usersubRole}&category=${encodeURIComponent(selectedOption2)}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -135,7 +135,7 @@ const Add = () => {
         if (!confirmDelete) return;
 
         try {
-            const response = await fetch(`http://localhost:5001/delete-pdf/${pdfId}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/delete-pdf/${pdfId}`, {
                 method: 'DELETE',
             });
             const data = await response.json();
@@ -207,7 +207,7 @@ const Add = () => {
         });
         try {
             // Upload files
-            const response = await fetch('http://localhost:5001/add-pdf', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/add-pdf`, {
                 method: 'POST',
                 body: formData,
             });

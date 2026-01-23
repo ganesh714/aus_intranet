@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DocumentView from './DocumentView';
 
-const CategoryViewer = ({ 
-    userRole, 
-    userSubRole, 
-    categoryName, 
+const CategoryViewer = ({
+    userRole,
+    userSubRole,
+    categoryName,
     subCategoryName,
-    onPdfClick 
+    onPdfClick
 }) => {
     const [pdfs, setPdfs] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -18,22 +18,22 @@ const CategoryViewer = ({
     useEffect(() => {
         const fetchCategoryPdfs = async () => {
             try {
-                const queryParams = { 
-                    role: userRole || '', 
-                    subRole: userSubRole || '' 
+                const queryParams = {
+                    role: userRole || '',
+                    subRole: userSubRole || ''
                 };
 
-                const response = await axios.get('http://localhost:5001/get-pdfs', { 
-                    params: queryParams 
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-pdfs`, {
+                    params: queryParams
                 });
 
                 if (response.data.pdfs) {
                     // Filter by category and subcategory
-                    const filtered = response.data.pdfs.filter(pdf => 
+                    const filtered = response.data.pdfs.filter(pdf =>
                         (!categoryName || pdf.category === categoryName) &&
                         (!subCategoryName || pdf.subcategory === subCategoryName)
                     );
-                    
+
                     setPdfs(filtered);
                 }
             } catch (error) {
@@ -56,7 +56,7 @@ const CategoryViewer = ({
     }
 
     return (
-        <DocumentView 
+        <DocumentView
             type={subCategoryName || categoryName || "Documents"}
             documents={filteredPdfs}
             searchQuery={searchQuery}
