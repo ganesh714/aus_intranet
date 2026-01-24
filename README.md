@@ -242,10 +242,3 @@ The system strictly validates user roles.
 * [ ] **v0.2:** Edit/Delete Announcements, Profile Picture Uploads.
 * [ ] **v0.3:** Achievement Module (Student/Faculty rewards).
 * [ ] **v1.0:** Mobile Responsive UI improvements & Dark Mode.
-
----
-
-### 👨‍💻 Contributors
-
-* **Venkata Ganesh** - *Lead Developer*
-* **Siva Ganesh V** - *Co Developer*
