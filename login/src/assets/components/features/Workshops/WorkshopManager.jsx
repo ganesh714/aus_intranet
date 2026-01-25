@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import './Workshops.css';
+import axios from 'axios';
 
 const WorkshopManager = ({ userId }) => {
     const [workshops, setWorkshops] = useState([]);
@@ -21,74 +22,70 @@ const WorkshopManager = ({ userId }) => {
     const [formData, setFormData] = useState(initialForm);
 
     // Load Data
-    useEffect(() => {
-        const stored = localStorage.getItem('user_workshops');
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                // Filter for current user
-                setWorkshops(parsed.filter(w => w.userId === userId));
-            } catch (e) { console.error("Error loading workshops", e); }
-        } else {
-            // [NEW] Fake Data Seeding
-            const fakeData = [
-                { id: 'ws-001', academicYear: '2024-2025', activityName: 'AI & Machine Learning Workshop', dates: '10-12 Jan 2025', coordinators: 'Dr. Smith, Prof. A. Kumar', professionalBody: 'IEEE', studentCount: '120', userId: userId },
-                { id: 'ws-002', academicYear: '2023-2024', activityName: 'Cyber Security Awareness Bootcamp', dates: '05-06 Dec 2023', coordinators: 'Prof. Alan Turing', professionalBody: 'CSI', studentCount: '85', userId: userId },
-                { id: 'ws-003', academicYear: '2023-2024', activityName: 'Cloud Computing & DevOps Seminar', dates: '20 Nov 2023', coordinators: 'Dr. Rose Mary', professionalBody: 'ACM', studentCount: '200', userId: userId }
-            ];
-            setWorkshops(fakeData);
-            // Save to storage nicely so it mimics real persistence (saving all as if they belong to this user for now)
-            localStorage.setItem('user_workshops', JSON.stringify(fakeData));
+    const loadWorkshops = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-workshops`, {
+                params: { userId }
+            });
+            setWorkshops(response.data.workshops || []);
+        } catch (error) {
+            console.error("Error fetching workshops:", error);
         }
-    }, [userId]);
-
-    // Save Data Helper
-    const saveToStorage = (updatedWorkshops) => {
-        const stored = localStorage.getItem('user_workshops');
-        let allWorkshops = stored ? JSON.parse(stored) : [];
-
-        // Remove old entries for this user to avoid duplication (simple strategy)
-        // Better strategy: Filter out USER's items from global list, then add NEW user items
-        const othersWorkshops = allWorkshops.filter(w => w.userId !== userId);
-        const finalSave = [...othersWorkshops, ...updatedWorkshops];
-
-        localStorage.setItem('user_workshops', JSON.stringify(finalSave));
     };
+
+    useEffect(() => {
+        if (userId) loadWorkshops();
+    }, [userId]);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        let updated;
-        if (editId) {
-            // Update existing
-            updated = workshops.map(w => w.id === editId ? { ...formData, id: editId, userId } : w);
-        } else {
-            // Add new
-            const newItem = { ...formData, id: Date.now().toString(), userId };
-            updated = [...workshops, newItem];
+        try {
+            if (isEditing) {
+                // Update existing
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-workshop/${editId}`, formData);
+            } else {
+                // Add new
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-workshop`, {
+                    userId,
+                    ...formData
+                });
+            }
+            loadWorkshops();
+            resetForm();
+        } catch (error) {
+            console.error("Error saving workshop:", error);
+            alert("Failed to save workshop");
         }
-
-        setWorkshops(updated);
-        saveToStorage(updated);
-        resetForm();
     };
 
     const handleEdit = (item) => {
-        setFormData(item);
-        setEditId(item.id);
+        setFormData({
+            academicYear: item.academicYear,
+            activityName: item.activityName,
+            dates: item.dates,
+            coordinators: item.coordinators,
+            professionalBody: item.professionalBody,
+            studentCount: item.studentCount
+        });
+        setEditId(item._id); // Use _id from MongoDB
         setIsEditing(true);
         setShowForm(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
-            const updated = workshops.filter(w => w.id !== id);
-            setWorkshops(updated);
-            saveToStorage(updated);
+            try {
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-workshop/${id}`);
+                loadWorkshops();
+            } catch (error) {
+                console.error("Error deleting workshop:", error);
+                alert("Failed to delete workshop");
+            }
         }
     };
 

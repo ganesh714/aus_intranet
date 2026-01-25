@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserGraduate, FaChalkboardTeacher, FaCheck, FaTimes, FaUserCog, FaSearch, FaUser, FaFilter, FaCalendarAlt, FaCheckSquare, FaSquare, FaLayerGroup, FaClipboardList } from 'react-icons/fa';
 import './Achievements.css';
+import AchievementList from './AchievementList';
 import '../Timetable/Timetable.css'; // Import Timetable styles for Access Control
 import axios from 'axios';
 
@@ -344,92 +345,30 @@ const HODAchievementManager = ({ userRole, userId }) => {
                         </div>
                     )}
 
-                    <div className="achievements-grid" style={{ display: 'flex', flexDirection: 'column' }}>
-                        {/* Access Denied Check for Faculty */}
-                        {/* Access Denied Check for Faculty - ONLY IN APPROVALS TAB */}
-                        {activeTab === 'approvals' && userRole === 'Faculty' && (
-                            (approvalRoleFilter === 'Student' && !permissions[userId]?.student) ||
-                            (approvalRoleFilter === 'Faculty' && !permissions[userId]?.faculty)
-                        ) ? (
-                            <div className="empty-state" style={{ color: '#ef4444', backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
-                                <FaTimes style={{ marginBottom: '10px', fontSize: '24px' }} />
-                                <div>Access Denied</div>
-                                <div style={{ fontSize: '13px', fontWeight: 'normal', marginTop: '5px' }}>
-                                    You do not have permission to approve {approvalRoleFilter} achievements.
-                                </div>
+                    {/* REPLACED MANUAL GRID WITH AchievementList COMPONENT */}
+                    {/* Access Denied Check for Faculty - ONLY IN APPROVALS TAB */}
+                    {activeTab === 'approvals' && userRole === 'Faculty' && (
+                        (approvalRoleFilter === 'Student' && !permissions[userId]?.student) ||
+                        (approvalRoleFilter === 'Faculty' && !permissions[userId]?.faculty)
+                    ) ? (
+                        <div className="empty-state" style={{ color: '#ef4444', backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
+                            <FaTimes style={{ marginBottom: '10px', fontSize: '24px' }} />
+                            <div>Access Denied</div>
+                            <div style={{ fontSize: '13px', fontWeight: 'normal', marginTop: '5px' }}>
+                                You do not have permission to approve {approvalRoleFilter} achievements.
                             </div>
-                        ) : displayData.length === 0 ? (
-                            <div className="empty-state">No records found.</div>
-                        ) : (
-                            displayData.map(ach => (
-                                <div key={ach._id} className="achievement-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="card-title">{ach.title}</div>
-                                            <span className={`status-badge status-${ach.status ? ach.status.toLowerCase() : 'pending'}`} style={{ position: 'static', marginTop: 0 }}>
-                                                {ach.status || 'Pending'}
-                                            </span>
-                                        </div>
-                                        <div className="card-subtitle" style={{ color: 'var(--primary-orange)' }}>
-                                            {ach.type} | {ach.issuingBody}
-                                        </div>
-                                        <div className="card-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#64748b' }}>
-                                            {/* Row 1: User */}
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <FaUser /> <strong>{ach.userName || 'Unknown User'}</strong>
-                                            </span>
-
-                                            {/* Row 2: Date & Approved By */}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                    <FaCalendarAlt /> {ach.date}
-                                                </span>
-                                                {/* Show Approved By */}
-                                                {ach.status === 'Approved' && ach.approvedBy && (
-                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', fontWeight: '500' }}>
-                                                        <FaCheckSquare /> Approved by: {ach.approvedBy}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Proof File Link */}
-                                            {ach.proof && (
-                                                <div style={{ marginTop: '8px', fontSize: '12px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                    <FaClipboardList /> Proof: <strong>{ach.proof}</strong>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* ACTIONS: Only in Approvals Tab */}
-                                    {activeTab === 'approvals' && (
-                                        <div style={{ display: 'flex', gap: '10px', marginLeft: '20px' }}>
-                                            {ach.status !== 'Rejected' && (
-                                                <button
-                                                    className="std-btn"
-                                                    style={{ backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fee2e2', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach._id, 'Rejected')}
-                                                    title="Reject"
-                                                >
-                                                    <FaTimes />
-                                                </button>
-                                            )}
-                                            {ach.status !== 'Approved' && (
-                                                <button
-                                                    className="std-btn"
-                                                    style={{ backgroundColor: '#dcfce7', color: '#166534', borderColor: '#dcfce7', padding: '8px 12px' }}
-                                                    onClick={() => handleApproval(ach._id, 'Approved')}
-                                                    title="Approve"
-                                                >
-                                                    <FaCheck />
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <AchievementList
+                            /* IMPORTANT: We import AchievementList at top (check if import exists) */
+                            achievements={displayData}
+                            showUser={true} /* Always show user in HOD view */
+                            showActions={activeTab === 'approvals'} /* Only show Approve/Reject in Approvals tab */
+                            viewMode="list" /* Forced List View for Dept Achievements */ // [CHANGED]
+                            onApprove={(id) => handleApproval(id, 'Approved')}
+                            onReject={(id) => handleApproval(id, 'Rejected')}
+                        />
+                    )}
                 </>
             )}
 

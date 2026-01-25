@@ -65,6 +65,7 @@ app.use('/', achievementRoutes);
 app.use('/auth', authRoutes);
 app.use('/', timetableRoutes);
 app.use('/', announcementRoutes);
+app.use('/', require('./routes/workshopRoutes')); // [NEW] Workshop Endpoints
 
 const port = process.env.PORT || 5001;
 
