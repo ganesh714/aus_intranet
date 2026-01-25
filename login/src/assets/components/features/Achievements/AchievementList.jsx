@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaTrophy, FaCertificate, FaMedal, FaBriefcase, FaBook, FaChalkboardTeacher, FaRegLightbulb, FaFilePdf, FaUser, FaCheck, FaTimes, FaCalendarAlt, FaCheckSquare } from 'react-icons/fa';
 import './Achievements.css';
 
 const AchievementList = ({ achievements, onAddClick, showUser = false, showActions = false, onApprove, onReject, viewMode = 'grid' }) => {
+    const [selectedAch, setSelectedAch] = useState(null);
 
     const getIcon = (type) => {
         switch (type) {
@@ -33,11 +34,27 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
         }
     };
 
+    // Helper to check if a value is valid for display (not null, undefined, or "undefined" string)
+    const isValid = (val) => {
+        if (!val) return false;
+        const s = String(val).trim().toLowerCase();
+        return s !== 'undefined' && s !== 'null' && s !== '';
+    };
+
     const renderDetails = (ach) => {
         const details = [];
-        // Helper to push if value exists
-        const addInfo = (label, value) => {
-            if (value) details.push(<div key={label} className="card-detail-item"><span>{label}:</span> <strong>{value}</strong></div>);
+        const hiddenKeys = [
+            '_id', 'id', 'userId', 'userRole', 'userName', 'dept', '__v',
+            'proof', 'proofFileId', 'status', 'approvedBy', 'approverId', 'approverRole',
+            'type', 'title', 'description', 'date', 'createdAt', 'updatedAt'
+        ];
+
+        // Format key to meaningful label (e.g., certificationName -> Certification Name)
+        const formatLabel = (key) => {
+            return key
+                .replace(/([A-Z])/g, ' $1') // insert space before capital
+                .replace(/^./, str => str.toUpperCase()) // uppercase first char
+                .trim();
         };
 
         // User Info (For HOD View)
@@ -47,26 +64,21 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
                         <FaUser size={12} /> <strong>{ach.userName}</strong>
                     </span>
-                    {/* User requested to remove role mention if it's obvious */}
-                    {/* {ach.userRole && <span className="user-role-badge">{ach.userRole}</span>} */}
                 </div>
             );
         }
 
-        // Standard Fields
-        addInfo("Issued By", ach.issuingBody || ach.organizer || ach.publisher || ach.provider);
-        addInfo("Company", ach.companyName);
-        addInfo("Role", ach.jobProfile || ach.role);
-        addInfo("Package/Stipend", ach.package);
-        addInfo("Rank", ach.rank);
-        addInfo("Event", ach.eventName || ach.tournamentName);
-
-        // Faculty Fields
-        addInfo("Indexing", ach.indexing);
-        addInfo("Volume/Issue", ach.volume);
-        addInfo("ISBN/ISSN", ach.isbn);
-        addInfo("Students Trained", ach.studentsTrained);
-        addInfo("Project", ach.projectName);
+        // Dynamic rendering of all other fields
+        Object.entries(ach).forEach(([key, value]) => {
+            if (!hiddenKeys.includes(key) && isValid(value)) {
+                details.push(
+                    <div key={key} className="card-detail-item">
+                        <span>{formatLabel(key)}:</span>
+                        <strong>{value}</strong>
+                    </div>
+                );
+            }
+        });
 
         return details;
     };
@@ -83,8 +95,60 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
     /* --- Formatted Date Helper --- */
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
-        // If it's already a full date string, return it. If it's partial, adding logic if needed.
-        return dateStr;
+        try {
+            const date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+            return dateStr;
+        } catch (e) { return dateStr; }
+    };
+
+    // Helper to get a valid display title based on Type
+    const getDisplayTitle = (ach) => {
+        let primaryField = null;
+
+        // Map Type to the specific "Name/Title" field from the Form
+        switch (ach.type) {
+            case 'Technical Certification':
+            case 'Certifications & Online Courses':
+                primaryField = ach.certificationName;
+                break;
+            case 'Placements & Internships':
+                primaryField = ach.companyName;
+                break;
+            case 'Competitions & Awards':
+            case 'Sports & Cultural Events':
+                primaryField = ach.eventName;
+                break;
+            case 'Innovation & Leadership':
+                primaryField = ach.activityName;
+                break;
+            case 'Research Consultancy':
+                primaryField = ach.projectName;
+                break;
+            case 'Mentorship & Student Training':
+                primaryField = ach.programName;
+                break;
+            default:
+                // For Research, Conferences, Books, IP, Others -> 'title' is the main field
+                primaryField = ach.title;
+        }
+
+        if (isValid(primaryField)) return primaryField;
+
+        // Fallback checks if primary field was empty
+        const candidates = [
+            ach.title, ach.certificationName, ach.eventName,
+            ach.companyName, ach.productName, ach.activityName, ach.projectName,
+            ach.programName, ach.courseName, ach.jobProfile, ach.role,
+            ach.organizer, ach.publisher
+        ];
+
+        const validTitle = candidates.find(c => isValid(c));
+        if (validTitle) return validTitle;
+
+        return `${ach.type || 'Achievement'} (Untitled)`;
     };
 
     return (
@@ -97,21 +161,29 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
             ) : (
                 <div className={viewMode === 'list' ? "achievements-list-layout" : "achievements-grid"}>
                     {achievements.map((ach) => (
-                        <div key={ach.id || ach._id} className="achievement-card">
+                        <div
+                            key={ach.id || ach._id}
+                            className="achievement-card"
+                            onClick={() => setSelectedAch(ach)}
+                        >
                             <div className="card-content-wrapper">
                                 <div className="card-header-row">
                                     <div className="mat-icon-wrapper">
                                         {getIcon(ach.type)}
                                     </div>
                                     <div className="card-header-text">
-                                        <div className="card-title" title={ach.title || ach.eventName}>
-                                            {ach.title || ach.certificationName || ach.eventName || ach.companyName || ach.projectName || ach.courseName}
+                                        <div className="card-title" title={getDisplayTitle(ach)}>
+                                            {getDisplayTitle(ach)}
                                         </div>
                                         <div className="card-type-label">
                                             {ach.type}
                                         </div>
                                     </div>
-                                    {/* Status Badge Removed from Header as per request */}
+
+                                    {/* Status Badge (Top Right) - Restored for My Achievements */}
+                                    <div className={`status-badge-inline ${getStatusColor(ach.status)}`}>
+                                        {ach.status || 'Pending'}
+                                    </div>
                                 </div>
 
                                 <div className="card-details">
@@ -123,15 +195,9 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                         </span>
                                     </div>
 
-                                    {renderDetails(ach)}
-
-                                    {/* Proof Link */}
-                                    {ach.proof && (
-                                        <div className="card-detail-item proof-row">
-                                            <FaFilePdf />
-                                            <span>Proof: {ach.proof}</span>
-                                        </div>
-                                    )}
+                                    {/* Render only limited details in card view, full in popup */}
+                                    {renderDetails(ach).slice(0, 3)}
+                                    {renderDetails(ach).length > 3 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>+ More details...</span>}
 
                                     {/* Approved By Footer */}
                                     {ach.status === 'Approved' && ach.approvedBy && (
@@ -142,18 +208,9 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                 </div>
                             </div>
 
-                            {/* Status at Bottom Right (New Requirement) */}
-                            {/* We place it in a footer div to ensure positioning */}
-                            <div className="card-status-footer">
-                                <span className={`status-badge-inline ${getStatusColor(ach.status)}`}>
-                                    {ach.status || 'Pending'}
-                                </span>
-                            </div>
-
-
                             {/* Actions Footer (For HOD/Approvals) */}
                             {showActions && (
-                                <div className="card-actions-footer">
+                                <div className="card-actions-footer" onClick={(e) => e.stopPropagation()}>
                                     {ach.status !== 'Rejected' && (
                                         <button className="action-btn-mini reject" onClick={() => onReject(ach._id || ach.id)} title="Reject">
                                             <FaTimes /> Reject
@@ -168,6 +225,56 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                             )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* DETAILS MODAL POPUP */}
+            {selectedAch && (
+                <div className="modal-overlay" onClick={() => setSelectedAch(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Achievement Details</h3>
+                            <button className="close-btn" onClick={() => setSelectedAch(null)}><FaTimes /></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="modal-status-bar">
+                                <span className={`status-badge-inline ${getStatusColor(selectedAch.status)}`}>
+                                    {selectedAch.status || 'Pending'}
+                                </span>
+                                <span className="modal-date">{formatDate(selectedAch.date)}</span>
+                            </div>
+
+                            <div className="modal-main-info">
+                                <h4>{getDisplayTitle(selectedAch)}</h4>
+                                <p className="modal-type">{selectedAch.type}</p>
+                            </div>
+
+                            <div className="modal-details-grid">
+                                {renderDetails(selectedAch)}
+                            </div>
+
+                            {isValid(selectedAch.description) && (
+                                <div className="modal-description">
+                                    <label>Description:</label>
+                                    <p>{selectedAch.description}</p>
+                                </div>
+                            )}
+
+                            {isValid(selectedAch.proof) && (
+                                <div className="modal-proof">
+                                    <label>Proof Document:</label>
+                                    <a
+                                        href={`${import.meta.env.VITE_BACKEND_URL}/uploads/${selectedAch.proof}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="proof-link"
+                                    >
+                                        <FaFilePdf /> View Document ({selectedAch.proof})
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </>
