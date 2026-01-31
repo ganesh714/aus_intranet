@@ -255,6 +255,7 @@ const AnnouncementManager = ({
                     onAddTarget: handleAddTarget,
                     onRemoveTarget: handleRemoveTarget
                 }}
+                userRole={userRole} // [NEW] Pass role for conditional UI
                 onSubmit={handleFormSubmit}
                 onToggleView={toggleView}
                 onDelete={handleDelete}

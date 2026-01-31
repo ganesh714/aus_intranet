@@ -10,7 +10,8 @@ const AnnouncementForm = ({
     onChange,
     onFileChange,
     onSubmit,
-    onDelete // New prop
+    onDelete,
+    userRole
 }) => {
     return (
         <div className="std-page-container">

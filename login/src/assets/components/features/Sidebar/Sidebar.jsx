@@ -68,8 +68,8 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* [NEW] HOD/Faculty Department Achievements (Explicitly EXCLUDING Deans as requested) */}
-                {(userRole === 'HOD' || userRole === 'Faculty') && (
+                {/* [NEW] HOD/Faculty/Dean Department Achievements */}
+                {(['HOD', 'Faculty', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean'].includes(userRole)) && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
                             <span className="cat-name">
@@ -80,8 +80,9 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] Announcements (Faculty Related) - Moved here to be before Send Announcements */}
-                {/* Deans should see this if HODs see it */}
-                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) && pdfLinks.find(cat => cat.category === 'Faculty related') && (
+                {/* Deans should see this if HODs see it (BUT NOT Associate Deans as per request - REVERTED based on user feedback) */}
+                {/* Deans should see this if HODs see it (BUT NOT Deans or Associate Deans as per request) */}
+                {(['Faculty', 'HOD', 'Officers'].includes(userRole)) && pdfLinks.find(cat => cat.category === 'Faculty related') && (
                     <div className={`category-item ${activeCategory === 'Faculty related' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Faculty related')}>
                             <span className="cat-name">
@@ -241,7 +242,7 @@ const Sidebar = ({
                 )}
 
                 {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
-                {['HOD'].includes(userRole) && (
+                {['HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean'].includes(userRole) && (
                     <div className={`category-item ${type === 'HODWorkshops' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODWorkshops')}>
                             <span className="cat-name">
