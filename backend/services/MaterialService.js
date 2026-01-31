@@ -168,10 +168,41 @@ class MaterialService {
         // Combine all conditions
         query.$or = orConditions;
 
-        return await Material.find(query)
+        const materials = await Material.find(query)
             .populate('fileId')
             .populate('uploadedBy', 'username role subRole id')
-            .sort({ uploadedAt: -1 });
+            .sort({ uploadedAt: -1 })
+            .lean(); // Use lean() to allow modification
+
+        // Populate targetIndividualIds with User Names (for display)
+        // 1. Collect all unique IDs
+        const allTargetIds = new Set();
+        materials.forEach(m => {
+            if (m.targetIndividualIds && m.targetIndividualIds.length > 0) {
+                m.targetIndividualIds.forEach(uid => allTargetIds.add(uid));
+            }
+        });
+
+        // 2. Fetch User Details
+        if (allTargetIds.size > 0) {
+            const users = await User.find({ id: { $in: Array.from(allTargetIds) } }).select('id username');
+            const userMap = {};
+            users.forEach(u => userMap[u.id] = u.username);
+
+            // 3. Attach names to materials
+            materials.forEach(m => {
+                if (m.targetIndividualIds && m.targetIndividualIds.length > 0) {
+                    m.targetUserDetails = m.targetIndividualIds.map(uid => ({
+                        id: uid,
+                        username: userMap[uid] || uid // Fallback to ID if name not found
+                    }));
+                } else {
+                    m.targetUserDetails = [];
+                }
+            });
+        }
+
+        return materials;
     }
 
     // 3. Copy Shared Material to Drive
