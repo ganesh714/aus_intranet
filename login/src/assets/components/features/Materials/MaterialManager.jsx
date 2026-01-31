@@ -10,8 +10,6 @@ const ROLE_HIERARCHY = {
     'Officers': 1,
     'Dean': 2,
     'Asso.Dean': 3,
-    'Associate Dean': 3, // Alias
-    'Assoc Dean': 3,     // Alias
     'HOD': 4,
     'Faculty': 5,
     'Student': 6
@@ -23,8 +21,6 @@ const ROLE_SUBROLES = {
     'Officers': ['DyPC', 'VC', 'ProVC', 'Registrar'],
     'Dean': ['IQAC', 'R&D', 'CLM', 'CD'],
     'Asso.Dean': ['SOE', 'IQAC', 'ADMIN'],
-    'Associate Dean': ['SOE', 'IQAC', 'ADMIN'],
-    'Assoc Dean': ['SOE', 'IQAC', 'ADMIN'],
     'HOD': COMMON_DEPTS,
     'Faculty': COMMON_DEPTS,
     'Student': COMMON_DEPTS
