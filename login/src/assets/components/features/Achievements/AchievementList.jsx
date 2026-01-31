@@ -106,9 +106,12 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
 
     // Helper to get a valid display title based on Type
     const getDisplayTitle = (ach) => {
+        // PER USER REQUEST: Prioritize the main 'title' field which is user-entered.
+        if (isValid(ach.title)) return ach.title;
+
         let primaryField = null;
 
-        // Map Type to the specific "Name/Title" field from the Form
+        // Fallback: Map Type to specific fields if title is missing
         switch (ach.type) {
             case 'Technical Certification':
             case 'Certifications & Online Courses':
@@ -131,15 +134,14 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                 primaryField = ach.programName;
                 break;
             default:
-                // For Research, Conferences, Books, IP, Others -> 'title' is the main field
-                primaryField = ach.title;
+                primaryField = null;
         }
 
         if (isValid(primaryField)) return primaryField;
 
         // Fallback checks if primary field was empty
         const candidates = [
-            ach.title, ach.certificationName, ach.eventName,
+            ach.certificationName, ach.eventName,
             ach.companyName, ach.productName, ach.activityName, ach.projectName,
             ach.programName, ach.courseName, ach.jobProfile, ach.role,
             ach.organizer, ach.publisher

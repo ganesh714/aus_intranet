@@ -41,10 +41,17 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
 
     // Reset specific fields when type changes
     const handleTypeChange = (e) => {
-        setFormData({
-            type: e.target.value,
-            date: '', // keep date?
-        });
+        setFormData(prev => ({ // USE FUNCTION BUILDER TO PRESERVE, OR JUST RESET CORRECTLY
+             // Actually original code did a full replace, wiping 'title'. 
+             // We want to ensure 'title' is preserved if we want, OR just let it reset. 
+             // Resetting is probably safer to avoid mixing fields, but let's at least initialize it correctly.
+             type: e.target.value,
+             title: '', // explicitly reset title
+             date: '', 
+             description: '',
+             proof: ''
+             // Note: Original code wiped everything else. If we only set these, others are undefined.
+        }));
     };
 
     const handleChange = (e) => {
@@ -91,7 +98,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Certification/Course Name</label>
-                        <input name="certificationName" className="std-input" onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Issuing Body / Provider</label>
@@ -120,7 +127,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Company Name</label>
-                        <input name="companyName" className="std-input" onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Job Profile / Role</label>
@@ -151,7 +158,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Event / Tournament Name</label>
-                        <input name="eventName" className="std-input" onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Organizing Institution</label>
@@ -174,7 +181,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Activity Name</label>
-                        <input name="activityName" className="std-input" onChange={handleChange} placeholder="e.g. Smart India Hackathon" />
+                        <input name="title" className="std-input" onChange={handleChange} placeholder="e.g. Smart India Hackathon" />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Role</label>
@@ -323,7 +330,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group">
                         <label className="std-label">Project Name</label>
-                        <input name="projectName" className="std-input" onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">Industry Partner</label>
@@ -346,7 +353,7 @@ const AchievementForm = ({ userRole, userId, onCancel, onSave }) => {
                 <>
                     <div className="std-form-group full-width">
                         <label className="std-label">Program Name</label>
-                        <input name="programName" className="std-input" onChange={handleChange} />
+                        <input name="title" className="std-input" onChange={handleChange} />
                     </div>
                     <div className="std-form-group">
                         <label className="std-label">No. of Students Trained</label>
