@@ -341,7 +341,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                 <UserPicker
                                     uploadData={uploadData}
                                     setUploadData={setUploadData}
-                                    commonDepartments={commonDepartments}
+                                    commonDepartments={COMMON_DEPTS}
                                     userRole={userRole}
                                     userSubRole={userSubRole} // Pass subRole for locking
                                 />
@@ -458,11 +458,8 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                         {item.targetAudience?.map((r, i) => (
                                             <span key={i} className="mat-badge">{r.role} {r.subRole && `• ${r.subRole}`}</span>
                                         ))}
-                                        {item.targetIndividualIds?.length > 0 && (
-                                            <span className="mat-badge" title={item.targetIndividualIds.join(', ')}>
-                                                Specific Users ({item.targetIndividualIds.length})
-                                            </span>
-                                        )}
+                                        {/* Render Individual Recipients with 'Show More' logic */}
+                                        <RecipientList targetUserDetails={item.targetUserDetails || []} fallbackIds={item.targetIndividualIds} />
                                     </div>
                                 )}
                             </div>
@@ -623,6 +620,50 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, us
             </div>
 
         </div>
+    );
+};
+
+// Helper Component for Expandable Recipient List
+const RecipientList = ({ targetUserDetails, fallbackIds }) => {
+    const [expanded, setExpanded] = useState(false);
+    
+    // Fallback if details missing (e.g. old data or backend lag)
+    const list = (targetUserDetails && targetUserDetails.length > 0) 
+        ? targetUserDetails 
+        : (fallbackIds || []).map(id => ({ id, username: id })); // Fallback maps ID to username
+
+    if (list.length === 0) return null;
+
+    // "Show minimum 2 user" -> We show 2 by default.
+    const limit = 2;
+    const count = list.length;
+    
+    // If we have very few, or if expanded, show all.
+    // Logic: if count 3, user said "if it has 3 or more". So 3 triggers "More".
+    // 2 is displayed. 3rd is hidden behind "+1 more".
+    const showAll = count <= limit || expanded;
+
+    const visibleUsers = showAll ? list : list.slice(0, limit);
+
+    return (
+        <>
+            {visibleUsers.map(u => (
+                <span key={u.id} className="mat-badge user-badge" style={{background: '#f3f4f6', color: '#1f2937'}}>
+                    {/* Reuse FaUserTie or generic icon */}
+                    {u.username}
+                </span>
+            ))}
+            
+            {!showAll && (
+                <span 
+                    className="mat-badge more-btn" 
+                    style={{cursor: 'pointer', background: '#eff6ff', color: '#1d4ed8'}}
+                    onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                >
+                    +{count - limit} more
+                </span>
+            )}
+        </>
     );
 };
 

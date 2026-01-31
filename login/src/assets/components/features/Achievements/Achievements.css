@@ -183,6 +183,7 @@
 /* Fix wrapper to ensure footer pushes to bottom (already handled by flex-col on card, flex-1 on wrapper) */
 .achievement-card {
   justify-content: space-between;
+  margin-bottom: 10px;
   /* Ensures footers stick to bottom */
 }
 
