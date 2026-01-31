@@ -3,6 +3,33 @@ import axios from 'axios';
 import { FaBook, FaCloudUploadAlt, FaUserTie, FaUsers, FaTrash, FaUserGraduate, FaSearch } from 'react-icons/fa';
 import './Materials.css';
 
+import './Materials.css';
+
+const ROLE_HIERARCHY = {
+    'Admin': 1,
+    'Officers': 1,
+    'Dean': 2,
+    'Asso.Dean': 3,
+    'Associate Dean': 3, // Alias
+    'Assoc Dean': 3,     // Alias
+    'HOD': 4,
+    'Faculty': 5,
+    'Student': 6
+};
+
+const COMMON_DEPTS = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+
+const ROLE_SUBROLES = {
+    'Officers': ['DyPC', 'VC', 'ProVC', 'Registrar'],
+    'Dean': ['IQAC', 'R&D', 'CLM', 'CD'],
+    'Asso.Dean': ['SOE', 'IQAC', 'ADMIN'],
+    'Associate Dean': ['SOE', 'IQAC', 'ADMIN'],
+    'Assoc Dean': ['SOE', 'IQAC', 'ADMIN'],
+    'HOD': COMMON_DEPTS,
+    'Faculty': COMMON_DEPTS,
+    'Student': COMMON_DEPTS
+};
+
 const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
     // --- STATE ---
     const [materials, setMaterials] = useState([]);
@@ -45,16 +72,45 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
     // -- Rule Builder State --
     const [currentRule, setCurrentRule] = useState({
-        role: 'Student',
-        subRole: 'All', // 'All' means apply to all departments
+        role: (ROLE_HIERARCHY[userRole] > ROLE_HIERARCHY['Faculty']) ? 'Student' : 'Faculty', // Default intelligently
+        subRole: (['HOD', 'Faculty'].includes(userRole) && userSubRole) ? userSubRole : 'All', 
         batch: ''
     });
 
-    const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+    // Update rule subRole if userRole changes (e.g. initial load) to enforce lock
+    useEffect(() => {
+        if (['HOD', 'Faculty'].includes(userRole) && userSubRole) {
+            setCurrentRule(prev => ({ ...prev, subRole: userSubRole }));
+        }
+    }, [userRole, userSubRole]);
+
+    // const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+    // Using global const now
+    
+    // Updates subRole when role changes in rule builder if needed (reset to All or first option?)
+    // Actually, we should probably reset subRole to 'All' when role changes, unless it's locked.
+    useEffect(() => {
+        if (!(['HOD', 'Faculty'].includes(userRole) && userSubRole && currentRule.role === userRole)) {
+             // If not locked, reset subRole when role changes to avoid stale values
+             // But only if we are user interaction driving this. 
+             // Start simple: If the new role has subroles, default to 'All'.
+             if (ROLE_SUBROLES[currentRule.role]) {
+                 setCurrentRule(prev => ({...prev, subRole: 'All'}));
+             }
+        }
+    }, [currentRule.role]);
+
+    // Updates subRole when role changes in rule builder if needed
+    useEffect(() => {
+        if (!(['HOD', 'Faculty'].includes(userRole) && userSubRole && currentRule.role === userRole)) {
+             if (ROLE_SUBROLES[currentRule.role]) {
+                 setCurrentRule(prev => ({...prev, subRole: 'All'}));
+             }
+        }
+    }, [currentRule.role]);
 
     // Helper for default batch
     function getDefaultBatch() {
-        if (userRole !== 'Student') return '';
         const rawBatch = sessionStorage.getItem('userBatch') || '';
         if (/^\d{4}$/.test(rawBatch)) {
             const endYear = parseInt(rawBatch);
@@ -223,21 +279,38 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                             onChange={e => setCurrentRule({ ...currentRule, role: e.target.value })}
                                             disabled={userRole === 'Student'}
                                         >
-                                            <option value="Student">Student</option>
-                                            <option value="Faculty">Faculty</option>
+                                            {/* Filter Roles: Only allow roles with Level >= My Level (meaning Rank <= My Rank in numeric terms? No.) 
+                                                Hierarchy: Admin(1) -> Student(6).
+                                                Requirement: Send to Below or Equal.
+                                                Target Level >= My Level. 
+                                                e.g. Faculty(5). Target >= 5. so Faculty(5), Student(6).
+                                                e.g. Dean(2). Target >= 2. so Dean(2), Asso.Dean(3), HOD(4)...
+                                            */}
+                                            {Object.keys(ROLE_HIERARCHY)
+                                                .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
+                                                .map(r => (
+                                                    <option key={r} value={r}>{r}</option>
+                                                ))}
                                         </select>
                                     </div>
-                                    <div className="rb-group">
-                                        <label>Department</label>
-                                        <select
-                                            className="rb-select"
-                                            value={currentRule.subRole}
-                                            onChange={e => setCurrentRule({ ...currentRule, subRole: e.target.value })}
-                                        >
-                                            <option value="All">All Departments</option>
-                                            {commonDepartments.map(d => <option key={d} value={d}>{d}</option>)}
-                                        </select>
-                                    </div>
+                                    {/* SubRole Dropdown: Show if the selected role has defined sub-roles */}
+                                    {ROLE_SUBROLES[currentRule.role] && (
+                                        <div className="rb-group">
+                                            <label>Sub-Role / Dept</label>
+                                            <select
+                                                className="rb-select"
+                                                value={currentRule.subRole}
+                                                onChange={e => setCurrentRule({ ...currentRule, subRole: e.target.value })}
+                                                disabled={
+                                                    // Lock for HOD/Faculty UNLESS Peer-to-Peer
+                                                    ['HOD', 'Faculty'].includes(userRole) && userRole !== currentRule.role
+                                                }
+                                            >
+                                                <option value="All">All {currentRule.role === 'Student' ? 'Departments' : 'Sub-Roles'}</option>
+                                                {ROLE_SUBROLES[currentRule.role].map(d => <option key={d} value={d}>{d}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
                                     {currentRule.role === 'Student' && (
                                         <div className="rb-group">
                                             <label>Batch</label>
@@ -261,6 +334,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                     setUploadData={setUploadData}
                                     commonDepartments={commonDepartments}
                                     userRole={userRole}
+                                    userSubRole={userSubRole} // Pass subRole for locking
                                 />
                             )}
 
@@ -397,14 +471,39 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 };
 
 // UserPicker Subcomponent
-const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) => {
-    const [filters, setFilters] = useState({ role: 'Student', dept: 'All', batch: '', search: '' });
+const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, userSubRole }) => {
+     // Default role to lowest available permission or Student
+    const myLevel = ROLE_HIERARCHY[userRole] || 99;
+    const defaultRole = (ROLE_HIERARCHY['Student'] >= myLevel) ? 'Student' : userRole;
+    
+    // Default Dept: Lock to subRole if HOD/Faculty
+    // Note: If peer-to-peer, we unlock. This initial default is tricky.
+    // For now, default to 'All' unless strict lock needed.
+    // Strict lock logic: HOD/Faculty can only search their dept if searching for DIFFERENT role.
+    // Ideally, defaultDept should match userSubRole if they are likely to search generally.
+    const defaultDept = (['HOD', 'Faculty'].includes(userRole) && uploadData.userSubRole) ? uploadData.userSubRole : 'All';
+
+    // Note: uploadData doesn't contain userSubRole directly in props usually, but we have it in parent scope.
+    // Let's pass userSubRole to UserPicker explicitly in parent return.
+
+    // Fix: We need userSubRole here.
+    // Parent passes: userRole. We need userSubRole too.
+    
+    const [filters, setFilters] = useState({ role: defaultRole, dept: 'All', batch: '', search: '' });
     const [availableUsers, setAvailableUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
 
     useEffect(() => {
-        if (userRole === 'Student') setFilters(prev => ({ ...prev, role: 'Student' }));
-    }, [userRole]);
+        if (userRole === 'Student') {
+            setFilters(prev => ({ ...prev, role: 'Student' }));
+        }
+        // Lock dept for HOD/Faculty IF role filter is NOT same as userRole
+        if (['HOD', 'Faculty'].includes(userRole) && userSubRole) {
+             if (filters.role !== userRole) {
+                setFilters(prev => ({ ...prev, dept: userSubRole }));
+             }
+        }
+    }, [userRole, userSubRole, filters.role]);
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
@@ -456,18 +555,28 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) 
                     onChange={e => setFilters({ ...filters, role: e.target.value })}
                     disabled={userRole === 'Student'}
                 >
-                    <option value="Student">Students</option>
-                    <option value="Faculty">Faculty</option>
+                     {Object.keys(ROLE_HIERARCHY)
+                        .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
+                        .map(r => (
+                            <option key={r} value={r}>{r}</option>
+                        ))}
                 </select>
 
-                <select
-                    className="rb-select" style={{ width: 'auto' }}
-                    value={filters.dept}
-                    onChange={e => setFilters({ ...filters, dept: e.target.value })}
-                >
-                    <option value="All">All Depts</option>
-                    {commonDepartments.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                 {/* Department/Sub-Role Filter: Show if target role has sub-roles */}
+                {ROLE_SUBROLES[filters.role] && (
+                    <select
+                        className="rb-select" style={{ width: 'auto' }}
+                        value={filters.dept}
+                        onChange={e => setFilters({ ...filters, dept: e.target.value })}
+                        disabled={
+                             // Lock for HOD/Faculty UNLESS Peer-to-Peer
+                             ['HOD', 'Faculty'].includes(userRole) && userRole !== filters.role
+                        }
+                    >
+                        <option value="All">All</option>
+                        {ROLE_SUBROLES[filters.role].map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                )}
 
                 {filters.role === 'Student' && (
                     <select
