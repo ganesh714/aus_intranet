@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaTrophy, FaCertificate, FaMedal, FaBriefcase, FaBook, FaChalkboardTeacher, FaRegLightbulb, FaFilePdf, FaUser, FaCheck, FaTimes, FaCalendarAlt, FaCheckSquare } from 'react-icons/fa';
 import './Achievements.css';
 
-const AchievementList = ({ achievements, onAddClick, showUser = false, showActions = false, onApprove, onReject, viewMode = 'grid' }) => {
+const AchievementList = ({ achievements, onAddClick, showUser = false, showActions = false, onApprove, onReject, viewMode = 'grid', compact = false }) => {
     const [selectedAch, setSelectedAch] = useState(null);
 
     const getIcon = (type) => {
@@ -57,16 +57,8 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                 .trim();
         };
 
-        // User Info (For HOD View)
-        if (showUser && ach.userName) {
-            details.push(
-                <div key="user-info" className="card-detail-item user-info-row">
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
-                        <FaUser size={12} /> <strong>{ach.userName}</strong>
-                    </span>
-                </div>
-            );
-        }
+        // User Info (For HOD View) - MOVED OUTSIDE LOOP to handle placement in Compact Mode properly.
+        // if (showUser && ach.userName) { ... }
 
         // Dynamic rendering of all other fields
         Object.entries(ach).forEach(([key, value]) => {
@@ -182,27 +174,44 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                         </div>
                                     </div>
 
-                                    {/* Status Badge (Top Right) - Restored for My Achievements */}
-                                    <div className={`status-badge-inline ${getStatusColor(ach.status)}`}>
-                                        {ach.status || 'Pending'}
+                                    <div className="card-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                                        {/* Status Badge */}
+                                        <div className={`status-badge-inline ${getStatusColor(ach.status)}`}>
+                                            {ach.status || 'Pending'}
+                                        </div>
+
+                                        {/* User ID (Right side below status) - ID instead of Name */}
+                                        {showUser && ach.userId && (
+                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <FaUser size={10} style={{ color: '#94a3b8' }} /> {ach.userId}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 <div className="card-details">
-                                    {/* Date Row */}
-                                    <div className="card-detail-item date-row">
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                            <FaCalendarAlt size={12} style={{ color: '#94a3b8' }} />
-                                            {formatDate(ach.date)}
-                                        </span>
-                                    </div>
+                                    {/* COMPACT MODE: Hide Date and Extra Details. */}
+                                    {!compact && (
+                                        <div className="card-detail-item date-row">
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <FaCalendarAlt size={12} style={{ color: '#94a3b8' }} />
+                                                {formatDate(ach.date)}
+                                            </span>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Removed previous User Info Row from here as it is now in the header */}
 
-                                    {/* Render only limited details in card view, full in popup */}
-                                    {renderDetails(ach).slice(0, 3)}
-                                    {renderDetails(ach).length > 3 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>+ More details...</span>}
+                                    {/* Render other details ONLY if NOT compact */}
+                                    {!compact && (
+                                        <>
+                                            {renderDetails(ach).slice(0, 3)}
+                                            {renderDetails(ach).length > 3 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>+ More details...</span>}
+                                        </>
+                                    )}
 
                                     {/* Approved By Footer */}
-                                    {ach.status === 'Approved' && ach.approvedBy && (
+                                    {!compact && ach.status === 'Approved' && ach.approvedBy && (
                                         <div className="approval-footer">
                                             <FaCheckSquare size={12} /> Approved by {ach.approvedBy}
                                         </div>
@@ -249,6 +258,15 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                             <div className="modal-main-info">
                                 <h4>{getDisplayTitle(selectedAch)}</h4>
                                 <p className="modal-type">{selectedAch.type}</p>
+                                {showUser && selectedAch.userName && (
+                                    <div style={{ 
+                                        display: 'inline-flex', alignItems: 'center', gap: '6px', 
+                                        marginTop: '8px', background: '#f1f5f9', padding: '4px 10px', 
+                                        borderRadius: '20px', fontSize: '12px', color: '#475569', fontWeight: 'bold' 
+                                    }}>
+                                        <FaUser size={10} /> {selectedAch.userName}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="modal-details-grid">

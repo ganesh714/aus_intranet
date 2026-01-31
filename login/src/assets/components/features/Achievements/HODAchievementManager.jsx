@@ -364,7 +364,8 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             achievements={displayData}
                             showUser={true} /* Always show user in HOD view */
                             showActions={activeTab === 'approvals'} /* Only show Approve/Reject in Approvals tab */
-                            viewMode="list" /* Forced List View for Dept Achievements */ // [CHANGED]
+                            viewMode="list" /* Forced List View for Dept Achievements */
+                            compact={true} /* [NEW] Simplified View: Title, Category, User only */
                             onApprove={(id) => handleApproval(id, 'Approved')}
                             onReject={(id) => handleApproval(id, 'Rejected')}
                         />
