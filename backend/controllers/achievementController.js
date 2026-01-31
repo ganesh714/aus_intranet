@@ -65,7 +65,15 @@ exports.getAchievements = async (req, res) => {
         let filter = {};
 
         if (userId) filter.userId = userId;
-        if (role) filter.userRole = role; // Use userRole field
+        // Support multiple roles (comma separated)
+        if (role) {
+            const roles = role.split(',');
+            if (roles.length > 1) {
+                filter.userRole = { $in: roles };
+            } else {
+                filter.userRole = role;
+            }
+        }
 
         // Department Filter:
         // Ideally backend stores full Dept Name, but frontend might pass code.

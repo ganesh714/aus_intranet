@@ -10,9 +10,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
     const [permissions, setPermissions] = useState({});
 
     // Derived permissions
-    const canSeeStudent = userRole === 'HOD' || userRole === 'Faculty';
-    const canSeeFaculty = userRole === 'HOD' || userRole === 'Faculty';
-    const canAccessControl = userRole === 'HOD';
+    const canSeeStudent = ['HOD', 'Faculty', 'Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole);
+    const canSeeFaculty = ['HOD', 'Faculty', 'Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole);
+    const canAccessControl = ['HOD', 'Dean'].includes(userRole);
 
     // Set initial tab based on permissions
     // New Tabs: 'student_overview', 'faculty_overview', 'approvals', 'access'
@@ -86,27 +86,45 @@ const HODAchievementManager = ({ userRole, userId }) => {
 
             // 1. Approvals Tab: Filter mainly by Role (Student/Faculty) and Status=Pending (Backend can filter status if we start adding it params)
             if (activeTab === 'approvals') {
-                params.role = approvalRoleFilter;
+                if (['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) && approvalRoleFilter === 'Faculty') {
+                    params.role = 'HOD,Asso.Dean,Associate Dean';
+                } else {
+                    params.role = approvalRoleFilter;
+                }
                 params.status = 'Pending';
             }
             // 2. Overviews: Fetch Approved for specific role
+            // 2. Overviews: Fetch Approved for specific role
             else if (activeTab === 'student_overview') {
-                params.role = 'Student';
+                if (['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole)) {
+                     // Dean View Tab 1: Department Overview (Faculty)
+                     params.role = 'Faculty';
+                } else {
+                     // HOD View Tab 1: Student Overview
+                     params.role = 'Student';
+                }
                 params.status = 'Approved';
             }
             else if (activeTab === 'faculty_overview') {
-                params.role = 'Faculty';
+                // Dean View Tab 2: Leadership Overview (HOD + Assoc Dean)
+                if (['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole)) {
+                    params.role = 'HOD,Asso.Dean,Associate Dean'; 
+                } else {
+                    // HOD View Tab 2: Faculty Overview
+                    params.role = 'Faculty';
+                }
                 params.status = 'Approved';
             }
             // 3. Department Context:
             // Get from session, similar to fetchFaculty
             const userDept = sessionStorage.getItem('usersubRole');
             if (userDept) {
-                params.dept = userDept;
+                // If Dean, DO NOT filter by Department (Show all HODs/Assoc Deans)
+                if (!['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole)) {
+                     params.dept = userDept;
+                }
             } else {
                 console.warn("HOD Department not found in session, fetching all or defaulting.");
-                // Optional: Don't set params.dept to fetch all, or default to 'General'
-                // params.dept = 'General'; 
             }
 
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-achievements`, { params });
@@ -229,16 +247,24 @@ const HODAchievementManager = ({ userRole, userId }) => {
             </div>
 
             <div className="achievements-tabs">
-                {/* 1. Student Overview */}
+                {/* 1. Student / Department Overview */}
                 {canSeeStudent && (
                     <button className={`std-tab-btn ${activeTab === 'student_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('student_overview'); setSearchQuery(''); }}>
-                        <FaUserGraduate /> Student Achievements
+                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? (
+                            <><FaLayerGroup /> Department Overview</>
+                        ) : (
+                            <><FaUserGraduate /> Student Achievements</>
+                        )}
                     </button>
                 )}
-                {/* 2. Faculty Overview */}
+                {/* 2. Faculty / Leadership Overview */}
                 {canSeeFaculty && (
                     <button className={`std-tab-btn ${activeTab === 'faculty_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('faculty_overview'); setSearchQuery(''); }}>
-                        <FaChalkboardTeacher /> Faculty Achievements
+                         {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? (
+                            <><FaUserCog /> Leadership Overview</>
+                        ) : (
+                            <><FaChalkboardTeacher /> Faculty Achievements</>
+                        )}
                     </button>
                 )}
                 {/* 3. Approvals (Merged) */}
@@ -259,9 +285,19 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 <>
                     <div className="achievements-toolbar">
                         <div className="toolbar-text">
-                            {activeTab === 'student_overview' && 'All Approved Student Achievements'}
-                            {activeTab === 'faculty_overview' && 'All Approved Faculty Achievements'}
+                        <div className="toolbar-text">
+                            {activeTab === 'student_overview' && (
+                                ['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) 
+                                ? 'Department Achievements (Faculty)' 
+                                : 'All Approved Student Achievements'
+                            )}
+                            {activeTab === 'faculty_overview' && (
+                                ['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) 
+                                ? 'Leadership Achievements (HOD & Assoc. Dean)' 
+                                : 'All Approved Faculty Achievements'
+                            )}
                             {activeTab === 'approvals' && 'Pending Approval Requests'}
+                        </div>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <input
@@ -323,7 +359,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                     onChange={(e) => setApprovalRoleFilter(e.target.value)}
                                 >
                                     <option value="Student">Students</option>
-                                    <option value="Faculty">Faculty</option>
+                                    <option value="Faculty">
+                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'HOD / Assoc Dean' : 'Faculty'}
+                                    </option>
                                 </select>
                             </div>
 
