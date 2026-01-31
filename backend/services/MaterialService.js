@@ -9,14 +9,14 @@ class MaterialService {
     // Hierarchy Definition
     static ROLE_HIERARCHY = {
         'Admin': 1,
-        'Officers': 1,
-        'Dean': 2,
-        'Asso.Dean': 3,
-        'Associate Dean': 3, // Alias
-        'Assoc Dean': 3,     // Alias
-        'HOD': 4,
-        'Faculty': 5,
-        'Student': 6
+        'Officers': 2,
+        'Dean': 3,
+        'Asso.Dean': 4,
+        'Associate Dean': 4, // Alias
+        'Assoc Dean': 4,     // Alias
+        'HOD': 5,
+        'Faculty': 6,
+        'Student': 7
     };
 
     // 1. Add Material

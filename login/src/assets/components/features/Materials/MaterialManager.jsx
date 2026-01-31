@@ -7,19 +7,20 @@ import './Materials.css';
 
 const ROLE_HIERARCHY = {
     'Admin': 1,
-    'Officers': 1,
-    'Dean': 2,
-    'Asso.Dean': 3,
-    'Associate Dean': 3, // Alias for logic
-    'Assoc Dean': 3,     // Alias for logic
-    'HOD': 4,
-    'Faculty': 5,
-    'Student': 6
+    'Officers': 2,
+    'Dean': 3,
+    'Asso.Dean': 4,
+    'Associate Dean': 4, // Alias for logic
+    'Assoc Dean': 4,     // Alias for logic
+    'HOD': 5,
+    'Faculty': 6,
+    'Student': 7
 };
 
 const COMMON_DEPTS = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
 
 const ROLE_SUBROLES = {
+    'Admin': [], // Enables 'All' option
     'Officers': ['DyPC', 'VC', 'ProVC', 'Registrar'],
     'Dean': ['IQAC', 'R&D', 'CLM', 'CD'],
     'Asso.Dean': ['SOE', 'IQAC', 'ADMIN'],
