@@ -92,8 +92,25 @@ const Dashboard = ({
             { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
             { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
             { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
+        ],
+        // [NEW] Dean Roles - Reusing HOD structure but ensuring they are picked up
+        Dean: [
+            { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' },
+            { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' },
+            { id: 3, label: 'Leadership Achiev.', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' },
+            { id: 4, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' },
+            { id: 5, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' },
+            { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' },
+            { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
+            { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
         ]
     };
+    
+    // Map variations of Associate Dean to Dean view
+    stats['Asso.Dean'] = stats['Dean'];
+    stats['Associate Dean'] = stats['Dean'];
+    stats['Assoc Dean'] = stats['Dean'];
+
 
     const currentStats = stats[userRole] || stats['Student'];
 
