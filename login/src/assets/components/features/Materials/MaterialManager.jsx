@@ -10,6 +10,8 @@ const ROLE_HIERARCHY = {
     'Officers': 1,
     'Dean': 2,
     'Asso.Dean': 3,
+    'Associate Dean': 3, // Alias for logic
+    'Assoc Dean': 3,     // Alias for logic
     'HOD': 4,
     'Faculty': 5,
     'Student': 6
@@ -96,14 +98,23 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
         }
     }, [currentRule.role]);
 
-    // Updates subRole when role changes in rule builder if needed
+    // Updates subRole when role changes using correct Lock vs Unlock logic
     useEffect(() => {
-        if (!(['HOD', 'Faculty'].includes(userRole) && userSubRole && currentRule.role === userRole)) {
+        const isLocked = ['HOD', 'Faculty'].includes(userRole) && userRole !== currentRule.role;
+
+        if (isLocked) {
+             // STRICT LOCK: Must be user's subRole
+             if (userSubRole) {
+                 setCurrentRule(prev => ({ ...prev, subRole: userSubRole }));
+             }
+        } else {
+             // UNLOCKED: Peer-Sharing or Admin/Dean
+             // Reset to 'All' if the new role supports sub-roles
              if (ROLE_SUBROLES[currentRule.role]) {
-                 setCurrentRule(prev => ({...prev, subRole: 'All'}));
+                 setCurrentRule(prev => ({ ...prev, subRole: 'All' }));
              }
         }
-    }, [currentRule.role]);
+    }, [currentRule.role, userRole, userSubRole]);
 
     // Helper for default batch
     function getDefaultBatch() {
@@ -283,6 +294,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                                 e.g. Dean(2). Target >= 2. so Dean(2), Asso.Dean(3), HOD(4)...
                                             */}
                                             {Object.keys(ROLE_HIERARCHY)
+                                                .filter(r => !['Associate Dean', 'Assoc Dean'].includes(r)) // Filter aliases from UI
                                                 .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
                                                 .map(r => (
                                                     <option key={r} value={r}>{r}</option>
@@ -552,6 +564,7 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, us
                     disabled={userRole === 'Student'}
                 >
                      {Object.keys(ROLE_HIERARCHY)
+                        .filter(r => !['Associate Dean', 'Assoc Dean'].includes(r)) // Filter aliases from UI
                         .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
                         .map(r => (
                             <option key={r} value={r}>{r}</option>
