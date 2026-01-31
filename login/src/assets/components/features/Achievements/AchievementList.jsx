@@ -172,6 +172,14 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                         <div className="card-type-label">
                                             {ach.type}
                                         </div>
+                                        
+                                        {/* User Byline (Left aligned, clean) */}
+                                        {showUser && ach.userId && (
+                                            <div style={{ marginTop: '6px', fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <FaUser size={10} style={{ color: '#94a3b8' }} /> 
+                                                <span style={{ fontWeight: '500', fontFamily: 'monospace', letterSpacing: '0.5px' }}>{ach.userId}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="card-header-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
@@ -180,10 +188,10 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                             {ach.status || 'Pending'}
                                         </div>
 
-                                        {/* User ID (Right side below status) - ID instead of Name */}
-                                        {showUser && ach.userId && (
-                                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <FaUser size={10} style={{ color: '#94a3b8' }} /> {ach.userId}
+                                        {/* Approver Name (Green, below status) */}
+                                        {ach.status === 'Approved' && ach.approvedBy && (
+                                            <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <FaCheck size={8} /> {ach.approvedBy} <span style={{ fontWeight: '400', opacity: 0.8 }}>({ach.approverRole})</span>
                                             </div>
                                         )}
                                     </div>
@@ -210,12 +218,7 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                         </>
                                     )}
 
-                                    {/* Approved By Footer */}
-                                    {!compact && ach.status === 'Approved' && ach.approvedBy && (
-                                        <div className="approval-footer">
-                                            <FaCheckSquare size={12} /> Approved by {ach.approvedBy}
-                                        </div>
-                                    )}
+                                    {/* Approved By Footer - Removed (Moved to Header) */}
                                 </div>
                             </div>
 
