@@ -32,6 +32,15 @@ class MaterialService {
             }
         }
 
+        // Ensure user is parsed correctly (Fix for FormData stringification)
+        if (typeof user === 'string') {
+             try {
+                 user = JSON.parse(user);
+             } catch (e) {
+                 throw new Error('Invalid User Data');
+             }
+        }
+
         const userDb = await User.findOne({ id: user.id });
         if (!userDb) throw new Error('User not found');
         if (!file) throw new Error('No file uploaded!');
@@ -47,18 +56,8 @@ class MaterialService {
                 throw new Error(`Permission Denied: You cannot share documents with ${rule.role}s.`);
             }
 
-            // Sub-Role (Dept) Constraint for HOD/Faculty
-            // EXCEPTION: Allow Cross-Dept sharing if sharing with SAME ROLE (Peer-to-Peer)
-            if (['HOD', 'Faculty'].includes(user.role) && user.role !== rule.role) {
-                // If rule has a subRole, it must match sender's subRole
-                // If rule has NO subRole (all depts), it is FORBIDDEN for HOD/Faculty (unless peer)
-                if (!rule.subRole || rule.subRole === 'All') {
-                     throw new Error(`Permission Denied: You cannot share with 'All Departments'. Please specify your department.`);
-                }
-                if (rule.subRole !== user.subRole) {
-                     throw new Error(`Permission Denied: You cannot share with ${rule.subRole} department.`);
-                }
-            }
+            // Sub-Role (Dept) Constraint REMOVED per user request (Step 650)
+            // Cross-Department sharing is now allowed if rank is valid.
         }
 
         // 2. Validate Individual Targets
@@ -77,18 +76,7 @@ class MaterialService {
                     throw new Error(`Permission Denied: You cannot share documents with user ${tUser.username} (${tUser.role}).`);
                 }
 
-                 // Sub-Role (Dept) Constraint for HOD/Faculty
-                 // EXCEPTION: Allow Cross-Dept if Peer (Same Role)
-                if (['HOD', 'Faculty'].includes(user.role) && user.role !== tUser.role) {
-                    // Check if target user is in same department
-                    // Exception: Sending to Student? Students usually have subRole e.g. 'CSE'.
-                    // If target user subRole doesn't match, block.
-                    // NOTE: Some higher officials might not have subRole, but HOD/Faculty can't send to them anyway (rank check).
-                    // So we safely check subRole equality.
-                    if (tUser.subRole !== user.subRole) {
-                        throw new Error(`Permission Denied: You cannot share with user in ${tUser.subRole} department.`);
-                    }
-                }
+                 // Sub-Role (Dept) Constraint REMOVED per user request (Step 650)
             }
         }
         // -----------------------------
