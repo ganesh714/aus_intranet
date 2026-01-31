@@ -45,6 +45,12 @@ const HODAchievementManager = ({ userRole, userId }) => {
         "Certifications & Online Courses", "Professional Development", "Research Consultancy"
     ];
 
+    // [NEW] Departments list for Dean Filter
+    const departments = ['IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'];
+
+    // [NEW] Dean Dept Filter State
+    const [userDeptFilter, setUserDeptFilter] = useState('All');
+
     useEffect(() => {
         loadPermissions();
     }, [userId]);
@@ -74,7 +80,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
         } else if (canAccessControl) {
             fetchFaculty();
         }
-    }, [activeTab, approvalRoleFilter]); // Reload when role filter changes in Approvals tab
+    }, [activeTab, approvalRoleFilter, userDeptFilter]); // [NEW] Added userDeptFilter dependency to reload
 
     const loadAchievements = async () => {
         try {
@@ -119,12 +125,17 @@ const HODAchievementManager = ({ userRole, userId }) => {
             // Get from session, similar to fetchFaculty
             const userDept = sessionStorage.getItem('usersubRole');
             if (userDept) {
-                // If Dean, DO NOT filter by Department (Show all HODs/Assoc Deans)
+                // If Dean, we use the manual filter below
                 if (!['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole)) {
                      params.dept = userDept;
                 }
             } else {
                 console.warn("HOD Department not found in session, fetching all or defaulting.");
+            }
+
+            // [NEW] Apply Dean's Department Filter
+            if (['Dean', 'Asso.Dean', 'Associate Dean', 'Officers'].includes(userRole) && userDeptFilter !== 'All') {
+                params.dept = userDeptFilter;
             }
 
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-achievements`, { params });
@@ -308,6 +319,19 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
+
+                            {/* [NEW] DEPARTMENT FILTER (For Dean/Officers) */}
+                            {['Dean', 'Asso.Dean', 'Associate Dean', 'Officers'].includes(userRole) && (
+                                <select
+                                    className="std-select"
+                                    style={{ width: '150px' }}
+                                    value={userDeptFilter}
+                                    onChange={(e) => { setUserDeptFilter(e.target.value); }} /* Effect hook triggers reload? No, need to trigger reload manually or add dependency */
+                                >
+                                    <option value="All">All Depts</option>
+                                    {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                                </select>
+                            )}
 
                             {/* INLINE TIME FILTER (For Overview Tabs - Single Filter) */}
                             {(activeTab === 'student_overview' || activeTab === 'faculty_overview') && (
