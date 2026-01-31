@@ -197,29 +197,26 @@ const AchievementList = ({ achievements, onAddClick, showUser = false, showActio
                                     </div>
                                 </div>
 
-                                <div className="card-details">
-                                    {/* COMPACT MODE: Hide Date and Extra Details. */}
-                                    {!compact && (
+                                {/* Details Section - ONLY render if NOT compact to avoid empty space/border */}
+                                {!compact && (
+                                    <div className="card-details">
                                         <div className="card-detail-item date-row">
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                                 <FaCalendarAlt size={12} style={{ color: '#94a3b8' }} />
                                                 {formatDate(ach.date)}
                                             </span>
                                         </div>
-                                    )}
-                                    
-                                    {/* Removed previous User Info Row from here as it is now in the header */}
 
-                                    {/* Render other details ONLY if NOT compact */}
-                                    {!compact && (
-                                        <>
-                                            {renderDetails(ach).slice(0, 3)}
-                                            {renderDetails(ach).length > 3 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>+ More details...</span>}
-                                        </>
-                                    )}
+                                        {renderDetails(ach).slice(0, 3)}
+                                        {renderDetails(ach).length > 3 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>+ More details...</span>}
 
-                                    {/* Approved By Footer - Removed (Moved to Header) */}
-                                </div>
+                                        {ach.status === 'Approved' && ach.approvedBy && (
+                                            <div className="approval-footer">
+                                                <FaCheckSquare size={12} /> Approved by {ach.approvedBy}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Actions Footer (For HOD/Approvals) */}
