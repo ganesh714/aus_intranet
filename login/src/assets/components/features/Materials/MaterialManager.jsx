@@ -99,23 +99,13 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
         }
     }, [currentRule.role]);
 
-    // Updates subRole when role changes using correct Lock vs Unlock logic
+    // Updates subRole when role changes
     useEffect(() => {
-        const isLocked = ['HOD', 'Faculty'].includes(userRole) && userRole !== currentRule.role;
-
-        if (isLocked) {
-             // STRICT LOCK: Must be user's subRole
-             if (userSubRole) {
-                 setCurrentRule(prev => ({ ...prev, subRole: userSubRole }));
-             }
-        } else {
-             // UNLOCKED: Peer-Sharing or Admin/Dean
-             // Reset to 'All' if the new role supports sub-roles
-             if (ROLE_SUBROLES[currentRule.role]) {
-                 setCurrentRule(prev => ({ ...prev, subRole: 'All' }));
-             }
+        // UNLOCKED: Default to 'All' if the new role supports sub-roles and we are not forcing a lock anymore
+        if (ROLE_SUBROLES[currentRule.role]) {
+            setCurrentRule(prev => ({ ...prev, subRole: 'All' }));
         }
-    }, [currentRule.role, userRole, userSubRole]);
+    }, [currentRule.role]);
 
     // Helper for default batch
     function getDefaultBatch() {
@@ -310,10 +300,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                                 className="rb-select"
                                                 value={currentRule.subRole}
                                                 onChange={e => setCurrentRule({ ...currentRule, subRole: e.target.value })}
-                                                disabled={
-                                                    // Lock for HOD/Faculty UNLESS Peer-to-Peer
-                                                    ['HOD', 'Faculty'].includes(userRole) && userRole !== currentRule.role
-                                                }
+                                                disabled={false}
                                             >
                                                 <option value="All">All {currentRule.role === 'Student' ? 'Departments' : 'Sub-Roles'}</option>
                                                 {ROLE_SUBROLES[currentRule.role].map(d => <option key={d} value={d}>{d}</option>)}
@@ -503,13 +490,7 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, us
         if (userRole === 'Student') {
             setFilters(prev => ({ ...prev, role: 'Student' }));
         }
-        // Lock dept for HOD/Faculty IF role filter is NOT same as userRole
-        if (['HOD', 'Faculty'].includes(userRole) && userSubRole) {
-             if (filters.role !== userRole) {
-                setFilters(prev => ({ ...prev, dept: userSubRole }));
-             }
-        }
-    }, [userRole, userSubRole, filters.role]);
+    }, [userRole]);
 
     const fetchUsers = async () => {
         setLoadingUsers(true);
@@ -575,10 +556,7 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, us
                         className="rb-select" style={{ width: 'auto' }}
                         value={filters.dept}
                         onChange={e => setFilters({ ...filters, dept: e.target.value })}
-                        disabled={
-                             // Lock for HOD/Faculty UNLESS Peer-to-Peer
-                             ['HOD', 'Faculty'].includes(userRole) && userRole !== filters.role
-                        }
+                        disabled={false}
                     >
                         <option value="All">All</option>
                         {ROLE_SUBROLES[filters.role].map(d => <option key={d} value={d}>{d}</option>)}
