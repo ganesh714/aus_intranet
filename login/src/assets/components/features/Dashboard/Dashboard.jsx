@@ -107,9 +107,8 @@ const Dashboard = ({
     };
     
     // Map variations of Associate Dean to Dean view
+    // Map variations of Associate Dean to Dean view
     stats['Asso.Dean'] = stats['Dean'];
-    stats['Associate Dean'] = stats['Dean'];
-    stats['Assoc Dean'] = stats['Dean'];
 
 
     const currentStats = stats[userRole] || stats['Student'];
@@ -209,6 +208,11 @@ const Dashboard = ({
                                 {(userRole === 'Faculty' || userRole === 'HOD') &&
                                     <button className="action-btn" onClick={onAchievementsClick}>
                                         <FaTrophy /> Add Achievement
+                                    </button>
+                                }
+                                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) && 
+                                    <button className="action-btn" onClick={() => onDirectCategoryClick('HODAchievements')}>
+                                        <FaTrophy /> Dept. Achievements
                                     </button>
                                 }
                             </>

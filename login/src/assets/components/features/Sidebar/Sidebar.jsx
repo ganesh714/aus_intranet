@@ -69,7 +69,7 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] HOD/Faculty/Dean Department Achievements */}
-                {(['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole)) && (
+                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
                             <span className="cat-name">
@@ -140,6 +140,7 @@ const Sidebar = ({
                     }
 
                     // NEW: Filter out specific 'related' categories for higher logins (HOD, Dean, Officers etc.)
+                    const isDean = ['Dean', 'Asso.Dean'].includes(userRole);
                     const isHigherLogin = ['HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole);
                     if (isHigherLogin && ["University related", "HOD's related", "Dean's related", "Asso.Dean's related"].includes(category.category)) {
                         return null;
