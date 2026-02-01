@@ -66,6 +66,7 @@ app.use('/auth', authRoutes);
 app.use('/', timetableRoutes);
 app.use('/', announcementRoutes);
 app.use('/', require('./routes/workshopRoutes')); // [NEW] Workshop Endpoints
+app.use('/', require('./routes/subRoleRoutes')); // [NEW] SubRole Endpoints
 
 const port = process.env.PORT || 5001;
 
