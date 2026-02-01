@@ -14,6 +14,7 @@ import Homepage from "./assets/components/Home-page/Homepage";
 
 import FacultyDashboard from "./assets/components/FacultyDashboard/FacultyDashboard";
 import StudentDashboard from "./assets/components/StudentDashboard/StudentDashboard";
+import SubRoleManager from "./assets/components/Admin/SubRoleManager"; // [NEW]
 import Developers from "./assets/components/Developers/Developers"; // [NEW]
 
 const getNavigatePath = (role, subRole) => {
@@ -82,7 +83,10 @@ const App = () => {
       )}
 
       {isLoggedIn && userRole === 'Admin' && (
-        <Route path='/admin-page' element={<Adminpage />} />
+        <>
+          <Route path='/admin-page' element={<Adminpage />} />
+          <Route path='/manage-subroles' element={<SubRoleManager />} />
+        </>
       )}
 
       {isLoggedIn && userRole === 'Faculty' && (
