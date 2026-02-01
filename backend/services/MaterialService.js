@@ -1,6 +1,8 @@
 const Material = require('../models/Material');
 const File = require('../models/File');
 const User = require('../models/User');
+
+const SubRole = require('../models/SubRole'); // [NEW]
 const DriveItem = require('../models/DriveItem');
 const storageService = require('./storageService');
 
@@ -34,11 +36,11 @@ class MaterialService {
 
         // Ensure user is parsed correctly (Fix for FormData stringification)
         if (typeof user === 'string') {
-             try {
-                 user = JSON.parse(user);
-             } catch (e) {
-                 throw new Error('Invalid User Data');
-             }
+            try {
+                user = JSON.parse(user);
+            } catch (e) {
+                throw new Error('Invalid User Data');
+            }
         }
 
         const userDb = await User.findOne({ id: user.id });
@@ -54,6 +56,26 @@ class MaterialService {
             const targetLevel = MaterialService.ROLE_HIERARCHY[rule.role] || 99;
             if (senderLevel > targetLevel) {
                 throw new Error(`Permission Denied: You cannot share documents with ${rule.role}s.`);
+            }
+
+            // [NEW] Resolve SubRole String to ObjectId
+            if (rule.subRole && rule.subRole !== 'All') {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { displayName: rule.subRole },
+                        { name: rule.subRole },
+                        { code: rule.subRole }
+                    ]
+                });
+                if (subRoleDoc) {
+                    rule.subRole = subRoleDoc._id;
+                } else {
+                    // If not found, perhaps it was already an ID or verify failure
+                    // For safety, if strict mode, throw error.
+                    // throw new Error(`Invalid Department/SubRole: ${rule.subRole}`);
+                }
+            } else if (rule.subRole === 'All') {
+                rule.subRole = null; // Store as null for 'All'
             }
 
             // Sub-Role (Dept) Constraint REMOVED per user request (Step 650)
@@ -76,7 +98,7 @@ class MaterialService {
                     throw new Error(`Permission Denied: You cannot share documents with user ${tUser.username} (${tUser.role}).`);
                 }
 
-                 // Sub-Role (Dept) Constraint REMOVED per user request (Step 650)
+                // Sub-Role (Dept) Constraint REMOVED per user request (Step 650)
             }
         }
         // -----------------------------
@@ -111,6 +133,13 @@ class MaterialService {
         let query = {};
         const userId = id;
 
+        // Resolve subRole string to ObjectId if provided
+        let subRoleObjId = subRole;
+        if (subRole && typeof subRole === 'string' && subRole !== 'All') {
+            const subDoc = await SubRole.findOne({ $or: [{ code: subRole }, { displayName: subRole }] });
+            if (subDoc) subRoleObjId = subDoc._id;
+        }
+
         // Universal Check: Am I personally targeted?
         if (userId) {
             query.hiddenFor = { $ne: userId };
@@ -137,7 +166,7 @@ class MaterialService {
                 $elemMatch: {
                     role: role,
                     $or: [
-                        { subRole: subRole },
+                        { subRole: subRoleObjId },
                         { subRole: { $exists: false } }, // If rule has no subRole, it applies to all depts
                         { subRole: null },
                         { subRole: '' }
