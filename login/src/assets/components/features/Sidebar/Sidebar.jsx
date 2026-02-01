@@ -58,7 +58,7 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] My Achievements (Student, Faculty, HOD, Dean, Asso.Dean) */}
-                {(['Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) && (
+                {(['Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && (
                     <div className={`category-item ${type === 'Achievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={onAchievementsClick}>
                             <span className="cat-name">
@@ -69,7 +69,7 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] HOD/Faculty/Dean Department Achievements */}
-                {(['HOD', 'Faculty', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean'].includes(userRole)) && (
+                {(['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole)) && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
                             <span className="cat-name">
@@ -81,8 +81,7 @@ const Sidebar = ({
 
                 {/* [NEW] Announcements (Faculty Related) - Moved here to be before Send Announcements */}
                 {/* Deans should see this if HODs see it (BUT NOT Associate Deans as per request - REVERTED based on user feedback) */}
-                {/* Deans should see this if HODs see it (BUT NOT Deans or Associate Deans as per request) */}
-                {(['Faculty', 'HOD', 'Officers'].includes(userRole)) && pdfLinks.find(cat => cat.category === 'Faculty related') && (
+                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && pdfLinks.find(cat => cat.category === 'Faculty related') && (
                     <div className={`category-item ${activeCategory === 'Faculty related' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Faculty related')}>
                             <span className="cat-name">
@@ -106,7 +105,7 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] Shared Documents (For Faculty/HOD/Dean/Officers) - Moved below Send Announcements */}
-                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) && (
+                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && (
                     <div className={`category-item ${activeCategory === 'Material' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Material')}>
                             <span className="cat-name">
@@ -135,13 +134,13 @@ const Sidebar = ({
                     }
 
                     // NEW: Filter out "Student Related" for non-Faculty/HOD/Dean
-                    const isFacultyOrHodOrDean = ['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole);
+                    const isFacultyOrHodOrDean = ['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole);
                     if (category.category === 'Student Related' && !isFacultyOrHodOrDean) {
                         return null;
                     }
 
                     // NEW: Filter out specific 'related' categories for higher logins (HOD, Dean, Officers etc.)
-                    const isHigherLogin = ['HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole);
+                    const isHigherLogin = ['HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole);
                     if (isHigherLogin && ["University related", "HOD's related", "Dean's related", "Asso.Dean's related"].includes(category.category)) {
                         return null;
                     }
@@ -242,7 +241,7 @@ const Sidebar = ({
                 )}
 
                 {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
-                {['HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean'].includes(userRole) && (
+                {['HOD', 'Dean', 'Asso.Dean'].includes(userRole) && (
                     <div className={`category-item ${type === 'HODWorkshops' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODWorkshops')}>
                             <span className="cat-name">
