@@ -78,7 +78,7 @@ const Developers = () => {
             description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/pavan1173',
             linkedin: 'https://www.linkedin.com/in/m-pavan-kumar-7a3228338?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
-            rollNo: '25B21CS255',
+            rollNo: '25B11CS255',
             branch: 'CSE',
         }
     ];
