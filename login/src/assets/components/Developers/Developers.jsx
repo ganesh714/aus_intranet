@@ -23,6 +23,8 @@ const Developers = () => {
             description: 'Served as the primary point of contact, bridging the gap between client requirements and technical implementation. Conducted initial database schema research and coordinated team efforts.',
             github: 'https://github.com/kuntella-surya',
             linkedin: 'https://www.linkedin.com/in/suryakuntella/',
+            rollNo: '21A81A05O4',
+            branch: 'DS',
         },
         {
             name: 'Venkata Ganesh',
@@ -32,6 +34,8 @@ const Developers = () => {
             description: 'Engineered the core system architecture, refactoring the backend into modular services using SOLID principles. Spearheaded the frontend development and delivered key modules like the Dashboard.',
             github: 'https://github.com/ganesh714',
             linkedin: 'https://www.linkedin.com/in/venkata-ganesh-934072291/',
+            rollNo: '23A91A6115',
+            branch: 'AIML',
         },
         {
             name: 'T Siva Ganesh Vemula',
@@ -41,6 +45,8 @@ const Developers = () => {
             description: 'Established the frontend file structure and design system. Created the initial UI concepts in Stitch and handled complex backend integrations to ensure a seamless user experience.',
             github: 'https://github.com/SivaGaneshv1729',
             linkedin: 'https://www.linkedin.com/in/siva-ganesh-vemula/',
+            rollNo: '23A91A6164',
+            branch: 'AIML',
         },
         {
             name: 'Naga Veeranna',
@@ -50,6 +56,8 @@ const Developers = () => {
             description: 'Ensured system stability through rigorous testing and validation. Managed data integrity during schema updates and handled operational communication during deployment phases.',
             github: 'https://github.com/NagaVeeranna',
             linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
+            rollNo: '24A95A6108',
+            branch: 'AIML',
         },
         {
             name: 'Ch Bhanu Prakash',
@@ -59,6 +67,8 @@ const Developers = () => {
             description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/prakash-chandaka007',
             linkedin: 'www.linkedin.com/in/prakash-chandaka',
+            rollNo: '21A81A05M6',
+            branch: 'AIML',
         },
         {
             name: 'M Pavan Kumar',
@@ -68,6 +78,8 @@ const Developers = () => {
             description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/pavan1173',
             linkedin: 'https://www.linkedin.com/in/m-pavan-kumar-7a3228338?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
+            rollNo: '23A91A6123',
+            branch: 'IT',
         }
     ];
 
@@ -89,6 +101,11 @@ const Developers = () => {
                                 <div className="dev-identity">
                                     <h3>{dev.name}</h3>
                                     <span className="dev-role">{dev.role}</span>
+                                    <div className="dev-details">
+                                        <span className="dev-roll">ID: {dev.rollNo}</span>
+                                        <span className="dev-separator">|</span>
+                                        <span className="dev-branch">{dev.branch}</span>
+                                    </div>
                                 </div>
                                 <div className="dev-image-wrapper">
                                     <img src={dev.image} alt={dev.name} className="dev-photo" />
