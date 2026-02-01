@@ -13,6 +13,8 @@ function Home() {
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [showProfileMenu, setShowProfileMenu] = useState(false); // [NEW] Profile Menu State
+    const [showSettingsModal, setShowSettingsModal] = useState(false); // [NEW] Settings Modal State
+    const [newUsername, setNewUsername] = useState(''); // [NEW] State for editing name
     const profileRef = useRef(null); // Ref for profile dropdown
     const navigate = useNavigate();
 
@@ -55,6 +57,30 @@ function Home() {
         }
     };
 
+    const handleUpdateUsername = async (e) => {
+        e.preventDefault();
+        if (!newUsername.trim()) {
+            alert("Username cannot be empty");
+            return;
+        }
+        try {
+            const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/auth/update-username`, {
+                id,
+                newUsername
+            });
+            
+            // Update Session Storage
+            sessionStorage.setItem('username', response.data.username);
+            
+            alert(response.data.message);
+            setShowSettingsModal(false);
+            window.location.reload(); // Reload to reflect changes globally
+        } catch (error) {
+            console.error(error);
+            alert('Failed to update username.');
+        }
+    };
+
     // Close dropdown on click outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -82,7 +108,7 @@ function Home() {
                     <div className="header-right-section">
                         {/* 1. Header Icons (Settings, Notification) */}
                         <div className="header-icons-group">
-                            <div className="header-icon-btn" title="Settings">
+                            <div className="header-icon-btn" title="Settings" onClick={() => { setNewUsername(username); setShowSettingsModal(true); }}>
                                 <FaCog />
                             </div>
                             <div className="header-icon-btn" title="Notifications">
@@ -170,6 +196,40 @@ function Home() {
                             <div className="std-modal-footer">
                                 <button type="button" onClick={() => setShowPasswordModal(false)} className="std-btn std-btn-secondary">Close</button>
                                 <button type="button" className="std-btn" onClick={handleChangePassword}>Update</button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Settings / Edit Profile Modal */}
+            {
+                showSettingsModal && (
+                    <div className="std-modal-overlay" onClick={() => setShowSettingsModal(false)}>
+                        <div className="std-modal" onClick={e => e.stopPropagation()}>
+                            <div className="std-modal-header">
+                                <h2 className="std-modal-title">Settings</h2>
+                                <button className="std-close-btn" onClick={() => setShowSettingsModal(false)}>×</button>
+                            </div>
+                            <div className="std-modal-body">
+                                <form onSubmit={handleUpdateUsername}>
+                                    <div className="std-form-group">
+                                        <label className="std-label" htmlFor="editUsername">Display Name</label>
+                                        <input
+                                            className="std-input"
+                                            type="text"
+                                            id="editUsername"
+                                            value={newUsername}
+                                            onChange={(e) => setNewUsername(e.target.value)}
+                                            required
+                                        />
+                                        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '5px' }}>This name will be visible across the platform.</p>
+                                    </div>
+                                </form>
+                            </div>
+                            <div className="std-modal-footer">
+                                <button type="button" onClick={() => setShowSettingsModal(false)} className="std-btn std-btn-secondary">Cancel</button>
+                                <button type="button" className="std-btn" onClick={handleUpdateUsername}>Save Changes</button>
                             </div>
                         </div>
                     </div>

@@ -53,4 +53,23 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { register, login };
+const updateUsername = async (req, res) => {
+    const { id, newUsername } = req.body;
+    try {
+        // Case-insensitive ID lookup
+        const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        user.username = newUsername;
+        await user.save();
+        
+        res.json({ message: 'Username updated successfully!', username: user.username });
+    } catch (err) {
+        console.error("Error updating username:", err);
+        res.status(500).json({ message: 'Error updating username', error: err.message });
+    }
+}
+
+module.exports = { register, login, updateUsername };
