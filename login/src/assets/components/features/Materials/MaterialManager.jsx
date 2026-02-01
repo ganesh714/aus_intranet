@@ -469,18 +469,18 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole, us
     const myLevel = ROLE_HIERARCHY[userRole] || 99;
     const defaultRole = (ROLE_HIERARCHY['Student'] >= myLevel) ? 'Student' : userRole;
     
+
     // Default Dept: Lock to subRole if HOD/Faculty
     // Note: If peer-to-peer, we unlock. This initial default is tricky.
     // For now, default to 'All' unless strict lock needed.
     // Strict lock logic: HOD/Faculty can only search their dept if searching for DIFFERENT role.
     // Ideally, defaultDept should match userSubRole if they are likely to search generally.
-    const defaultDept = (['HOD', 'Faculty'].includes(userRole) && uploadData.userSubRole) ? uploadData.userSubRole : 'All';
+    const defaultDept = (['HOD', 'Faculty', 'Asso.Dean'].includes(userRole) && userSubRole) ? userSubRole : 'All';
 
     // Note: uploadData doesn't contain userSubRole directly in props usually, but we have it in parent scope.
     // Let's pass userSubRole to UserPicker explicitly in parent return.
 
     // Fix: We need userSubRole here.
-    // Parent passes: userRole. We need userSubRole too.
     
     const [filters, setFilters] = useState({ role: defaultRole, dept: 'All', batch: '', search: '' });
     const [availableUsers, setAvailableUsers] = useState([]);

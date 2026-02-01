@@ -33,9 +33,9 @@ const ResourceRepository = ({ userRole, setPdfLinks }) => {
 
                     if (userRole === 'Officers') ensureCategory("University related");
                     if (['Dean', 'Officers'].includes(userRole)) ensureCategory("Dean's related");
-                    if (['Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
-                    if (['HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
-                    if (['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Associate Dean', 'Assoc Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
+                    if (['Asso.Dean', 'Dean', 'Officers'].includes(userRole)) ensureCategory("Asso.Dean's related");
+                    if (['HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) ensureCategory("HOD's related");
+                    if (['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) ensureCategory('Faculty related');
 
                     // if (userRole === 'HOD' || userRole === 'Faculty' || userRole === 'Student') {
                     //     ensureCategory('Teaching Material');

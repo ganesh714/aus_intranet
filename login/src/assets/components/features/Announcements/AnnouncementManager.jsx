@@ -121,13 +121,13 @@ const AnnouncementManager = ({
     // Fetch announcements
     const fetchAnnouncements = async () => {
         try {
-            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
+            const canCreate = ['HOD', 'Dean', 'Asso.Dean'].includes(userRole) || (userRole === 'Officers');
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
             // Read batch directly from session if not passed as prop (or ensure parent passes it)
             const batchParam = sessionStorage.getItem('userBatch');
 
-            if (isHighLevel && !showSendAnnounce) {
+            if (canCreate && !showSendAnnounce) {
                 subRoleParam = deptFilter;
             }
 
