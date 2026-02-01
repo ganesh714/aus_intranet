@@ -122,3 +122,17 @@ exports.updateAchievementStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating status', error: error.message });
     }
 };
+// 4. Get Leadership Users (For Dean Access Control)
+exports.getLeadershipUsers = async (req, res) => {
+    try {
+        // Fetch all HODs and Associate Deans
+        const users = await User.find({ 
+            role: { $in: ['HOD', 'Asso.Dean'] } 
+        }).select('username role subRole id'); // Select distinct fields
+
+        res.json({ users });
+    } catch (error) {
+        console.error("Error fetching leadership users:", error);
+        res.status(500).json({ message: 'Error fetching users', error: error.message });
+    }
+};

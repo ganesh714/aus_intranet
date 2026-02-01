@@ -12,5 +12,6 @@ const upload = multer({
 router.get('/get-achievements', achievementController.getAchievements);
 router.post('/add-achievement', upload.single('proof'), achievementController.addAchievement);
 router.put('/update-achievement-status', achievementController.updateAchievementStatus);
+router.get('/get-leadership-users', achievementController.getLeadershipUsers);
 
 module.exports = router;
