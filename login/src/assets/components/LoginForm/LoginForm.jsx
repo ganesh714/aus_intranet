@@ -95,24 +95,30 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
 
                 const { id, username, role, subRole, canUploadTimetable, batch } = response.data.user;
 
+                // Normalize Role (Fix for Associate Dean variations)
+                let normalizedRole = role;
+                if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                    normalizedRole = 'Asso.Dean';
+                }
+
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userId', id);
-                sessionStorage.setItem('userRole', role);
+                sessionStorage.setItem('userRole', normalizedRole);
                 sessionStorage.setItem('usersubRole', subRole);
                 sessionStorage.setItem('userBatch', batch || ''); // Save Batch
                 sessionStorage.setItem('username', username);
                 sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
 
                 setIsLoggedIn(true);
-                setUserRole(role);
+                setUserRole(normalizedRole);
                 setUsersubRole(subRole);
 
-                if (role === 'Student') {
+                if (normalizedRole === 'Student') {
                     navigate('/student-page');
-                } else if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                } else if (normalizedRole === 'Asso.Dean') {
                     navigate('/asso.dean-page');
                 } else {
-                    navigate(`/${role.toLowerCase()}-page`);
+                    navigate(`/${normalizedRole.toLowerCase()}-page`);
                 }
             } catch (error) {
                 console.error(error);
