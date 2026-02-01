@@ -15,7 +15,8 @@ const userSchema = new mongoose.Schema({
         enum: ['Student', 'Officers', 'Dean', 'Asso.Dean', 'HOD', 'Faculty', 'Admin']
     },
     subRole: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SubRole',
         default: null,  // subRole can be null if it's not relevant for the role
     },
     batch: {
