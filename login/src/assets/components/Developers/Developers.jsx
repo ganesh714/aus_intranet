@@ -52,11 +52,11 @@ const Developers = () => {
             linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
         },
         {
-            name: 'null',
+            name: 'Ch Bhanu Prakash',
             role: 'Front End Developer',
             status: 'Contributor',
             image: prakash,
-            description: 'null',
+            description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/prakash-chandaka007',
             linkedin: 'www.linkedin.com/in/prakash-chandaka',
         },
@@ -65,7 +65,7 @@ const Developers = () => {
             role: 'Front End Developer',
             status: 'Contributor',
             image: pavan,
-            description: 'Engineered the core system architecture, refactoring the backend into modular services using SOLID principles. Spearheaded the frontend development and delivered key modules like the Dashboard.',
+            description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/pavan1173',
             linkedin: 'https://www.linkedin.com/in/m-pavan-kumar-7a3228338?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
         }
