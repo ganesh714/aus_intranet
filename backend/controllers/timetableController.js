@@ -1,5 +1,6 @@
 const Timetable = require('../models/Timetable');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const storageService = require('../services/storageService');
 const TimetableService = require('../services/TimetableService');
 
@@ -41,7 +42,23 @@ const getTimetables = async (req, res) => {
     try {
         let query = {};
         if (subRole && subRole !== 'All' && subRole !== 'null') {
-            const users = await User.find({ subRole }).select('_id');
+            // [NEW] Resolve subRole string to ObjectId
+            let subRoleId = null;
+            const subRoleDoc = await SubRole.findOne({
+                $or: [
+                    { code: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                    { name: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                    { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } }
+                ]
+            });
+
+            if (subRoleDoc) {
+                subRoleId = subRoleDoc._id;
+            } else {
+                return res.json({ timetables: [] }); // If subrole not found, no users, no timetables
+            }
+
+            const users = await User.find({ subRole: subRoleId }).select('_id');
             const userIds = users.map(u => u._id);
             if (userIds.length > 0) {
                 query['uploadedBy'] = { $in: userIds };
