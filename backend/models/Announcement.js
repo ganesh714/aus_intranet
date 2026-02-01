@@ -16,7 +16,7 @@ const announcementSchema = new mongoose.Schema({
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     targetAudience: [{
         role: { type: String, required: true },
-        subRole: { type: String },
+        subRole: { type: mongoose.Schema.Types.ObjectId, ref: 'SubRole' },
         batch: { type: String } // Added batch field
     }]
 });

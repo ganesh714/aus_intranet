@@ -16,7 +16,7 @@ class StudentStrategy extends DefaultStrategy {
             // Logic: If role=Student & subRole=All, but batch is unspecified (null/exists:false)
             {
                 role: 'Student',
-                subRole: 'All',
+                subRole: null, // 'All' is stored as null
                 $or: [{ batch: { $exists: false } }, { batch: null }, { batch: '' }]
             },
             // 2. Dept General Matches (Must NOT have a specific batch)
@@ -31,7 +31,7 @@ class StudentStrategy extends DefaultStrategy {
             // 3. Dept + Batch Match
             criteria.push({ role: 'Student', subRole: this.subRole, batch: this.batch });
             // 4. All + Batch Match
-            criteria.push({ role: 'Student', subRole: 'All', batch: this.batch });
+            criteria.push({ role: 'Student', subRole: null, batch: this.batch });
         }
         // Logic for "Batch exists or matches" is tricky in Mongo, 
         // to simplify for this lesson, we will match exact criteria pushed above.

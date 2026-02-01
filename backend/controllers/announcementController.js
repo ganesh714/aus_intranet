@@ -1,4 +1,5 @@
 const Announcement = require('../models/Announcement');
+const SubRole = require('../models/SubRole'); // [NEW]
 const File = require('../models/File');
 const User = require('../models/User');
 const storageService = require('../services/storageService');
@@ -8,7 +9,16 @@ const getAnnouncements = async (req, res) => {
     try {
         const { role, subRole, id, batch } = req.query;
 
-        const context = new AnnouncementContext(role, subRole, batch, id);
+        // [NEW] Resolve query subRole string to ObjectId
+        let subRoleId = subRole;
+        if (subRole && typeof subRole === 'string' && subRole !== 'All') {
+            const subDoc = await SubRole.findOne({
+                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+            });
+            if (subDoc) subRoleId = subDoc._id;
+        }
+
+        const context = new AnnouncementContext(role, subRoleId, batch, id);
         const announcements = await context.execute();
 
         res.json({ announcements });
@@ -50,6 +60,20 @@ const addAnnouncement = async (req, res) => {
         } catch (e) {
             console.error("Error parsing targets:", e);
             targets = [];
+        }
+
+        // [NEW] Resolve target subRoles to ObjectIds
+        for (const t of targets) {
+            if (t.subRole && t.subRole !== 'All') {
+                const subDoc = await SubRole.findOne({
+                    $or: [{ displayName: t.subRole }, { name: t.subRole }, { code: t.subRole }]
+                });
+                if (subDoc) {
+                    t.subRole = subDoc._id;
+                }
+            } else if (t.subRole === 'All') {
+                t.subRole = null; // Store as null for 'All'
+            }
         }
 
         const newAnnouncement = new Announcement({
