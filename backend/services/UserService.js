@@ -9,7 +9,28 @@ class UserService {
     static async getUsers({ role, dept, batch, search }) {
         let query = {};
         if (role) query.role = role;
-        if (dept && dept !== 'All') query.subRole = dept;
+        if (dept && dept !== 'All') {
+            const subRoleDoc = await SubRole.findOne({
+                $or: [
+                    { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                    { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                    { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                ]
+            });
+            // IF found, use ID. IF not found (and not 'All'), query with null? or invalid ID? 
+            // To match "nothing", we can use a dummy ID or just return empty immediately if we want strictness.
+            // But existing code just ignored it or used string logic.
+            // Let's rely on finding it. if not found, maybe don't filter by subRole? Or filter by nothing.
+            if (subRoleDoc) {
+                query.subRole = subRoleDoc._id;
+            } else {
+                // Dept was asked for but not found in DB. 
+                // Effectively should return NO users for that dept.
+                // We can force a non-matching query.
+                return [];
+            }
+        }
+
         if (batch) query.batch = batch; // Only for students
         if (search) {
             query.$or = [
