@@ -1,0 +1,197 @@
+/* SubRole Manager Styles - Aligned with Dashboard */
+.subrole-manager-container {
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: transparent;
+    /* Inherits main area bg */
+}
+
+.subrole-manager-header {
+    margin-bottom: 24px;
+}
+
+.subrole-manager-header h2 {
+    font-size: 28px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.subrole-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .subrole-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Form Card */
+.subrole-form-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+}
+
+.subrole-form-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #475569;
+    font-size: 14px;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #334155;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+    background: #e2e8f0;
+}
+
+.checkbox-label input {
+    margin-right: 8px;
+    accent-color: #3b82f6;
+    width: 16px;
+    height: 16px;
+}
+
+.add-btn {
+    background-color: #3b82f6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.add-btn:hover {
+    background-color: #2563eb;
+}
+
+/* List Card */
+.subrole-list-card {
+    background: white;
+    padding: 0;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.subrole-list-table-wrapper {
+    overflow-x: auto;
+}
+
+.subrole-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subrole-list th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px;
+    color: #475569;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.subrole-list td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 14px;
+}
+
+.subrole-list tr:last-child td {
+    border-bottom: none;
+}
+
+.role-badge {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+
+.delete-btn {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    background-color: #fca5a5;
+    color: #b91c1c;
+}
