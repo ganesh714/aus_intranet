@@ -49,10 +49,16 @@ const AnnouncementManager = ({
 
                     // Group subroles by their parent role
                     response.data.subRoles.forEach(subRole => {
-                        if (!mapping[subRole.role]) {
-                            mapping[subRole.role] = ['All'];
+                        // Iterate through allowedRoles array
+                        if (subRole.allowedRoles && Array.isArray(subRole.allowedRoles)) {
+                            subRole.allowedRoles.forEach(role => {
+                                if (!mapping[role]) {
+                                    mapping[role] = ['All'];
+                                }
+                                // Use displayName (e.g., "CSE") for the UI
+                                mapping[role].push(subRole.displayName);
+                            });
                         }
-                        mapping[subRole.role].push(subRole.name);
                     });
 
                     // Update state
