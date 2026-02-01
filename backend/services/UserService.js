@@ -17,8 +17,16 @@ class UserService {
             ];
         }
 
-        // Return minimal info
-        return await User.find(query).select('id username role subRole batch');
+        // Return minimal info and transform subRole for frontend
+        const users = await User.find(query).select('id username role subRole batch').populate('subRole');
+        return users.map(user => {
+            const u = user.toObject();
+            if (u.subRole && typeof u.subRole === 'object') {
+                u.subRoleId = u.subRole._id;
+                u.subRole = u.subRole.displayName || u.subRole.code;
+            }
+            return u;
+        });
     }
 
     // 2. Get Department Faculty
