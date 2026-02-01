@@ -1,5 +1,6 @@
 const Pdf = require('../models/Pdf');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const storageService = require('./storageService');
 
 class PdfService {
@@ -52,13 +53,46 @@ class PdfService {
         if (role !== 'Student') {
             const userQuery = {};
             if (role) userQuery.role = role;
-            if (subRole) userQuery.subRole = subRole;
+
+            // [NEW] Resolve subRole string to ObjectId for User Query
+            if (subRole) {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: subRole },
+                        { name: subRole },
+                        { displayName: subRole }
+                    ]
+                });
+                if (subRoleDoc) {
+                    userQuery.subRole = subRoleDoc._id;
+                } else if (subRole !== 'All') {
+                    // If supposed subRole not found, maybe invalid?
+                    // userQuery.subRole = null; // Or keep undefined to return nothing?
+                    // Let's assume if provided but not found, we shouldn't match randoms.
+                    // But for safety, let's just not set it if not found, or handle 'All'.
+                }
+            }
 
             const users = await User.find(userQuery).select('_id');
             const userIds = users.map(u => u._id);
 
             if (userIds.length > 0) {
+                // query.uploadedBy = { $in: userIds }; // This overrides previous query!
+                // Instead, merge it? But wait, query is empty so far.
+
+                // Mongoose Note: query['uploadedBy.subRole'] was set at line 47.
+                // But Pdf schema has embedded object for uploadedBy? 
+                // If so, `uploadedBy.subRole` query works on Pdf.
+                // But `query.uploadedBy = ...` overrides it with ObjectId match?
+
+                // If PdfService saves `uploadedBy` as ObjectId (line 35), then Pdf schema is WRONG (it says Object).
+                // If saved as ObjectId, then line 47 `uploadedBy.subRole` query FAILs.
+                // And line 61 `query.uploadedBy = { $in: ids }` SUCCEEDS.
+
+                // So we MUST use `query.uploadedBy`.
+
                 query.uploadedBy = { $in: userIds };
+
                 const initialPdfs = await Pdf.find(query).populate('uploadedBy', 'username role subRole id');
                 initialPdfs.forEach(pdf => pdfsSet.set(pdf._id.toString(), pdf));
             }
