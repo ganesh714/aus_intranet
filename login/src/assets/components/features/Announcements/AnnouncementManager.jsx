@@ -36,18 +36,36 @@ const AnnouncementManager = ({
     }, [initialMode]);
 
     // Configuration
-    const subRolesMapping = {
-        'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'HOD': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Dean': ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
-        'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
-        'Associate Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'], // [NEW] Alias
-        'Assoc Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],     // [NEW] Alias
-        'Officers': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
-        'Admin': ['All'],
-        'All': ['All']
-    };
+    // [NEW] Dynamic SubRoles Mapping State
+    const [subRolesMapping, setSubRolesMapping] = useState({ 'All': ['All'] });
+
+    // [NEW] Fetch SubRoles from Backend
+    useEffect(() => {
+        const fetchSubRoles = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
+                if (response.data.success) {
+                    const mapping = { 'All': ['All'] }; // Start with default
+
+                    // Group subroles by their parent role
+                    response.data.subRoles.forEach(subRole => {
+                        if (!mapping[subRole.role]) {
+                            mapping[subRole.role] = ['All'];
+                        }
+                        mapping[subRole.role].push(subRole.name);
+                    });
+
+                    // Update state
+                    setSubRolesMapping(mapping);
+                }
+            } catch (error) {
+                console.error("Error fetching subroles:", error);
+                // Fallback to hardcoded list if fetch fails (optional, or just alert)
+            }
+        };
+
+        fetchSubRoles();
+    }, []);
 
     const getTargetRoles = () => {
         switch (userRole) {
