@@ -42,7 +42,7 @@ exports.addAchievement = async (req, res) => {
             userId: user.id,
             userRole: user.role,
             userName: user.username,
-            dept: user.subRole || 'General', // Use subRole as Department (e.g. CSE, IT)
+            dept: user.subRole, // Use subRole ObjectId directly
             proofFileId: proofFileId,
             proof: proofFilename,
             status: 'Pending',
@@ -126,8 +126,8 @@ exports.updateAchievementStatus = async (req, res) => {
 exports.getLeadershipUsers = async (req, res) => {
     try {
         // Fetch all HODs and Associate Deans
-        const users = await User.find({ 
-            role: { $in: ['HOD', 'Asso.Dean'] } 
+        const users = await User.find({
+            role: { $in: ['HOD', 'Asso.Dean'] }
         }).select('username role subRole id'); // Select distinct fields
 
         res.json({ users });
