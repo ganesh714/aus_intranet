@@ -251,6 +251,17 @@ const Sidebar = ({
                         </div>
                     </div>
                 )}
+
+                {/* [NEW] Manage SubRoles (Admin Only) */}
+                {userRole === 'Admin' && (
+                    <div className="category-item">
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Manage SubRoles')}>
+                            <span className="cat-name">
+                                <FaBook className="cat-icon" /> Manage Depts
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Developers Link (Bottom) */}
