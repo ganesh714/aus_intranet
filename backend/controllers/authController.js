@@ -13,14 +13,7 @@ const register = async (req, res) => {
         return res.status(400).json({ message: 'User ID already exists' });
     }
 
-    if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
-        const existingUserByRoleAndSubRole = await User.findOne({ role, subRole });
-        if (existingUserByRoleAndSubRole) {
-            return res.status(400).json({ message: 'User with this role and subRole already exists' });
-        }
-    }
-
-    // [NEW] Resolve subRole if provided
+    // [Moved & Fixed] Resolve subRole if provided
     let subRoleObjId = null;
     if (subRole) {
         // Try to find by displayName, name, or code (case insensitive)
@@ -40,8 +33,16 @@ const register = async (req, res) => {
     }
 
     if ((role === 'Faculty' || role === 'Student') && !subRoleObjId) {
-        // Double check if it fell through
         return res.status(400).json({ message: 'subRole (department) is required and must be valid' });
+    }
+
+    // [Moved & Updated] Check for existing user by Role/SubRole
+    // Using subRoleObjId which is now an ObjectId (or null)
+    if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
+        const existingUserByRoleAndSubRole = await User.findOne({ role, subRole: subRoleObjId });
+        if (existingUserByRoleAndSubRole) {
+            return res.status(400).json({ message: 'User with this role and subRole already exists' });
+        }
     }
 
     const newUser = UserFactory.create({
