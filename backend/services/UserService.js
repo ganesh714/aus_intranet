@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const randomstring = require('randomstring');
 const authEmitter = require('../events/AuthEvents');
 
@@ -30,11 +31,31 @@ class UserService {
     }
 
     // 2. Get Department Faculty
+    // 2. Get Department Faculty
     static async getDeptFaculty(dept) {
-        return await User.find({
-            role: 'Faculty',
-            subRole: dept
-        }, 'username id canUploadTimetable');
+        // [NEW] Resolve dept string to ObjectId
+        let subRoleId = null;
+        if (dept) {
+            const subRoleDoc = await SubRole.findOne({
+                $or: [
+                    { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                    { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                    { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                ]
+            });
+            if (subRoleDoc) subRoleId = subRoleDoc._id;
+        }
+
+        if (!subRoleId && dept !== 'All') {
+            // If dept provided but not found, return empty or handle error
+            // For now, let's return [] to avoid CastError
+            return [];
+        }
+
+        const query = { role: 'Faculty' };
+        if (subRoleId) query.subRole = subRoleId;
+
+        return await User.find(query, 'username id canUploadTimetable');
     }
 
     // 3. Toggle Timetable Permission (Faculty Only)
