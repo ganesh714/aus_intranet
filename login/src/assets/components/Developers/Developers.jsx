@@ -23,7 +23,7 @@ const Developers = () => {
             description: 'Served as the primary point of contact, bridging the gap between client requirements and technical implementation. Conducted initial database schema research and coordinated team efforts.',
             github: 'https://github.com/kuntella-surya',
             linkedin: 'https://www.linkedin.com/in/suryakuntella/',
-            rollNo: '21A81A05O4',
+            rollNo: '24A95A4406',
             branch: 'DS',
         },
         {
@@ -56,7 +56,7 @@ const Developers = () => {
             description: 'Ensured system stability through rigorous testing and validation. Managed data integrity during schema updates and handled operational communication during deployment phases.',
             github: 'https://github.com/NagaVeeranna',
             linkedin: 'https://www.linkedin.com/in/naga-veeranna-97a133286/',
-            rollNo: '24A95A6108',
+            rollNo: '24A95A6103',
             branch: 'AIML',
         },
         {
@@ -67,7 +67,7 @@ const Developers = () => {
             description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/prakash-chandaka007',
             linkedin: 'www.linkedin.com/in/prakash-chandaka',
-            rollNo: '21A81A05M6',
+            rollNo: '25B21AI045',
             branch: 'AIML',
         },
         {
@@ -78,8 +78,8 @@ const Developers = () => {
             description: 'Developed the frontend using React and styled it using Tailwind CSS.',
             github: 'https://github.com/pavan1173',
             linkedin: 'https://www.linkedin.com/in/m-pavan-kumar-7a3228338?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
-            rollNo: '23A91A6123',
-            branch: 'IT',
+            rollNo: '25B21CS255',
+            branch: 'CSE',
         }
     ];
 
