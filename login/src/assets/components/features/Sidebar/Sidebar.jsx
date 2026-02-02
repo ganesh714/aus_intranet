@@ -177,6 +177,11 @@ const Sidebar = ({
                         return null;
                     }
 
+                    // [FIX] REMOVE "Time Table" for Deans and Associate Deans (Top Level)
+                    if (['Dean', 'Asso.Dean'].includes(userRole) && category.category === 'Time Table') {
+                        return null;
+                    }
+
                     // Check if this is a direct link (Students or Dept.Equipment)
                     const isDirectLink = (catName) => {
                         if (['Material', 'Time Table'].includes(catName)) return true; // Direct link for everyone who has it
