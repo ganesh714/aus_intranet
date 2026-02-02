@@ -1,6 +1,7 @@
 const Pdf = require('../models/Pdf');
 const User = require('../models/User');
-const SubRole = require('../models/SubRole'); // [NEW]
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const storageService = require('./storageService');
 
 class PdfService {
@@ -54,24 +55,24 @@ class PdfService {
             const userQuery = {};
             if (role) userQuery.role = role;
 
-            // [NEW] Resolve subRole string to ObjectId for User Query
+            // [OPTIMIZATION] Resolve subRole string to ObjectId for User Query
             if (subRole) {
-                const subRoleDoc = await SubRole.findOne({
-                    $or: [
-                        { code: subRole },
-                        { name: subRole },
-                        { displayName: subRole }
-                    ]
-                });
-                if (subRoleDoc) {
-                    userQuery.subRole = subRoleDoc._id;
-                } else if (subRole !== 'All') {
-                    // If supposed subRole not found, maybe invalid?
-                    // userQuery.subRole = null; // Or keep undefined to return nothing?
-                    // Let's assume if provided but not found, we shouldn't match randoms.
-                    // But for safety, let's just not set it if not found, or handle 'All'.
+                if (mongoose.Types.ObjectId.isValid(subRole)) {
+                    userQuery.subRole = subRole;
+                } else {
+                    const subRoleDoc = await SubRole.findOne({
+                        $or: [
+                            { code: subRole },
+                            { name: subRole },
+                            { displayName: subRole }
+                        ]
+                    });
+                    if (subRoleDoc) {
+                        userQuery.subRole = subRoleDoc._id;
+                    }
                 }
             }
+
 
             const users = await User.find(userQuery).select('_id');
             const userIds = users.map(u => u._id);
