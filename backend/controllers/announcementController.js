@@ -10,12 +10,17 @@ const getAnnouncements = async (req, res) => {
         const { role, subRole, id, batch } = req.query;
 
         // [NEW] Resolve query subRole string to ObjectId
+        // [NEW] Resolve query subRole string to ObjectId
         let subRoleId = subRole;
-        if (subRole && typeof subRole === 'string' && subRole !== 'All') {
-            const subDoc = await SubRole.findOne({
-                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
-            });
-            if (subDoc) subRoleId = subDoc._id;
+        if (subRole && typeof subRole === 'string') {
+            if (subRole === 'All') {
+                subRoleId = null; // Handle 'All' explicitly as null (or rely on Strategy resolving it)
+            } else {
+                const subDoc = await SubRole.findOne({
+                    $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+                });
+                if (subDoc) subRoleId = subDoc._id;
+            }
         }
 
         const context = new AnnouncementContext(role, subRoleId, batch, id);
@@ -92,7 +97,22 @@ const addAnnouncement = async (req, res) => {
     }
 };
 
+const deleteAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Announcement.findByIdAndDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ message: "Announcement not found" });
+        }
+        res.json({ message: "Announcement deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+        res.status(500).json({ message: "Error deleting announcement" });
+    }
+};
+
 module.exports = {
     getAnnouncements,
-    addAnnouncement
+    addAnnouncement,
+    deleteAnnouncement
 };
