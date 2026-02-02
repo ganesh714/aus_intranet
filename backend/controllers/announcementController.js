@@ -4,23 +4,30 @@ const File = require('../models/File');
 const User = require('../models/User');
 const storageService = require('../services/storageService');
 const AnnouncementContext = require('../strategies/AnnouncementContext');
+const mongoose = require('mongoose'); // [NEW]
 
 const getAnnouncements = async (req, res) => {
     try {
         const { role, subRole, id, batch } = req.query;
 
-        // [NEW] Resolve query subRole string to ObjectId
-        // [NEW] Resolve query subRole string to ObjectId
-        let subRoleId = subRole;
-        if (subRole && typeof subRole === 'string') {
-            if (subRole === 'All') {
-                subRoleId = null; // Handle 'All' explicitly as null (or rely on Strategy resolving it)
-            } else {
-                const subDoc = await SubRole.findOne({
-                    $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
-                });
-                if (subDoc) subRoleId = subDoc._id;
-            }
+        // [OPTIMIZATION] Resolve query subRole string to ObjectId
+        let subRoleId = null;
+
+        if (subRole === 'All' || subRole === 'null') {
+            subRoleId = null;
+        }
+        else if (subRole && mongoose.Types.ObjectId.isValid(subRole)) {
+            // Optimization: If it's already an ID, use it directly
+            subRoleId = subRole;
+        }
+        else if (subRole && typeof subRole === 'string') {
+            // Fallback: Resolve name to ID
+            const subDoc = await SubRole.findOne({
+                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+            });
+            if (subDoc) subRoleId = subDoc._id;
+        } else {
+            subRoleId = subRole; // If it's undefined or something else, pass as is (Strategy handles it)
         }
 
         const context = new AnnouncementContext(role, subRoleId, batch, id);
