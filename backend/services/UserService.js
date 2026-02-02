@@ -1,5 +1,6 @@
 const User = require('../models/User');
-const SubRole = require('../models/SubRole'); // [NEW]
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const randomstring = require('randomstring');
 const authEmitter = require('../events/AuthEvents');
 
@@ -10,24 +11,24 @@ class UserService {
         let query = {};
         if (role) query.role = role;
         if (dept && dept !== 'All') {
-            const subRoleDoc = await SubRole.findOne({
-                $or: [
-                    { code: { $regex: new RegExp("^" + dept + "$", "i") } },
-                    { name: { $regex: new RegExp("^" + dept + "$", "i") } },
-                    { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
-                ]
-            });
-            // IF found, use ID. IF not found (and not 'All'), query with null? or invalid ID? 
-            // To match "nothing", we can use a dummy ID or just return empty immediately if we want strictness.
-            // But existing code just ignored it or used string logic.
-            // Let's rely on finding it. if not found, maybe don't filter by subRole? Or filter by nothing.
-            if (subRoleDoc) {
-                query.subRole = subRoleDoc._id;
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // Optimization: Use ID directly
+                query.subRole = dept;
             } else {
-                // Dept was asked for but not found in DB. 
-                // Effectively should return NO users for that dept.
-                // We can force a non-matching query.
-                return [];
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+
+                if (subRoleDoc) {
+                    query.subRole = subRoleDoc._id;
+                } else {
+                    // Dept asked but not found -> Return empty
+                    return [];
+                }
             }
         }
 
@@ -54,17 +55,21 @@ class UserService {
     // 2. Get Department Faculty
     // 2. Get Department Faculty
     static async getDeptFaculty(dept) {
-        // [NEW] Resolve dept string to ObjectId
+        // [OPTIMIZATION] Resolve dept string to ObjectId
         let subRoleId = null;
         if (dept) {
-            const subRoleDoc = await SubRole.findOne({
-                $or: [
-                    { code: { $regex: new RegExp("^" + dept + "$", "i") } },
-                    { name: { $regex: new RegExp("^" + dept + "$", "i") } },
-                    { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
-                ]
-            });
-            if (subRoleDoc) subRoleId = subRoleDoc._id;
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                subRoleId = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+                if (subRoleDoc) subRoleId = subRoleDoc._id;
+            }
         }
 
         if (!subRoleId && dept !== 'All') {
