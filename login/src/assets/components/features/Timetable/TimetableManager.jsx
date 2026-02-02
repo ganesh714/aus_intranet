@@ -84,10 +84,12 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         const confirmMsg = `WARNING: Uploading this will REPLACE any existing timetable for Year ${uploadForm.targetYear}, Section ${uploadForm.targetSection}. Continue?`;
         if (!window.confirm(confirmMsg)) return;
 
-        const formData = new FormData();
         formData.append('targetYear', uploadForm.targetYear);
         formData.append('targetSection', uploadForm.targetSection);
         formData.append('file', uploadForm.file);
+        // [FIX] Explicitly append subRole for backend validation
+        formData.append('subRole', userSubRole);
+
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
             id: userId,
