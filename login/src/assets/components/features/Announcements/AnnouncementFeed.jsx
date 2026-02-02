@@ -33,8 +33,8 @@ const AnnouncementFeed = ({
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>Announcements</h2>
-                {/* Hide Dept Filter for Dean/Assoc Dean as per request */ }
-                {/* Hide Dept Filter for Dean/Assoc Dean as per request */ }
+                {/* Hide Dept Filter for Dean/Assoc Dean as per request */}
+                {/* Hide Dept Filter for Dean/Assoc Dean as per request */}
                 {canAccessFilter && (
                     <div className="search-input-wrapper" style={{ width: '200px' }}>
                         <select
@@ -44,8 +44,8 @@ const AnnouncementFeed = ({
                             onChange={(e) => setDeptFilter(e.target.value)}
                         >
                             <option value="All">All Departments</option>
-                            {subRolesMapping['Faculty']?.filter(r => r !== 'All').map((dept, i) => (
-                                <option key={i} value={dept}>{dept}</option>
+                            {subRolesMapping['Faculty']?.filter(r => r.id !== 'All').map((dept, i) => (
+                                <option key={i} value={dept.id}>{dept.name}</option>
                             ))}
                         </select>
                     </div>

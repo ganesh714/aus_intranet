@@ -37,7 +37,7 @@ const AnnouncementManager = ({
 
     // Configuration
     // [NEW] Dynamic SubRoles Mapping State
-    const [subRolesMapping, setSubRolesMapping] = useState({ 'All': ['All'] });
+    const [subRolesMapping, setSubRolesMapping] = useState({ 'All': [{ id: 'All', name: 'All' }] });
 
     // [NEW] Fetch SubRoles from Backend
     useEffect(() => {
@@ -45,7 +45,7 @@ const AnnouncementManager = ({
             try {
                 const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
                 if (response.data.success) {
-                    const mapping = { 'All': ['All'] }; // Start with default
+                    const mapping = { 'All': [{ id: 'All', name: 'All' }] }; // Start with default
 
                     // Group subroles by their parent role
                     response.data.subRoles.forEach(subRole => {
@@ -53,10 +53,10 @@ const AnnouncementManager = ({
                         if (subRole.allowedRoles && Array.isArray(subRole.allowedRoles)) {
                             subRole.allowedRoles.forEach(role => {
                                 if (!mapping[role]) {
-                                    mapping[role] = ['All'];
+                                    mapping[role] = [{ id: 'All', name: 'All' }];
                                 }
-                                // Use displayName (e.g., "CSE") for the UI
-                                mapping[role].push(subRole.displayName);
+                                // Store Object { id, name }
+                                mapping[role].push({ id: subRole._id, name: subRole.displayName });
                             });
                         }
                     });

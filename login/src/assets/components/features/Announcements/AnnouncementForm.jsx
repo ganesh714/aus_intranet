@@ -41,8 +41,8 @@ const AnnouncementForm = ({
                         <div className="std-form-group">
                             <label className="std-label" style={{ fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Department / Branch</label>
                             <select className="std-select" name="targetSubRole" value={formData.targetSubRole} onChange={onChange}>
-                                {(subRolesMapping[formData.targetRole] || ['All']).map((sr, i) => (
-                                    <option key={i} value={sr}>{sr}</option>
+                                {(subRolesMapping[formData.targetRole] || [{ id: 'All', name: 'All' }]).map((sr, i) => (
+                                    <option key={i} value={sr.id}>{sr.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -79,12 +79,19 @@ const AnnouncementForm = ({
 
                     {formData.targets && formData.targets.length > 0 && (
                         <div className="added-targets-list">
-                            {formData.targets.map((t, idx) => (
-                                <span key={idx} className="target-chip">
-                                    {t.role} - {t.subRole} {t.batch && `(${t.batch})`}
-                                    <button type="button" onClick={() => formData.onRemoveTarget(idx)}>×</button>
-                                </span>
-                            ))}
+                            {formData.targets.map((t, idx) => {
+                                // Lookup display name
+                                const list = subRolesMapping[t.role] || [];
+                                const subRoleObj = list.find(item => item.id === t.subRole);
+                                const subRoleName = subRoleObj ? subRoleObj.name : t.subRole;
+
+                                return (
+                                    <span key={idx} className="target-chip">
+                                        {t.role} - {subRoleName} {t.batch && `(${t.batch})`}
+                                        <button type="button" onClick={() => formData.onRemoveTarget(idx)}>×</button>
+                                    </span>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
