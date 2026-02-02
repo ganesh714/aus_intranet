@@ -2,7 +2,8 @@ const Material = require('../models/Material');
 const File = require('../models/File');
 const User = require('../models/User');
 
-const SubRole = require('../models/SubRole'); // [NEW]
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const DriveItem = require('../models/DriveItem');
 const storageService = require('./storageService');
 
@@ -58,21 +59,26 @@ class MaterialService {
                 throw new Error(`Permission Denied: You cannot share documents with ${rule.role}s.`);
             }
 
-            // [NEW] Resolve SubRole String to ObjectId
+            // [OPTIMIZATION] Resolve SubRole String to ObjectId
             if (rule.subRole && rule.subRole !== 'All') {
-                const subRoleDoc = await SubRole.findOne({
-                    $or: [
-                        { displayName: rule.subRole },
-                        { name: rule.subRole },
-                        { code: rule.subRole }
-                    ]
-                });
-                if (subRoleDoc) {
-                    rule.subRole = subRoleDoc._id;
+                if (mongoose.Types.ObjectId.isValid(rule.subRole)) {
+                    // Optimization: Use ID directly
+                    // rule.subRole is already the ID
                 } else {
-                    // If not found, perhaps it was already an ID or verify failure
-                    // For safety, if strict mode, throw error.
-                    // throw new Error(`Invalid Department/SubRole: ${rule.subRole}`);
+                    const subRoleDoc = await SubRole.findOne({
+                        $or: [
+                            { displayName: rule.subRole },
+                            { name: rule.subRole },
+                            { code: rule.subRole }
+                        ]
+                    });
+                    if (subRoleDoc) {
+                        rule.subRole = subRoleDoc._id;
+                    } else {
+                        // If not found, perhaps it was already an ID or verify failure
+                        // For safety, if strict mode, throw error.
+                        // throw new Error(`Invalid Department/SubRole: ${rule.subRole}`);
+                    }
                 }
             } else if (rule.subRole === 'All') {
                 rule.subRole = null; // Store as null for 'All'
@@ -136,8 +142,12 @@ class MaterialService {
         // Resolve subRole string to ObjectId if provided
         let subRoleObjId = subRole;
         if (subRole && typeof subRole === 'string' && subRole !== 'All') {
-            const subDoc = await SubRole.findOne({ $or: [{ code: subRole }, { displayName: subRole }] });
-            if (subDoc) subRoleObjId = subDoc._id;
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                subRoleObjId = subRole;
+            } else {
+                const subDoc = await SubRole.findOne({ $or: [{ code: subRole }, { displayName: subRole }] });
+                if (subDoc) subRoleObjId = subDoc._id;
+            }
         }
 
         // Universal Check: Am I personally targeted?
