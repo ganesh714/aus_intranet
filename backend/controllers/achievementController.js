@@ -1,5 +1,6 @@
 const Achievement = require('../models/Achievement');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const File = require('../models/File');
 const storageService = require('../services/storageService');
 const mongoose = require('mongoose');
@@ -76,9 +77,28 @@ exports.getAchievements = async (req, res) => {
         }
 
         // Department Filter:
-        // Ideally backend stores full Dept Name, but frontend might pass code.
-        // If data is inconsistent, use regex or exact match depending on data quality.
-        if (dept) filter.dept = dept;
+        // [NEW] Resolve dept string to ObjectId
+        if (dept) {
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // If already an ID (e.g. from Dean dropdown using IDs), use it
+                filter.dept = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+                if (subRoleDoc) {
+                    filter.dept = subRoleDoc._id;
+                } else {
+                    // Force empty result if Dept not found? Or ignore?
+                    // Let's force empty result
+                    return res.json({ achievements: [] });
+                }
+            }
+        }
 
         if (status) filter.status = status;
 
