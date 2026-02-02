@@ -34,6 +34,22 @@ const toggleTimetablePermission = async (req, res) => {
     }
 };
 
+// [NEW] Toggle Achievement Permission
+const toggleAchievementPermission = async (req, res) => {
+    try {
+        const { id, permissionType, allowed } = req.body;
+        // Validate type
+        if (!['approveStudentAchievements', 'approveFacultyAchievements'].includes(permissionType)) {
+            return res.status(400).json({ message: "Invalid permission type" });
+        }
+
+        const savedUser = await UserService.toggleAchievementPermission(id, permissionType, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 4. Change Password
 const changePassword = async (req, res) => {
     try {
@@ -82,6 +98,7 @@ module.exports = {
     getUsers,
     getDeptFaculty,
     toggleTimetablePermission,
+    toggleAchievementPermission, // [NEW]
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,

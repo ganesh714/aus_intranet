@@ -78,7 +78,7 @@ exports.getAchievements = async (req, res) => {
 
         // Department Filter:
         // [OPTIMIZATION] Resolve dept string to ObjectId
-        if (dept) {
+        if (dept && dept !== 'All') {
             if (mongoose.Types.ObjectId.isValid(dept)) {
                 // If already an ID (e.g. from Dean dropdown using IDs), use it
                 filter.dept = dept;
@@ -98,7 +98,6 @@ exports.getAchievements = async (req, res) => {
                 }
             }
         }
-
         if (status) filter.status = status;
 
         const achievements = await Achievement.find(filter)

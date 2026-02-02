@@ -9,6 +9,7 @@ const userController = require('../controllers/userController');
 router.get('/get-users', userController.getUsers);
 router.get('/get-dept-faculty', userController.getDeptFaculty);
 router.post('/toggle-timetable-permission', userController.toggleTimetablePermission);
+router.post('/toggle-achievement-permission', userController.toggleAchievementPermission); // [NEW]
 router.post('/change-password', userController.changePassword);
 
 // New Routes

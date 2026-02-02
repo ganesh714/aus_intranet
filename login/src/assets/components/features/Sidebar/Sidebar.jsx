@@ -69,7 +69,8 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] HOD/Faculty/Dean Department Achievements */}
-                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) && (
+                {/* [UPDATED] Visible to all Faculty, no permission check here */}
+                {(['Dean', 'Asso.Dean', 'HOD', 'Faculty'].includes(userRole)) && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
                             <span className="cat-name">
@@ -173,6 +174,11 @@ const Sidebar = ({
 
                     // NEW: Exclude "Faculty related" (Announcements) from loop as it is now rendered manually above
                     if (isFacultyOrHodOrDean && category.category === 'Faculty related') {
+                        return null;
+                    }
+
+                    // [FIX] REMOVE "Time Table" for Deans and Associate Deans (Top Level)
+                    if (['Dean', 'Asso.Dean'].includes(userRole) && category.category === 'Time Table') {
                         return null;
                     }
 

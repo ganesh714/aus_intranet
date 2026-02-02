@@ -106,7 +106,24 @@ const getTimetables = async (req, res) => {
     }
 };
 
+const togglePermission = async (req, res) => {
+    try {
+        const { id, canUpload } = req.body;
+        const user = await User.findOne({ id });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.canUploadTimetable = canUpload;
+        await user.save();
+
+        res.json({ message: `Permission ${canUpload ? 'Granted' : 'Revoked'}` });
+    } catch (error) {
+        console.error("Error toggling permission:", error);
+        res.status(500).json({ message: "Error updating permission" });
+    }
+};
+
 module.exports = {
     addTimetable,
-    getTimetables
+    getTimetables,
+    togglePermission
 };

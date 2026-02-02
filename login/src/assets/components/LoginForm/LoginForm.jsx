@@ -106,7 +106,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     password: formData.password,
                 });
 
-                const { id, username, role, subRole, subRoleId, canUploadTimetable, batch } = response.data.user;
+                const { id, username, role, subRole, subRoleId, canUploadTimetable, batch, permissions } = response.data.user;
 
                 // Normalize Role (Fix for Associate Dean variations)
                 let normalizedRole = role;
@@ -122,6 +122,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 sessionStorage.setItem('userBatch', batch || ''); // Save Batch
                 sessionStorage.setItem('username', username);
                 sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
+                sessionStorage.setItem('permissions', JSON.stringify(permissions || {})); // [NEW] Save Permissions
 
                 setIsLoggedIn(true);
                 setUserRole(normalizedRole);

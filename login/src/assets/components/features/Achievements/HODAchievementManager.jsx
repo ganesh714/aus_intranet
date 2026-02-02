@@ -12,6 +12,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
     // Derived permissions
     const canSeeStudent = ['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole);
     const canSeeFaculty = ['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole);
+    // [UPDATED] Check access using Session permissions if Faculty
     const canAccessControl = ['HOD', 'Dean'].includes(userRole);
 
     // Set initial tab based on permissions
@@ -69,7 +70,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
     const [accessControlUsers, setAccessControlUsers] = useState([]);
 
     useEffect(() => {
-        loadPermissions();
+        // [REMOVED] loadPermissions(); // No longer needed here, done in data fetch
     }, [userId]);
 
     useEffect(() => {
@@ -97,7 +98,15 @@ const HODAchievementManager = ({ userRole, userId }) => {
         } else if (canAccessControl) {
             fetchAccessUsers();
         }
-    }, [activeTab, approvalRoleFilter, userDeptFilter]); // [NEW] Added userDeptFilter dependency to reload
+        // [FIXED] fetchSelfPermissions removed from here to prevent being blocked by 'activeTab !== access'
+    }, [activeTab, approvalRoleFilter, userDeptFilter]);
+
+    // [NEW] Dedicated Effect for Faculty Permissions (Ensures it runs on mount)
+    useEffect(() => {
+        if (userRole === 'Faculty' && userId) {
+            fetchSelfPermissions();
+        }
+    }, [userRole, userId]);
 
     const loadAchievements = async () => {
         try {
@@ -120,8 +129,8 @@ const HODAchievementManager = ({ userRole, userId }) => {
             // 2. Overviews: Fetch Approved for specific role
             else if (activeTab === 'student_overview') {
                 if (['Dean', 'Asso.Dean'].includes(userRole)) {
-                    // Dean View Tab 1: Department Overview (Faculty)
-                    params.role = 'Faculty';
+                    // Dean View Tab 1: "HOD Achievements" (Hierarchy: HOD acts as 'Student' to Dean)
+                    params.role = 'HOD';
                 } else {
                     // HOD View Tab 1: Student Overview
                     params.role = 'Student';
@@ -129,9 +138,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 params.status = 'Approved';
             }
             else if (activeTab === 'faculty_overview') {
-                // Dean View Tab 2: Leadership Overview (HOD + Assoc Dean)
+                // Dean View Tab 2: "Assoc Dean Achievements" (Hierarchy: Assoc Dean acts as 'Faculty' to Dean)
                 if (['Dean', 'Asso.Dean'].includes(userRole)) {
-                    params.role = 'HOD,Asso.Dean';
+                    params.role = 'Asso.Dean';
                 } else {
                     // HOD View Tab 2: Faculty Overview
                     params.role = 'Faculty';
@@ -181,18 +190,61 @@ const HODAchievementManager = ({ userRole, userId }) => {
                     params: { dept: userDept }
                 });
                 setAccessControlUsers(response.data.faculty || []);
+
+                // [NEW] Derive Permissions Map from the fetched users
+                // [UPDATED] Map to 'student'/'faculty' keys to match Main Branch UI structure
+                const permsMap = {};
+                (response.data.faculty || []).forEach(u => {
+                    if (u.permissions) {
+                        permsMap[u.id] = {
+                            student: u.permissions.approveStudentAchievements,
+                            faculty: u.permissions.approveFacultyAchievements
+                        };
+                    }
+                });
+                setPermissions(permsMap);
             }
         } catch (error) {
             console.error("Error fetching access users:", error);
         }
     };
 
-    const loadPermissions = () => {
-        const storedPerms = localStorage.getItem('achievement_permissions');
-        if (storedPerms) {
-            try { setPermissions(JSON.parse(storedPerms)); } catch (e) { }
+    // [NEW] Fetch Self Permissions (For Faculty)
+    const fetchSelfPermissions = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, {
+                params: { search: userId }
+            });
+            const users = response.data.users || [];
+            const me = users.find(u => u.id === userId); // Exact match
+            if (me && me.permissions) {
+                // [UPDATED] Map to 'student'/'faculty' 
+                const mappedPerms = {
+                    student: me.permissions.approveStudentAchievements,
+                    faculty: me.permissions.approveFacultyAchievements
+                };
+                setPermissions(prev => ({
+                    ...prev,
+                    [userId]: mappedPerms
+                }));
+                // Also update session storage to keep Sidebar in sync (Store RAW API format for Sidebar logic?)
+                // Sidebar checks `approveStudentAchievements`. So we should store raw me.permissions.
+                sessionStorage.setItem('permissions', JSON.stringify(me.permissions));
+            }
+        } catch (error) {
+            console.error("Error fetching self permissions", error);
         }
     };
+
+    // [REMOVED] loadPermissions from localStorage - now derived from API data above
+
+    // [REMOVED] loadPermissions
+    // const loadPermissions = () => {
+    //     const storedPerms = localStorage.getItem('achievement_permissions');
+    //     if (storedPerms) {
+    //         try { setPermissions(JSON.parse(storedPerms)); } catch (e) { }
+    //     }
+    // };
 
     const handleApproval = async (id, status) => {
         const approverName = sessionStorage.getItem('username') || 'Unknown';
@@ -217,19 +269,53 @@ const HODAchievementManager = ({ userRole, userId }) => {
         }
     };
 
-    // --- ACCESS CONTROL HELPERS (Same as before) ---
-    const grantAccess = (facId) => {
-        const newPerms = { ...permissions, [facId]: { student: true, faculty: false } };
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms)); setShowAddForm(false);
+    // --- ACCESS CONTROL HELPERS (API Based - Adapted for UI) ---
+    const grantAccess = async (facId) => {
+        await togglePermissionType(facId, 'student', true); // Default
+        setShowAddForm(false);
     };
-    const revokeAccess = (facId) => {
-        const newPerms = { ...permissions }; delete newPerms[facId];
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
+
+    const revokeAccess = async (facId) => {
+        // We need to call toggle twice or have a revoke API. Calling twice for now.
+        // Or update state immediately and do API in background?
+        // Let's do API calls.
+        await togglePermissionType(facId, 'student', false);
+        await togglePermissionType(facId, 'faculty', false);
     };
-    const togglePermissionType = (facId, type) => {
-        const current = permissions[facId]; if (!current) return;
-        const newPerms = { ...permissions, [facId]: { ...current, [type]: !current[type] } };
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
+
+    const togglePermissionType = async (facId, type, forcedValue = null) => {
+        // Map UI type ('student', 'faculty') to Backend Field
+        const fieldMap = {
+            'student': 'approveStudentAchievements',
+            'faculty': 'approveFacultyAchievements'
+        };
+        const backendField = fieldMap[type];
+        if (!backendField) return;
+
+        // Determine new value from LOCAL state
+        const currentVal = permissions[facId]?.[type] || false;
+        const newVal = forcedValue !== null ? forcedValue : !currentVal;
+
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-achievement-permission`, {
+                id: facId,
+                permissionType: backendField,
+                allowed: newVal
+            });
+
+            // Optimistic Update with 'student'/'faculty' keys
+            setPermissions(prev => ({
+                ...prev,
+                [facId]: {
+                    ...prev[facId],
+                    [type]: newVal
+                }
+            }));
+
+        } catch (error) {
+            console.error("Failed to toggle permission", error);
+            alert("Failed to update permission");
+        }
     };
 
     // Determine which data to show
@@ -286,7 +372,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 {canSeeStudent && (
                     <button className={`std-tab-btn ${activeTab === 'student_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('student_overview'); setSearchQuery(''); }}>
                         {['Dean', 'Asso.Dean'].includes(userRole) ? (
-                            <><FaLayerGroup /> Department Overview</>
+                            <><FaUserCog /> HOD Achievements</>
                         ) : (
                             <><FaUserGraduate /> Student Achievements</>
                         )}
@@ -296,16 +382,18 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 {canSeeFaculty && (
                     <button className={`std-tab-btn ${activeTab === 'faculty_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('faculty_overview'); setSearchQuery(''); }}>
                         {['Dean', 'Asso.Dean'].includes(userRole) ? (
-                            <><FaUserCog /> Leadership Overview</>
+                            <><FaChalkboardTeacher /> Associate Dean Achievements</>
                         ) : (
                             <><FaChalkboardTeacher /> Faculty Achievements</>
                         )}
                     </button>
                 )}
-                {/* 3. Approvals (Merged) */}
-                <button className={`std-tab-btn ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setSearchQuery(''); }}>
-                    <FaClipboardList /> Approvals
-                </button>
+                {/* 3. Approvals (Visible to Leadership OR Faculty with Permission) */}
+                {(canAccessControl || (permissions[userId]?.student || permissions[userId]?.faculty)) && (
+                    <button className={`std-tab-btn ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setSearchQuery(''); }}>
+                        <FaClipboardList /> Approvals
+                    </button>
+                )}
 
                 {/* 4. Access Control */}
                 {canAccessControl && (
@@ -323,12 +411,12 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             <div className="toolbar-text">
                                 {activeTab === 'student_overview' && (
                                     ['Dean', 'Asso.Dean'].includes(userRole)
-                                        ? 'Department Achievements (Faculty)'
+                                        ? 'HOD Achievements'
                                         : 'All Approved Student Achievements'
                                 )}
                                 {activeTab === 'faculty_overview' && (
                                     ['Dean', 'Asso.Dean'].includes(userRole)
-                                        ? 'Leadership Achievements (HOD & Assoc. Dean)'
+                                        ? 'Associate Dean Achievements'
                                         : 'All Approved Faculty Achievements'
                                 )}
                                 {activeTab === 'approvals' && 'Pending Approval Requests'}
@@ -407,9 +495,11 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                     value={approvalRoleFilter}
                                     onChange={(e) => setApprovalRoleFilter(e.target.value)}
                                 >
-                                    <option value="Student">Students</option>
+                                    <option value="Student">
+                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'HODs' : 'Students'}
+                                    </option>
                                     <option value="Faculty">
-                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'HOD / Assoc Dean' : 'Faculty'}
+                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'Associate Deans' : 'Faculty'}
                                     </option>
                                 </select>
                             </div>
@@ -488,13 +578,13 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'student')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.student ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
                                                     {p.student ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
-                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Faculty Approvals' : 'Student Approvals'}
+                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'HOD Approvals' : 'Student Approvals'}
                                                     </span>
                                                 </div>
                                                 <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'faculty')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.faculty ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
                                                     {p.faculty ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
-                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Leadership Approvals' : 'Faculty Approvals'}
+                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Associate Dean Approvals' : 'Faculty Approvals'}
                                                     </span>
                                                 </div>
                                             </div>

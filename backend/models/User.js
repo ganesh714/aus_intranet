@@ -9,6 +9,12 @@ const userSchema = new mongoose.Schema({
     // Permission flag specifically for Faculty
     // For HODs, this is effectively 'true' by virtue of their role.
     canUploadTimetable: { type: Boolean, default: false },
+
+    // [NEW] Granular Permissions
+    permissions: {
+        approveStudentAchievements: { type: Boolean, default: false },
+        approveFacultyAchievements: { type: Boolean, default: false }
+    },
     role: {
         type: String,
         required: true,
