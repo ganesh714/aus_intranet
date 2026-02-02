@@ -23,7 +23,24 @@ const addTimetable = async (req, res) => {
 
         const { subRole, batch } = req.body;
 
-        const result = await TimetableService.addTimetable(user, req.file, subRole, batch);
+        // [NEW] Resolve subRole string to ObjectId
+        let subRoleId = subRole;
+        if (subRole && typeof subRole === 'string') {
+            const subDoc = await SubRole.findOne({
+                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+            });
+            // If found, use ID. If not, use original string (will likely fail schema validation but safer than null if logic allows)
+            // or throw error?
+            if (subDoc) {
+                subRoleId = subDoc._id;
+            } else {
+                // If not found, decided to return error or let it fail?
+                // Let's return error to be clear
+                return res.status(400).json({ message: `Invalid SubRole: ${subRole}` });
+            }
+        }
+
+        const result = await TimetableService.addTimetable(user, req.file, subRoleId, batch);
 
         res.status(200).json({
             message: 'Timetable uploaded successfully',

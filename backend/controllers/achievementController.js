@@ -1,5 +1,6 @@
 const Achievement = require('../models/Achievement');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const File = require('../models/File');
 const storageService = require('../services/storageService');
 const mongoose = require('mongoose');
@@ -75,15 +76,28 @@ exports.getAchievements = async (req, res) => {
             }
         }
 
-        // Department Filter: Resolve connection between String code and ObjectId
-        const SubRole = require('../models/SubRole'); // Ensure this is imported
+        // Department Filter:
+        // [NEW] Resolve dept string to ObjectId
         if (dept && dept !== 'All') {
-             // Try to find SubRole by name/code to get ObjectId
-             const subDoc = await SubRole.findOne({
-                 $or: [{ code: dept }, { displayName: dept }, { name: dept }]
-             });
-             // If found, filter by ObjectId. If not found, filter by the string (legacy support)
-             filter.dept = subDoc ? subDoc._id : dept;
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // If already an ID (e.g. from Dean dropdown using IDs), use it
+                filter.dept = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+                if (subRoleDoc) {
+                    filter.dept = subRoleDoc._id;
+                } else {
+                    // Force empty result if Dept not found
+                    return res.json({ achievements: [] });
+                }
+            }
+        }
         }
 
         if (status) filter.status = status;

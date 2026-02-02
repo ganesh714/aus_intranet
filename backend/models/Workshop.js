@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const workshopSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     userRole: { type: String, default: 'Faculty' },
-    dept: { type: String, required: true },
+    dept: { type: mongoose.Schema.Types.ObjectId, ref: 'SubRole', required: true },
     userName: { type: String },
 
     academicYear: { type: String, required: true },

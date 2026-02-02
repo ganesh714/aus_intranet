@@ -10,6 +10,7 @@ const getAnnouncements = async (req, res) => {
         const { role, subRole, id, batch } = req.query;
 
         // [NEW] Resolve query subRole string to ObjectId
+        // [NEW] Resolve query subRole string to ObjectId
         let subRoleId = subRole;
         if (subRole === 'All') {
             subRoleId = null;
@@ -22,6 +23,7 @@ const getAnnouncements = async (req, res) => {
                 ]
             });
             if (subDoc) subRoleId = subDoc._id;
+        }
         }
 
         const context = new AnnouncementContext(role, subRoleId, batch, id);
@@ -98,7 +100,22 @@ const addAnnouncement = async (req, res) => {
     }
 };
 
+const deleteAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Announcement.findByIdAndDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ message: "Announcement not found" });
+        }
+        res.json({ message: "Announcement deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+        res.status(500).json({ message: "Error deleting announcement" });
+    }
+};
+
 module.exports = {
     getAnnouncements,
-    addAnnouncement
+    addAnnouncement,
+    deleteAnnouncement
 };
