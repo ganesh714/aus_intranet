@@ -1,14 +1,40 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Announcement = require('../models/Announcement');
 const Material = require('../models/Material');
 const File = require('../models/File');
+const SubRole = require('../models/SubRole'); // [NEW]
 
 // GET /stats
 router.get('/stats', async (req, res) => {
     try {
-        const { role, subRole, id, batch } = req.query;
+        const { role, subRole, subRoleId, id, batch } = req.query;
+
+        // [OPTIMIZATION] Resolve subRole to ObjectId
+        let subRoleObjId = null;
+
+        if (subRoleId && mongoose.Types.ObjectId.isValid(subRoleId)) {
+            // Case 1: ID provided directly (Fastest)
+            subRoleObjId = subRoleId;
+        } else if (subRole && subRole !== 'null') {
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                // Case 2: subRole param is already an ID
+                subRoleObjId = subRole;
+            } else {
+                // Case 3: It is a string name (Legacy/Fallback)
+                const subDoc = await SubRole.findOne({
+                    $or: [
+                        { code: subRole },
+                        { displayName: subRole },
+                        { name: subRole }
+                    ]
+                });
+                if (subDoc) subRoleObjId = subDoc._id;
+            }
+        }
+
         const user = await User.findOne({ id: id });
 
         let stats = {};
@@ -21,28 +47,39 @@ router.get('/stats', async (req, res) => {
         const userBatch = user?.batch || batch;
 
         if (role) {
-            if (subRole && subRole !== 'null') {
+            if (subRoleObjId) {
                 const criteria = [
-                    { role: role, subRole: subRole },
-                    { role: role, subRole: 'All' }
+                    { role: role, subRole: subRoleObjId },
+                    { role: role, subRole: null } // Handle 'All' equivalent?
                 ];
+                // Note: 'All' logic for subRole in Announcement usually implies subRole field is null or "All" string if legacy
+                // New schema uses null for 'All'
+                const allSubRoleCriteria = { role: role, subRole: null };
 
                 if (role === 'Student' && userBatch) {
                     announcementQuery.$or.push({
                         targetAudience: {
                             $elemMatch: {
                                 $or: [
-                                    { role: role, subRole: subRole, batch: userBatch },
-                                    { role: role, subRole: subRole, batch: { $exists: false } },
-                                    { role: role, subRole: 'All', batch: userBatch },
-                                    { role: role, subRole: 'All', batch: { $exists: false } }
+                                    { role: role, subRole: subRoleObjId, batch: userBatch },
+                                    { role: role, subRole: subRoleObjId, batch: { $exists: false } },
+                                    { role: role, subRole: null, batch: userBatch },
+                                    { role: role, subRole: null, batch: { $exists: false } }
                                 ]
                             }
                         }
                     });
                 } else {
                     announcementQuery.$or.push({
-                        targetAudience: { $elemMatch: { $or: criteria } }
+                        targetAudience: {
+                            $elemMatch: {
+                                role: role,
+                                $or: [
+                                    { subRole: subRoleObjId },
+                                    { subRole: null }
+                                ]
+                            }
+                        }
                     });
                 }
             } else {
@@ -83,8 +120,9 @@ router.get('/stats', async (req, res) => {
                     $elemMatch: {
                         role: role,
                         $or: [
-                            { subRole: subRole },
-                            { subRole: { $exists: false } }
+                            { subRole: subRoleObjId },
+                            { subRole: { $exists: false } },
+                            { subRole: null }
                         ],
                         $or: [
                             { batch: userBatch },
@@ -121,8 +159,8 @@ router.get('/stats', async (req, res) => {
 
         // 4. Faculty Count (HOD Only)
         if (role === 'HOD') {
-            if (subRole) {
-                const facultyCount = await User.countDocuments({ role: 'Faculty', subRole: subRole });
+            if (subRoleObjId) {
+                const facultyCount = await User.countDocuments({ role: 'Faculty', subRole: subRoleObjId });
                 stats.facultyCount = facultyCount;
             } else {
                 stats.facultyCount = 0;
@@ -140,9 +178,9 @@ router.get('/stats', async (req, res) => {
 
         // B. Department Stats (Faculty/HOD)
         if (role === 'Faculty' || role === 'HOD') {
-            if (subRole) {
+            if (subRoleObjId) {
                 // Dept Achievements (Approved)
-                const deptAchCount = await Achievement.countDocuments({ dept: subRole, status: 'Approved' });
+                const deptAchCount = await Achievement.countDocuments({ dept: subRoleObjId, status: 'Approved' });
                 stats.deptAchievements = deptAchCount;
 
                 // Pending Approvals (For HOD/Faculty who have approval rights)
@@ -152,7 +190,7 @@ router.get('/stats', async (req, res) => {
 
                 // Let's count all 'Pending' in the department.
                 // Refinements can be made if Faculty only approve Students.
-                let pendingQuery = { dept: subRole, status: 'Pending' };
+                let pendingQuery = { dept: subRoleObjId, status: 'Pending' };
 
                 // If Faculty, maybe only show Student pending requests?
                 // Based on HODAchievementManager logic:
@@ -168,9 +206,9 @@ router.get('/stats', async (req, res) => {
                 stats.pendingApprovals = 0;
             }
 
-            if (subRole) {
+            if (subRoleObjId) {
                 // Student Count
-                const studentCount = await User.countDocuments({ role: 'Student', subRole: subRole });
+                const studentCount = await User.countDocuments({ role: 'Student', subRole: subRoleObjId });
                 stats.studentCount = studentCount;
             } else {
                 stats.studentCount = 0;
