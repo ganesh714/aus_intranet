@@ -77,11 +77,15 @@ const addAnnouncement = async (req, res) => {
         // [NEW] Resolve target subRoles to ObjectIds
         for (const t of targets) {
             if (t.subRole && t.subRole !== 'All') {
-                const subDoc = await SubRole.findOne({
-                    $or: [{ displayName: t.subRole }, { name: t.subRole }, { code: t.subRole }]
-                });
-                if (subDoc) {
-                    t.subRole = subDoc._id;
+                if (mongoose.Types.ObjectId.isValid(t.subRole)) {
+                    // Optimization: Use ID directly
+                } else {
+                    const subDoc = await SubRole.findOne({
+                        $or: [{ displayName: t.subRole }, { name: t.subRole }, { code: t.subRole }]
+                    });
+                    if (subDoc) {
+                        t.subRole = subDoc._id;
+                    }
                 }
             } else if (t.subRole === 'All') {
                 t.subRole = null; // Store as null for 'All'
