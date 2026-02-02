@@ -37,7 +37,8 @@ const Dashboard = ({
                 const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/stats`, {
                     params: {
                         role: userRole,
-                        subRole: userSubRole,
+                        subRole: userSubRole, // Kept for fallback or logging
+                        subRoleId: sessionStorage.getItem('userSubRoleId'), // [NEW] Send ID
                         id: userId
                     }
                 });
@@ -105,7 +106,7 @@ const Dashboard = ({
             { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
         ]
     };
-    
+
     // Map variations of Associate Dean to Dean view
     // Map variations of Associate Dean to Dean view
     stats['Asso.Dean'] = stats['Dean'];
@@ -210,7 +211,7 @@ const Dashboard = ({
                                         <FaTrophy /> Add Achievement
                                     </button>
                                 }
-                                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) && 
+                                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) &&
                                     <button className="action-btn" onClick={() => onDirectCategoryClick('HODAchievements')}>
                                         <FaTrophy /> Dept. Achievements
                                     </button>
