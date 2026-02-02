@@ -13,7 +13,11 @@ class TimeTableService {
      */
 
     static async addTimetable(user, file, subRole, batch) {
-        if (!user || !user.canUploadTimetable) {
+        const allowedRoles = ['HOD', 'Dean', 'Asso.Dean', 'Admin'];
+        const isAllowedRole = allowedRoles.includes(user.role);
+        const hasPermission = user.canUploadTimetable;
+
+        if (!user || (!isAllowedRole && !hasPermission)) {
             throw new Error('Unauthorized: User cannot upload timetables');
         }
         // Logic to find existing timetable
