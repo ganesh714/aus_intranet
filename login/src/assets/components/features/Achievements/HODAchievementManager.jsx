@@ -97,6 +97,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
             loadAchievements();
         } else if (canAccessControl) {
             fetchAccessUsers();
+        } else if (userRole === 'Faculty') {
+            // [NEW] If I am Faculty, I need to fetch MY OWN permissions for the 'approvals' tab access check
+            fetchSelfPermissions();
         }
     }, [activeTab, approvalRoleFilter, userDeptFilter]); // [NEW] Added userDeptFilter dependency to reload
 
@@ -192,6 +195,27 @@ const HODAchievementManager = ({ userRole, userId }) => {
             }
         } catch (error) {
             console.error("Error fetching access users:", error);
+        }
+    };
+
+    // [NEW] Fetch Self Permissions (For Faculty)
+    const fetchSelfPermissions = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, {
+                params: { search: userId }
+            });
+            const users = response.data.users || [];
+            const me = users.find(u => u.id === userId); // Exact match
+            if (me && me.permissions) {
+                setPermissions(prev => ({
+                    ...prev,
+                    [userId]: me.permissions
+                }));
+                // Also update session storage to keep Sidebar in sync for next reload
+                sessionStorage.setItem('permissions', JSON.stringify(me.permissions));
+            }
+        } catch (error) {
+            console.error("Error fetching self permissions", error);
         }
     };
 

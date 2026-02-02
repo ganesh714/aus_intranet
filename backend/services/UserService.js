@@ -89,6 +89,23 @@ class UserService {
         return await user.save();
     }
 
+    // [NEW] Toggle Achievement Permission
+    static async toggleAchievementPermission(id, permissionType, allowed) {
+        const user = await User.findOne({ id });
+        if (!user) throw new Error('User not found');
+
+        // Initialize if missing (schema default handles this but good for safety)
+        if (!user.permissions) user.permissions = {
+            approveStudentAchievements: false,
+            approveFacultyAchievements: false
+        };
+
+        user.permissions[permissionType] = allowed;
+        user.markModified('permissions'); 
+
+        return await user.save();
+    }
+
     // 4. Change Password
     static async changePassword(userId, currentPassword, newPassword) {
         const user = await User.findOne({ id: userId });
