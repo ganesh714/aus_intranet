@@ -67,11 +67,8 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     };
 
     useEffect(() => {
-        if (userRole !== 'Student' || (filters.year && filters.section)) {
-            fetchTimetables();
-        } else {
-            setTimetables([]);
-        }
+        // [FIX] Allow students to see all department timetables, not just filtered ones
+        fetchTimetables();
 
         if (userRole === 'HOD' && showPermissions) {
             fetchFaculty();
@@ -84,6 +81,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         const confirmMsg = `WARNING: Uploading this will REPLACE any existing timetable for Year ${uploadForm.targetYear}, Section ${uploadForm.targetSection}. Continue?`;
         if (!window.confirm(confirmMsg)) return;
 
+        const formData = new FormData();
         formData.append('targetYear', uploadForm.targetYear);
         formData.append('targetSection', uploadForm.targetSection);
         formData.append('file', uploadForm.file);
