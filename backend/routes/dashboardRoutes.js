@@ -13,6 +13,8 @@ router.get('/stats', async (req, res) => {
 
         let stats = {};
 
+        console.log(`[DEBUG] /stats called with: role=${role}, subRole=${subRole}, id=${id}`); // DEBUG LOG
+
         // 1. Announcements Count (Accessible to User)
         // Reuse logic from /get-announcements roughly
         const announcementQuery = { $or: [] };
@@ -175,6 +177,35 @@ router.get('/stats', async (req, res) => {
             } else {
                 stats.studentCount = 0;
             }
+        }
+
+        // C. Dean / Associate Dean Stats (College Level)
+        if (role === 'Dean' || role === 'Asso.Dean') {
+            // 1. Faculty Count (All Faculty or Filtered if Dean has a dept?)
+            // Assuming College Level Deans see ALL Faculty
+            const facultyCount = await User.countDocuments({ role: 'Faculty' });
+            stats.facultyCount = facultyCount;
+
+            // 2. Student Count (All Students)
+            const studentCount = await User.countDocuments({ role: 'Student' });
+            stats.studentCount = studentCount;
+
+            // 3. Leadership Achievements (Approved HOD + Asso.Dean)
+            const leadershipAchCount = await Achievement.countDocuments({ 
+                role: { $in: ['HOD', 'Asso.Dean'] }, 
+                status: 'Approved' 
+            });
+             // Map to 'deptAchievements' key as expected by Dashboard.jsx
+            stats.deptAchievements = leadershipAchCount;
+
+            // 4. Pending Approvals (Pending HOD + Asso.Dean)
+            const pendingLeadershipCount = await Achievement.countDocuments({ 
+                role: { $in: ['HOD', 'Asso.Dean'] }, 
+                status: 'Pending' 
+            });
+            stats.pendingApprovals = pendingLeadershipCount;
+
+            console.log("Dean Stats Calculated:", { facultyCount, studentCount, leadershipAchCount, pendingLeadershipCount }); // DEBUG LOG
         }
 
         res.json(stats);
