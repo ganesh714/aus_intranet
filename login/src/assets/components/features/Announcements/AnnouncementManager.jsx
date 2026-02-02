@@ -97,15 +97,10 @@ const AnnouncementManager = ({
     }, [roleOptions]);
 
     const handleAddTarget = () => {
-        // Validation for Student role
-        if (announceForm.targetRole === 'Student' && !announceForm.targetBatch.trim()) {
-            return; // Should be handled by UI disable too, but safe guard here
-        }
-
         const newTarget = {
             role: announceForm.targetRole,
             subRole: announceForm.targetSubRole,
-            batch: announceForm.targetRole === 'Student' ? announceForm.targetBatch : null
+            batch: announceForm.targetRole === 'Student' ? announceForm.targetBatch : null // Batch remains optional
         };
 
         // Prevent duplicates

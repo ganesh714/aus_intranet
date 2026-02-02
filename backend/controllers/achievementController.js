@@ -75,10 +75,16 @@ exports.getAchievements = async (req, res) => {
             }
         }
 
-        // Department Filter:
-        // Ideally backend stores full Dept Name, but frontend might pass code.
-        // If data is inconsistent, use regex or exact match depending on data quality.
-        if (dept) filter.dept = dept;
+        // Department Filter: Resolve connection between String code and ObjectId
+        const SubRole = require('../models/SubRole'); // Ensure this is imported
+        if (dept && dept !== 'All') {
+             // Try to find SubRole by name/code to get ObjectId
+             const subDoc = await SubRole.findOne({
+                 $or: [{ code: dept }, { displayName: dept }, { name: dept }]
+             });
+             // If found, filter by ObjectId. If not found, filter by the string (legacy support)
+             filter.dept = subDoc ? subDoc._id : dept;
+        }
 
         if (status) filter.status = status;
 
