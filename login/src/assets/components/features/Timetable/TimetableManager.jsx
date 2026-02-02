@@ -30,7 +30,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         try {
             const params = {
                 role: userRole,
-                subRole: userSubRole,
+                subRole: sessionStorage.getItem('userSubRoleId') || userSubRole, // [OPTIMIZATION] Use ID if available
                 year: filters.year,
                 section: filters.section
             };
@@ -45,7 +45,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     const fetchFaculty = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-dept-faculty`, {
-                params: { dept: userSubRole }
+                params: { dept: sessionStorage.getItem('userSubRoleId') || userSubRole } // [OPTIMIZATION] Use ID if available
             });
             setDeptFaculty(response.data.faculty);
         } catch (error) {
