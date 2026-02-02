@@ -77,7 +77,7 @@ exports.getAchievements = async (req, res) => {
         }
 
         // Department Filter:
-        // [NEW] Resolve dept string to ObjectId
+        // [OPTIMIZATION] Resolve dept string to ObjectId
         if (dept) {
             if (mongoose.Types.ObjectId.isValid(dept)) {
                 // If already an ID (e.g. from Dean dropdown using IDs), use it
@@ -93,8 +93,7 @@ exports.getAchievements = async (req, res) => {
                 if (subRoleDoc) {
                     filter.dept = subRoleDoc._id;
                 } else {
-                    // Force empty result if Dept not found? Or ignore?
-                    // Let's force empty result
+                    // Force empty result if Dept not found
                     return res.json({ achievements: [] });
                 }
             }
