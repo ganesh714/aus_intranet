@@ -11,9 +11,15 @@ const getAnnouncements = async (req, res) => {
 
         // [NEW] Resolve query subRole string to ObjectId
         let subRoleId = subRole;
-        if (subRole && typeof subRole === 'string' && subRole !== 'All') {
+        if (subRole === 'All') {
+            subRoleId = null;
+        } else if (subRole && typeof subRole === 'string') {
             const subDoc = await SubRole.findOne({
-                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+                $or: [
+                    { code: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                    { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                    { name: { $regex: new RegExp("^" + subRole + "$", "i") } }
+                ]
             });
             if (subDoc) subRoleId = subDoc._id;
         }
