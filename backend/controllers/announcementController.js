@@ -24,7 +24,7 @@ const getAnnouncements = async (req, res) => {
             });
             if (subDoc) subRoleId = subDoc._id;
         }
-        }
+
 
         const context = new AnnouncementContext(role, subRoleId, batch, id);
         const announcements = await context.execute();

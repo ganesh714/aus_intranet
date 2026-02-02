@@ -98,8 +98,6 @@ exports.getAchievements = async (req, res) => {
                 }
             }
         }
-        }
-
         if (status) filter.status = status;
 
         const achievements = await Achievement.find(filter)

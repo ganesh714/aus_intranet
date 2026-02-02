@@ -97,11 +97,16 @@ const HODAchievementManager = ({ userRole, userId }) => {
             loadAchievements();
         } else if (canAccessControl) {
             fetchAccessUsers();
-        } else if (userRole === 'Faculty') {
-            // [NEW] If I am Faculty, I need to fetch MY OWN permissions for the 'approvals' tab access check
+        }
+        // [FIXED] fetchSelfPermissions removed from here to prevent being blocked by 'activeTab !== access'
+    }, [activeTab, approvalRoleFilter, userDeptFilter]);
+
+    // [NEW] Dedicated Effect for Faculty Permissions (Ensures it runs on mount)
+    useEffect(() => {
+        if (userRole === 'Faculty' && userId) {
             fetchSelfPermissions();
         }
-    }, [activeTab, approvalRoleFilter, userDeptFilter]); // [NEW] Added userDeptFilter dependency to reload
+    }, [userRole, userId]);
 
     const loadAchievements = async () => {
         try {
@@ -124,8 +129,8 @@ const HODAchievementManager = ({ userRole, userId }) => {
             // 2. Overviews: Fetch Approved for specific role
             else if (activeTab === 'student_overview') {
                 if (['Dean', 'Asso.Dean'].includes(userRole)) {
-                    // Dean View Tab 1: Department Overview (Faculty)
-                    params.role = 'Faculty';
+                    // Dean View Tab 1: "HOD Achievements" (Hierarchy: HOD acts as 'Student' to Dean)
+                    params.role = 'HOD';
                 } else {
                     // HOD View Tab 1: Student Overview
                     params.role = 'Student';
@@ -133,9 +138,9 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 params.status = 'Approved';
             }
             else if (activeTab === 'faculty_overview') {
-                // Dean View Tab 2: Leadership Overview (HOD + Assoc Dean)
+                // Dean View Tab 2: "Assoc Dean Achievements" (Hierarchy: Assoc Dean acts as 'Faculty' to Dean)
                 if (['Dean', 'Asso.Dean'].includes(userRole)) {
-                    params.role = 'HOD,Asso.Dean';
+                    params.role = 'Asso.Dean';
                 } else {
                     // HOD View Tab 2: Faculty Overview
                     params.role = 'Faculty';
@@ -356,7 +361,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 {canSeeStudent && (
                     <button className={`std-tab-btn ${activeTab === 'student_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('student_overview'); setSearchQuery(''); }}>
                         {['Dean', 'Asso.Dean'].includes(userRole) ? (
-                            <><FaLayerGroup /> Department Overview</>
+                            <><FaUserCog /> HOD Achievements</>
                         ) : (
                             <><FaUserGraduate /> Student Achievements</>
                         )}
@@ -366,16 +371,18 @@ const HODAchievementManager = ({ userRole, userId }) => {
                 {canSeeFaculty && (
                     <button className={`std-tab-btn ${activeTab === 'faculty_overview' ? 'active' : ''}`} onClick={() => { setActiveTab('faculty_overview'); setSearchQuery(''); }}>
                         {['Dean', 'Asso.Dean'].includes(userRole) ? (
-                            <><FaUserCog /> Leadership Overview</>
+                            <><FaChalkboardTeacher /> Associate Dean Achievements</>
                         ) : (
                             <><FaChalkboardTeacher /> Faculty Achievements</>
                         )}
                     </button>
                 )}
-                {/* 3. Approvals (Merged) */}
-                <button className={`std-tab-btn ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setSearchQuery(''); }}>
-                    <FaClipboardList /> Approvals
-                </button>
+                {/* 3. Approvals (Visible to Leadership OR Faculty with Permission) */}
+                {(canAccessControl || (permissions[userId]?.approveStudentAchievements || permissions[userId]?.approveFacultyAchievements)) && (
+                    <button className={`std-tab-btn ${activeTab === 'approvals' ? 'active' : ''}`} onClick={() => { setActiveTab('approvals'); setSearchQuery(''); }}>
+                        <FaClipboardList /> Approvals
+                    </button>
+                )}
 
                 {/* 4. Access Control */}
                 {canAccessControl && (
@@ -393,12 +400,12 @@ const HODAchievementManager = ({ userRole, userId }) => {
                             <div className="toolbar-text">
                                 {activeTab === 'student_overview' && (
                                     ['Dean', 'Asso.Dean'].includes(userRole)
-                                        ? 'Department Achievements (Faculty)'
+                                        ? 'HOD Achievements'
                                         : 'All Approved Student Achievements'
                                 )}
                                 {activeTab === 'faculty_overview' && (
                                     ['Dean', 'Asso.Dean'].includes(userRole)
-                                        ? 'Leadership Achievements (HOD & Assoc. Dean)'
+                                        ? 'Associate Dean Achievements'
                                         : 'All Approved Faculty Achievements'
                                 )}
                                 {activeTab === 'approvals' && 'Pending Approval Requests'}
@@ -477,9 +484,11 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                     value={approvalRoleFilter}
                                     onChange={(e) => setApprovalRoleFilter(e.target.value)}
                                 >
-                                    <option value="Student">Students</option>
+                                    <option value="Student">
+                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'HODs' : 'Students'}
+                                    </option>
                                     <option value="Faculty">
-                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'HOD / Assoc Dean' : 'Faculty'}
+                                        {['Dean', 'Asso.Dean', 'Associate Dean'].includes(userRole) ? 'Associate Deans' : 'Faculty'}
                                     </option>
                                 </select>
                             </div>
@@ -558,13 +567,13 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'student')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.approveStudentAchievements ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
                                                     {p.approveStudentAchievements ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
-                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Faculty Approvals' : 'Student Approvals'}
+                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'HOD Approvals' : 'Student Approvals'}
                                                     </span>
                                                 </div>
                                                 <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'faculty')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.approveFacultyAchievements ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
                                                     {p.approveFacultyAchievements ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
-                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Leadership Approvals' : 'Faculty Approvals'}
+                                                        {['Dean', 'Asso.Dean'].includes(userRole) ? 'Associate Dean Approvals' : 'Faculty Approvals'}
                                                     </span>
                                                 </div>
                                             </div>
