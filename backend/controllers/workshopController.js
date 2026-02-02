@@ -1,5 +1,6 @@
 const Workshop = require('../models/Workshop');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 
 // Add Workshop
 const addWorkshop = async (req, res) => {
@@ -13,7 +14,7 @@ const addWorkshop = async (req, res) => {
         const newWorkshop = new Workshop({
             userId,
             userName: user.username,
-            dept: user.subRole || 'General',
+            dept: user.subRole, // Assumes user.subRole is ObjectId from User model
             userRole: user.role,
             ...data
         });
@@ -33,7 +34,21 @@ const getWorkshops = async (req, res) => {
         let filter = {};
 
         if (userId) filter.userId = userId;
-        if (dept) filter.dept = dept;
+        if (userId) filter.userId = userId;
+
+        // [NEW] Resolve dept string to ObjectId
+        if (dept) {
+            const subRoleDoc = await SubRole.findOne({
+                $or: [{ code: dept }, { displayName: dept }, { name: dept }]
+            });
+            if (subRoleDoc) {
+                filter.dept = subRoleDoc._id;
+            } else {
+                // Return empty if dept not found
+                return res.json({ workshops: [] });
+            }
+        }
+
         if (academicYear && academicYear !== 'All') filter.academicYear = academicYear;
 
         const workshops = await Workshop.find(filter).sort({ createdAt: -1 });
