@@ -12,6 +12,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
     // Derived permissions
     const canSeeStudent = ['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole);
     const canSeeFaculty = ['HOD', 'Faculty', 'Dean', 'Asso.Dean'].includes(userRole);
+    // [UPDATED] Check access using Session permissions if Faculty
     const canAccessControl = ['HOD', 'Dean'].includes(userRole);
 
     // Set initial tab based on permissions
@@ -69,7 +70,7 @@ const HODAchievementManager = ({ userRole, userId }) => {
     const [accessControlUsers, setAccessControlUsers] = useState([]);
 
     useEffect(() => {
-        loadPermissions();
+        // [REMOVED] loadPermissions(); // No longer needed here, done in data fetch
     }, [userId]);
 
     useEffect(() => {
@@ -181,18 +182,28 @@ const HODAchievementManager = ({ userRole, userId }) => {
                     params: { dept: userDept }
                 });
                 setAccessControlUsers(response.data.faculty || []);
+
+                // [NEW] Derive Permissions Map from the fetched users
+                const permsMap = {};
+                (response.data.faculty || []).forEach(u => {
+                    if (u.permissions) permsMap[u.id] = u.permissions;
+                });
+                setPermissions(permsMap);
             }
         } catch (error) {
             console.error("Error fetching access users:", error);
         }
     };
 
-    const loadPermissions = () => {
-        const storedPerms = localStorage.getItem('achievement_permissions');
-        if (storedPerms) {
-            try { setPermissions(JSON.parse(storedPerms)); } catch (e) { }
-        }
-    };
+    // [REMOVED] loadPermissions from localStorage - now derived from API data above
+
+    // [REMOVED] loadPermissions
+    // const loadPermissions = () => {
+    //     const storedPerms = localStorage.getItem('achievement_permissions');
+    //     if (storedPerms) {
+    //         try { setPermissions(JSON.parse(storedPerms)); } catch (e) { }
+    //     }
+    // };
 
     const handleApproval = async (id, status) => {
         const approverName = sessionStorage.getItem('username') || 'Unknown';
@@ -217,19 +228,54 @@ const HODAchievementManager = ({ userRole, userId }) => {
         }
     };
 
-    // --- ACCESS CONTROL HELPERS (Same as before) ---
-    const grantAccess = (facId) => {
-        const newPerms = { ...permissions, [facId]: { student: true, faculty: false } };
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms)); setShowAddForm(false);
+    // --- ACCESS CONTROL HELPERS (API Based) ---
+    const grantAccess = async (facId) => {
+        // Default Grant: Student Access
+        await togglePermissionType(facId, 'approveStudentAchievements', true);
+        setShowAddForm(false);
     };
-    const revokeAccess = (facId) => {
-        const newPerms = { ...permissions }; delete newPerms[facId];
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
+
+    const revokeAccess = async (facId) => {
+        // Revoke both
+        await togglePermissionType(facId, 'approveStudentAchievements', false);
+        await togglePermissionType(facId, 'approveFacultyAchievements', false);
     };
-    const togglePermissionType = (facId, type) => {
-        const current = permissions[facId]; if (!current) return;
-        const newPerms = { ...permissions, [facId]: { ...current, [type]: !current[type] } };
-        setPermissions(newPerms); localStorage.setItem('achievement_permissions', JSON.stringify(newPerms));
+
+    const togglePermissionType = async (facId, type, forcedValue = null) => {
+        // Map UI type to Backend Field
+        const fieldMap = {
+            'student': 'approveStudentAchievements',
+            'faculty': 'approveFacultyAchievements',
+            'approveStudentAchievements': 'approveStudentAchievements',
+            'approveFacultyAchievements': 'approveFacultyAchievements'
+        };
+        const backendField = fieldMap[type];
+        if (!backendField) return;
+
+        // Determine new value
+        const currentVal = permissions[facId]?.[backendField] || false;
+        const newVal = forcedValue !== null ? forcedValue : !currentVal;
+
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-achievement-permission`, {
+                id: facId,
+                permissionType: backendField,
+                allowed: newVal
+            });
+
+            // Optimistic Update
+            setPermissions(prev => ({
+                ...prev,
+                [facId]: {
+                    ...prev[facId],
+                    [backendField]: newVal
+                }
+            }));
+
+        } catch (error) {
+            console.error("Failed to toggle permission", error);
+            alert("Failed to update permission");
+        }
     };
 
     // Determine which data to show
@@ -435,8 +481,8 @@ const HODAchievementManager = ({ userRole, userId }) => {
                     {/* REPLACED MANUAL GRID WITH AchievementList COMPONENT */}
                     {/* Access Denied Check for Faculty - ONLY IN APPROVALS TAB */}
                     {activeTab === 'approvals' && userRole === 'Faculty' && (
-                        (approvalRoleFilter === 'Student' && !permissions[userId]?.student) ||
-                        (approvalRoleFilter === 'Faculty' && !permissions[userId]?.faculty)
+                        (approvalRoleFilter === 'Student' && !permissions[userId]?.approveStudentAchievements) ||
+                        (approvalRoleFilter === 'Faculty' && !permissions[userId]?.approveFacultyAchievements)
                     ) ? (
                         <div className="empty-state" style={{ color: '#ef4444', backgroundColor: '#fee2e2', borderColor: '#fca5a5' }}>
                             <FaTimes style={{ marginBottom: '10px', fontSize: '24px' }} />
@@ -485,14 +531,14 @@ const HODAchievementManager = ({ userRole, userId }) => {
                                                 <span style={{ fontSize: '11px', color: '#666', marginLeft: '24px' }}>({fac.id})</span>
                                             </span>
                                             <div style={{ display: 'flex', gap: '15px', marginRight: '30px' }}>
-                                                <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'student')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.student ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
-                                                    {p.student ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
+                                                <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'student')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.approveStudentAchievements ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
+                                                    {p.approveStudentAchievements ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
                                                         {['Dean', 'Asso.Dean'].includes(userRole) ? 'Faculty Approvals' : 'Student Approvals'}
                                                     </span>
                                                 </div>
-                                                <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'faculty')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.faculty ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
-                                                    {p.faculty ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
+                                                <div className="perm-toggle" onClick={() => togglePermissionType(fac.id, 'faculty')} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: p.approveFacultyAchievements ? '#16a34a' : '#cbd5e1', cursor: 'pointer' }}>
+                                                    {p.approveFacultyAchievements ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
                                                     <span style={{ fontSize: '11px', color: '#334155' }}>
                                                         {['Dean', 'Asso.Dean'].includes(userRole) ? 'Leadership Approvals' : 'Faculty Approvals'}
                                                     </span>

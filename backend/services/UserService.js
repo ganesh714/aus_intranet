@@ -39,8 +39,8 @@ class UserService {
             ];
         }
 
-        // Return minimal info and transform subRole for frontend
-        const users = await User.find(query).select('id username role subRole batch').populate('subRole');
+        // Return minimal info and transform subRole for frontend (Added permissions)
+        const users = await User.find(query).select('id username role subRole batch permissions').populate('subRole');
         return users.map(user => {
             const u = user.toObject();
             if (u.subRole && typeof u.subRole === 'object') {
@@ -76,7 +76,7 @@ class UserService {
         const query = { role: 'Faculty' };
         if (subRoleId) query.subRole = subRoleId;
 
-        return await User.find(query, 'username id canUploadTimetable');
+        return await User.find(query, 'username id canUploadTimetable permissions');
     }
 
     // 3. Toggle Timetable Permission (Faculty Only)

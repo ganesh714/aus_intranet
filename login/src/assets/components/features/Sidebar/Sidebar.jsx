@@ -69,7 +69,8 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] HOD/Faculty/Dean Department Achievements */}
-                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) && (
+                {/* Show if Permission exists OR if Role is leadership */}
+                {(['Dean', 'Asso.Dean', 'HOD'].includes(userRole) || (userRole === 'Faculty' && sessionStorage.getItem('permissions') && JSON.parse(sessionStorage.getItem('permissions')).approveStudentAchievements)) && (
                     <div className={`category-item ${type === 'HODAchievements' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODAchievements')}>
                             <span className="cat-name">
