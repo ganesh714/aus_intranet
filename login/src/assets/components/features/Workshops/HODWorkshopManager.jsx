@@ -28,7 +28,10 @@ const HODWorkshopManager = ({ userRole }) => {
 
     const fetchWorkshops = async () => {
         try {
-            const userDept = sessionStorage.getItem('usersubRole') || 'CSE'; // Default or fetch from user context
+            // [OPTIMIZATION] Use ID if available, else fallback to string
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-workshops`, {
                 params: { dept: userDept }
             });
@@ -40,7 +43,9 @@ const HODWorkshopManager = ({ userRole }) => {
 
     const fetchFaculty = async () => {
         try {
-            const userDept = sessionStorage.getItem('usersubRole') || 'CSE';
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-dept-faculty`, {
                 params: { dept: userDept }
             });

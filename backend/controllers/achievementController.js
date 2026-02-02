@@ -77,7 +77,7 @@ exports.getAchievements = async (req, res) => {
         }
 
         // Department Filter:
-        // [NEW] Resolve dept string to ObjectId
+        // [OPTIMIZATION] Resolve dept string to ObjectId
         if (dept && dept !== 'All') {
             if (mongoose.Types.ObjectId.isValid(dept)) {
                 // If already an ID (e.g. from Dean dropdown using IDs), use it

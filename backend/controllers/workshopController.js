@@ -1,6 +1,7 @@
 const Workshop = require('../models/Workshop');
 const User = require('../models/User');
-const SubRole = require('../models/SubRole'); // [NEW]
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 
 // Add Workshop
 const addWorkshop = async (req, res) => {
@@ -36,16 +37,20 @@ const getWorkshops = async (req, res) => {
         if (userId) filter.userId = userId;
         if (userId) filter.userId = userId;
 
-        // [NEW] Resolve dept string to ObjectId
-        if (dept) {
-            const subRoleDoc = await SubRole.findOne({
-                $or: [{ code: dept }, { displayName: dept }, { name: dept }]
-            });
-            if (subRoleDoc) {
-                filter.dept = subRoleDoc._id;
+        // [OPTIMIZATION] Resolve dept string to ObjectId
+        if (dept && dept !== 'All') {
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // Already an ID
+                filter.dept = dept;
             } else {
-                // Return empty if dept not found
-                return res.json({ workshops: [] });
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [{ code: dept }, { displayName: dept }, { name: dept }]
+                });
+                if (subRoleDoc) {
+                    filter.dept = subRoleDoc._id;
+                } else {
+                    return res.json({ workshops: [] });
+                }
             }
         }
 

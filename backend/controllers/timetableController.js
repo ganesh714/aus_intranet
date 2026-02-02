@@ -1,6 +1,7 @@
 const Timetable = require('../models/Timetable');
 const User = require('../models/User');
-const SubRole = require('../models/SubRole'); // [NEW]
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const storageService = require('../services/storageService');
 const TimetableService = require('../services/TimetableService');
 
@@ -23,20 +24,20 @@ const addTimetable = async (req, res) => {
 
         const { subRole, batch } = req.body;
 
-        // [NEW] Resolve subRole string to ObjectId
+        // [OPTIMIZATION] Resolve subRole string to ObjectId
         let subRoleId = subRole;
         if (subRole && typeof subRole === 'string') {
-            const subDoc = await SubRole.findOne({
-                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
-            });
-            // If found, use ID. If not, use original string (will likely fail schema validation but safer than null if logic allows)
-            // or throw error?
-            if (subDoc) {
-                subRoleId = subDoc._id;
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                subRoleId = subRole;
             } else {
-                // If not found, decided to return error or let it fail?
-                // Let's return error to be clear
-                return res.status(400).json({ message: `Invalid SubRole: ${subRole}` });
+                const subDoc = await SubRole.findOne({
+                    $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+                });
+                if (subDoc) {
+                    subRoleId = subDoc._id;
+                } else {
+                    return res.status(400).json({ message: `Invalid SubRole: ${subRole}` });
+                }
             }
         }
 
@@ -59,20 +60,25 @@ const getTimetables = async (req, res) => {
     try {
         let query = {};
         if (subRole && subRole !== 'All' && subRole !== 'null') {
-            // [NEW] Resolve subRole string to ObjectId
+            // [OPTIMIZATION] Resolve subRole string to ObjectId
             let subRoleId = null;
-            const subRoleDoc = await SubRole.findOne({
-                $or: [
-                    { code: { $regex: new RegExp("^" + subRole + "$", "i") } },
-                    { name: { $regex: new RegExp("^" + subRole + "$", "i") } },
-                    { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } }
-                ]
-            });
 
-            if (subRoleDoc) {
-                subRoleId = subRoleDoc._id;
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                subRoleId = subRole;
             } else {
-                return res.json({ timetables: [] }); // If subrole not found, no users, no timetables
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } }
+                    ]
+                });
+
+                if (subRoleDoc) {
+                    subRoleId = subRoleDoc._id;
+                } else {
+                    return res.json({ timetables: [] }); // If subrole not found, no users, no timetables
+                }
             }
 
             const users = await User.find({ subRole: subRoleId }).select('_id');
