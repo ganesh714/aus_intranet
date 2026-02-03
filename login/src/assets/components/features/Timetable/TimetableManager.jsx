@@ -86,7 +86,9 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         formData.append('targetSection', uploadForm.targetSection);
         formData.append('file', uploadForm.file);
         // [FIX] Explicitly append subRole for backend validation
-        formData.append('subRole', userSubRole);
+        // Prioritize the ID if available, otherwise use the name
+        const subRoleValue = sessionStorage.getItem('userSubRoleId') || userSubRole;
+        formData.append('subRole', subRoleValue);
 
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
