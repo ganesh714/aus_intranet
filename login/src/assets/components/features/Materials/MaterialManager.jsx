@@ -450,7 +450,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                     <div className="mat-badges">
                                         <span style={{ fontSize: '12px', color: '#6b7280', marginRight: '4px' }}>To:</span>
                                         {item.targetAudience?.map((r, i) => (
-                                            <span key={i} className="mat-badge">{r.role} {r.subRole && `• ${r.subRole}`}</span>
+                                            <span key={i} className="mat-badge">{r.role} {r.subRole && `• ${r.subRole.displayName || r.subRole.name || r.subRole}`}</span>
                                         ))}
                                         {/* Render Individual Recipients with 'Show More' logic */}
                                         <RecipientList targetUserDetails={item.targetUserDetails || []} fallbackIds={item.targetIndividualIds} />
