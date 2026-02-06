@@ -1,31 +1,36 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
 const protect = async (req, res, next) => {
-    try {
-        let user;
-        // 1. Handle "user" as string (Legacy Frontend quirk)
-        if (req.body.user && typeof req.body.user === 'string') {
-            user = JSON.parse(req.body.user);
-        } else if (req.body.user && typeof req.body.user === 'object') {
-            user = req.body.user;
-        } else if (req.query.id) {
-            // Sometimes we pass ID in query
-            user = { id: req.query.id };
-        } else {
-            // For now, if no user is provided, we might fail or allow (depending on route)
-            // But let's assume we need to find the user in DB to be safe
-            return res.status(401).json({ message: 'Not authorized, no user data' });
+    let token;
+
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        try {
+            // Get token from header
+            token = req.headers.authorization.split(' ')[1];
+
+            // Verify token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Get user from the token
+            req.user = await User.findOne({ id: decoded.id }).select('-password');
+
+            if (!req.user) {
+                return res.status(401).json({ message: 'Not authorized, user not found' });
+            }
+
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(401).json({ message: 'Not authorized, token failed' });
         }
-        // 2. Verify against DB
-        const dbUser = await User.findOne({ id: user.id });
-        if (!dbUser) {
-            return res.status(401).json({ message: 'Not authorized, user not found' });
-        }
-        // 3. Attach full user object to Request
-        req.user = dbUser;
-        next(); // Pass to next link in chain
-    } catch (error) {
-        console.error("Auth Middleware Error:", error);
-        res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+
+    if (!token) {
+        res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 module.exports = { protect };
