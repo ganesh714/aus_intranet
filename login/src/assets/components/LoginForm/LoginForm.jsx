@@ -106,7 +106,8 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     password: formData.password,
                 });
 
-                const { id, username, role, subRole, subRoleId, canUploadTimetable, batch, permissions } = response.data.user;
+                const { token, user } = response.data; // Destructure token and user from root response.data
+                const { id, username, role, subRole, subRoleId, canUploadTimetable, batch, permissions } = user; // Get user details from user object
 
                 // Normalize Role (Fix for Associate Dean variations)
                 let normalizedRole = role;
@@ -115,6 +116,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 }
 
                 sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('token', token); // [NEW] Store Token
                 sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', normalizedRole);
                 sessionStorage.setItem('usersubRole', subRole);
