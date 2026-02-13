@@ -1,18 +1,17 @@
-<<<<<<< HEAD
+
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Kanit", sans-serif;
-=======
+}
 /* src/assets/components/Content/Content.css */
 :root {
     --primary-orange: #F97316;
     --primary-blue: #1E3A8A;
     --light-bg: #f3f4f6;
     --text-dark: #1f2937;
->>>>>>> dfe66e3069dc2dac4650c1c8b66b6542e7e97295
 }
 body {
     margin: 0;
