@@ -1,5 +1,6 @@
 const Achievement = require('../models/Achievement');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole'); // [NEW]
 const File = require('../models/File');
 const storageService = require('../services/storageService');
 const mongoose = require('mongoose');
@@ -42,7 +43,7 @@ exports.addAchievement = async (req, res) => {
             userId: user.id,
             userRole: user.role,
             userName: user.username,
-            dept: user.subRole || 'General', // Use subRole as Department (e.g. CSE, IT)
+            dept: user.subRole, // Use subRole ObjectId directly
             proofFileId: proofFileId,
             proof: proofFilename,
             status: 'Pending',
@@ -65,13 +66,38 @@ exports.getAchievements = async (req, res) => {
         let filter = {};
 
         if (userId) filter.userId = userId;
-        if (role) filter.userRole = role; // Use userRole field
+        // Support multiple roles (comma separated)
+        if (role) {
+            const roles = role.split(',');
+            if (roles.length > 1) {
+                filter.userRole = { $in: roles };
+            } else {
+                filter.userRole = role;
+            }
+        }
 
         // Department Filter:
-        // Ideally backend stores full Dept Name, but frontend might pass code.
-        // If data is inconsistent, use regex or exact match depending on data quality.
-        if (dept) filter.dept = dept;
-
+        // [OPTIMIZATION] Resolve dept string to ObjectId
+        if (dept && dept !== 'All') {
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // If already an ID (e.g. from Dean dropdown using IDs), use it
+                filter.dept = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+                if (subRoleDoc) {
+                    filter.dept = subRoleDoc._id;
+                } else {
+                    // Force empty result if Dept not found
+                    return res.json({ achievements: [] });
+                }
+            }
+        }
         if (status) filter.status = status;
 
         const achievements = await Achievement.find(filter)
@@ -112,5 +138,19 @@ exports.updateAchievementStatus = async (req, res) => {
     } catch (error) {
         console.error("Error updating achievement:", error);
         res.status(500).json({ message: 'Error updating status', error: error.message });
+    }
+};
+// 4. Get Leadership Users (For Dean Access Control)
+exports.getLeadershipUsers = async (req, res) => {
+    try {
+        // Fetch all HODs and Associate Deans
+        const users = await User.find({
+            role: { $in: ['HOD', 'Asso.Dean'] }
+        }).select('username role subRole id'); // Select distinct fields
+
+        res.json({ users });
+    } catch (error) {
+        console.error("Error fetching leadership users:", error);
+        res.status(500).json({ message: 'Error fetching users', error: error.message });
     }
 };

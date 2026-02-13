@@ -30,11 +30,11 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         try {
             const params = {
                 role: userRole,
-                subRole: userSubRole,
+                subRole: sessionStorage.getItem('userSubRoleId') || userSubRole, // [OPTIMIZATION] Use ID if available
                 year: filters.year,
                 section: filters.section
             };
-            const response = await axios.get('http://localhost:5001/get-timetables', { params });
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-timetables`, { params });
             setTimetables(response.data.timetables);
         } catch (error) {
             console.error("Error fetching timetables", error);
@@ -44,8 +44,8 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     // Fetch Faculty List for HOD
     const fetchFaculty = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/get-dept-faculty', {
-                params: { dept: userSubRole }
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-dept-faculty`, {
+                params: { dept: sessionStorage.getItem('userSubRoleId') || userSubRole } // [OPTIMIZATION] Use ID if available
             });
             setDeptFaculty(response.data.faculty);
         } catch (error) {
@@ -56,7 +56,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     const togglePermission = async (facId, currentStatus) => {
         console.log(`[Frontend] Toggling permission for ${facId}, Current Status: ${currentStatus}`);
         try {
-            await axios.post('http://localhost:5001/toggle-timetable-permission', {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-timetable-permission`, {
                 id: facId,
                 canUpload: !currentStatus
             });
@@ -96,7 +96,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         }));
 
         try {
-            await axios.post('http://localhost:5001/add-timetable', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-timetable`, formData);
             alert('Timetable Uploaded/Updated Successfully!');
             setIsUploading(false);
             setUploadForm({ targetYear: '', targetSection: '', file: null });
@@ -113,7 +113,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         event.preventDefault();
         if (!fileId || !fileId.filePath) return;
         try {
-            const response = await axios.get(`http://localhost:5001/proxy-file/${fileId.filePath}`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/proxy-file/${fileId.filePath}`, {
                 responseType: 'arraybuffer'
             });
             const data = new Uint8Array(response.data);
@@ -150,7 +150,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     const fetchPinnedTimetables = async () => {
         if (!userId) return;
         try {
-            const response = await axios.get('http://localhost:5001/get-pinned-timetables', {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-pinned-timetables`, {
                 params: { userId }
             });
             setPinnedTimetables(response.data.pinned);
@@ -162,7 +162,7 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     const handlePin = async (e, timetableId) => {
         e.stopPropagation(); // Prevent opening the file
         try {
-            await axios.post('http://localhost:5001/toggle-pin-timetable', {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-pin-timetable`, {
                 userId,
                 timetableId
             });

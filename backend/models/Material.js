@@ -7,7 +7,7 @@ const materialSchema = new mongoose.Schema({
     // New Rule-Based Targeting
     targetAudience: [{
         role: { type: String, required: true }, // 'Student' or 'Faculty'
-        subRole: { type: String }, // e.g. 'CSE', 'ECE' (Optional - if missing, applies to all depts)
+        subRole: { type: mongoose.Schema.Types.ObjectId, ref: 'SubRole' }, // Link to SubRole ID
         batch: { type: String }    // e.g. '2024-2028' (Optional - only for Students)
     }],
 

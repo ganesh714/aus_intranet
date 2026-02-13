@@ -25,6 +25,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUserId }) => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+<<<<<<< HEAD
     // If token exists, redirect automatically
     useEffect(() => {
 <<<<<<< HEAD
@@ -37,6 +38,22 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUserId }) => {
             setUserId(localStorage.getItem("userId"));
             navigate(`/${role.toLowerCase()}/dashboard`);
 =======
+=======
+    const [subRolesList, setSubRolesList] = useState([]); // [NEW]
+
+    useEffect(() => {
+        // Fetch subroles on mount
+        const fetchSubRoles = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
+                setSubRolesList(response.data.subRoles);
+            } catch (error) {
+                console.error("Failed to fetch subroles", error);
+            }
+        };
+        fetchSubRoles();
+
+>>>>>>> origin/intranet-v3
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         const role = sessionStorage.getItem('userRole');
 
@@ -111,7 +128,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUserId }) => {
             // }
 
             try {
-                const response = await axios.post('http://localhost:5001/auth/register', formData);
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, formData);
                 alert(response.data.message);
                 setFormData({
                     username: '',
@@ -133,31 +150,39 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUserId }) => {
             }
         } else {
             try {
-                const response = await axios.post('http://localhost:5001/auth/login', {
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
                     id: formData.id,
                     password: formData.password,
                 });
 
-                const { id, username, role, subRole, canUploadTimetable, batch } = response.data.user;
+                const { id, username, role, subRole, subRoleId, canUploadTimetable, batch, permissions } = response.data.user;
+
+                // Normalize Role (Fix for Associate Dean variations)
+                let normalizedRole = role;
+                if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                    normalizedRole = 'Asso.Dean';
+                }
 
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userId', id);
-                sessionStorage.setItem('userRole', role);
+                sessionStorage.setItem('userRole', normalizedRole);
                 sessionStorage.setItem('usersubRole', subRole);
+                if (subRoleId) sessionStorage.setItem('userSubRoleId', subRoleId); // [NEW] Store ID
                 sessionStorage.setItem('userBatch', batch || ''); // Save Batch
                 sessionStorage.setItem('username', username);
                 sessionStorage.setItem('canUploadTimetable', canUploadTimetable); // Save Permission Flag
+                sessionStorage.setItem('permissions', JSON.stringify(permissions || {})); // [NEW] Save Permissions
 
                 setIsLoggedIn(true);
-                setUserRole(role);
+                setUserRole(normalizedRole);
                 setUsersubRole(subRole);
 
-                if (role === 'Student') {
+                if (normalizedRole === 'Student') {
                     navigate('/student-page');
-                } else if (role.toLowerCase().includes('asso') && role.toLowerCase().includes('dean')) {
+                } else if (normalizedRole === 'Asso.Dean') {
                     navigate('/asso.dean-page');
                 } else {
-                    navigate(`/${role.toLowerCase()}-page`);
+                    navigate(`/${normalizedRole.toLowerCase()}-page`);
                 }
             } catch (error) {
                 console.error(error);
@@ -167,89 +192,63 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUserId }) => {
     };
 
     const renderSubRoleOptions = () => {
-        const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+        if (!formData.role || formData.role === 'Admin') return null;
 
-        if (formData.role === 'Officers') {
-            return (
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="subRole">Position:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
-                        <option value="">Select Position</option>
-                        <option value="DyPC">DyPC</option>
-                        <option value="VC">VC</option>
-                        <option value="ProVC">ProVC</option>
-                        <option value="Registrar">Registrar</option>
-                    </select>
-                </div>
-            );
-        }
-        if (formData.role === 'Dean') {
-            return (
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
-                        <option value="">Select Department</option>
-                        <option value="IQAC">IQAC</option>
-                        <option value="R&C">R&C</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="CD">CD</option>
-                        <option value="SA">SA</option>
-                        <option value="IR">IR</option>
-                        <option value="AD">AD</option>
-                        <option value="SOE">SOE</option>
-                        <option value="COE">COE</option>
-                        <option value="SOP">SOP</option>
-                    </select>
-                </div>
-            );
-        }
-        if (formData.role === 'Asso.Dean') {
-            return (
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
-                        <option value="">Select Department</option>
-                        <option value="SOE">SOE</option>
-                        <option value="IQAC">IQAC</option>
-                        <option value="AD">AD</option>
-                        <option value="FED">FED</option>
-                    </select>
-                </div>
-            );
-        }
-        // Combined HOD, Faculty, and Student logic
-        if (formData.role === 'HOD' || formData.role === 'Faculty' || formData.role === 'Student') {
-            return (
-                <div className="std-form-group">
-                    <label className="std-label" htmlFor="subRole">Department:</label>
-                    <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
-                        <option value="">Select Department</option>
-                        {commonDepartments.map(dept => (
-                            <option key={dept} value={dept}>{dept}</option>
-                        ))}
-                    </select>
+        // Filter subroles based on selected role
+        // For Students, Faculty, HOD -> show departments (allowedRoles includes one of these)
+        // For Dean -> show Dean subroles
+        // For Officers -> show Officer subroles
 
-                    {/* Conditionally render Batch input for Student */}
-                    {formData.role === 'Student' && (
-                        <div className="std-form-group" style={{ marginTop: '15px' }}>
-                            <label className="std-label" htmlFor="batch">Batch (Year):</label>
-                            <input
-                                type="text"
-                                id="batch"
-                                name="batch"
-                                value={formData.batch}
-                                onChange={handleChange}
-                                required
-                                placeholder="e.g. 2024"
-                                className="std-input"
-                            />
-                        </div>
-                    )}
-                </div>
-            );
+        const relevantSubRoles = subRolesList.filter(sr => sr.allowedRoles.includes(formData.role));
+
+        if (relevantSubRoles.length === 0 && formData.role !== 'Admin') {
+            // If no specific subroles found roughly matching, maybe fallback or show nothing
+            // But usually we expect data. 
+            return null;
         }
+<<<<<<< HEAD
         return null;
 >>>>>>> dfe66e3069dc2dac4650c1c8b66b6542e7e97295
+=======
+
+        const labelMap = {
+            'Officers': 'Position',
+            'Dean': 'Department/Role',
+            'Asso.Dean': 'Department',
+            'HOD': 'Department',
+            'Faculty': 'Department',
+            'Student': 'Department'
+        };
+
+        return (
+            <div className="std-form-group">
+                <label className="std-label" htmlFor="subRole">{labelMap[formData.role] || 'Department'}:</label>
+                <select id="subRole" name="subRole" value={formData.subRole} onChange={handleChange} required className="std-select">
+                    <option value="">Select {labelMap[formData.role] || 'Option'}</option>
+                    {relevantSubRoles.map(sr => (
+                        <option key={sr.code} value={sr.code}>{sr.displayName || sr.name}</option>
+                    ))}
+                </select>
+
+                {/* Conditionally render Batch input for Student */}
+                {formData.role === 'Student' && (
+                    <div className="std-form-group" style={{ marginTop: '15px' }}>
+                        <label className="std-label" htmlFor="batch">Batch (Year):</label>
+                        <input
+                            type="text"
+                            id="batch"
+                            name="batch"
+                            value={formData.batch}
+                            onChange={handleChange}
+                            required
+                            placeholder="e.g. 2024"
+                            className="std-input"
+                        />
+                    </div>
+                )}
+            </div>
+        );
+>>>>>>> origin/intranet-v3
     };
 
     return (

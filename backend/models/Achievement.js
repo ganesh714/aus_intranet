@@ -22,7 +22,7 @@ const achievementSchema = new mongoose.Schema({
     userId: { type: String, required: true }, // Store the unique user ID (e.g., Roll No or Faculty ID)
     userRole: { type: String, required: true },
     userName: { type: String }, // Store snapshot of name for easier display
-    dept: { type: String }, // Department context for filtering (e.g. 'CSE')
+    dept: { type: mongoose.Schema.Types.ObjectId, ref: 'SubRole' }, // Department context
 
     // File Link
     proofFileId: {

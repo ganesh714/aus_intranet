@@ -7,7 +7,7 @@ class FacultyStrategy extends DefaultStrategy {
     async fetchAnnouncements(userId) {
         let orConditions = [
             { targetAudience: { $elemMatch: { role: 'All' } } },
-            { targetAudience: { $elemMatch: { role: 'Faculty', subRole: 'All' } } }
+            { targetAudience: { $elemMatch: { role: 'Faculty', subRole: null } } } // 'All' depts = null
         ];
         // Specific Dept logic
         if (this.subRole) {

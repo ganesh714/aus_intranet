@@ -3,9 +3,51 @@ import axios from 'axios';
 import { FaBook, FaCloudUploadAlt, FaUserTie, FaUsers, FaTrash, FaUserGraduate, FaSearch } from 'react-icons/fa';
 import './Materials.css';
 
+import './Materials.css';
+
+const ROLE_HIERARCHY = {
+    'Admin': 1,
+    'Officers': 2,
+    'Dean': 3,
+    'Asso.Dean': 4,
+    'Associate Dean': 4, // Alias for logic
+    'Assoc Dean': 4,     // Alias for logic
+    'HOD': 5,
+    'Faculty': 6,
+    'Student': 7
+};
+
+// [REMOVED] Hardcoded ROLE_SUBROLES and COMMON_DEPTS
+// We will fetch these dynamically now.
+
+
 const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
     // --- STATE ---
     const [materials, setMaterials] = useState([]);
+    const [subRolesList, setSubRolesList] = useState([]); // [NEW]
+
+    // Fetch SubRoles
+    useEffect(() => {
+        const fetchSubRoles = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
+                setSubRolesList(response.data.subRoles);
+            } catch (error) {
+                console.error("Failed to fetch subroles", error);
+            }
+        };
+        fetchSubRoles();
+    }, []);
+
+    const getSubRolesForRole = (role) => {
+        if (!role) return [];
+        if (role === 'Admin') return []; // Admin technically sees everything or nothing specific in this context? 
+        // In original code Admin had [], enabling 'All'.
+
+        return subRolesList
+            .filter(sr => sr.allowedRoles.includes(role))
+            .map(sr => sr.code);
+    };
 
     // Filter Logic for Viewing
     const [viewFilters, setViewFilters] = useState({
@@ -45,16 +87,35 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 
     // -- Rule Builder State --
     const [currentRule, setCurrentRule] = useState({
-        role: 'Student',
-        subRole: 'All', // 'All' means apply to all departments
+        role: (ROLE_HIERARCHY[userRole] > ROLE_HIERARCHY['Faculty']) ? 'Student' : 'Faculty', // Default intelligently
+        subRole: (['HOD', 'Faculty'].includes(userRole) && userSubRole) ? userSubRole : 'All',
         batch: ''
     });
 
-    const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+    // Update rule subRole if userRole changes (e.g. initial load) to enforce lock
+    useEffect(() => {
+        if (['HOD', 'Faculty'].includes(userRole) && userSubRole) {
+            setCurrentRule(prev => ({ ...prev, subRole: userSubRole }));
+        }
+    }, [userRole, userSubRole]);
+
+    // const commonDepartments = ["IT", "CSE", "AIML", "CE", "MECH", "EEE", "ECE", "Ag.E", "MPE", "FED"];
+    // Using global const now
+
+    // Updates subRole when role changes in rule builder if needed (reset to All or first option?)
+    // Actually, we should probably reset subRole to 'All' when role changes, unless it's locked.
+    useEffect(() => {
+        if (!(['HOD', 'Faculty'].includes(userRole) && userSubRole && currentRule.role === userRole)) {
+            // If not locked, reset subRole to 'All' when role changes to avoid stale values
+            const availableSubRoles = getSubRolesForRole(currentRule.role);
+            if (availableSubRoles.length > 0) {
+                setCurrentRule(prev => ({ ...prev, subRole: 'All' }));
+            }
+        }
+    }, [currentRule.role, subRolesList]);
 
     // Helper for default batch
     function getDefaultBatch() {
-        if (userRole !== 'Student') return '';
         const rawBatch = sessionStorage.getItem('userBatch') || '';
         if (/^\d{4}$/.test(rawBatch)) {
             const endYear = parseInt(rawBatch);
@@ -72,7 +133,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                 batch: viewFilters.batch,
                 id: userId // Pass My ID for specific targeting check
             };
-            const response = await axios.get('http://localhost:5001/get-materials', { params });
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-materials`, { params });
             setMaterials(response.data.materials);
         } catch (error) {
             console.error("Error fetching materials", error);
@@ -141,7 +202,7 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
         }));
 
         try {
-            await axios.post('http://localhost:5001/add-material', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-material`, formData);
             alert('Material Uploaded Successfully!');
             setActiveTab('sent');
             setUploadData({
@@ -223,21 +284,36 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                             onChange={e => setCurrentRule({ ...currentRule, role: e.target.value })}
                                             disabled={userRole === 'Student'}
                                         >
-                                            <option value="Student">Student</option>
-                                            <option value="Faculty">Faculty</option>
+                                            {/* Filter Roles: Only allow roles with Level >= My Level (meaning Rank <= My Rank in numeric terms? No.) 
+                                                Hierarchy: Admin(1) -> Student(6).
+                                                Requirement: Send to Below or Equal.
+                                                Target Level >= My Level. 
+                                                e.g. Faculty(5). Target >= 5. so Faculty(5), Student(6).
+                                                e.g. Dean(2). Target >= 2. so Dean(2), Asso.Dean(3), HOD(4)...
+                                            */}
+                                            {Object.keys(ROLE_HIERARCHY)
+                                                .filter(r => !['Associate Dean', 'Assoc Dean'].includes(r)) // Filter aliases from UI
+                                                .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
+                                                .map(r => (
+                                                    <option key={r} value={r}>{r}</option>
+                                                ))}
                                         </select>
                                     </div>
-                                    <div className="rb-group">
-                                        <label>Department</label>
-                                        <select
-                                            className="rb-select"
-                                            value={currentRule.subRole}
-                                            onChange={e => setCurrentRule({ ...currentRule, subRole: e.target.value })}
-                                        >
-                                            <option value="All">All Departments</option>
-                                            {commonDepartments.map(d => <option key={d} value={d}>{d}</option>)}
-                                        </select>
-                                    </div>
+                                    {/* SubRole Dropdown: Show if the selected role has defined sub-roles */}
+                                    {getSubRolesForRole(currentRule.role).length > 0 && (
+                                        <div className="rb-group">
+                                            <label>Sub-Role / Dept</label>
+                                            <select
+                                                className="rb-select"
+                                                value={currentRule.subRole}
+                                                onChange={e => setCurrentRule({ ...currentRule, subRole: e.target.value })}
+                                                disabled={false}
+                                            >
+                                                <option value="All">All {currentRule.role === 'Student' ? 'Departments' : 'Sub-Roles'}</option>
+                                                {getSubRolesForRole(currentRule.role).map(d => <option key={d} value={d}>{d}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
                                     {currentRule.role === 'Student' && (
                                         <div className="rb-group">
                                             <label>Batch</label>
@@ -259,8 +335,9 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                 <UserPicker
                                     uploadData={uploadData}
                                     setUploadData={setUploadData}
-                                    commonDepartments={commonDepartments}
+                                    subRolesList={subRolesList} // Pass down list
                                     userRole={userRole}
+                                    userSubRole={userSubRole} // Pass subRole for locking
                                 />
                             )}
 
@@ -375,11 +452,8 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
                                         {item.targetAudience?.map((r, i) => (
                                             <span key={i} className="mat-badge">{r.role} {r.subRole && `• ${r.subRole}`}</span>
                                         ))}
-                                        {item.targetIndividualIds?.length > 0 && (
-                                            <span className="mat-badge" title={item.targetIndividualIds.join(', ')}>
-                                                Specific Users ({item.targetIndividualIds.length})
-                                            </span>
-                                        )}
+                                        {/* Render Individual Recipients with 'Show More' logic */}
+                                        <RecipientList targetUserDetails={item.targetUserDetails || []} fallbackIds={item.targetIndividualIds} />
                                     </div>
                                 )}
                             </div>
@@ -397,13 +471,32 @@ const MaterialManager = ({ userRole, userSubRole, userId, onPdfClick }) => {
 };
 
 // UserPicker Subcomponent
-const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) => {
-    const [filters, setFilters] = useState({ role: 'Student', dept: 'All', batch: '', search: '' });
+const UserPicker = ({ uploadData, setUploadData, subRolesList, userRole, userSubRole }) => {
+    // Default role to lowest available permission or Student
+    const myLevel = ROLE_HIERARCHY[userRole] || 99;
+    const defaultRole = (ROLE_HIERARCHY['Student'] >= myLevel) ? 'Student' : userRole;
+
+
+    // Default Dept: Lock to subRole if HOD/Faculty
+    // Note: If peer-to-peer, we unlock. This initial default is tricky.
+    // For now, default to 'All' unless strict lock needed.
+    // Strict lock logic: HOD/Faculty can only search their dept if searching for DIFFERENT role.
+    // Ideally, defaultDept should match userSubRole if they are likely to search generally.
+    const defaultDept = (['HOD', 'Faculty', 'Asso.Dean'].includes(userRole) && userSubRole) ? userSubRole : 'All';
+
+    // Note: uploadData doesn't contain userSubRole directly in props usually, but we have it in parent scope.
+    // Let's pass userSubRole to UserPicker explicitly in parent return.
+
+    // Fix: We need userSubRole here.
+
+    const [filters, setFilters] = useState({ role: defaultRole, dept: 'All', batch: '', search: '' });
     const [availableUsers, setAvailableUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
 
     useEffect(() => {
-        if (userRole === 'Student') setFilters(prev => ({ ...prev, role: 'Student' }));
+        if (userRole === 'Student') {
+            setFilters(prev => ({ ...prev, role: 'Student' }));
+        }
     }, [userRole]);
 
     const fetchUsers = async () => {
@@ -418,7 +511,7 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) 
             if (filters.dept === 'All' && !filters.search && !filters.batch) {
                 // optional: skip generic fetch
             }
-            const res = await axios.get('http://localhost:5001/get-users', { params });
+            const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, { params });
             setAvailableUsers(res.data.users);
         } catch (err) {
             console.error(err);
@@ -456,18 +549,34 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) 
                     onChange={e => setFilters({ ...filters, role: e.target.value })}
                     disabled={userRole === 'Student'}
                 >
-                    <option value="Student">Students</option>
-                    <option value="Faculty">Faculty</option>
+                    {Object.keys(ROLE_HIERARCHY)
+                        .filter(r => !['Associate Dean', 'Assoc Dean'].includes(r)) // Filter aliases from UI
+                        .filter(r => (ROLE_HIERARCHY[r] >= (ROLE_HIERARCHY[userRole] || 99)))
+                        .map(r => (
+                            <option key={r} value={r}>{r}</option>
+                        ))}
                 </select>
 
-                <select
-                    className="rb-select" style={{ width: 'auto' }}
-                    value={filters.dept}
-                    onChange={e => setFilters({ ...filters, dept: e.target.value })}
-                >
-                    <option value="All">All Depts</option>
-                    {commonDepartments.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                {/* Department/Sub-Role Filter: Show if target role has sub-roles */}
+                {(() => {
+                    const available = subRolesList
+                        .filter(sr => sr.allowedRoles.includes(filters.role))
+                        .map(sr => sr.code);
+
+                    if (available.length === 0) return null;
+
+                    return (
+                        <select
+                            className="rb-select" style={{ width: 'auto' }}
+                            value={filters.dept}
+                            onChange={e => setFilters({ ...filters, dept: e.target.value })}
+                            disabled={false}
+                        >
+                            <option value="All">All</option>
+                            {available.map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                    )
+                })()}
 
                 {filters.role === 'Student' && (
                     <select
@@ -504,6 +613,50 @@ const UserPicker = ({ uploadData, setUploadData, commonDepartments, userRole }) 
             </div>
 
         </div>
+    );
+};
+
+// Helper Component for Expandable Recipient List
+const RecipientList = ({ targetUserDetails, fallbackIds }) => {
+    const [expanded, setExpanded] = useState(false);
+
+    // Fallback if details missing (e.g. old data or backend lag)
+    const list = (targetUserDetails && targetUserDetails.length > 0)
+        ? targetUserDetails
+        : (fallbackIds || []).map(id => ({ id, username: id })); // Fallback maps ID to username
+
+    if (list.length === 0) return null;
+
+    // "Show minimum 2 user" -> We show 2 by default.
+    const limit = 2;
+    const count = list.length;
+
+    // If we have very few, or if expanded, show all.
+    // Logic: if count 3, user said "if it has 3 or more". So 3 triggers "More".
+    // 2 is displayed. 3rd is hidden behind "+1 more".
+    const showAll = count <= limit || expanded;
+
+    const visibleUsers = showAll ? list : list.slice(0, limit);
+
+    return (
+        <>
+            {visibleUsers.map(u => (
+                <span key={u.id} className="mat-badge user-badge" style={{ background: '#f3f4f6', color: '#1f2937' }}>
+                    {/* Reuse FaUserTie or generic icon */}
+                    {u.username}
+                </span>
+            ))}
+
+            {!showAll && (
+                <span
+                    className="mat-badge more-btn"
+                    style={{ cursor: 'pointer', background: '#eff6ff', color: '#1d4ed8' }}
+                    onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                >
+                    +{count - limit} more
+                </span>
+            )}
+        </>
     );
 };
 

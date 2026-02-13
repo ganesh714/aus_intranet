@@ -36,18 +36,42 @@ const AnnouncementManager = ({
     }, [initialMode]);
 
     // Configuration
-    const subRolesMapping = {
-        'Student': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Faculty': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'HOD': ['All', 'IT', 'CSE', 'AIML', 'CE', 'MECH', 'EEE', 'ECE', 'Ag.E', 'MPE', 'FED'],
-        'Dean': ['All', 'IQAC', 'R&C', 'ADMIN', 'CD', 'SA', 'IR', 'AD', 'SOE', 'COE', 'SOP'],
-        'Asso.Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],
-        'Associate Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'], // [NEW] Alias
-        'Assoc Dean': ['All', 'SOE', 'IQAC', 'AD', 'FED'],     // [NEW] Alias
-        'Officers': ['All', 'DyPC', 'VC', 'ProVC', 'Registrar'],
-        'Admin': ['All'],
-        'All': ['All']
-    };
+    // [NEW] Dynamic SubRoles Mapping State
+    const [subRolesMapping, setSubRolesMapping] = useState({ 'All': [{ id: 'All', name: 'All' }] });
+
+    // [NEW] Fetch SubRoles from Backend
+    useEffect(() => {
+        const fetchSubRoles = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
+                if (response.data.success) {
+                    const mapping = { 'All': [{ id: 'All', name: 'All' }] }; // Start with default
+
+                    // Group subroles by their parent role
+                    response.data.subRoles.forEach(subRole => {
+                        // Iterate through allowedRoles array
+                        if (subRole.allowedRoles && Array.isArray(subRole.allowedRoles)) {
+                            subRole.allowedRoles.forEach(role => {
+                                if (!mapping[role]) {
+                                    mapping[role] = [{ id: 'All', name: 'All' }];
+                                }
+                                // Store Object { id, name }
+                                mapping[role].push({ id: subRole._id, name: subRole.displayName });
+                            });
+                        }
+                    });
+
+                    // Update state
+                    setSubRolesMapping(mapping);
+                }
+            } catch (error) {
+                console.error("Error fetching subroles:", error);
+                // Fallback to hardcoded list if fetch fails (optional, or just alert)
+            }
+        };
+
+        fetchSubRoles();
+    }, []);
 
     const getTargetRoles = () => {
         switch (userRole) {
@@ -73,15 +97,10 @@ const AnnouncementManager = ({
     }, [roleOptions]);
 
     const handleAddTarget = () => {
-        // Validation for Student role
-        if (announceForm.targetRole === 'Student' && !announceForm.targetBatch.trim()) {
-            return; // Should be handled by UI disable too, but safe guard here
-        }
-
         const newTarget = {
             role: announceForm.targetRole,
             subRole: announceForm.targetSubRole,
-            batch: announceForm.targetRole === 'Student' ? announceForm.targetBatch : null
+            batch: announceForm.targetRole === 'Student' ? announceForm.targetBatch : null // Batch remains optional
         };
 
         // Prevent duplicates
@@ -121,17 +140,17 @@ const AnnouncementManager = ({
     // Fetch announcements
     const fetchAnnouncements = async () => {
         try {
-            const isHighLevel = ['HOD', 'Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
+            const canCreate = ['HOD', 'Dean', 'Asso.Dean'].includes(userRole) || (userRole === 'Officers');
             const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
             let subRoleParam = userSubRole;
             // Read batch directly from session if not passed as prop (or ensure parent passes it)
             const batchParam = sessionStorage.getItem('userBatch');
 
-            if (isHighLevel && !showSendAnnounce) {
+            if (canCreate && !showSendAnnounce) {
                 subRoleParam = deptFilter;
             }
 
-            const response = await axios.get('http://localhost:5001/get-announcements', {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-announcements`, {
                 params: {
                     role: roleParam,
                     subRole: subRoleParam,
@@ -206,7 +225,7 @@ const AnnouncementManager = ({
         }));
 
         try {
-            await axios.post('http://localhost:5001/add-announcement', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-announcement`, formData);
             alert('Announcement Sent Successfully!');
             setAnnounceForm({
                 title: '',
@@ -227,7 +246,7 @@ const AnnouncementManager = ({
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this announcement?")) return;
         try {
-            await axios.delete(`http://localhost:5001/delete-announcement/${id}`);
+            await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-announcement/${id}`);
             alert('Announcement deleted successfully!');
             fetchAnnouncements(); // Refresh list
         } catch (error) {
@@ -255,6 +274,7 @@ const AnnouncementManager = ({
                     onAddTarget: handleAddTarget,
                     onRemoveTarget: handleRemoveTarget
                 }}
+                userRole={userRole} // [NEW] Pass role for conditional UI
                 onSubmit={handleFormSubmit}
                 onToggleView={toggleView}
                 onDelete={handleDelete}

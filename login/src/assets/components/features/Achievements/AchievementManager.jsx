@@ -16,7 +16,7 @@ const AchievementManager = ({ userRole, userId }) => {
 
     const fetchAchievements = async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/get-achievements`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-achievements`, {
                 params: { userId }
             });
             setAchievements(response.data.achievements || []);
@@ -83,7 +83,7 @@ const AchievementManager = ({ userRole, userId }) => {
                 formData.append('proof', newAchievement.proof);
             }
 
-            await axios.post('http://localhost:5001/add-achievement', formData, {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-achievement`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 

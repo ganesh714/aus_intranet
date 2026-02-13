@@ -142,6 +142,7 @@ import AchievementManager from "../features/Achievements/AchievementManager";
 import HODAchievementManager from "../features/Achievements/HODAchievementManager";
 import WorkshopManager from "../features/Workshops/WorkshopManager"; // [NEW]
 import HODWorkshopManager from "../features/Workshops/HODWorkshopManager"; // [NEW]
+import SubRoleManager from "../Admin/SubRoleManager"; // [NEW]
 
 const Content = () => {
     // --- USER INFO ---
@@ -256,6 +257,9 @@ const Content = () => {
         } else if (categoryName === 'HODWorkshops') { // [NEW]
             setActiveView('hod-workshops');
             setActiveCategory('HODWorkshops');
+        } else if (categoryName === 'Manage SubRoles') { // [NEW]
+            setActiveView('manage-subroles');
+            setActiveCategory('Manage SubRoles');
         }
     };
 
@@ -269,7 +273,7 @@ const Content = () => {
 
         // Ensure proxy if it's a relative path (simplified check)
         // If it starts with http, leave it. If not, prepent proxy.
-        const finalUrl = url.startsWith('http') ? url : `http://localhost:5001/proxy-file/${url}`;
+        const finalUrl = url.startsWith('http') ? url : `${import.meta.env.VITE_BACKEND_URL}/proxy-file/${url}`;
 
         setSelectedFile(finalUrl);
         setSelectedFileType(type);
@@ -390,6 +394,11 @@ const Content = () => {
                     />
                 );
 
+            case 'manage-subroles':
+                return (
+                    <SubRoleManager />
+                );
+
             case 'category':
                 return (
                     <CategoryViewer
@@ -429,7 +438,8 @@ const Content = () => {
                             activeView === 'achievements' ? 'Achievements' :
                                 activeView === 'hod-achievements' ? 'HODAchievements' :
                                     activeView === 'workshops' ? 'Workshops' : // [NEW]
-                                        activeView === 'hod-workshops' ? 'HODWorkshops' : ''
+                                        activeView === 'hod-workshops' ? 'HODWorkshops' :
+                                            activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}

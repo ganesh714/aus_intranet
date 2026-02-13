@@ -1,5 +1,7 @@
 const Timetable = require('../models/Timetable');
 const User = require('../models/User');
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const storageService = require('../services/storageService');
 const TimetableService = require('../services/TimetableService');
 
@@ -22,7 +24,24 @@ const addTimetable = async (req, res) => {
 
         const { subRole, batch } = req.body;
 
-        const result = await TimetableService.addTimetable(user, req.file, subRole, batch);
+        // [OPTIMIZATION] Resolve subRole string to ObjectId
+        let subRoleId = subRole;
+        if (subRole && typeof subRole === 'string') {
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                subRoleId = subRole;
+            } else {
+                const subDoc = await SubRole.findOne({
+                    $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+                });
+                if (subDoc) {
+                    subRoleId = subDoc._id;
+                } else {
+                    return res.status(400).json({ message: `Invalid SubRole: ${subRole}` });
+                }
+            }
+        }
+
+        const result = await TimetableService.addTimetable(user, req.file, subRoleId, batch);
 
         res.status(200).json({
             message: 'Timetable uploaded successfully',
@@ -41,7 +60,28 @@ const getTimetables = async (req, res) => {
     try {
         let query = {};
         if (subRole && subRole !== 'All' && subRole !== 'null') {
-            const users = await User.find({ subRole }).select('_id');
+            // [OPTIMIZATION] Resolve subRole string to ObjectId
+            let subRoleId = null;
+
+            if (mongoose.Types.ObjectId.isValid(subRole)) {
+                subRoleId = subRole;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + subRole + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } }
+                    ]
+                });
+
+                if (subRoleDoc) {
+                    subRoleId = subRoleDoc._id;
+                } else {
+                    return res.json({ timetables: [] }); // If subrole not found, no users, no timetables
+                }
+            }
+
+            const users = await User.find({ subRole: subRoleId }).select('_id');
             const userIds = users.map(u => u._id);
             if (userIds.length > 0) {
                 query['uploadedBy'] = { $in: userIds };
@@ -66,7 +106,24 @@ const getTimetables = async (req, res) => {
     }
 };
 
+const togglePermission = async (req, res) => {
+    try {
+        const { id, canUpload } = req.body;
+        const user = await User.findOne({ id });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.canUploadTimetable = canUpload;
+        await user.save();
+
+        res.json({ message: `Permission ${canUpload ? 'Granted' : 'Revoked'}` });
+    } catch (error) {
+        console.error("Error toggling permission:", error);
+        res.status(500).json({ message: "Error updating permission" });
+    }
+};
+
 module.exports = {
     addTimetable,
-    getTimetables
+    getTimetables,
+    togglePermission
 };

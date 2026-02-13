@@ -34,10 +34,11 @@ const Dashboard = ({
                 // We don't have batch in props readily available unless we read sessionStorage or fetch user first.
                 // Let's rely on backend user lookup for batch.
 
-                const response = await axios.get(`http://localhost:5001/dashboard/stats`, {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dashboard/stats`, {
                     params: {
                         role: userRole,
-                        subRole: userSubRole,
+                        subRole: userSubRole, // Kept for fallback or logging
+                        subRoleId: sessionStorage.getItem('userSubRoleId'), // [NEW] Send ID
                         id: userId
                     }
                 });
@@ -92,8 +93,24 @@ const Dashboard = ({
             { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
             { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
             { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
+        ],
+        // [NEW] Dean Roles - Reusing HOD structure but ensuring they are picked up
+        Dean: [
+            { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' },
+            { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' },
+            { id: 3, label: 'Leadership Achiev.', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' },
+            { id: 4, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' },
+            { id: 5, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' },
+            { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' },
+            { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
+            { id: 8, label: 'Shared Resources', value: statsData.sharedResources || '0', icon: <FaBook />, color: '#3b82f6' }
         ]
     };
+
+    // Map variations of Associate Dean to Dean view
+    // Map variations of Associate Dean to Dean view
+    stats['Asso.Dean'] = stats['Dean'];
+
 
     const currentStats = stats[userRole] || stats['Student'];
 
@@ -192,6 +209,11 @@ const Dashboard = ({
                                 {(userRole === 'Faculty' || userRole === 'HOD') &&
                                     <button className="action-btn" onClick={onAchievementsClick}>
                                         <FaTrophy /> Add Achievement
+                                    </button>
+                                }
+                                {['Dean', 'Asso.Dean', 'HOD'].includes(userRole) &&
+                                    <button className="action-btn" onClick={() => onDirectCategoryClick('HODAchievements')}>
+                                        <FaTrophy /> Dept. Achievements
                                     </button>
                                 }
                             </>

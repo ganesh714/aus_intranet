@@ -93,7 +93,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         try {
             if (folderId === 'virtual-shared-folder') {
                 const params = { id: userInfo.id, role: userInfo.role, subRole: userInfo.subRole };
-                const res = await axios.get('http://localhost:5001/get-materials', { params });
+                const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-materials`, { params });
 
                 const sharedDocs = res.data.materials
                     .filter(m => m.uploadedBy?.id !== userInfo.id)
@@ -112,7 +112,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
                 setPath([]);
                 setCurrentFolder(folderId);
             } else {
-                const response = await axios.get('http://localhost:5001/drive/items', {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/drive/items`, {
                     params: {
                         userId: userInfo.id,
                         folderId: folderId || 'null'
@@ -151,7 +151,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
             }
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5001/drive/search', {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/drive/search`, {
                     params: {
                         userId: userInfo.id,
                         query: searchQuery
@@ -253,7 +253,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
     const handleCreateFolder = async () => {
         if (!inputVal.trim()) return;
         try {
-            await axios.post('http://localhost:5001/drive/create-folder', {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/drive/create-folder`, {
                 name: inputVal,
                 parentId: currentFolder,
                 userId: userInfo.id
@@ -286,7 +286,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
         try {
             setLoading(true);
-            await axios.post('http://localhost:5001/drive/upload', formData);
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/drive/upload`, formData);
             fetchItems(currentFolder);
         } catch (error) {
             if (error.response && error.response.status === 400) {
@@ -329,7 +329,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
                 // Create this folder
                 try {
-                    const res = await axios.post('http://localhost:5001/drive/create-folder', {
+                    const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/drive/create-folder`, {
                         name: name,
                         parentId: parentId,
                         userId: userInfo.id
@@ -422,7 +422,7 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         }
 
         try {
-            await axios.put(`http://localhost:5001/drive/rename/${modal.item._id}`, {
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/drive/rename/${modal.item._id}`, {
                 newName: newName
             });
             setModal({ type: null });
@@ -446,12 +446,12 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) return;
         try {
             if (item.isShared) {
-                await axios.post('http://localhost:5001/hide-shared-material', {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/hide-shared-material`, {
                     materialId: item._id,
                     userId: userInfo.id
                 });
             } else {
-                await axios.delete(`http://localhost:5001/drive/delete/${item._id}`);
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/drive/delete/${item._id}`);
             }
             setSelectedItem(null);
             fetchItems(currentFolder);
@@ -469,19 +469,19 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
         if (!clipboard) return;
         try {
             if (clipboard.item.isShared) {
-                await axios.post('http://localhost:5001/copy-shared-to-drive', {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/copy-shared-to-drive`, {
                     materialId: clipboard.item._id,
                     targetFolderId: currentFolder || 'root',
                     userId: userInfo.id
                 });
                 if (clipboard.action === 'move') {
-                    await axios.post('http://localhost:5001/hide-shared-material', {
+                    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/hide-shared-material`, {
                         materialId: clipboard.item._id,
                         userId: userInfo.id
                     });
                 }
             } else {
-                await axios.put(`http://localhost:5001/drive/move/${clipboard.item._id}`, {
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/drive/move/${clipboard.item._id}`, {
                     newParentId: currentFolder
                 });
             }
@@ -502,24 +502,24 @@ const DriveExplorer = ({ userInfo, onPdfClick }) => {
 
         try {
             if (picker.item.isShared) {
-                await axios.post('http://localhost:5001/copy-shared-to-drive', {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/copy-shared-to-drive`, {
                     materialId: picker.item._id,
                     targetFolderId,
                     userId: userInfo.id
                 });
                 if (picker.mode === 'move') {
-                    await axios.post('http://localhost:5001/hide-shared-material', {
+                    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/hide-shared-material`, {
                         materialId: picker.item._id,
                         userId: userInfo.id
                     });
                 }
             } else {
                 if (picker.mode === 'move') {
-                    await axios.put(`http://localhost:5001/drive/move/${picker.item._id}`, {
+                    await axios.put(`${import.meta.env.VITE_BACKEND_URL}/drive/move/${picker.item._id}`, {
                         newParentId: targetFolderId
                     });
                 } else if (picker.mode === 'copy') {
-                    await axios.post('http://localhost:5001/drive/copy', {
+                    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/drive/copy`, {
                         itemId: picker.item._id,
                         targetParentId: targetFolderId,
                         userId: userInfo.id

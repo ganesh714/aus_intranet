@@ -8,5 +8,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/get-announcements', announcementController.getAnnouncements);
 router.post('/add-announcement', upload.single('file'), announcementController.addAnnouncement);
+router.delete('/delete-announcement/:id', announcementController.deleteAnnouncement); // [NEW]
 
 module.exports = router;

@@ -17,5 +17,6 @@ router.post('/add-timetable',
 );
 
 router.get('/get-timetables', timetableController.getTimetables);
+router.post('/toggle-timetable-permission', protect, timetableController.togglePermission);
 
 module.exports = router;

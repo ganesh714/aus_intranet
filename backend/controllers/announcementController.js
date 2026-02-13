@@ -1,14 +1,36 @@
 const Announcement = require('../models/Announcement');
+const SubRole = require('../models/SubRole'); // [NEW]
 const File = require('../models/File');
 const User = require('../models/User');
 const storageService = require('../services/storageService');
 const AnnouncementContext = require('../strategies/AnnouncementContext');
+const mongoose = require('mongoose'); // [NEW]
 
 const getAnnouncements = async (req, res) => {
     try {
         const { role, subRole, id, batch } = req.query;
 
-        const context = new AnnouncementContext(role, subRole, batch, id);
+        // [OPTIMIZATION] Resolve query subRole string to ObjectId
+        let subRoleId = null;
+
+        if (subRole === 'All' || subRole === 'null') {
+            subRoleId = null;
+        }
+        else if (subRole && mongoose.Types.ObjectId.isValid(subRole)) {
+            // Optimization: If it's already an ID, use it directly
+            subRoleId = subRole;
+        }
+        else if (subRole && typeof subRole === 'string') {
+            // Fallback: Resolve name to ID
+            const subDoc = await SubRole.findOne({
+                $or: [{ code: subRole }, { displayName: subRole }, { name: subRole }]
+            });
+            if (subDoc) subRoleId = subDoc._id;
+        } else {
+            subRoleId = subRole; // If it's undefined or something else, pass as is (Strategy handles it)
+        }
+
+        const context = new AnnouncementContext(role, subRoleId, batch, id);
         const announcements = await context.execute();
 
         res.json({ announcements });
@@ -52,6 +74,24 @@ const addAnnouncement = async (req, res) => {
             targets = [];
         }
 
+        // [NEW] Resolve target subRoles to ObjectIds
+        for (const t of targets) {
+            if (t.subRole && t.subRole !== 'All') {
+                if (mongoose.Types.ObjectId.isValid(t.subRole)) {
+                    // Optimization: Use ID directly
+                } else {
+                    const subDoc = await SubRole.findOne({
+                        $or: [{ displayName: t.subRole }, { name: t.subRole }, { code: t.subRole }]
+                    });
+                    if (subDoc) {
+                        t.subRole = subDoc._id;
+                    }
+                }
+            } else if (t.subRole === 'All') {
+                t.subRole = null; // Store as null for 'All'
+            }
+        }
+
         const newAnnouncement = new Announcement({
             title,
             description,
@@ -68,7 +108,22 @@ const addAnnouncement = async (req, res) => {
     }
 };
 
+const deleteAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Announcement.findByIdAndDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ message: "Announcement not found" });
+        }
+        res.json({ message: "Announcement deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+        res.status(500).json({ message: "Error deleting announcement" });
+    }
+};
+
 module.exports = {
     getAnnouncements,
-    addAnnouncement
+    addAnnouncement,
+    deleteAnnouncement
 };

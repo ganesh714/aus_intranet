@@ -18,9 +18,10 @@ class TimeTableService {
         }
         // Logic to find existing timetable
         let query = { subRole: subRole };
-        if (subRole === 'CSE' || subRole === 'IT' || subRole === 'AIML') {
-            // For these depts, we also need batch
-            if (!batch) throw new Error('Batch is required for ' + subRole);
+
+        // [REFAC] Removed hardcoded dept checks. 
+        // If batch is provided, we assume it's relevant and query with it.
+        if (batch) {
             query.batch = batch;
         }
         const existingTimetable = await Timetable.findOne(query).populate('fileId');

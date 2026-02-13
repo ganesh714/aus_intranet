@@ -15,7 +15,7 @@ const FolderPicker = ({ userInfo, onCancel, onSelect, actionTitle }) => {
     const fetchFolders = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:5001/drive/folders', {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/drive/folders`, {
                 params: { userId: userInfo.id }
             });
             setFolders(response.data.folders);

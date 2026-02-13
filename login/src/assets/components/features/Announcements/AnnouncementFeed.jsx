@@ -13,13 +13,15 @@ const AnnouncementFeed = ({
     const [activeTab, setActiveTab] = useState('quick');
 
     // Determine if the user has permission to see the filter
+    // Determine if the user has permission to see the filter
     const isHigherOfficial = ['Dean', 'Asso.Dean', 'Officers', 'Admin'].includes(userRole);
 
-    // HODs have conditional access, so we reserve space for them too
-    const canAccessFilter = isHigherOfficial || userRole === 'HOD';
+    // [FIX] Strict White-list: Only Admin, Officers, and HOD can see/use the department filter
+    // Deans are intentionally excluded as per user request
+    const canAccessFilter = ['Admin', 'Officers', 'HOD'].includes(userRole);
 
     // Toggle visibility based on logic
-    const showFilter = isHigherOfficial || (userRole === 'HOD' && activeTab === 'department');
+    const showFilter = (isHigherOfficial && canAccessFilter) || (userRole === 'HOD' && activeTab === 'department');
 
     const universityRoles = ['Dean', 'Asso.Dean', 'Officers', 'Admin'];
     const deptRoles = ['HOD', 'Faculty'];
@@ -31,8 +33,10 @@ const AnnouncementFeed = ({
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>Announcements</h2>
+                {/* Hide Dept Filter for Dean/Assoc Dean as per request */}
+                {/* Hide Dept Filter for Dean/Assoc Dean as per request */}
                 {canAccessFilter && (
-                    <div className="search-input-wrapper" style={{ width: '200px', visibility: showFilter ? 'visible' : 'hidden' }}>
+                    <div className="search-input-wrapper" style={{ width: '200px' }}>
                         <select
                             className="modern-search"
                             style={{ padding: '10px', paddingLeft: '15px' }}
@@ -40,8 +44,8 @@ const AnnouncementFeed = ({
                             onChange={(e) => setDeptFilter(e.target.value)}
                         >
                             <option value="All">All Departments</option>
-                            {subRolesMapping['Faculty']?.filter(r => r !== 'All').map((dept, i) => (
-                                <option key={i} value={dept}>{dept}</option>
+                            {subRolesMapping['Faculty']?.filter(r => r.id !== 'All').map((dept, i) => (
+                                <option key={i} value={dept.id}>{dept.name}</option>
                             ))}
                         </select>
                     </div>

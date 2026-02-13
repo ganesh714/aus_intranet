@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const SubRole = require('../models/SubRole');
+const mongoose = require('mongoose'); // [NEW]
 const randomstring = require('randomstring');
 const authEmitter = require('../events/AuthEvents');
 
@@ -8,7 +10,28 @@ class UserService {
     static async getUsers({ role, dept, batch, search }) {
         let query = {};
         if (role) query.role = role;
-        if (dept && dept !== 'All') query.subRole = dept;
+        if (dept && dept !== 'All') {
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                // Optimization: Use ID directly
+                query.subRole = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+
+                if (subRoleDoc) {
+                    query.subRole = subRoleDoc._id;
+                } else {
+                    // Dept asked but not found -> Return empty
+                    return [];
+                }
+            }
+        }
+
         if (batch) query.batch = batch; // Only for students
         if (search) {
             query.$or = [
@@ -17,16 +40,48 @@ class UserService {
             ];
         }
 
-        // Return minimal info
-        return await User.find(query).select('id username role subRole batch');
+        // Return minimal info and transform subRole for frontend (Added permissions)
+        const users = await User.find(query).select('id username role subRole batch permissions').populate('subRole');
+        return users.map(user => {
+            const u = user.toObject();
+            if (u.subRole && typeof u.subRole === 'object') {
+                u.subRoleId = u.subRole._id;
+                u.subRole = u.subRole.displayName || u.subRole.code;
+            }
+            return u;
+        });
     }
 
     // 2. Get Department Faculty
+    // 2. Get Department Faculty
     static async getDeptFaculty(dept) {
-        return await User.find({
-            role: 'Faculty',
-            subRole: dept
-        }, 'username id canUploadTimetable');
+        // [OPTIMIZATION] Resolve dept string to ObjectId
+        let subRoleId = null;
+        if (dept) {
+            if (mongoose.Types.ObjectId.isValid(dept)) {
+                subRoleId = dept;
+            } else {
+                const subRoleDoc = await SubRole.findOne({
+                    $or: [
+                        { code: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { name: { $regex: new RegExp("^" + dept + "$", "i") } },
+                        { displayName: { $regex: new RegExp("^" + dept + "$", "i") } }
+                    ]
+                });
+                if (subRoleDoc) subRoleId = subRoleDoc._id;
+            }
+        }
+
+        if (!subRoleId && dept !== 'All') {
+            // If dept provided but not found, return empty or handle error
+            // For now, let's return [] to avoid CastError
+            return [];
+        }
+
+        const query = { role: 'Faculty' };
+        if (subRoleId) query.subRole = subRoleId;
+
+        return await User.find(query, 'username id canUploadTimetable permissions');
     }
 
     // 3. Toggle Timetable Permission (Faculty Only)
@@ -36,6 +91,23 @@ class UserService {
         if (user.role !== 'Faculty') throw new Error('Permissions can only be toggled for Faculty.');
 
         user.canUploadTimetable = canUpload;
+        return await user.save();
+    }
+
+    // [NEW] Toggle Achievement Permission
+    static async toggleAchievementPermission(id, permissionType, allowed) {
+        const user = await User.findOne({ id });
+        if (!user) throw new Error('User not found');
+
+        // Initialize if missing (schema default handles this but good for safety)
+        if (!user.permissions) user.permissions = {
+            approveStudentAchievements: false,
+            approveFacultyAchievements: false
+        };
+
+        user.permissions[permissionType] = allowed;
+        user.markModified('permissions'); 
+
         return await user.save();
     }
 
