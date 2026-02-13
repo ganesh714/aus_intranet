@@ -3,6 +3,7 @@
 const User = require('../models/User');
 const SubRole = require('../models/SubRole'); // [NEW] Import SubRole
 const UserFactory = require('../factories/UserFactory');
+const mongoose = require('mongoose');
 
 const register = async (req, res) => {
     const { username, id, password, role, subRole, batch } = req.body;
@@ -65,9 +66,17 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const { id, password } = req.body;
+<<<<<<< HEAD
     // Find user by ID (Case Insensitive) and populate subRole
     const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } }).populate('subRole');
+=======
+    // Find user by ID (Case Insensitive)
+    console.log("DB NAME:", mongoose.connection.name);
+    console.log(User.collection.name);
+>>>>>>> 47e5ad7 (implemented change password feature)
 
+    const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
+    console.log(user);
     if (user && user.password === password) {
         // Transform for frontend compatibility
         const userObj = user.toObject();

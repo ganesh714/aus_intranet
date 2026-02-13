@@ -52,14 +52,27 @@ const toggleAchievementPermission = async (req, res) => {
 
 // 4. Change Password
 const changePassword = async (req, res) => {
-    try {
-        const { id, currentPassword, newPassword } = req.body;
-        await UserService.changePassword(id, currentPassword, newPassword);
-        res.json({ message: 'Password changed successfully!' });
-    } catch (error) {
-        res.status(401).json({ message: error.message });
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = req.user; // from protect middleware
+
+    if (user.password !== currentPassword) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
     }
+
+    user.password = newPassword;
+
+    // ✅ Save ONLY password, skip full validation
+    await user.save({ validateBeforeSave: false });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Password update failed' });
+  }
 };
+
+
 
 
 

@@ -2,6 +2,9 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
     try {
         let user;
+        console.log('REQ BODY:', req.body);
+console.log('LOOKING FOR USER ID:', user?.id);
+
         // 1. Handle "user" as string (Legacy Frontend quirk)
         if (req.body.user && typeof req.body.user === 'string') {
             user = JSON.parse(req.body.user);

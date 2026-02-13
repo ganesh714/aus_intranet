@@ -24,7 +24,13 @@ emailService.init();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:81', // React app
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(bodyParser.json());
 // Note: 'uploads' static folder is no longer needed for drive, but kept if you have legacy files.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -35,27 +35,31 @@ function Home() {
         navigate('/');
     };
 
-    const handleChangePassword = async (e) => {
-        e.preventDefault();
-        setErrorMessage('');
-        if (!validatePassword(changePasswordData.newPassword)) {
-            setErrorMessage("New password must be at least 8 characters long, include letters, numbers, and special characters.");
-            return;
-        }
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
-                id,
-                currentPassword: changePasswordData.currentPassword,
-                newPassword: changePasswordData.newPassword,
-            });
-            alert(response.data.message);
-            setChangePasswordData({ currentPassword: '', newPassword: '' });
-            setShowPasswordModal(false);
-        } catch (error) {
-            console.error(error);
-            alert('Failed to change password. Please check your current password.');
-        }
-    };
+
+   
+
+ const handleChangePassword = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.put(
+      'http://localhost:5001/change-password',
+      {
+        user: { id },   // ✅ THIS IS THE FIX
+        currentPassword: changePasswordData.currentPassword,
+        newPassword: changePasswordData.newPassword
+      }
+    );
+
+    alert('Password changed successfully');
+    setShowPasswordModal(false);
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    alert(error.response?.data?.message || 'Error changing password');
+  }
+};
+
+
 
     const handleUpdateUsername = async (e) => {
         e.preventDefault();

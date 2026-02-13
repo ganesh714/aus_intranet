@@ -114,6 +114,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                     normalizedRole = 'Asso.Dean';
                 }
 
+
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('userId', id);
                 sessionStorage.setItem('userRole', normalizedRole);
