@@ -25,10 +25,7 @@ function Home() {
     const subRole = sessionStorage.getItem('usersubRole');
     const batch = sessionStorage.getItem('userBatch'); // Read batch
 
-    const validatePassword = (password) => {
-        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-        return passwordPattern.test(password);
-    };
+
 
     const handleLogout = () => {
         sessionStorage.clear();
@@ -38,10 +35,7 @@ function Home() {
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setErrorMessage('');
-        if (!validatePassword(changePasswordData.newPassword)) {
-            setErrorMessage("New password must be at least 8 characters long, include letters, numbers, and special characters.");
-            return;
-        }
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
                 id,
@@ -68,10 +62,10 @@ function Home() {
                 id,
                 newUsername
             });
-            
+
             // Update Session Storage
             sessionStorage.setItem('username', response.data.username);
-            
+
             alert(response.data.message);
             setShowSettingsModal(false);
             window.location.reload(); // Reload to reflect changes globally
