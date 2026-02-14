@@ -87,7 +87,7 @@ const Dashboard = ({
             { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' }, // Dynamic
             { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' }, // Dynamic
             { id: 3, label: 'Dept. Achievements', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' }, // Dynamic
-            { id: 4, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' }, // Dynamic
+            { id: 4, label: 'Pending Approvals', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' }, // Dynamic
             { id: 5, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' }, // Dynamic
             // Standardized stats from lower roles
             { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' }, // Dynamic
@@ -99,7 +99,7 @@ const Dashboard = ({
             { id: 1, label: 'Faculty Count', value: statsData.facultyCount || '0', icon: <FaChalkboardTeacher />, color: '#3b82f6' },
             { id: 2, label: 'Dept. Students', value: statsData.studentCount || '0', icon: <FaUserGraduate />, color: '#3b82f6' },
             { id: 3, label: 'Leadership Achiev.', value: statsData.deptAchievements || '0', icon: <FaTrophy />, color: '#f59e0b' },
-            { id: 4, label: 'Pending Requests', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' },
+            { id: 4, label: 'Pending Approvals', value: statsData.pendingApprovals || '0', icon: <FaClipboardList />, color: '#ef4444' },
             { id: 5, label: 'Storage Used', value: formatBytes(statsData.storageUsed), icon: <FaDatabase />, color: '#6366f1' },
             { id: 6, label: 'My Achievements', value: statsData.userAchievements || '0', icon: <FaTrophy />, color: '#10b981' },
             { id: 7, label: 'Announcements', value: statsData.announcements || '0', icon: <FaBullhorn />, color: '#f59e0b' },
@@ -113,6 +113,39 @@ const Dashboard = ({
 
 
     const currentStats = stats[userRole] || stats['Student'];
+
+    // [NEW] Handle Stat Card Clicks
+    const handleStatClick = (stat) => {
+        const label = stat.label;
+
+        // 1. Achievements (Student/Faculty/HOD)
+        if (label === 'My Achievements') {
+            onAchievementsClick();
+        }
+        // 2. Department Achievements (HOD/Dean)
+        else if (label === 'Dept. Achievements' || label === 'Pending Approvals' || label === 'Leadership Achiev.') {
+            onDirectCategoryClick('HODAchievements');
+        }
+        // 3. Announcements
+        else if (label === 'Announcements') {
+            if (userRole === 'Student') {
+                onViewAnnouncementsClick();
+            } else {
+                // Faculty/HOD/Dean see "Faculty related" announcements
+                onDirectCategoryClick('Faculty related');
+            }
+        }
+        // 4. Shared Resources
+        else if (label === 'Shared Resources') {
+            onDirectCategoryClick('Material');
+        }
+        // 5. Storage Used -> Personal Data
+        else if (label === 'Storage Used') {
+            onPersonalDataClick();
+        }
+        // 6. Faculty Count / Dept. Students -> No direct link yet, maybe scroll to widgets? 
+        // For now, no action or maybe generic shake animation if we had one.
+    };
 
     return (
         <div className="dashboard-container">
@@ -130,7 +163,7 @@ const Dashboard = ({
             {/* 2. Stats Grid */}
             <div className="stats-grid">
                 {currentStats.map((stat) => (
-                    <div key={stat.id} className="stat-card">
+                    <div key={stat.id} className="stat-card" onClick={() => handleStatClick(stat)}>
                         <div className="stat-icon-wrapper" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                             {stat.icon}
                         </div>
