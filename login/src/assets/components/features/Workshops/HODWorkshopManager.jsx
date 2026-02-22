@@ -56,33 +56,37 @@ const HODWorkshopManager = ({ userRole }) => {
         }
     };
 
-    // Load Permissions (Still Local for now, or move to backend too?)
-    // Time constraint: Keeping permission local or simple backend?
-    // User asked to "perfect backend", so ideally permissions should also be backend.
-    // However, for Workshop, maybe just fixing the data is enough for now. 
-    // I'll keep permissions local to avoid scope creep unless critical, 
-    // but the request was "remove fake data", so I should at least ensure real names are used.
-    // I'll keep permissions as is for now but ensure it matches real IDs.
+    // Load Permissions (Backend)
     const fetchPermissions = () => {
-        const storedPerms = localStorage.getItem('workshop_permissions');
-        if (storedPerms) {
-            setPermissions(JSON.parse(storedPerms));
-        }
+        // Permissions are now part of the faculty data fetched in fetchFaculty()
     };
 
     // --- ACCESS CONTROL ---
-    const grantAccess = (facId) => {
-        const newPerms = { ...permissions, [facId]: true };
-        setPermissions(newPerms);
-        localStorage.setItem('workshop_permissions', JSON.stringify(newPerms));
-        setShowAddForm(false);
+    const grantAccess = async (facId) => {
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-workshop-permission`, {
+                id: facId,
+                allowed: true
+            });
+            fetchFaculty(); // Refresh data
+            setShowAddForm(false);
+        } catch (error) {
+            console.error("Error granting workshop access:", error);
+            alert("Failed to grant access");
+        }
     };
 
-    const revokeAccess = (facId) => {
-        const newPerms = { ...permissions };
-        delete newPerms[facId];
-        setPermissions(newPerms);
-        localStorage.setItem('workshop_permissions', JSON.stringify(newPerms));
+    const revokeAccess = async (facId) => {
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/toggle-workshop-permission`, {
+                id: facId,
+                allowed: false
+            });
+            fetchFaculty(); // Refresh data
+        } catch (error) {
+            console.error("Error revoking workshop access:", error);
+            alert("Failed to revoke access");
+        }
     };
 
     // --- FILTERING ---
@@ -95,7 +99,7 @@ const HODWorkshopManager = ({ userRole }) => {
         return true;
     });
 
-    const activeApprovers = Object.keys(permissions).filter(k => !!permissions[k]);
+    const activeApprovers = deptFaculty.filter(f => f.permissions?.canManageWorkshops);
 
     return (
         <div className="std-page-container workshops-container">
@@ -193,7 +197,7 @@ const HODWorkshopManager = ({ userRole }) => {
                     {!showAddForm && (
                         <div className="faculty-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {activeApprovers.length > 0 ? (
-                                deptFaculty.filter(f => permissions[f.id]).map(fac => (
+                                activeApprovers.map(fac => (
                                     <div key={fac.id} className="user-result-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <FaUser style={{ color: '#94a3b8' }} />
@@ -222,7 +226,7 @@ const HODWorkshopManager = ({ userRole }) => {
                             />
                             <div className="user-results-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                 {deptFaculty
-                                    .filter(f => !permissions[f.id] && f.username.toLowerCase().includes(accessSearch.toLowerCase()))
+                                    .filter(f => !f.permissions?.canManageWorkshops && f.username.toLowerCase().includes(accessSearch.toLowerCase()))
                                     .map(fac => (
                                         <div key={fac.id} onClick={() => grantAccess(fac.id)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', backgroundColor: 'white' }}>
                                             <span><b>{fac.username}</b> ({fac.id})</span>
