@@ -182,7 +182,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                 {/* Conditionally render Batch input for Student */}
                 {formData.role === 'Student' && (
                     <div className="std-form-group" style={{ marginTop: '15px' }}>
-                        <label className="std-label" htmlFor="batch">Batch (Year):</label>
+                        <label className="std-label" htmlFor="batch">Batch (passout-Year):</label>
                         <input
                             type="text"
                             id="batch"
@@ -190,7 +190,7 @@ const LoginForm = ({ setIsLoggedIn, setUserRole, setUsersubRole }) => {
                             value={formData.batch}
                             onChange={handleChange}
                             required
-                            placeholder="e.g. 2024"
+                            placeholder="e.g. 2027"
                             className="std-input"
                         />
                     </div>
