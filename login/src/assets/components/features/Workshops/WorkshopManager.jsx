@@ -228,7 +228,7 @@ const WorkshopManager = ({ userId }) => {
                             </tr>
                         ) : (
                             workshops.map(w => (
-                                <tr key={w.id}>
+                                <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td><strong>{w.activityName}</strong></td>
                                     <td>{w.dates}</td>
@@ -239,7 +239,7 @@ const WorkshopManager = ({ userId }) => {
                                         <button className="std-btn-sm std-btn-secondary" onClick={() => handleEdit(w)}>
                                             <FaEdit />
                                         </button>
-                                        <button className="std-btn-sm std-btn-danger" onClick={() => handleDelete(w.id)}>
+                                        <button className="std-btn-sm std-btn-danger" onClick={() => handleDelete(w._id)}>
                                             <FaTrash />
                                         </button>
                                     </td>

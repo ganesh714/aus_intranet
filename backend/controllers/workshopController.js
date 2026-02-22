@@ -35,7 +35,6 @@ const getWorkshops = async (req, res) => {
         let filter = {};
 
         if (userId) filter.userId = userId;
-        if (userId) filter.userId = userId;
 
         // [OPTIMIZATION] Resolve dept string to ObjectId
         if (dept && dept !== 'All') {
