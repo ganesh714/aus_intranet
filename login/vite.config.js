@@ -1,15 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: '0.0.0.0',   // Allow access from any device on the network
-    port: 80,          // Port 3000 (you can change this if needed)
-    allowedHosts: [
-      'intranet.adityauniversity.in', // Add your allowed host here
-      'localhost'                     // You can add more hosts if needed
-    ],
+
+  resolve: {                 // ✅ MUST be here
+    alias: {
+      "@": path.resolve(__dirname, "src")
+    }
   },
+
+  server: {
+    host: '0.0.0.0',
+    port: 80,
+    allowedHosts: [
+      'intranet.adityauniversity.in',
+      'localhost'
+    ]
+  }
 })
