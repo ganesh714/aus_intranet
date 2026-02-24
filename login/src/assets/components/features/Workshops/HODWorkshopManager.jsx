@@ -172,7 +172,7 @@ const HODWorkshopManager = ({ userRole }) => {
                                             <td>{w.academicYear}</td>
                                             <td style={{ color: '#64748b' }}>{w.userId}</td>
                                             <td><strong>{w.activityName}</strong></td>
-                                            <td>{w.dates}</td>
+                                            <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
                                             <td>{w.coordinators}</td>
                                             <td>{w.studentCount}</td>
                                         </tr>

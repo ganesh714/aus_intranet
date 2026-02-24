@@ -13,7 +13,8 @@ const WorkshopManager = ({ userId }) => {
     const initialForm = {
         academicYear: '2023-2024',
         activityName: '',
-        dates: '',
+        startDate: '',
+        endDate: '',
         coordinators: '',
         professionalBody: '',
         studentCount: ''
@@ -67,7 +68,8 @@ const WorkshopManager = ({ userId }) => {
         setFormData({
             academicYear: item.academicYear,
             activityName: item.activityName,
-            dates: item.dates,
+            startDate: item.startDate ? item.startDate.split('T')[0] : '',
+            endDate: item.endDate ? item.endDate.split('T')[0] : '',
             coordinators: item.coordinators,
             professionalBody: item.professionalBody,
             studentCount: item.studentCount
@@ -143,14 +145,25 @@ const WorkshopManager = ({ userId }) => {
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">Date(s)</label>
+                            <label className="std-label">Starting Date</label>
                             <input
-                                type="text"
-                                name="dates"
+                                type="date"
+                                name="startDate"
                                 className="std-input"
-                                value={formData.dates}
+                                value={formData.startDate}
                                 onChange={handleInputChange}
-                                placeholder="e.g. 12th - 14th Oct 2023"
+                                required
+                            />
+                        </div>
+
+                        <div className="std-form-group">
+                            <label className="std-label">Ending Date</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                className="std-input"
+                                value={formData.endDate}
+                                onChange={handleInputChange}
                                 required
                             />
                         </div>
@@ -170,14 +183,16 @@ const WorkshopManager = ({ userId }) => {
 
                         <div className="std-form-group">
                             <label className="std-label">Professional Body Associated</label>
-                            <input
-                                type="text"
+                            <select
                                 name="professionalBody"
-                                className="std-input"
+                                className="std-select"
                                 value={formData.professionalBody}
                                 onChange={handleInputChange}
-                                placeholder="e.g. IEEE, CSI"
-                            />
+                            >
+                                <option value="">None</option>
+                                <option value="IEEE">IEEE</option>
+                                <option value="CSI">CSI</option>
+                            </select>
                         </div>
 
                         <div className="std-form-group">
@@ -231,7 +246,7 @@ const WorkshopManager = ({ userId }) => {
                                 <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td><strong>{w.activityName}</strong></td>
-                                    <td>{w.dates}</td>
+                                    <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
                                     <td>{w.coordinators}</td>
                                     <td>{w.professionalBody || '-'}</td>
                                     <td>{w.studentCount}</td>
