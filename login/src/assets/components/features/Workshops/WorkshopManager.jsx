@@ -15,7 +15,7 @@ const WorkshopManager = ({ userId }) => {
         activityName: '',
         startDate: '',
         endDate: '',
-        coordinators: '',
+        resourcePerson: '',
         professionalBody: '',
         studentCount: ''
     };
@@ -70,7 +70,7 @@ const WorkshopManager = ({ userId }) => {
             activityName: item.activityName,
             startDate: item.startDate ? item.startDate.split('T')[0] : '',
             endDate: item.endDate ? item.endDate.split('T')[0] : '',
-            coordinators: item.coordinators,
+            resourcePerson: item.resourcePerson || item.coordinators,
             professionalBody: item.professionalBody,
             studentCount: item.studentCount
         });
@@ -169,14 +169,14 @@ const WorkshopManager = ({ userId }) => {
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">Resource Persons / Coordinators</label>
+                            <label className="std-label">Resource Person</label>
                             <input
                                 type="text"
-                                name="coordinators"
+                                name="resourcePerson"
                                 className="std-input"
-                                value={formData.coordinators}
+                                value={formData.resourcePerson}
                                 onChange={handleInputChange}
-                                placeholder="e.g. Dr. Smith, Prof. Jane"
+                                placeholder="e.g. Dr. Smith"
                                 required
                             />
                         </div>
@@ -228,7 +228,7 @@ const WorkshopManager = ({ userId }) => {
                             <th>Academic Year</th>
                             <th>Name of Activity</th>
                             <th>Date(s)</th>
-                            <th>Resource Persons / Coordinators</th>
+                            <th>Resource Person</th>
                             <th>Professional Body</th>
                             <th>Students</th>
                             <th>Actions</th>
@@ -247,7 +247,7 @@ const WorkshopManager = ({ userId }) => {
                                     <td>{w.academicYear}</td>
                                     <td><strong>{w.activityName}</strong></td>
                                     <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
-                                    <td>{w.coordinators}</td>
+                                    <td>{w.resourcePerson || w.coordinators}</td>
                                     <td>{w.professionalBody || '-'}</td>
                                     <td>{w.studentCount}</td>
                                     <td style={{ display: 'flex', gap: '10px' }}>

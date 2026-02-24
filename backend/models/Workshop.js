@@ -10,7 +10,7 @@ const workshopSchema = new mongoose.Schema({
     activityName: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    coordinators: { type: String, required: true },
+    resourcePerson: { type: String, required: true },
     professionalBody: { type: String },
     studentCount: { type: Number, required: true },
 

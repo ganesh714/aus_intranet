@@ -159,7 +159,7 @@ const HODWorkshopManager = ({ userRole }) => {
                                     <th>Faculty ID</th>
                                     <th>Activity</th>
                                     <th>Date(s)</th>
-                                    <th>Coordinators</th>
+                                    <th>Resource Person</th>
                                     <th>Students</th>
                                 </tr>
                             </thead>
@@ -173,7 +173,7 @@ const HODWorkshopManager = ({ userRole }) => {
                                             <td style={{ color: '#64748b' }}>{w.userId}</td>
                                             <td><strong>{w.activityName}</strong></td>
                                             <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
-                                            <td>{w.coordinators}</td>
+                                            <td>{w.resourcePerson || w.coordinators}</td>
                                             <td>{w.studentCount}</td>
                                         </tr>
                                     ))
