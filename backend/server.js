@@ -23,9 +23,8 @@ const emailService = require('./services/EmailService');
 emailService.init();
 
 const app = express();
-
 app.use(cors({
-  origin: 'http://localhost:81', // React app
+  origin: 'http://localhost',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
