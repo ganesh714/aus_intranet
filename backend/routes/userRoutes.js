@@ -17,7 +17,12 @@ router.post('/toggle-timetable-permission', userController.toggleTimetablePermis
 router.post('/toggle-achievement-permission', userController.toggleAchievementPermission); // [NEW]
 
 
-router.put('/change-password',protect, userController.changePassword);
+
+//router.put('/change-password',protect, userController.changePassword);
+
+
+router.post('/toggle-workshop-permission', userController.toggleWorkshopPermission); // [NEW]
+router.post('/change-password', userController.changePassword);
 
 
 // New Routes

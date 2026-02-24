@@ -22,7 +22,7 @@ const addTimetable = async (req, res) => {
         const user = req.user;
         if (!user) return res.status(401).json({ message: "User not authenticated" });
 
-        const { subRole, batch } = req.body;
+        const { subRole, batch, targetYear, targetSection } = req.body;
 
         // [OPTIMIZATION] Resolve subRole string to ObjectId
         let subRoleId = subRole;
@@ -41,7 +41,7 @@ const addTimetable = async (req, res) => {
             }
         }
 
-        const result = await TimetableService.addTimetable(user, req.file, subRoleId, batch);
+        const result = await TimetableService.addTimetable(user, req.file, subRoleId, batch, targetYear, targetSection);
 
         res.status(200).json({
             message: 'Timetable uploaded successfully',

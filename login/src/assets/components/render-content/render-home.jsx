@@ -25,10 +25,7 @@ function Home() {
     const subRole = sessionStorage.getItem('usersubRole');
     const batch = sessionStorage.getItem('userBatch'); // Read batch
 
-    const validatePassword = (password) => {
-        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-        return passwordPattern.test(password);
-    };
+
 
     const handleLogout = () => {
         sessionStorage.clear();
@@ -36,9 +33,10 @@ function Home() {
     };
 
 
+
    
 
- const handleChangePassword = async (e) => {
+ /*const handleChangePassword = async (e) => {
   e.preventDefault();
 
   try {
@@ -57,8 +55,28 @@ function Home() {
     console.error(error.response?.data || error.message);
     alert(error.response?.data?.message || 'Error changing password');
   }
-};
+};*/
 
+
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setErrorMessage('');
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
+                id,
+                currentPassword: changePasswordData.currentPassword,
+                newPassword: changePasswordData.newPassword,
+            });
+            alert(response.data.message);
+            setChangePasswordData({ currentPassword: '', newPassword: '' });
+            setShowPasswordModal(false);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to change password. Please check your current password.');
+        }
+    };
 
 
     const handleUpdateUsername = async (e) => {
@@ -72,10 +90,10 @@ function Home() {
                 id,
                 newUsername
             });
-            
+
             // Update Session Storage
             sessionStorage.setItem('username', response.data.username);
-            
+
             alert(response.data.message);
             setShowSettingsModal(false);
             window.location.reload(); // Reload to reflect changes globally

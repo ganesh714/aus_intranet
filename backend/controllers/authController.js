@@ -3,7 +3,11 @@
 const User = require('../models/User');
 const SubRole = require('../models/SubRole'); // [NEW] Import SubRole
 const UserFactory = require('../factories/UserFactory');
+
 const mongoose = require('mongoose');
+
+const jwt = require('jsonwebtoken');
+
 
 const register = async (req, res) => {
     const { username, id, password, role, subRole, batch } = req.body;
@@ -66,14 +70,14 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const { id, password } = req.body;
-<<<<<<< HEAD
+
     // Find user by ID (Case Insensitive) and populate subRole
-    const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } }).populate('subRole');
-=======
+    //const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } }).populate('subRole');
+
     // Find user by ID (Case Insensitive)
     console.log("DB NAME:", mongoose.connection.name);
     console.log(User.collection.name);
->>>>>>> 47e5ad7 (implemented change password feature)
+
 
     const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
     console.log(user);
@@ -84,7 +88,15 @@ const login = async (req, res) => {
             userObj.subRoleId = userObj.subRole._id; // New Field for ID reference
             userObj.subRole = userObj.subRole.displayName || userObj.subRole.code; // Maintain string for Frontend
         }
-        res.json({ message: 'Login successful!', user: userObj });
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        );
+
+        res.json({ message: 'Login successful!', user: userObj, token });
     } else {
         res.status(401).json({ message: 'Invalid credentials!' });
     }

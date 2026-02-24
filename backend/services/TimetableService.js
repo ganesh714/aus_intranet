@@ -12,15 +12,18 @@ class TimeTableService {
      * 3. Updates Database.
      */
 
-    static async addTimetable(user, file, subRole, batch) {
-        if (!user || !user.canUploadTimetable) {
+    static async addTimetable(user, file, subRole, batch, targetYear, targetSection) {
+        const allowedRoles = ['HOD', 'Dean', 'Asso.Dean', 'Admin'];
+        const isAllowedRole = allowedRoles.includes(user.role);
+        const hasPermission = user.canUploadTimetable;
+
+        if (!user || (!isAllowedRole && !hasPermission)) {
             throw new Error('Unauthorized: User cannot upload timetables');
         }
         // Logic to find existing timetable
-        let query = { subRole: subRole };
+        // Unique per SubRole + Year + Section
+        let query = { subRole: subRole, targetYear: targetYear, targetSection: targetSection };
 
-        // [REFAC] Removed hardcoded dept checks. 
-        // If batch is provided, we assume it's relevant and query with it.
         if (batch) {
             query.batch = batch;
         }
@@ -60,6 +63,8 @@ class TimeTableService {
             const newTimetable = new Timetable({
                 subRole: subRole,
                 batch: batch || null,
+                targetYear: targetYear,
+                targetSection: targetSection,
                 fileId: savedFile._id,
                 uploadedBy: user._id
             });

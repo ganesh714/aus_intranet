@@ -13,8 +13,9 @@ const WorkshopManager = ({ userId }) => {
     const initialForm = {
         academicYear: '2023-2024',
         activityName: '',
-        dates: '',
-        coordinators: '',
+        startDate: '',
+        endDate: '',
+        resourcePerson: '',
         professionalBody: '',
         studentCount: ''
     };
@@ -67,8 +68,9 @@ const WorkshopManager = ({ userId }) => {
         setFormData({
             academicYear: item.academicYear,
             activityName: item.activityName,
-            dates: item.dates,
-            coordinators: item.coordinators,
+            startDate: item.startDate ? item.startDate.split('T')[0] : '',
+            endDate: item.endDate ? item.endDate.split('T')[0] : '',
+            resourcePerson: item.resourcePerson || item.coordinators,
             professionalBody: item.professionalBody,
             studentCount: item.studentCount
         });
@@ -143,41 +145,54 @@ const WorkshopManager = ({ userId }) => {
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">Date(s)</label>
+                            <label className="std-label">Starting Date</label>
                             <input
-                                type="text"
-                                name="dates"
+                                type="date"
+                                name="startDate"
                                 className="std-input"
-                                value={formData.dates}
+                                value={formData.startDate}
                                 onChange={handleInputChange}
-                                placeholder="e.g. 12th - 14th Oct 2023"
                                 required
                             />
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">Resource Persons / Coordinators</label>
+                            <label className="std-label">Ending Date</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                className="std-input"
+                                value={formData.endDate}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+
+                        <div className="std-form-group">
+                            <label className="std-label">Resource Person</label>
                             <input
                                 type="text"
-                                name="coordinators"
+                                name="resourcePerson"
                                 className="std-input"
-                                value={formData.coordinators}
+                                value={formData.resourcePerson}
                                 onChange={handleInputChange}
-                                placeholder="e.g. Dr. Smith, Prof. Jane"
+                                placeholder="e.g. Dr. Smith"
                                 required
                             />
                         </div>
 
                         <div className="std-form-group">
                             <label className="std-label">Professional Body Associated</label>
-                            <input
-                                type="text"
+                            <select
                                 name="professionalBody"
-                                className="std-input"
+                                className="std-select"
                                 value={formData.professionalBody}
                                 onChange={handleInputChange}
-                                placeholder="e.g. IEEE, CSI"
-                            />
+                            >
+                                <option value="">None</option>
+                                <option value="IEEE">IEEE</option>
+                                <option value="CSI">CSI</option>
+                            </select>
                         </div>
 
                         <div className="std-form-group">
@@ -213,7 +228,7 @@ const WorkshopManager = ({ userId }) => {
                             <th>Academic Year</th>
                             <th>Name of Activity</th>
                             <th>Date(s)</th>
-                            <th>Resource Persons / Coordinators</th>
+                            <th>Resource Person</th>
                             <th>Professional Body</th>
                             <th>Students</th>
                             <th>Actions</th>
@@ -228,18 +243,18 @@ const WorkshopManager = ({ userId }) => {
                             </tr>
                         ) : (
                             workshops.map(w => (
-                                <tr key={w.id}>
+                                <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td><strong>{w.activityName}</strong></td>
-                                    <td>{w.dates}</td>
-                                    <td>{w.coordinators}</td>
+                                    <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
+                                    <td>{w.resourcePerson || w.coordinators}</td>
                                     <td>{w.professionalBody || '-'}</td>
                                     <td>{w.studentCount}</td>
                                     <td style={{ display: 'flex', gap: '10px' }}>
                                         <button className="std-btn-sm std-btn-secondary" onClick={() => handleEdit(w)}>
                                             <FaEdit />
                                         </button>
-                                        <button className="std-btn-sm std-btn-danger" onClick={() => handleDelete(w.id)}>
+                                        <button className="std-btn-sm std-btn-danger" onClick={() => handleDelete(w._id)}>
                                             <FaTrash />
                                         </button>
                                     </td>

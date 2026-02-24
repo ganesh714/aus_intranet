@@ -50,6 +50,17 @@ const toggleAchievementPermission = async (req, res) => {
     }
 };
 
+// Toggle Workshop Permission
+const toggleWorkshopPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleWorkshopPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 4. Change Password
 const changePassword = async (req, res) => {
   try {
@@ -112,6 +123,7 @@ module.exports = {
     getDeptFaculty,
     toggleTimetablePermission,
     toggleAchievementPermission, // [NEW]
+    toggleWorkshopPermission, // [NEW]
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,

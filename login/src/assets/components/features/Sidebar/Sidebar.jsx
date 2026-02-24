@@ -235,9 +235,8 @@ const Sidebar = ({
                     );
                 })}
 
-                {/* [NEW] Workshops Module (Moved to Bottom) */}
-                {/* 1. Faculty Link (Access Granted to ALL Faculty as per request) */}
-                {userRole === 'Faculty' && (
+                {/* 1. Faculty Link (Visible only if granted access) */}
+                {userRole === 'Faculty' && JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops && (
                     <div className={`category-item ${type === 'Workshops' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Workshops')}>
                             <span className="cat-name">

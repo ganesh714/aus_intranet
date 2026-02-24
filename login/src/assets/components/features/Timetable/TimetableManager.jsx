@@ -67,11 +67,8 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
     };
 
     useEffect(() => {
-        if (userRole !== 'Student' || (filters.year && filters.section)) {
-            fetchTimetables();
-        } else {
-            setTimetables([]);
-        }
+        // [FIX] Allow students to see all department timetables, not just filtered ones
+        fetchTimetables();
 
         if (userRole === 'HOD' && showPermissions) {
             fetchFaculty();
@@ -88,6 +85,11 @@ const TimetableManager = ({ userRole, userSubRole, userId }) => {
         formData.append('targetYear', uploadForm.targetYear);
         formData.append('targetSection', uploadForm.targetSection);
         formData.append('file', uploadForm.file);
+        // [FIX] Explicitly append subRole for backend validation
+        // Prioritize the ID if available, otherwise use the name
+        const subRoleValue = sessionStorage.getItem('userSubRoleId') || userSubRole;
+        formData.append('subRole', subRoleValue);
+
         formData.append('user', JSON.stringify({
             username: sessionStorage.getItem('username'),
             id: userId,

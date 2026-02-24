@@ -198,6 +198,10 @@ class MaterialService {
         const materials = await Material.find(query)
             .populate('fileId')
             .populate('uploadedBy', 'username role subRole id')
+            .populate({
+                path: 'targetAudience.subRole',
+                select: 'displayName name code'
+            })
             .sort({ uploadedAt: -1 })
             .lean(); // Use lean() to allow modification
 
