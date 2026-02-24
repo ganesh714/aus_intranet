@@ -212,12 +212,10 @@ const Dashboard = ({
             {/* 2. Stats Grid */}
             <div className="stats-grid">
                 {currentStats.map((stat) => (
-<<<<<<< HEAD
+
                     <div key={stat.id} className="stat-card" onClick={() => handleStatCardClick(stat)}style={{ cursor: 'pointer' }}
 >
-=======
-                    <div key={stat.id} className="stat-card" onClick={() => handleStatClick(stat)}>
->>>>>>> 77f687749a155b51ac102df6d810c31eb90a294b
+
                         <div className="stat-icon-wrapper" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                             {stat.icon}
                         </div>
