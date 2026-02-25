@@ -2,54 +2,35 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 const protect = async (req, res, next) => {
-    try {
-        let user;
+    let token;
 
-        console.log('REQ BODY:', req.body);
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        try {
+            // Get token from header
+            token = req.headers.authorization.split(' ')[1];
 
-        if (req.body.user && typeof req.body.user === 'string') {
-            user = JSON.parse(req.body.user);
-        } else if (req.body.user && typeof req.body.user === 'object') {
-            user = req.body.user;
-        } else if (req.query.id) {
-            user = { id: req.query.id };
-        } else {
-            return res.status(401).json({ message: 'Not authorized, no user data' });
-        }
+            // Verify token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        console.log('LOOKING FOR USER ID:', user?.id);
+            // Get user from the token
+            req.user = await User.findOne({ id: decoded.id }).select('-password');
 
-        let token;
-
-        if (
-            req.headers.authorization &&
-            req.headers.authorization.startsWith('Bearer')
-        ) {
-            try {
-                token = req.headers.authorization.split(' ')[1];
-
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-                req.user = await User.findOne({ id: decoded.id }).select('-password');
-
-                if (!req.user) {
-                    return res.status(401).json({ message: 'Not authorized, user not found' });
-                }
-
-                next();
-            } catch (error) {
-                console.error(error);
-                return res.status(401).json({ message: 'Not authorized, token failed' });
+            if (!req.user) {
+                return res.status(401).json({ message: 'Not authorized, user not found' });
             }
-        }
 
-        if (!token) {
-            return res.status(401).json({ message: 'Not authorized, no token' });
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(401).json({ message: 'Not authorized, token failed' });
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+    }
+
+    if (!token) {
+        res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
-
 module.exports = { protect };

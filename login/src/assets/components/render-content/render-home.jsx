@@ -25,44 +25,23 @@ function Home() {
     const subRole = sessionStorage.getItem('usersubRole');
     const batch = sessionStorage.getItem('userBatch'); // Read batch
 
-
+    const validatePassword = (password) => {
+        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        return passwordPattern.test(password);
+    };
 
     const handleLogout = () => {
         sessionStorage.clear();
         navigate('/');
     };
 
-
-
-   
-
- /*const handleChangePassword = async (e) => {
-  e.preventDefault();
-
-  try {
-    const response = await axios.put(
-      'http://localhost:5001/change-password',
-      {
-        user: { id },   // ✅ THIS IS THE FIX
-        currentPassword: changePasswordData.currentPassword,
-        newPassword: changePasswordData.newPassword
-      }
-    );
-
-    alert('Password changed successfully');
-    setShowPasswordModal(false);
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    alert(error.response?.data?.message || 'Error changing password');
-  }
-};*/
-
-
-
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setErrorMessage('');
-
+        if (!validatePassword(changePasswordData.newPassword)) {
+            setErrorMessage("New password must be at least 8 characters long, include letters, numbers, and special characters.");
+            return;
+        }
         try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
                 id,
@@ -78,7 +57,6 @@ function Home() {
         }
     };
 
-
     const handleUpdateUsername = async (e) => {
         e.preventDefault();
         if (!newUsername.trim()) {
@@ -90,10 +68,10 @@ function Home() {
                 id,
                 newUsername
             });
-
+            
             // Update Session Storage
             sessionStorage.setItem('username', response.data.username);
-
+            
             alert(response.data.message);
             setShowSettingsModal(false);
             window.location.reload(); // Reload to reflect changes globally

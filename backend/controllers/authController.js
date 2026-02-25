@@ -75,8 +75,7 @@ const login = async (req, res) => {
     //const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } }).populate('subRole');
 
     // Find user by ID (Case Insensitive)
-    console.log("DB NAME:", mongoose.connection.name);
-    console.log(User.collection.name);
+
 
 
     const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });

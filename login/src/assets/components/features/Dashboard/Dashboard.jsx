@@ -63,55 +63,6 @@ const Dashboard = ({
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
     };
-    const handleStatCardClick = (stat) => {
-
-    switch (stat.label) {
-
-        // ---------------- STUDENT ----------------
-        case 'My Achievements':
-            onAchievementsClick();
-            break;
-
-        case 'Announcements':
-            onViewAnnouncementsClick();
-            break;
-
-        case 'Shared Resources':
-            onDirectCategoryClick('Material');
-            break;
-
-        case 'Storage Used':
-            onDirectCategoryClick('Material');
-            break;
-
-        // ---------------- FACULTY ----------------
-        case 'Pending Approvals':
-            onAchievementsClick(); // or approvals page later
-            break;
-
-        case 'Dept. Students':
-            onPersonalDataClick();
-            break;
-
-        case 'Dept. Achievements':
-            onAchievementsClick();
-            break;
-
-        // ---------------- HOD ----------------
-        case 'Faculty Count':
-            onPersonalDataClick(); // later → faculty list
-            break;
-
-        case 'Pending Requests':
-            onSendAnnounceClick(); // or request manager
-            break;
-
-        // ---------------- FALLBACK ----------------
-        default:
-            console.log(`No navigation defined for "${stat.label}"`);
-    }
-};
-
 
     // --- MOCK DATA (Merged with Real Data) ---
     const stats = {
@@ -212,10 +163,7 @@ const Dashboard = ({
             {/* 2. Stats Grid */}
             <div className="stats-grid">
                 {currentStats.map((stat) => (
-
-                    <div key={stat.id} className="stat-card" onClick={() => handleStatCardClick(stat)}style={{ cursor: 'pointer' }}
->
-
+                    <div key={stat.id} className="stat-card" onClick={() => handleStatClick(stat)}>
                         <div className="stat-icon-wrapper" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                             {stat.icon}
                         </div>
