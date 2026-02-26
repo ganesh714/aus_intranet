@@ -49,6 +49,19 @@ exports.deleteSubRole = async (req, res) => {
 };
 
 // Get subroles filtered by parent role
+exports.getSubroledetails = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const subRole = await SubRole.findById(id);
+        if (!subRole) {
+            return res.status(404).json({ success: false, message: 'SubRole not found' });
+        }
+        res.status(200).json({ success: true, subRole });
+    } catch (error) {
+        console.error('Error fetching subrole details:', error);
+        res.status(500).json({ success: false, message: 'Server error fetching subrole details' });
+    }
+}  ;
 exports.getSubRolesByRole = async (req, res) => {
     try {
         const { role } = req.params;
