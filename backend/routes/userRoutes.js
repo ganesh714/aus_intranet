@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const { protect } = require('../middleware/authMiddleware'); // Import protect
 
 // Define routes using the exact paths from server.js to maintain compatibility
 // Note: We will mount this router at '/' in server.js to keep paths like '/get-users'
@@ -11,7 +12,7 @@ router.get('/get-dept-faculty', userController.getDeptFaculty);
 router.post('/toggle-timetable-permission', userController.toggleTimetablePermission);
 router.post('/toggle-achievement-permission', userController.toggleAchievementPermission); // [NEW]
 router.post('/toggle-workshop-permission', userController.toggleWorkshopPermission); // [NEW]
-router.post('/change-password', userController.changePassword);
+router.post('/change-password', protect, userController.changePassword);
 
 // New Routes
 router.post('/toggle-pin-timetable', userController.togglePinTimetable);

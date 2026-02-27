@@ -64,11 +64,20 @@ const toggleWorkshopPermission = async (req, res) => {
 // 4. Change Password
 const changePassword = async (req, res) => {
     try {
-        const { id, currentPassword, newPassword } = req.body;
-        await UserService.changePassword(id, currentPassword, newPassword);
-        res.json({ message: 'Password changed successfully!' });
-    } catch (error) {
-        res.status(401).json({ message: error.message });
+        const { currentPassword, newPassword } = req.body;
+        const user = req.user; // Securely injected by the protect middleware
+
+        // Delegate business logic to the service layer
+        await UserService.changePassword(user, currentPassword, newPassword);
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (err) {
+        console.error(err);
+        // Send a 400 Bad Request if it's a validation error, otherwise 500
+        if (err.message === 'Current password is incorrect') {
+            return res.status(400).json({ message: err.message });
+        }
+        res.status(500).json({ message: 'Password update failed' });
     }
 };
 

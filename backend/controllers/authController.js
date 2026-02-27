@@ -1,111 +1,38 @@
 // backend/controllers/authController.js
 
-const User = require('../models/User');
-const SubRole = require('../models/SubRole'); // [NEW] Import SubRole
-const UserFactory = require('../factories/UserFactory');
-const jwt = require('jsonwebtoken');
+const AuthService = require('../services/AuthService');
 
 const register = async (req, res) => {
-    const { username, id, password, role, subRole, batch } = req.body;
-
-    // Check for existing user (Case Insensitive)
-    const existingUserById = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
-    if (existingUserById) {
-        return res.status(400).json({ message: 'User ID already exists' });
-    }
-
-    // [Moved & Fixed] Resolve subRole if provided
-    let subRoleObjId = null;
-    if (subRole) {
-        // Try to find by displayName, name, or code (case insensitive)
-        const subRoleDoc = await SubRole.findOne({
-            $or: [
-                { displayName: { $regex: new RegExp("^" + subRole + "$", "i") } },
-                { name: { $regex: new RegExp("^" + subRole + "$", "i") } },
-                { code: { $regex: new RegExp("^" + subRole + "$", "i") } }
-            ]
-        });
-
-        if (subRoleDoc) {
-            subRoleObjId = subRoleDoc._id;
-        } else if (role === 'Faculty' || role === 'Student') {
-            return res.status(400).json({ message: 'Invalid subRole: ' + subRole });
-        }
-    }
-
-    if ((role === 'Faculty' || role === 'Student') && !subRoleObjId) {
-        return res.status(400).json({ message: 'subRole (department) is required and must be valid' });
-    }
-
-    // [Moved & Updated] Check for existing user by Role/SubRole
-    // Using subRoleObjId which is now an ObjectId (or null)
-    if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
-        const existingUserByRoleAndSubRole = await User.findOne({ role, subRole: subRoleObjId });
-        if (existingUserByRoleAndSubRole) {
-            return res.status(400).json({ message: 'User with this role and subRole already exists' });
-        }
-    }
-
-    const newUser = UserFactory.create({
-        username,
-        id,
-        password,
-        role,
-        subRole: subRoleObjId, // Pass the ObjectId
-        batch,
-    });
-
     try {
-        await newUser.save();
+        await AuthService.register(req.body);
         res.json({ message: 'Registration successful!' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Error registering user', error: err });
+        const status = err.statusCode || 500;
+        res.status(status).json({ message: err.message || 'Error registering user', error: err });
     }
 }
 
 const login = async (req, res) => {
     const { id, password } = req.body;
-    // Find user by ID (Case Insensitive) and populate subRole
-    const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } }).populate('subRole');
-
-    if (user && user.password === password) {
-        // Transform for frontend compatibility
-        const userObj = user.toObject();
-        if (userObj.subRole && typeof userObj.subRole === 'object') {
-            userObj.subRoleId = userObj.subRole._id; // New Field for ID reference
-            userObj.subRole = userObj.subRole.displayName || userObj.subRole.code; // Maintain string for Frontend
-        }
-
-        // Generate JWT Token
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-        );
-
-        res.json({ message: 'Login successful!', user: userObj, token });
-    } else {
-        res.status(401).json({ message: 'Invalid credentials!' });
+    try {
+        const { user, token } = await AuthService.login(id, password);
+        res.json({ message: 'Login successful!', user, token });
+    } catch (err) {
+        const status = err.statusCode || 500;
+        res.status(status).json({ message: err.message || 'Invalid credentials!' });
     }
 }
 
 const updateUsername = async (req, res) => {
     const { id, newUsername } = req.body;
     try {
-        // Case-insensitive ID lookup
-        const user = await User.findOne({ id: { $regex: new RegExp("^" + id + "$", "i") } });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        user.username = newUsername;
-        await user.save();
-
+        const user = await AuthService.updateUsername(id, newUsername);
         res.json({ message: 'Username updated successfully!', username: user.username });
     } catch (err) {
         console.error("Error updating username:", err);
-        res.status(500).json({ message: 'Error updating username', error: err.message });
+        const status = err.statusCode || 500;
+        res.status(status).json({ message: err.message || 'Error updating username', error: err.message });
     }
 }
 

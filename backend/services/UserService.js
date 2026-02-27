@@ -125,18 +125,20 @@ class UserService {
     }
 
     // 4. Change Password
-    static async changePassword(userId, currentPassword, newPassword) {
-        const user = await User.findOne({ id: userId });
-        if (!user) throw new Error('User not found');
-
-        // Plaintext comparison as per existing (legacy) logic
-        // TODO: Hash passwords
+    static async changePassword(user, currentPassword, newPassword) {
+        // 1. Validate the current password
         if (user.password !== currentPassword) {
-            throw new Error('Incorrect current password');
+            throw new Error('Current password is incorrect'); // Controller catches this
         }
 
+        // 2. Apply the change
         user.password = newPassword;
-        return await user.save();
+
+        // 3. Persist to the database
+        // Saving ONLY the password, skipping full validation if other fields aren't present
+        await user.save({ validateBeforeSave: false });
+
+        return true;
     }
 
     static async togglePin(userId, timetableId) {
