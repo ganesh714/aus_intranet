@@ -3,6 +3,11 @@ import { FaUserCog, FaChalkboardTeacher, FaCheckSquare, FaSquare, FaFilter, FaLi
 import axios from 'axios';
 import './Workshops.css';
 
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import ausLogo from '../../images/aus_logo.png'; // Adjust the path as needed
+
+
 const HODWorkshopManager = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allWorkshops, setAllWorkshops] = useState([]);
@@ -36,12 +41,132 @@ const HODWorkshopManager = ({ userRole }) => {
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-workshops`, {
                 params: { dept: userDept }
             });
+            console.log("Fetched Workshops:", response.data);
             setAllWorkshops(response.data.workshops || []);
         } catch (error) {
             console.error("Error loading workshops:", error);
         }
     };
+    console.log("Generate clicked", ausLogo);
+    const generateExcelReport = async () => {
+        if (displayedWorkshops.length === 0) {
+            alert("No data to export");
+            return;
+        }
 
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Workshops");
+
+        // Define column keys and widths only (no header property → no auto row 1 headers)
+        worksheet.columns = [
+            { key: "sno", width: 8 },
+            { key: "academicYear", width: 18 },
+            { key: "facultyId", width: 18 },
+            { key: "activityName", width: 45 },
+            { key: "fromDate", width: 15 },
+            { key: "toDate", width: 15 },
+            { key: "resourcePerson", width: 30 },
+            { key: "students", width: 18 }
+        ];
+
+        // Load logo
+        const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
+        const imageId = workbook.addImage({
+            buffer: imageBuffer,
+            extension: "png"
+        });
+
+        // Place logo as centered as possible in an 8-column sheet
+        // col: 1.5 → starts halfway between column B and C (best visual center for even number of columns)
+        worksheet.addImage(imageId, {
+            tl: { col: 1.5, row: 0.2 },      // small top offset for better visual balance
+            ext: { width: 240, height: 110 } // adjust these values to match your logo's aspect ratio
+        });
+
+        // Start titles well below the logo (row 4 gives good breathing space)
+        worksheet.mergeCells("A4:H4");
+        worksheet.mergeCells("A5:H5");
+        worksheet.mergeCells("A6:H6");
+
+        worksheet.getCell("A4").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
+        worksheet.getCell("A5").value = "WORKSHOP REPORT";
+        worksheet.getCell("A6").value = "Generated on: " + new Date().toLocaleDateString();
+
+        [4, 5, 6].forEach(rowNum => {
+            const row = worksheet.getRow(rowNum);
+            row.height = 32;
+            const cell = worksheet.getCell(`A${rowNum}`);
+            cell.alignment = {
+                horizontal: "center",
+                vertical: "middle",
+                wrapText: true
+            };
+            cell.font = {
+                bold: true,
+                size: rowNum === 4 ? 15 : 13
+            };
+        });
+
+        // Add empty rows to separate title from table
+        worksheet.addRow([]);
+        worksheet.addRow([]);
+
+        // Table headers – row 10 is a safe starting point
+        const headerRow = worksheet.getRow(10);
+        headerRow.values = [
+            "S.No",
+            "Academic Year",
+            "Faculty ID",
+            "Activity Name",
+            "From Date",
+            "To Date",
+            "Resource Person",
+            "No. of Students"
+        ];
+        headerRow.font = { bold: true, size: 11 };
+        headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+        headerRow.height = 32;
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFDDDDDD" }
+            };
+            cell.border = {
+                top: { style: "medium" },
+                left: { style: "thin" },
+                bottom: { style: "medium" },
+                right: { style: "thin" }
+            };
+        });
+
+        // Data rows
+        displayedWorkshops.forEach((w, index) => {
+            const dataRow = worksheet.addRow({
+                sno: index + 1,
+                academicYear: w.academicYear,
+                facultyId: w.userId,
+                activityName: w.activityName,
+                fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
+                toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
+                resourcePerson: w.resourcePerson || w.coordinators || "",
+                students: w.studentCount
+            });
+
+            dataRow.eachCell((cell) => {
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+                cell.alignment = { vertical: "middle" };
+            });
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), "Department_Workshops_Report.xlsx");
+    };
     const fetchFaculty = async () => {
         try {
             const userDeptId = sessionStorage.getItem('userSubRoleId');
@@ -181,7 +306,13 @@ const HODWorkshopManager = ({ userRole }) => {
                             </tbody>
                         </table>
                     </div>
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100px" }}>
+                        <button className="std-btn" onClick={generateExcelReport}>
+                            Generate Report
+                        </button>
+                    </div>
                 </>
+
             )}
 
             {/* ACCESS CONTROL TAB */}
@@ -239,6 +370,7 @@ const HODWorkshopManager = ({ userRole }) => {
                     )}
                 </div>
             )}
+
         </div>
     );
 };
