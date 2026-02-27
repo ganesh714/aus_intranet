@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaLock, FaSignOutAlt, FaUserCircle, FaCog, FaBell, FaChevronDown } from 'react-icons/fa'; // Added Icons
 
+const validatePassword = (password) => {
+    const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return passwordPattern.test(password);
+};
+
 function Home() {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [changePasswordData, setChangePasswordData] = useState({
@@ -36,18 +41,29 @@ function Home() {
         e.preventDefault();
         setErrorMessage('');
 
+        // if (!validatePassword(changePasswordData.newPassword)) {
+        //     setErrorMessage("New password must be at least 8 characters long, include letters, numbers, and special characters.");
+        //     return;
+        // }
+
         try {
+            const token = sessionStorage.getItem('token'); // Retrieve the JWT token
+
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/change-password`, {
-                id,
+                // We removed 'id' because the backend extracts identity from the token
                 currentPassword: changePasswordData.currentPassword,
-                newPassword: changePasswordData.newPassword,
+                newPassword: changePasswordData.newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}` // Pass the token in the headers
+                }
             });
+
             alert(response.data.message);
-            setChangePasswordData({ currentPassword: '', newPassword: '' });
-            setShowPasswordModal(false);
+            setShowSettingsModal(false);
+            setChangePasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
         } catch (error) {
-            console.error(error);
-            alert('Failed to change password. Please check your current password.');
+            setErrorMessage(error.response?.data?.message || 'Failed to change password');
         }
     };
 
