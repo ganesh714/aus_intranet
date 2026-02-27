@@ -57,8 +57,9 @@ const HODWorkshopManager = ({ userRole }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Workshops");
 
-        // Define column keys and widths only (no header property → no auto row 1 headers)
+        // Define column keys and widths. Added empty first and last columns for padding.
         worksheet.columns = [
+            { key: "padLeft", width: 15 }, // Increased Left padding
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
             { key: "facultyId", width: 18 },
@@ -66,7 +67,8 @@ const HODWorkshopManager = ({ userRole }) => {
             { key: "fromDate", width: 15 },
             { key: "toDate", width: 15 },
             { key: "resourcePerson", width: 30 },
-            { key: "students", width: 18 }
+            { key: "students", width: 18 },
+            { key: "padRight", width: 15 } // Increased Right padding
         ];
 
         // Load logo
@@ -76,26 +78,26 @@ const HODWorkshopManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // Place logo as centered as possible in an 8-column sheet
-        // col: 1.5 → starts halfway between column B and C (best visual center for even number of columns)
+        // Place logo centered above the department name.
+        // We adjusted the ext height to be smaller and width to be larger to preserve the original logo ratio.
         worksheet.addImage(imageId, {
-            tl: { col: 1.5, row: 0.2 },      // small top offset for better visual balance
-            ext: { width: 240, height: 110 } // adjust these values to match your logo's aspect ratio
+            tl: { col: 4.0, row: 0.2 },      // Shifted slightly left to balance the wider left padding
+            ext: { width: 320, height: 75 }  // Wider and shorter to match a typical banner logo without stretching
         });
 
-        // Start titles well below the logo (row 4 gives good breathing space)
-        worksheet.mergeCells("A4:H4");
-        worksheet.mergeCells("A5:H5");
-        worksheet.mergeCells("A6:H6");
+        // Start titles lower so the logo doesn't overlap (moved to rows 7, 8, 9)
+        worksheet.mergeCells("B7:I7");
+        worksheet.mergeCells("B8:I8");
+        worksheet.mergeCells("B9:I9");
 
-        worksheet.getCell("A4").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
-        worksheet.getCell("A5").value = "WORKSHOP REPORT";
-        worksheet.getCell("A6").value = "Generated on: " + new Date().toLocaleDateString();
+        worksheet.getCell("B7").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
+        worksheet.getCell("B8").value = "WORKSHOP REPORT";
+        worksheet.getCell("B9").value = "Generated on: " + new Date().toLocaleDateString();
 
-        [4, 5, 6].forEach(rowNum => {
+        [7, 8, 9].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
-            row.height = 32;
-            const cell = worksheet.getCell(`A${rowNum}`);
+            row.height = 30; // Slightly smaller row height to tighten spacing
+            const cell = worksheet.getCell(`B${rowNum}`);
             cell.alignment = {
                 horizontal: "center",
                 vertical: "middle",
@@ -103,7 +105,7 @@ const HODWorkshopManager = ({ userRole }) => {
             };
             cell.font = {
                 bold: true,
-                size: rowNum === 4 ? 15 : 13
+                size: rowNum === 7 ? 15 : 13
             };
         });
 
@@ -111,9 +113,12 @@ const HODWorkshopManager = ({ userRole }) => {
         worksheet.addRow([]);
         worksheet.addRow([]);
 
-        // Table headers – row 10 is a safe starting point
-        const headerRow = worksheet.getRow(10);
+
+        // Table headers – row 12 is a safe starting point
+        const headerRow = worksheet.getRow(12);
+        // Add empty string for left padding column
         headerRow.values = [
+            "",
             "S.No",
             "Academic Year",
             "Faculty ID",
@@ -121,12 +126,16 @@ const HODWorkshopManager = ({ userRole }) => {
             "From Date",
             "To Date",
             "Resource Person",
-            "No. of Students"
+            "No. of Students",
+            ""
         ];
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
-        headerRow.eachCell((cell) => {
+
+        // Apply styling only to the actual content cells (B to I)
+        for (let col = 2; col <= 9; col++) {
+            const cell = headerRow.getCell(col);
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
@@ -138,11 +147,12 @@ const HODWorkshopManager = ({ userRole }) => {
                 bottom: { style: "medium" },
                 right: { style: "thin" }
             };
-        });
+        }
 
         // Data rows
         displayedWorkshops.forEach((w, index) => {
             const dataRow = worksheet.addRow({
+                padLeft: "",
                 sno: index + 1,
                 academicYear: w.academicYear,
                 facultyId: w.userId,
@@ -150,10 +160,13 @@ const HODWorkshopManager = ({ userRole }) => {
                 fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
                 toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
                 resourcePerson: w.resourcePerson || w.coordinators || "",
-                students: w.studentCount
+                students: w.studentCount,
+                padRight: ""
             });
 
-            dataRow.eachCell((cell) => {
+            // Apply styling only to the actual content cells (B to I)
+            for (let col = 2; col <= 9; col++) {
+                const cell = dataRow.getCell(col);
                 cell.border = {
                     top: { style: "thin" },
                     left: { style: "thin" },
@@ -161,7 +174,7 @@ const HODWorkshopManager = ({ userRole }) => {
                     right: { style: "thin" }
                 };
                 cell.alignment = { vertical: "middle" };
-            });
+            }
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
