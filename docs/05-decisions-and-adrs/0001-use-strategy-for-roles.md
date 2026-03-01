@@ -19,4 +19,7 @@ Instead of checking `if (user.role === 'Student') { ... }`, the controller utili
   * Adding a new role (e.g., 'Alumni') in the future simply means creating an `AlumniStrategy.js` class; we do not have to modify the core `User.js` model or `authController.js` logic extensively.
   * Easily testable in isolation.
 * **Cons:** 
-  * slight overhead in the initial mental model for junior developers onboarding to the project.
+  * Slight overhead in the initial mental model for junior developers onboarding to the project.
+
+## Note on "Sub-Roles"
+The `StrategyContext` primarily pivots on the user's base `Role`. However, if a user has a designated `SubRole` (configured via `SubRoleController.js`), the instantiated strategy object is designed to consult the `SubRole` permissions array when executing permission checks securely wrapping overlapping capabilities.
