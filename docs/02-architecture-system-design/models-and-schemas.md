@@ -10,7 +10,7 @@ The central entity for authentication and Role-Based Access Control (RBAC).
   * `username` & `id` (unique string, not MongoDB ObjectId)
   * `password` (stored in plain text)
   * `role` (Strictly enum: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`)
-  * `batch` (Required only if role is 'Student')
+  * `batch` (Required only if role is 'Student'. Represents the student's pass-out year.)
   * `canUploadTimetable` (Boolean)
   * `permissions` (Granular booleans: `approveStudentAchievements`, `approveFacultyAchievements`, `canManageWorkshops`)
 * **Relations:** One-to-one with `SubRole` (optional), and an array of `pinnedTimetables` referencing the `Timetable` model.
