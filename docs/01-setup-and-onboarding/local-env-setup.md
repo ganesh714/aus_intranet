@@ -66,19 +66,20 @@ The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
    npm install
    ```
 3. **Start the Vite development server:**
-   > **CRITICAL:** The frontend is configured in `vite.config.js` to bind directly to Port `80` (the default HTTP port). Binding to Port 80 requires **Administrator privileges**. 
-   
-   If you are on Windows, you must open your terminal as Administrator. On Mac/Linux, run:
    ```bash
-   sudo npm run dev
+   npm run dev
    ```
+   > **CRITICAL:** The frontend is configured in `vite.config.js` to bind directly to Port `80` (the default HTTP port). Binding to Port 80 requires **Administrator privileges**. 
+   > 
+   > If you are on Windows, you must open your terminal as Administrator before running `npm run dev`. On Mac/Linux, run: `sudo npm run dev`.
+   
    *The application should now be accessible at `http://localhost/` (or `http://intranet.adityauniversity.in` if you mapped your hosts file).*
 
 ## Step 5: Verify the Setup
 
 1. Open your browser and navigate to `http://localhost/`.
-2. You should see the login screen.
-3. Ensure no CORS errors appear in the browser console when attempting to log in or interact with the backend.
+2. You should see the landing page as the first screen.
+3. Ensure no CORS errors appear in the browser console when attempting to interact with the backend (like attempting a login).
 
 ## Step 6: Custom Domain Testing (Optional)
 
