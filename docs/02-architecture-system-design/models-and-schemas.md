@@ -17,9 +17,13 @@ The central entity for authentication and Role-Based Access Control (RBAC).
 * **Pattern:** Validates explicitly against defined Enum roles.
 
 ### 2. `SubRole` (`models/SubRole.js`)
-Defines more granular permissions beyond the primary role (e.g., a Faculty member who is also a "Placement Coordinator").
-* **Fields:** `name`, `permissions` (array of action strings).
-* **Relations:** Linked to a `User` via `ObjectId`.
+Serves as an organizational unit or department linkage (e.g., "Computer Science and Engineering" or "Registrar") applied to users.
+* **Fields:** 
+  * `name` (String, e.g. "Computer Science and Engineering")
+  * `code` (Unique uppercase string, e.g. "CSE", "REG")
+  * `displayName` (String, e.g. "CSE", to display in UI)
+  * `allowedRoles` (Array of enums: `Student`, `Faculty`, `HOD`, `Asso.Dean`, `Dean`, `Officers`)
+* **Relations:** The `User` model references `SubRole` via `ObjectId`.
 
 ## Content Management Entities
 
