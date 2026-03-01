@@ -17,7 +17,6 @@ Clone the project to your local directory and checkout the active development br
 ```bash
 git clone <repository-url>
 cd aus_intranet
-git checkout intranet-v3
 ```
 
 ## Step 2: Backend Setup (Express.js)
