@@ -15,7 +15,7 @@ Ensure you have the following installed on your local machine:
 Clone the project to your local directory and checkout the active development branch.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ganesh714/aus_intranet/
 cd aus_intranet
 ```
 
