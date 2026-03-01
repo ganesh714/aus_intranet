@@ -35,9 +35,8 @@ The backend handles API requests, database interactions, and business logic.
    * Create a `.env` file in the `backend/` directory.
    * See [Environment Variables Guide](./env-variables.md) for the required keys.
 4. **Start the backend server:**
+   The backend uses `nodemon` for auto-restarting during development.
    ```bash
-   npm run start
-   # Or for development with auto-restart:
    npm run dev
    ```
    *The server should now be running on `http://localhost:5001/`.*
@@ -67,13 +66,29 @@ The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
    npm install
    ```
 3. **Start the Vite development server:**
+   > **CRITICAL:** The frontend is configured in `vite.config.js` to bind directly to Port `80` (the default HTTP port). Binding to Port 80 requires **Administrator privileges**. 
+   
+   If you are on Windows, you must open your terminal as Administrator. On Mac/Linux, run:
    ```bash
-   npm run dev
+   sudo npm run dev
    ```
-   *The application should now be accessible at `http://localhost:5173/`.*
+   *The application should now be accessible at `http://localhost/` (or `http://intranet.adityauniversity.in` if you mapped your hosts file).*
 
 ## Step 5: Verify the Setup
 
-1. Open your browser and navigate to `http://localhost:5173/`.
+1. Open your browser and navigate to `http://localhost/`.
 2. You should see the login screen.
 3. Ensure no CORS errors appear in the browser console when attempting to log in or interact with the backend.
+
+## Step 6: Custom Domain Testing (Optional)
+
+The `vite.config.js` file allows the host `intranet.adityauniversity.in`. If you need to test absolute URLs or specific cookies locally:
+
+1. Modifiy your machine's hosts file:
+   * **Windows:** `C:\Windows\System32\drivers\etc\hosts`
+   * **Mac/Linux:** `/etc/hosts`
+2. Add the following line:
+   ```text
+   127.0.0.1 intranet.adityauniversity.in
+   ```
+3. You can now access the local frontend at `http://intranet.adityauniversity.in/`.
