@@ -35,3 +35,11 @@ formData.append('documentFile', fileInput); // THIS string must match Multer's e
 cd login
 npm install
 ```
+
+## 5. Backend Crashes on Boot (Third-Party Mailer Initialization)
+**Symptoms:** `npm run dev` in the backend throws an error pointing to `EmailService.js` and refuses to start.
+**Cause:** `server.js` automatically calls `emailService.init();` on boot. If your `.env` is missing the required SendGrid or Nodemailer API keys, the initialization fails fatally.
+**Fix:**
+1. Check `backend/package.json` to see if the team is currently utilizing `@sendgrid/mail` or `nodemailer`.
+2. Ensure the corresponding keys (`SENDGRID_API_KEY` or `MAILTRAP_USER`/`PASS`) are populated in your `backend/.env`.
+3. If you are just working on UI and don't care about emails, you can temporarily comment out `emailService.init()` in `server.js` (but do not commit this change!).
