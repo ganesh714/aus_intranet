@@ -34,6 +34,14 @@ The backend (`aus_intranet/backend/`) is an Express.js server defining strict RE
 4. **Service/Command (`services/`):** Executes complex business logic (e.g., coordinating multiple database calls).
 5. **Model (`models/*.js`):** Mongoose schemas interact with the MongoDB database.
 
+### Route Mounting & Collision Warning
+Currently, in `server.js`, almost all feature routes are mounted directly at the root path (`/`):
+```javascript
+app.use('/', userRoutes);
+app.use('/', pdfRoutes);
+```
+> **WARNING:** This flat architecture is highly prone to **Route Collisions**. If `pdfRoutes.js` and `materialRoutes.js` both define a `router.post('/upload')`, Express will execute whichever router was imported and mounted first, completely ignoring the second one. Future architecture refactors should aim to namespace these routes (e.g., `app.use('/api/pdf', pdfRoutes)`).
+
 ## 3. The Pattern Layer
 To abstract third-party tools and complex logic, the backend uses:
 * **Adapters (`adapters/`):** Wraps external APIs (e.g., `GoogleDriveAdapter`, `LocalStorageAdapter`). By setting `STORAGE_MODE=local` in your `.env`, the system injects the local adapter so you can develop without GCP credentials.
