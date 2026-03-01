@@ -13,7 +13,10 @@ These variables are required for the Express.js server to operate correctly.
 | `PORT`          | The port the backend server listens on. Defaults to 5001.                   | `5001`                                         |
 | `MONGO_URI`     | The connection string for your MongoDB database cluster or local instance.  | `mongodb://localhost:27017/aus_intranet_local` |
 | `JWT_SECRET`    | The secret key used to sign and verify JSON Web Tokens for authentication.  | `your_super_secret_jwt_key_here`               |
-| `GOOGLE_DRIVE_*`| Credentials for the Google Drive API (if using the Google Drive Adapter).   | N/A (Consult team lead)                        |
+| `STORAGE_MODE`  | Determines the file storage adapter. Set to `local` to bypass Google Drive during local development. | `local` |
+| `GOOGLE_DRIVE_*`| Credentials for the Google Drive API (Only needed if `STORAGE_MODE=gdrive`).| N/A (Consult team lead)                        |
+| `MAILTRAP_USER` | Mailtrap username for intercepting asynchronous developer emails.           | `your_user` |
+| `MAILTRAP_PASS` | Mailtrap password for the background email service queue.                   | `your_pass` |
 
 ## Frontend Configuration
 
