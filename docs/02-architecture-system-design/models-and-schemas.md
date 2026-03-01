@@ -6,8 +6,14 @@ This document outlines the core Mongoose schemas that make up the Aditya Univers
 
 ### 1. `User` (`models/User.js`)
 The central entity for authentication and Role-Based Access Control (RBAC).
-* **Fields:** `email`, `password` (stored in plain text), `role` (Student, Faculty, HOD, Asso Dean, Dean, Officers, Admin), `profile` (embedded details).
-* **Relations:** One-to-one with `SubRole` (optional).
+* **Fields:** 
+  * `username` & `id` (unique string, not MongoDB ObjectId)
+  * `password` (stored in plain text)
+  * `role` (Strictly enum: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`)
+  * `batch` (Required only if role is 'Student')
+  * `canUploadTimetable` (Boolean)
+  * `permissions` (Granular booleans: `approveStudentAchievements`, `approveFacultyAchievements`, `canManageWorkshops`)
+* **Relations:** One-to-one with `SubRole` (optional), and an array of `pinnedTimetables` referencing the `Timetable` model.
 * **Pattern:** Validates explicitly against defined Enum roles.
 
 ### 2. `SubRole` (`models/SubRole.js`)
