@@ -4,7 +4,7 @@
 * **Status:** Accepted
 
 ## Context
-Our system has 5 primary roles (Student, Faculty, HOD, Dean, Admin). The rules for what each role can see or do regarding Announcements and Document creation are wildly different. 
+Our system has 7 primary roles (Student, Faculty, HOD, Asso Dean, Dean, Officers, Admin). The rules for what each role can see or do regarding Announcements and Document creation are wildly different. 
 
 If we handle this with `if/else` or `switch` statements inside the controllers, files like `announcementController.js` will grow to thousands of lines and become impossible to test.
 
