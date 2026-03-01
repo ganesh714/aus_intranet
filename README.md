@@ -4,41 +4,43 @@ A centralized digital hub designed for **Aditya University** to streamline commu
 
 ---
 
-## 📚 Documentation
+## 📚 Global Documentation Repository
 
-For a comprehensive guide to this project's architecture, setup, and development patterns, please refer to our heavy `docs/` directory. If you are joining the team or returning after a break, start here:
+This system relies on strictly enforced design patterns. For a comprehensive guide to this project's architecture, setup, API contracts, and development patterns, please refer to the `docs/` directory.
 
-- [Setup & Onboarding](./docs/01-setup-and-onboarding/)
+If you are joining the team or returning after a break, start here:
+
+- **1. Setup & Onboarding**
   - [Local Environment Setup](./docs/01-setup-and-onboarding/local-env-setup.md)
-  - [Environment Variables](./docs/01-setup-and-onboarding/env-variables.md)
-  - [Git Workflow](./docs/01-setup-and-onboarding/git-workflow.md)
+  - [Environment Variables Guide](./docs/01-setup-and-onboarding/env-variables.md)
+  - [Git Collaboration Workflow](./docs/01-setup-and-onboarding/git-workflow.md)
 
-- [Architecture & System Design](./docs/02-architecture-system-design/)
-  - [High Level Design](./docs/02-architecture-system-design/high-level-design.md)
-  - [Database Schema](./docs/02-architecture-system-design/database-schema.md)
-  - [SOLID Principles](./docs/02-architecture-system-design/solid-principles.md)
+- **2. Architecture & System Design**
+  - [MERN High-Level Design](./docs/02-architecture-system-design/high-level-design.md)
+  - [System Models & Mongoose Schemas](./docs/02-architecture-system-design/models-and-schemas.md)
+  - [SOLID Principles Enforcement](./docs/02-architecture-system-design/solid-principles.md)
   - Patterns: [Strategy](./docs/02-architecture-system-design/patterns/strategy-pattern.md) | [Adapter](./docs/02-architecture-system-design/patterns/adapter-pattern.md) | [Factory](./docs/02-architecture-system-design/patterns/factory-pattern.md)
 
-- [API Contracts](./docs/03-api-contracts/)
-  - [Authentication](./docs/03-api-contracts/authentication.md)
-  - [User Management](./docs/03-api-contracts/user-management.md)
-  - [Documents & Materials](./docs/03-api-contracts/documents-materials.md)
-  - [Workshops & Events](./docs/03-api-contracts/workshops-events.md)
+- **3. API Contracts (Backend to Frontend)**
+  - [Authentication & User Endpoints](./docs/03-api-contracts/auth-and-users.md)
+  - [Content Management (Materials & Announcements)](./docs/03-api-contracts/content-management.md)
+  - [Achievements & Event Workshops Endpoints](./docs/03-api-contracts/achievements-workshops.md)
 
-- [Frontend UI](./docs/04-frontend-ui/)
-  - [Component Hierarchy](./docs/04-frontend-ui/component-hierarchy.md)
-  - [State Management](./docs/04-frontend-ui/state-management.md)
-  - [Routing Map](./docs/04-frontend-ui/routing-map.md)
+- **4. Frontend UI (React + Vite)**
+  - [Role Dashboards Layout Architecture](./docs/04-frontend-ui/role-dashboards.md)
+  - [Reusable Component Hierarchy](./docs/04-frontend-ui/component-hierarchy.md)
+  - [Global State Management](./docs/04-frontend-ui/state-management.md)
+  - [Router Definition Map](./docs/04-frontend-ui/routing-map.md)
 
-- [Decisions & ADRs](./docs/05-decisions-and-adrs/)
-  - [0001: Use Strategy for Roles](./docs/05-decisions-and-adrs/0001-use-strategy-for-roles.md)
-  - [0002: Google Drive Integration](./docs/05-decisions-and-adrs/0002-google-drive-integration.md)
+- **5. Architecture Decision Records (ADRs)**
+  - [0001: Implementing Strategy Pattern for Overloaded Roles](./docs/05-decisions-and-adrs/0001-use-strategy-for-roles.md)
+  - [0002: Google Drive Authentication Wrapper](./docs/05-decisions-and-adrs/0002-google-drive-integration.md)
   - [ADR Template](./docs/05-decisions-and-adrs/template.md)
 
-- [Troubleshooting & Lessons](./docs/06-troubleshooting-and-lessons/)
-  - [Common Errors](./docs/06-troubleshooting-and-lessons/common-errors.md)
-  - [Fixing Drive Upload Timeout](./docs/06-troubleshooting-and-lessons/post-mortems/fixing-drive-upload-timeout.md)
+- **6. Troubleshooting & Post-Mortems**
+  - [Common Errors (MongoDB, Multer, JWT issues)](./docs/06-troubleshooting-and-lessons/common-errors.md)
+  - [Post-Mortem: Fixing Upload Timeouts](./docs/06-troubleshooting-and-lessons/post-mortems/fixing-drive-upload-timeout.md)
 
 ---
 
-> **Note:** This repository is built to scale. When adding a new feature or making a significant architectural change, please make sure you update the corresponding document or draft a new Architecture Decision Record (ADR).
+> **Note:** This repository is built to scale. When adding a new feature (`Achievement`, `DriveItem`, etc.) or modifying a controller, you are strictly required to update the corresponding document or draft a new Architecture Decision Record (ADR) detailing the schema and pattern shifts.
