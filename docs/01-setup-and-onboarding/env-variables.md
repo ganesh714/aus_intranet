@@ -26,4 +26,4 @@ Usually, this is handled in `vite.config.js` or a root `.env` file depending on 
 
 | Variable Name         | Description                                                        | Example Value           |
 | :-------------------- | :----------------------------------------------------------------- | :---------------------- |
-| `VITE_API_BASE_URL` | The base URL the frontend uses to make requests to the backend API. | `http://localhost:5001` |
+| `VITE_BACKEND_URL` | The base URL the frontend uses to make requests to the backend API. | `http://localhost:5001` |
