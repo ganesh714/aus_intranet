@@ -22,11 +22,13 @@ If you are joining the team or returning after a break, start here:
   - Patterns: [Strategy](./docs/02-architecture-system-design/patterns/strategy-pattern.md) | [Adapter](./docs/02-architecture-system-design/patterns/adapter-pattern.md) | [Factory](./docs/02-architecture-system-design/patterns/factory-pattern.md)
 
 - **3. API Contracts (Backend to Frontend)**
+  - [Global API Response Standard](./docs/03-api-contracts/api-response-standards.md)
   - [Authentication & User Endpoints](./docs/03-api-contracts/auth-and-users.md)
   - [Content Management (Materials & Announcements)](./docs/03-api-contracts/content-management.md)
   - [Achievements & Event Workshops Endpoints](./docs/03-api-contracts/achievements-workshops.md)
 
 - **4. Frontend UI (React + Vite)**
+  > **Note on Folder Structure:** The `login/` directory contains the *complete* React frontend application (encompassing all role dashboards and views), not just the authentication portal.
   - [Role Dashboards Layout Architecture](./docs/04-frontend-ui/role-dashboards.md)
   - [Reusable Component Hierarchy](./docs/04-frontend-ui/component-hierarchy.md)
   - [Global State Management](./docs/04-frontend-ui/state-management.md)
