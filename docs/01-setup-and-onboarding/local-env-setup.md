@@ -43,7 +43,18 @@ The backend handles API requests, database interactions, and business logic.
    ```
    *The server should now be running on `http://localhost:5001/`.*
 
-## Step 3: Frontend Setup (React + Vite)
+## Step 3: Database Seeding (The "Cold Start")
+
+If you are starting with a fresh, empty MongoDB instance, you must seed the database to create the default roles and the initial Admin account.
+
+1. **Run the seed script:**
+   ```bash
+   # Make sure you are in the backend directory
+   npm run seed
+   ```
+2. **Note:** If a seed script has not been configured yet, you must manually inject the first User document with `role: "Admin"` using MongoDB Compass or `mongosh` so you can log into the frontend application.
+
+## Step 4: Frontend Setup (React + Vite)
 
 The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
 
@@ -62,7 +73,7 @@ The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
    ```
    *The application should now be accessible at `http://localhost:5173/`.*
 
-## Step 4: Verify the Setup
+## Step 5: Verify the Setup
 
 1. Open your browser and navigate to `http://localhost:5173/`.
 2. You should see the login screen.
