@@ -30,3 +30,17 @@ While tools like Redux exist, for this application's initial scale, state is pri
 * **Context API:** For truly global state, such as the `AuthContext` (who is logged in, their token, their roles).
 * **Local Component State (`useState`):** For UI-specific toggles (e.g., "Is the modal open?").
 * **Server State:** Handled directly via Axios fetch requests within `useEffect` hooks, triggering re-renders upon receiving data arrays from the backend.
+
+## Coding Standards: Absolute Import Aliasing
+
+To avoid "relative path hell" (e.g., `import Sidebar from '../../../features/Sidebar'`), the frontend `vite.config.js` is configured with an absolute path alias where `@` maps strictly to the `src/` directory.
+
+**Always use the `@` alias for internal imports:**
+
+```javascript
+// ❌ BAD (Fragile if the current file moves)
+import AnnouncementFeed from '../../features/Announcements/AnnouncementFeed';
+
+// ✅ GOOD (Absolute and clean)
+import AnnouncementFeed from '@/assets/components/features/Announcements/AnnouncementFeed';
+```
