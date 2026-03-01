@@ -10,10 +10,12 @@ graph TD
     Express[Express.js Backend API]
     Mongo[(MongoDB)]
     Storage[Google Drive / Local Storage]
+    Workers((Background Email Jobs))
     
     Client -- HTTP JSON/FormData --> Express
     Express -- Mongoose ORM --> Mongo
-    Express -- Streams/API --> Storage
+    Express -- Streams/Adapter --> Storage
+    Express -. Async Event Queue .-> Workers
 ```
 
 ## 1. The Client Layer (Frontend)
@@ -34,9 +36,15 @@ The backend (`aus_intranet/backend/`) is an Express.js server defining strict RE
 
 ## 3. The Pattern Layer
 To abstract third-party tools and complex logic, the backend uses:
-* **Adapters (`adapters/`):** Wrapping file storage APIs (Google Drive) so controllers don't care *where* files are saved.
-* **Strategies (`strategies/`):** Handling variations in logic depending on User Roles.
-* **Factories (`factories/`):** Encapsulating the complex creation of objects.
+* **Adapters (`adapters/`):** Wraps external APIs (e.g., `GoogleDriveAdapter`, `LocalStorageAdapter`). By setting `STORAGE_MODE=local` in your `.env`, the system injects the local adapter so you can develop without GCP credentials.
+* **Strategies (`strategies/`):** Handles variations in logic depending on User Roles.
+* **Factories (`factories/`):** Encapsulates the complex creation of objects.
 
-## 4. The Data Layer
-MongoDB handles all structured data mapping, utilizing relationships (`ref`) to link Announcements, Materials, and Achievements back to specific Users and Roles.
+## 4. Asynchronous Background Jobs
+Heavy operations, like sending emails via `EmailService.js`, are not executed during the synchronous HTTP request/response cycle. Doing so would cause frontend timeouts.
+* Instead, the controller dispatches an event/job to a background queue.
+* The API responds to the client immediately (e.g., "Registration successful").
+* The background worker picks up the job and dispatches the email. Locally, configuring Mailtrap in `.env` intercepts these so you don't spam real users.
+
+## 5. The Data Layer & Sub-Roles
+MongoDB handles structured data mapping. While the primary `Role` is fixed on the User document, secondary permissions are handled via `SubRole` collections (`models/SubRole.js`). These sub-roles link back to the User and dictate overlapping architectural permissions (e.g., a "Faculty" member who also holds the "Event Coordinator" Sub-Role).
