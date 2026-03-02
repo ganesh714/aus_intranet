@@ -62,7 +62,6 @@ const HODWorkshopManager = ({ userRole }) => {
             { key: "padLeft", width: 15 }, // Increased Left padding
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
-            { key: "facultyId", width: 18 },
             { key: "activityName", width: 45 },
             { key: "fromDate", width: 15 },
             { key: "toDate", width: 15 },
@@ -86,15 +85,13 @@ const HODWorkshopManager = ({ userRole }) => {
         });
 
         // Start titles lower so the logo doesn't overlap (moved to rows 7, 8, 9)
-        worksheet.mergeCells("B7:I7");
-        worksheet.mergeCells("B8:I8");
-        worksheet.mergeCells("B9:I9");
+        worksheet.mergeCells("B7:H7");
+        worksheet.mergeCells("B8:H8");
 
         worksheet.getCell("B7").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
         worksheet.getCell("B8").value = "WORKSHOP REPORT";
-        worksheet.getCell("B9").value = "Generated on: " + new Date().toLocaleDateString();
 
-        [7, 8, 9].forEach(rowNum => {
+        [7, 8].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
             row.height = 30; // Slightly smaller row height to tighten spacing
             const cell = worksheet.getCell(`B${rowNum}`);
@@ -109,10 +106,13 @@ const HODWorkshopManager = ({ userRole }) => {
             };
         });
 
-        // Add empty rows to separate title from table
-        worksheet.addRow([]);
-        worksheet.addRow([]);
-
+        // Add Date at the top right of the table (above Student Count column)
+        const today = new Date();
+        const formattedToday = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+        const dateCell = worksheet.getCell("H11");
+        dateCell.value = `Date : ${formattedToday}`;
+        dateCell.font = { bold: true, size: 11 };
+        dateCell.alignment = { horizontal: "right" };
 
         // Table headers – row 12 is a safe starting point
         const headerRow = worksheet.getRow(12);
@@ -121,7 +121,6 @@ const HODWorkshopManager = ({ userRole }) => {
             "",
             "S.No",
             "Academic Year",
-            "Faculty ID",
             "Activity Name",
             "From Date",
             "To Date",
@@ -133,8 +132,8 @@ const HODWorkshopManager = ({ userRole }) => {
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
 
-        // Apply styling only to the actual content cells (B to I)
-        for (let col = 2; col <= 9; col++) {
+        // Apply styling only to the actual content cells (B to H)
+        for (let col = 2; col <= 8; col++) {
             const cell = headerRow.getCell(col);
             cell.fill = {
                 type: "pattern",
@@ -149,23 +148,28 @@ const HODWorkshopManager = ({ userRole }) => {
             };
         }
 
-        // Data rows
+        // Data rows (NOTE: This only formats the Excel report, original database data remains untouched)
+        const formatDate = (dateStr) => {
+            if (!dateStr) return "";
+            const date = new Date(dateStr);
+            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+        };
+
         displayedWorkshops.forEach((w, index) => {
             const dataRow = worksheet.addRow({
                 padLeft: "",
                 sno: index + 1,
                 academicYear: w.academicYear,
-                facultyId: w.userId,
                 activityName: w.activityName,
-                fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
-                toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
+                fromDate: formatDate(w.startDate),
+                toDate: formatDate(w.endDate),
                 resourcePerson: w.resourcePerson || w.coordinators || "",
                 students: w.studentCount,
                 padRight: ""
             });
 
-            // Apply styling only to the actual content cells (B to I)
-            for (let col = 2; col <= 9; col++) {
+            // Apply styling only to the actual content cells (B to H)
+            for (let col = 2; col <= 8; col++) {
                 const cell = dataRow.getCell(col);
                 cell.border = {
                     top: { style: "thin" },
