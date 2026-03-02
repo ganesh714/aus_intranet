@@ -166,3 +166,69 @@ Regardless of the project, a standard feature-development cycle generally looks 
 7. **Publish to Team:**
    * `git push -u origin feature/login-page`
 8. **Finalize:** Open a Pull Request on the remote platform (GitHub) pointing back to the `dev` branch.
+
+---
+
+## 🧩 Practical Workflows (How-To's)
+
+### Scenario 1: Switching Branches with Uncommitted Changes
+You are halfway through building a feature, but an urgent bug comes up on `main`. You aren't ready to commit your broken code yet.
+1. **Save your dirty work temporarily:** `git stash`
+   *(Your working directory is now clean!)*
+2. **Switch to main:** `git switch main`
+   *(Fix the bug, commit, and push)*
+3. **Switch back to your feature:** `git switch feature/my-work`
+4. **Restore your saved work:** `git stash pop`
+
+### Scenario 2: Checking out a Remote Branch for the First Time
+A teammate pushed a new branch (`feature/B`) to GitHub, and you need to review or run it locally.
+1. **Update your local Git's knowledge of the server:**
+   ```bash
+   git fetch origin
+   ```
+2. **Checkout the branch** (Git will automatically link it to `origin/feature/B`):
+   ```bash
+   git switch feature/B
+   ```
+
+### Scenario 3: Creating a Local Branch and Pushing to Origin (Upstream)
+You want to start brand new work and make sure it's backed up on GitHub.
+1. **Create and switch to the new branch:**
+   ```bash
+   git switch -c feature/my-new-idea
+   ```
+2. **Do your work, stage, and commit:**
+   ```bash
+   git add .
+   git commit -m "initial setup for my new idea"
+   ```
+3. **Push to the server AND link the local branch to the remote branch (`-u`):**
+   ```bash
+   git push -u origin feature/my-new-idea
+   ```
+   *(For all future pushes on this branch, you only need to type `git push`)*
+
+### Scenario 4: Getting `main` Branch Updates into your Present Branch
+You are working on `feature/A`, but a teammate just merged a massive core update into `main` that your feature relies on. You need to sync.
+1. **Make sure your working directory is clean** (Commit or stash current work).
+2. **Fetch the newest `main` from the remote server:**
+   ```bash
+   git fetch origin main
+   ```
+3. **Merge the remote `main` into your current branch:**
+   ```bash
+   git merge origin/main
+   ```
+4. *If there are merge conflicts, open your code editor, pick the correct code, save, run `git add .`, and `git commit` to finish the merge.*
+
+### Scenario 5: Restoring a File (Undoing Uncommitted Changes)
+You made a huge mess experimenting in `server.js` and just want to put the file back exactly how it was in the last commit.
+1. **Check status to see the modified file:** `git status`
+2. **Discard your local edits entirely:**
+   ```bash
+   git restore server.js
+   
+   # Or using older git commands:
+   git checkout -- server.js
+   ```
+   *(Warning: Your uncommitted changes to that file are gone forever)*
