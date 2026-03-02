@@ -18,7 +18,7 @@ This document outlines common issues developers face when running the Aditya Uni
 2. Verify the `JWT_SECRET` string in your backend `.env` matches the server environment.
 
 ## 3. Multer "Unexpected Field" Error
-**Symptoms:** Uploading a PDF returns a 500 error from the server.
+**Symptoms:** Uploading a file returns a 500 error from the server.
 **Cause:** The frontend `FormData` key does not perfectly match the key the backend `multer` middleware is expecting.
 **Fix:**
 If `backend/routes/materialRoutes.js` explicitly defines `upload.single('documentFile')`, your frontend React code MUST append the file using exact string matching:

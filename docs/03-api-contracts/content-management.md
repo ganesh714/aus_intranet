@@ -51,7 +51,7 @@ Upload a secure material or PDF. Usually requires interacting with the Storage A
 **Headers:** `Authorization: Bearer <token>`, `Content-Type: multipart/form-data`
 **Required Roles:** Faculty, HOD, Dean, Admin
 **Body Form-Data:**
-* `file`: (Binary File Data, restricted to PDF/Docx)
+* `file`: (Binary File Data)
 * `title`: "Week 1 Algorithms"
 * `description`: "Introductory lecture notes"
 * `category`: "Teaching Materials"
@@ -73,6 +73,6 @@ Upload a secure material or PDF. Usually requires interacting with the Storage A
 ```json
 {
   "success": false,
-  "message": "Invalid file format. Only PDF files are allowed."
+  "message": "Invalid file format provided."
 }
 ```

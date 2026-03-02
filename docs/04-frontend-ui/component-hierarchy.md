@@ -12,12 +12,6 @@ Components for reading, creating, editing, and deleting (CRUD) broadcast message
 * `AnnouncementFeed`: The scrolling list of messages.
 * `CreateAnnouncementForm`: The form utilized by Faculty+ to target specific roles/departments with a new message.
 
-### 3. `Documents`
-The core of the Document Management System on the frontend.
-* `FolderView`: Renders the hierarchical tree of Categories and Subcategories.
-* `DocumentList`: A paginated table or grid of files within a specific folder.
-* `UploadModal`: Handles the `FormData` creation and progress bar for uploading an `application/pdf` to the backend storage constraints.
-* `PdfViewer`: Integrates `pdfjs-dist` to display the document cleanly inside a modal without forcing a download.
 
 ### 4. `Workshops`
 Handles events, scheduling, and Timetables.

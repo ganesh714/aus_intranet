@@ -1,6 +1,6 @@
 # Documents & Materials API Contracts
 
-Drive routes, PDF routes, Material routes.
+Drive routes and Material routes.
 
 ## Example Route Contract
 
