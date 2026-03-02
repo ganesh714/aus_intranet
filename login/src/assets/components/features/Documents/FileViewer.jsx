@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './Documents.css';
 import { FaTimes, FaSearchPlus, FaSearchMinus, FaUndo } from 'react-icons/fa';
 
 const FileViewer = ({ fileUrl, fileType, fileName, onClose }) => {
