@@ -104,12 +104,23 @@ const Sidebar = ({
                     </div>
                 )}
 
-                {/* [NEW] Shared Documents (For Faculty/HOD/Dean/Officers) - Moved below Send Announcements */}
-                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && (
+                {/* [NEW] Shared Documents (For All Users except Admin) */}
+                {(['Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && (
                     <div className={`category-item ${activeCategory === 'Material' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Material')}>
                             <span className="cat-name">
                                 <FaBook className="cat-icon" /> Shared Documents
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* [NEW] Time Table (Excluded for Deans) */}
+                {(['Student', 'Faculty', 'HOD', 'Officers'].includes(userRole)) && (
+                    <div className={`category-item ${activeCategory === 'Time Table' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Time Table')}>
+                            <span className="cat-name">
+                                <FaClock className="cat-icon" /> Time Table
                             </span>
                         </div>
                     </div>
