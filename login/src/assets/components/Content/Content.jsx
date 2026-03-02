@@ -6,8 +6,6 @@ import Sidebar from "../features/Sidebar/Sidebar";
 import Dashboard from "../features/Dashboard/Dashboard";
 import PersonalData from "../features/PersonalData/PersonalData";
 import AnnouncementManager from "../features/Announcements/AnnouncementManager";
-import CategoryViewer from "../features/Documents/CategoryViewer";
-import ResourceRepository from "../features/Documents/ResourceRepository";
 import FileViewer from "../features/Documents/FileViewer";
 import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
@@ -27,9 +25,6 @@ const Content = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFileType, setSelectedFileType] = useState(null);
     const [selectedFileName, setSelectedFileName] = useState(null);
-    const [pdfLinks, setPdfLinks] = useState([]);
-
-    // View State
     const [activeView, setActiveView] = useState('dashboard');
     const [viewParams, setViewParams] = useState({
         category: null,
@@ -88,12 +83,6 @@ const Content = () => {
             // But usually 'Announcements' in sidebar goes to general feed or category specific feed
             // keeping it simple for now:
             setViewParams({ category: categoryName, subCategory: 'Announcements' });
-        } else {
-            setActiveView('category');
-            setViewParams({
-                category: categoryName,
-                subCategory: subCategory
-            });
         }
     };
 
@@ -107,13 +96,6 @@ const Content = () => {
             // [NEW] Direct Link for Students
             setActiveView('timetable-manager');
             setActiveCategory('Time Table');
-        } else if (categoryName === 'Dept.Equipment') {
-            setActiveView('category');
-            setViewParams({
-                category: 'Dept.Equipment',
-                subCategory: 'Documents'
-            });
-            setActiveCategory('Dept.Equipment');
         } else if (categoryName === 'Faculty related') {
             setActiveView('announcements-feed');
             setViewParams({
@@ -272,17 +254,6 @@ const Content = () => {
                     <SubRoleManager />
                 );
 
-            case 'category':
-                return (
-                    <CategoryViewer
-                        userRole={userRole}
-                        userSubRole={userSubRole}
-                        categoryName={viewParams.category}
-                        subCategoryName={viewParams.subCategory}
-                        onPdfClick={handleFileClick}
-                    />
-                );
-
             default:
                 return <Dashboard />;
         }
@@ -290,16 +261,9 @@ const Content = () => {
 
     return (
         <div className="content-wrapper">
-            {/* Resource Repository - Handles PDF fetching side effects */}
-            <ResourceRepository
-                userRole={userRole}
-                setPdfLinks={setPdfLinks}
-            />
-
             {/* Sidebar */}
             <Sidebar
                 userRole={userRole}
-                pdfLinks={pdfLinks}
                 activeCategory={activeCategory} // <--- FIXED: Passing state
 
                 // Active highlighting flags

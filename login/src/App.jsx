@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginForm from "./assets/components/LoginForm/LoginForm";
 import ResetPassword from "./assets/components/ResetPassword/ResetPassword";
-import Add from "./assets/components/Add/Add";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HodPage from "./assets/components/HodPage/Hod";

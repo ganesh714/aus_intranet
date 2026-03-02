@@ -6,7 +6,6 @@ import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTro
 
 const Sidebar = ({
     userRole,
-    pdfLinks,
     activeCategory,
     showContentP,
     showSendAnnounce,
@@ -126,114 +125,6 @@ const Sidebar = ({
                         </div>
                     </div>
                 )}
-
-                {/* Dynamic Categories */}
-                {pdfLinks.map((category, index) => {
-                    // NEW: Filter out specific categories for Admin
-                    if (userRole === 'Admin' && ['Faculty related', "HOD's related", "Dean's related"].includes(category.category)) {
-                        return null;
-                    }
-
-                    // NEW: Filter out "Student Related" for non-Faculty/HOD/Dean
-                    const isFacultyOrHodOrDean = ['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole);
-                    if (category.category === 'Student Related' && !isFacultyOrHodOrDean) {
-                        return null;
-                    }
-
-                    // NEW: Filter out specific 'related' categories for higher logins (HOD, Dean, Officers etc.)
-                    const isDean = ['Dean', 'Asso.Dean'].includes(userRole);
-                    const isHigherLogin = ['HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole);
-                    if (isHigherLogin && ["University related", "HOD's related", "Dean's related", "Asso.Dean's related"].includes(category.category)) {
-                        return null;
-                    }
-
-                    // NEW: Remove "Staff Presentations" for Faculty/HOD/Dean (as requested for HOD)
-                    if (category.category === 'Staff Presentations' && isFacultyOrHodOrDean) {
-                        return null;
-                    }
-
-                    // NEW: Remove "Vice Chancellor" category
-                    if (category.category === 'Vice Chancellor') {
-                        return null;
-                    }
-
-                    // NEW: Remove "Dept.Equipment" for Faculty/HOD/Dean
-                    if (isFacultyOrHodOrDean && category.category === 'Dept.Equipment') {
-                        return null;
-                    }
-
-                    // NEW: Remove duplicate "Shared Documents" (Material) for Faculty/HOD/Dean as it is rendered manually
-                    if (isFacultyOrHodOrDean && category.category === 'Material') {
-                        return null;
-                    }
-
-                    // NEW: Remove "Student Related" for Faculty/HOD/Dean
-                    if (isFacultyOrHodOrDean && category.category === 'Student Related') {
-                        return null;
-                    }
-
-                    // NEW: Exclude "Faculty related" (Announcements) from loop as it is now rendered manually above
-                    if (isFacultyOrHodOrDean && category.category === 'Faculty related') {
-                        return null;
-                    }
-
-                    // [FIX] REMOVE "Time Table" for Deans and Associate Deans (Top Level)
-                    if (['Dean', 'Asso.Dean'].includes(userRole) && category.category === 'Time Table') {
-                        return null;
-                    }
-
-                    // Check if this is a direct link (Students or Dept.Equipment)
-                    const isDirectLink = (catName) => {
-                        if (['Material', 'Time Table'].includes(catName)) return true; // Direct link for everyone who has it
-                        if (catName === 'Dept.Equipment' || catName === 'Faculty related') return true;
-                        return false;
-                    };
-
-                    if (isDirectLink(category.category)) {
-                        return (
-                            <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                                <div className="category-header" onClick={() => onDirectCategoryClick(category.category)}>
-                                    <span className="cat-name">
-                                        {getIcon(category.category)}
-                                        {category.category === 'Faculty related' ? 'Announcements' :
-                                            category.category === 'Material' ? 'Shared Documents' :
-                                                category.category}
-                                    </span>
-                                    {/* No Chevron for direct links */}
-                                </div>
-                            </div>
-                        );
-                    }
-
-                    // Default Accordion Behavior
-                    return (
-                        <div key={index} className={`category-item ${activeCategory === category.category ? "expanded" : ""}`}>
-                            <div className="category-header" onClick={() => onToggleCategory(category.category)}>
-                                <span className="cat-name"><FaFolder className="cat-icon" /> {category.category}</span>
-                                <FaChevronRight className={`chevron ${activeCategory === category.category ? "rotate" : ""}`} />
-                            </div>
-
-                            <div className="subcategory-list">
-                                {[...new Set(category.items.map(item => item.subcategory))]
-                                    .filter(subCat => {
-                                        // Existing filter: Remove Announcements from specific categories
-                                        // UPDATED: Added "University related" to the exclusion list
-                                        if (["Dept.Equipment", "Teaching Material", "Staff Presentations", "Time Table", "University related"].includes(category.category) && subCat === "Announcements") return false;
-
-                                        // NEW: Remove "Documents" from "Student Related" for Faculty/HOD/Dean
-                                        if (category.category === 'Student Related' && subCat === 'Documents' && isFacultyOrHodOrDean) return false;
-
-                                        return true;
-                                    })
-                                    .map((subCat) => (
-                                        <button key={subCat} className="std-tab-btn" style={{ width: '100%', justifyContent: 'flex-start', background: 'transparent', border: 'none' }} onClick={() => onSubCategoryClick(category.items, subCat, category.category)}>
-                                            {subCat === 'Announcements' ? <FaBullhorn /> : <FaFilePdf />} {subCat}
-                                        </button>
-                                    ))}
-                            </div>
-                        </div>
-                    );
-                })}
 
                 {/* 1. Faculty Link (Visible only if granted access) */}
                 {userRole === 'Faculty' && JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops && (
