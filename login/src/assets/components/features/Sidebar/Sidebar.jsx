@@ -81,7 +81,7 @@ const Sidebar = ({
 
                 {/* [NEW] Announcements (Faculty Related) - Moved here to be before Send Announcements */}
                 {/* Deans should see this if HODs see it (BUT NOT Associate Deans as per request - REVERTED based on user feedback) */}
-                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && pdfLinks.find(cat => cat.category === 'Faculty related') && (
+                {(['Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'].includes(userRole)) && (
                     <div className={`category-item ${activeCategory === 'Faculty related' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Faculty related')}>
                             <span className="cat-name">
