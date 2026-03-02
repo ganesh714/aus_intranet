@@ -78,10 +78,10 @@ const HODWorkshopManager = ({ userRole }) => {
         });
 
         // Place logo centered above the department name.
-        // We adjusted the ext height to be smaller and width to be larger to preserve the original logo ratio.
+        // We set proper ext height and width to preserve the actual logo ratio (1181x182).
         worksheet.addImage(imageId, {
-            tl: { col: 4.0, row: 0.2 },      // Shifted slightly left to balance the wider left padding
-            ext: { width: 320, height: 75 }  // Wider and shorter to match a typical banner logo without stretching
+            tl: { col: 3.3, row: 0.2 },      // Centered horizontally relative to table columns
+            ext: { width: 486, height: 75 }  // 1181:182 aspect ratio equivalent
         });
 
         // Start titles lower so the logo doesn't overlap (moved to rows 7, 8, 9)
