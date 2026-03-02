@@ -38,9 +38,9 @@ The backend (`aus_intranet/backend/`) is an Express.js server defining strict RE
 Currently, in `server.js`, almost all feature routes are mounted directly at the root path (`/`):
 ```javascript
 app.use('/', userRoutes);
-app.use('/', pdfRoutes);
+app.use('/', driveRoutes);
 ```
-> **WARNING:** This flat architecture is highly prone to **Route Collisions**. If `pdfRoutes.js` and `materialRoutes.js` both define a `router.post('/upload')`, Express will execute whichever router was imported and mounted first, completely ignoring the second one. Future architecture refactors should aim to namespace these routes (e.g., `app.use('/api/pdf', pdfRoutes)`).
+> **WARNING:** This flat architecture is highly prone to **Route Collisions**. If `driveRoutes.js` and `materialRoutes.js` both define a `router.post('/upload')`, Express will execute whichever router was imported and mounted first, completely ignoring the second one. Future architecture refactors should aim to namespace these routes (e.g., `app.use('/api/materials', materialRoutes)`).
 
 ## 3. The Pattern Layer
 To abstract third-party tools and complex logic, the backend uses:

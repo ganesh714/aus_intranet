@@ -1,6 +1,6 @@
 # Content Management API Contracts
 
-This document outlines the API contracts for announcements, secure materials, PDFs, and generic drive files managed by `announcementController.js`, `materialController.js`, `pdfController.js`, and `driveController.js`.
+This document outlines the API contracts for announcements, secure materials, and generic drive files managed by `announcementController.js`, `materialController.js`, and `driveController.js`.
 
 ## Announcements
 

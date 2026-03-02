@@ -27,7 +27,7 @@ Serves as an organizational unit or department linkage (e.g., "Computer Science 
 
 ## Content Management Entities
 
-### 3. `Pdf` & `Material` (`models/Pdf.js`, `models/Material.js`)
+### 3. `Material` (`models/Material.js`)
 Handles the metadata for uploaded documents in the Document Management System.
 * **Fields:** `title`, `description`, `category`, `uploadedBy` (ObjectId), `fileUrl` (Drive link or Local path).
 * **Pattern:** Often interacts with the `StorageAdapter` to handle the actual binary file upload, while storing only the reference string in MongoDB.

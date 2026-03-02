@@ -12,7 +12,6 @@ const authRoutes = require('./routes/authRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const userRoutes = require('./routes/userRoutes');
-const pdfRoutes = require('./routes/pdfRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const driveRoutes = require('./routes/driveRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
@@ -47,12 +46,6 @@ mongoose.connect(process.env.MONGODB_URI)
 // --- USER ROUTES ---
 app.use('/', userRoutes); // Mounted at root to preserve /get-users paths
 
-
-// --- PDF ROUTES ---
-app.use('/', pdfRoutes); // Mounted at root
-
-
-// edit-pdf and delete-pdf routes moved to pdfRoutes
 
 
 // --- DRIVE ROUTES ---
