@@ -116,7 +116,7 @@ const Sidebar = ({
                 )}
 
                 {/* [NEW] Time Table (Excluded for Deans) */}
-                {(['Student', 'Faculty', 'HOD', 'Officers'].includes(userRole)) && (
+                {(['Student', 'Faculty', 'HOD'].includes(userRole)) && (
                     <div className={`category-item ${activeCategory === 'Time Table' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('Time Table')}>
                             <span className="cat-name">
