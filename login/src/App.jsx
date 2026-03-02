@@ -96,9 +96,7 @@ const App = () => {
         <Route path='/student-page' element={<StudentDashboard />} />
       )}
 
-      {isLoggedIn && (
-        <Route path='/add-file' element={<Add />} />
-      )}
+      {/* Add.jsx route intentionally removed */}
 
       <Route path='/reset-password' element={<ResetPassword />} />
       <Route path='/developers' element={<Developers />} /> {/* [NEW] */}
