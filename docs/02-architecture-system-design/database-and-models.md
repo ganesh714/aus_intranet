@@ -120,6 +120,3 @@ To ensure performant queries as the intranet scales, the following indexes are a
 
 * **SubRole Collection:** Unique index on `code` (e.g., "CSE") to prevent duplicate department entries and allow fast string-based lookups.
 * **Material & Announcement Collections:** Index on `createdAt` (descending) to optimize the loading of the most recent dashboard feeds.
-
-```
-
