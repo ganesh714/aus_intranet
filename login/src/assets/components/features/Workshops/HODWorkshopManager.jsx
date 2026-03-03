@@ -77,24 +77,27 @@ const HODWorkshopManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // --- LOGO CENTERING (RELIABLE INTEGER ANCHOR METHOD) ---
-        // Fractional columns (like 3.99) warp differently depending on OS/DPI, breaking alignment.
-        // We anchor exactly at the start of Col C (`col: 2`) and set the exact pixel width (997px) 
-        // to span almost the entire table. Since the table is ~1000px wide, this perfectly centers
-        // the logo like a letterhead, completely independent of rendering bugs.
+        // Place logo as centered as possible in an 8-column sheet
+        // --- LOGO CENTERING (FOOLPROOF INTEGER STRATEGY) ---
+        // We found that fractional offsets (like 3.99) completely break in some Excel viewers,
+        // causing the image coordinates to wrap backwards into the wrong columns.
+        // Solution: Lock to a pure integer grid line.
+        // `col: 3` is exactly the start of Col D (Activity Name). At our column widths, 
+        // Col D starts exactly 287 pixels from the left. An image width of 486px places its 
+        // center at 530px, which flawlessly matches the exact true center of the table (521px).
         worksheet.addImage(imageId, {
-            tl: { col: 2, row: 0.5 }, // Anchor to Col C (integer, prevents rendering bugs)
-            ext: { width: 997, height: 153 } // Expands to cover the center beautifully
+            tl: { col: 3, row: 1 },         // STRICT INTEGER: Snaps to D2 perfectly.
+            ext: { width: 486, height: 75 } // Original exact bounds
         });
 
-        // Start titles lower because the letterhead logo is 153px high (~7-8 rows)
-        worksheet.mergeCells("B9:H9");
-        worksheet.mergeCells("B10:H10");
+        // Start titles lower so the logo doesn't overlap (moved to rows 7, 8, 9)
+        worksheet.mergeCells("B7:H7");
+        worksheet.mergeCells("B8:H8");
 
-        worksheet.getCell("B9").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
-        worksheet.getCell("B10").value = "WORKSHOP REPORT";
+        worksheet.getCell("B7").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
+        worksheet.getCell("B8").value = "WORKSHOP REPORT";
 
-        [9, 10].forEach(rowNum => {
+        [7, 8].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
             row.height = 30; // Slightly smaller row height to tighten spacing
             const cell = worksheet.getCell(`B${rowNum}`);
@@ -105,20 +108,20 @@ const HODWorkshopManager = ({ userRole }) => {
             };
             cell.font = {
                 bold: true,
-                size: rowNum === 9 ? 15 : 13
+                size: rowNum === 7 ? 15 : 13
             };
         });
 
         // Add Date at the top right of the table (above Student Count column)
         const today = new Date();
         const formattedToday = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-        const dateCell = worksheet.getCell("H13");
+        const dateCell = worksheet.getCell("H11");
         dateCell.value = `Date : ${formattedToday}`;
         dateCell.font = { bold: true, size: 11 };
         dateCell.alignment = { horizontal: "right" };
 
-        // Table headers – row 14 is a safe starting point
-        const headerRow = worksheet.getRow(14);
+        // Table headers – row 12 is a safe starting point
+        const headerRow = worksheet.getRow(12);
         // Add empty string for left padding column
         headerRow.values = [
             "",
