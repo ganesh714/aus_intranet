@@ -89,13 +89,13 @@ The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
    
    *The application should now be accessible at `http://localhost/` (or `http://intranet.adityauniversity.in` if you mapped your hosts file).*
 
-## Step 5: Verify the Setup
+## Step 6: Verify the Setup
 
 1. Open your browser and navigate to `http://localhost/`.
 2. You should see the landing page as the first screen.
 3. Ensure no CORS errors appear in the browser console when attempting to interact with the backend (like attempting a login).
 
-## Step 6: Custom Domain Testing (Optional)
+## Step 7: Custom Domain Testing (Optional)
 
 The `vite.config.js` file allows the host `intranet.adityauniversity.in`. If you need to test absolute URLs or specific cookies locally:
 
