@@ -17,7 +17,8 @@ If you are joining the team or returning after a break, start here:
 
 - **2. Architecture & System Design**
   - [MERN High-Level Design](./docs/02-architecture-system-design/high-level-design.md)
-  - [System Models & Mongoose Schemas](./docs/02-architecture-system-design/models-and-schemas.md)
+  - [Comprehensive Low-Level Design](./docs/02-architecture-system-design/low-level-design.md)
+  - [System Models & Mongoose Schemas](./docs/02-architecture-system-design/database-and-models.md)
   - [SOLID Principles Enforcement](./docs/02-architecture-system-design/solid-principles.md)
   - Patterns: [Strategy](./docs/02-architecture-system-design/patterns/strategy-pattern.md) | [Adapter](./docs/02-architecture-system-design/patterns/adapter-pattern.md) | [Factory](./docs/02-architecture-system-design/patterns/factory-pattern.md)
 
@@ -26,6 +27,7 @@ If you are joining the team or returning after a break, start here:
   - [Authentication & User Endpoints](./docs/03-api-contracts/auth-and-users.md)
   - [Content Management (Materials & Announcements)](./docs/03-api-contracts/content-management.md)
   - [Achievements & Event Workshops Endpoints](./docs/03-api-contracts/achievements-workshops.md)
+  - [Database Sync Scripts Documentation](./docs/03-api-contracts/database-scripts.md)
 
 - **4. Frontend UI (React + Vite)**
   > **Note on Folder Structure:** The `login/` directory contains the *complete* React frontend application (encompassing all role dashboards and views), not just the authentication portal.
