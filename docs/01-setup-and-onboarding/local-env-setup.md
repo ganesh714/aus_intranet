@@ -54,17 +54,17 @@ If you are starting with a fresh, empty MongoDB instance, you must seed the data
 
 ## Step 4: Database Synchronization (Alternative to Seeding)
 
-If you want to clone the Production database into your Testing database instead of starting fresh:
+If you want to clone the Production database into your Staging database instead of starting fresh:
 
 1. **Ensure environment variables are set** in `backend/.env`:
    * `MONGODB_PROD_URI`
-   * `MONGODB_TEST_URI`
+   * `MONGODB_STAG_URI`
 2. **Run the sync script:**
    ```bash
    # Make sure you are in the backend directory
    npm run sync-db
    ```
-   > **Note:** This will clear your Testing database and copy all collections from the Production database.
+   > **Note:** This will clear your Staging database and copy all collections from the Production database.
 
 ## Step 5: Frontend Setup (React + Vite)
 
