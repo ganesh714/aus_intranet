@@ -49,13 +49,13 @@ erDiagram
 
 The central entity for authentication and Role-Based Access Control (RBAC).
 
-* **Fields:** * `username` & `id` (unique string, not MongoDB ObjectId)
-* `password` (stored in plain text)
-* `role` (Strictly enum: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`)
-* `batch` (Required only if role is 'Student'. Represents the student's pass-out year.)
-* `canUploadTimetable` (Boolean)
-* `permissions` (Granular booleans: `approveStudentAchievements`, `approveFacultyAchievements`, `canManageWorkshops`)
-
+* **Fields:** 
+  * `username` & `id` (unique string, not MongoDB ObjectId)
+  * `password` (stored in plain text)
+  * `role` (Strictly enum: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`)
+  * `batch` (Required only if role is 'Student'. Represents the student's pass-out year.)
+  * `canUploadTimetable` (Boolean)
+  * `permissions` (Granular booleans: `approveStudentAchievements`, `approveFacultyAchievements`, `canManageWorkshops`)
 
 * **Relations:** One-to-one with `SubRole` (optional), and an array of `pinnedTimetables` referencing the `Timetable` model.
 * **Pattern:** Validates explicitly against defined Enum roles.
@@ -64,11 +64,11 @@ The central entity for authentication and Role-Based Access Control (RBAC).
 
 Serves as an organizational unit or department linkage (e.g., "Computer Science and Engineering" or "Registrar") applied to users.
 
-* **Fields:** * `name` (String, e.g. "Computer Science and Engineering")
-* `code` (Unique uppercase string, e.g. "CSE", "REG")
-* `displayName` (String, e.g. "CSE", to display in UI)
-* `allowedRoles` (Array of enums: `Student`, `Faculty`, `HOD`, `Asso.Dean`, `Dean`, `Officers`)
-
+* **Fields:** 
+  * `name` (String, e.g. "Computer Science and Engineering")
+  * `code` (Unique uppercase string, e.g. "CSE", "REG")
+  * `displayName` (String, e.g. "CSE", to display in UI)
+  * `allowedRoles` (Array of enums: `Student`, `Faculty`, `HOD`, `Asso.Dean`, `Dean`, `Officers`)
 
 * **Relations:** The `User` model references `SubRole` via `ObjectId`.
 
@@ -114,9 +114,9 @@ Tracks accolades for students or faculty to display on the dashboard or public f
 
 To ensure performant queries as the intranet scales, the following indexes are applied at the MongoDB level:
 
-* **User Collection:** * Unique index on `id` and `username` for fast authentication and login lookups.
-* Index on `role` and `SubRole` to quickly fetch all users within a specific department or permission level.
-
+* **User Collection:** 
+  * Unique index on `id` and `username` for fast authentication and login lookups.
+  * Index on `role` and `SubRole` to quickly fetch all users within a specific department or permission level.
 
 * **SubRole Collection:** Unique index on `code` (e.g., "CSE") to prevent duplicate department entries and allow fast string-based lookups.
 * **Material & Announcement Collections:** Index on `createdAt` (descending) to optimize the loading of the most recent dashboard feeds.
