@@ -11,7 +11,9 @@ These variables are required for the Express.js server to operate correctly.
 | Variable Name   | Description                                                                 | Example Value                                  |
 | :-------------- | :-------------------------------------------------------------------------- | :--------------------------------------------- |
 | `PORT`          | The port the backend server listens on. Defaults to 5001.                   | `5001`                                         |
-| `MONGO_URI`     | The connection string for your MongoDB database cluster or local instance.  | `mongodb://localhost:27017/aus_intranet_local` |
+| `MONGO_URI`     | The connection string for your MongoDB database cluster or local instance.  | `mongodb+srv://...` |
+| `MONGODB_PROD_URI` | The connection string for the Production MongoDB database. Required for `npm run sync-db`. | `mongodb+srv://...` |
+| `MONGODB_TEST_URI` | The connection string for the Testing MongoDB database. Required for `npm run sync-db`.    | `mongodb+srv://...` |
 | `JWT_SECRET`    | The secret key used to sign and verify JSON Web Tokens for authentication.  | `your_super_secret_jwt_key_here`               |
 | `STORAGE_MODE`  | Determines the file storage adapter. Set to `local` to bypass Google Drive during local development. | `local` |
 | `GOOGLE_DRIVE_*`| Credentials for the Google Drive API (Only needed if `STORAGE_MODE=gdrive`).| N/A (Consult team lead)                        |
