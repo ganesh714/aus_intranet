@@ -101,12 +101,12 @@ const HODWorkshopManager = ({ userRole }) => {
         });
 
         // Center the logo using native EMU offsets (Excel's internal coordinate system).
-        // Total sheet width ≈ 1078px (7 cols). Image = 486x75px.
-        // Center start = (1078 - 486) / 2 ≈ 296px → Column C (index 2) + 104px offset.
-        // EMU conversion: 104px × 9525 = 990600 EMU, 5px top margin = 47625 EMU
+        // Total sheet width ≈ 1209px (8 cols). Image = 486x75px.
+        // Center start = (1209 - 486) / 2 ≈ 362px → Column C (index 2) + 170px offset.
+        // EMU conversion: 170px × 9525 = 1619250 EMU, 5px top margin = 47625 EMU
         // Image spans 4 rows (rows 1-4)
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 2, nativeColOff: 990600, nativeRow: 0, nativeRowOff: 47625 },
+            tl: { nativeCol: 2, nativeColOff: 1619250, nativeRow: 0, nativeRowOff: 47625 },
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
