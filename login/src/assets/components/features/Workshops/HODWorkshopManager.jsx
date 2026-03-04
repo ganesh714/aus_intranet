@@ -296,9 +296,13 @@ const HODWorkshopManager = ({ userRole }) => {
                                 onChange={(e) => setYearFilter(e.target.value)}
                             >
                                 <option value="All">All Years</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                                <option value="2022-2023">2022-2023</option>
+                                {[...new Set(allWorkshops.map(w => w.academicYear))]
+                                    .filter(Boolean)
+                                    .sort((a, b) => b.localeCompare(a)) // Sort descending (e.g. 2024-2025 comes before 2023-2024)
+                                    .map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                     </div>
