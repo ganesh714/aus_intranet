@@ -63,13 +63,10 @@ const HODWorkshopManager = ({ userRole }) => {
             { key: "academicYear", width: 18 },
             { key: "activityName", width: 45 },
             { key: "fromDate", width: 15 },
-            { key: "deptName", width: 20 },
             { key: "toDate", width: 15 },
             { key: "resourcePerson", width: 30 },
             { key: "students", width: 18 }
         ];
-
-        const userDept = sessionStorage.getItem('usersubRole') || 'CSE';
 
         // Load logo
         const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
@@ -79,14 +76,12 @@ const HODWorkshopManager = ({ userRole }) => {
         });
 
         // Center the logo using native EMU offsets (Excel's internal coordinate system).
-        // This bypasses the unreliable fractional-column positioning.
-        //
-        // Total sheet width ≈ 1243px (8 cols). Image = 486x75px.
-        // Center start = (1243 - 486) / 2 ≈ 378px → Column C (index 2) + 186px offset.
-        // EMU conversion: 186px × 9525 = 1771650 EMU, 5px top margin = 47625 EMU
+        // Total sheet width ≈ 1078px (7 cols). Image = 486x75px.
+        // Center start = (1078 - 486) / 2 ≈ 296px → Column C (index 2) + 104px offset.
+        // EMU conversion: 104px × 9525 = 990600 EMU, 5px top margin = 47625 EMU
         // Image spans 4 rows (rows 1-4)
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 2, nativeColOff: 1771650, nativeRow: 0, nativeRowOff: 47625 },
+            tl: { nativeCol: 2, nativeColOff: 990600, nativeRow: 0, nativeRowOff: 47625 },
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
@@ -97,9 +92,9 @@ const HODWorkshopManager = ({ userRole }) => {
         }
 
         // Title rows start after the image (rows 5-7)
-        worksheet.mergeCells("A5:H5");
-        worksheet.mergeCells("A6:H6");
-        worksheet.mergeCells("A7:H7");
+        worksheet.mergeCells("A5:G5");
+        worksheet.mergeCells("A6:G6");
+        worksheet.mergeCells("A7:G7");
 
         worksheet.getCell("A5").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
         worksheet.getCell("A6").value = "WORKSHOP REPORT";
@@ -131,7 +126,6 @@ const HODWorkshopManager = ({ userRole }) => {
             "Academic Year",
             "Activity Name",
             "From Date",
-            "Dept Name",
             "To Date",
             "Resource Person",
             "No. of Students"
@@ -160,7 +154,6 @@ const HODWorkshopManager = ({ userRole }) => {
                 academicYear: w.academicYear,
                 activityName: w.activityName,
                 fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
-                deptName: userDept,
                 toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
                 resourcePerson: w.resourcePerson || w.coordinators || "",
                 students: w.studentCount
