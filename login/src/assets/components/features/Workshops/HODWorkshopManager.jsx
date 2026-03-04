@@ -13,6 +13,17 @@ const HODWorkshopManager = ({ userRole }) => {
     const [allWorkshops, setAllWorkshops] = useState([]);
     const [permissions, setPermissions] = useState({});
 
+    // Helper to format date as DD/MM/YYYY
+    const formatDate = (date) => {
+        if (!date) return "";
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return "";
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     // Filters
     const [facultyFilter, setFacultyFilter] = useState('All');
     const [yearFilter, setYearFilter] = useState('All');
@@ -97,6 +108,7 @@ const HODWorkshopManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
         worksheet.getCell("A6").value = "WORKSHOP REPORT";
+        worksheet.getCell("G7").value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
@@ -113,18 +125,12 @@ const HODWorkshopManager = ({ userRole }) => {
             };
         });
 
-        // Add empty rows to separate title from table
-        worksheet.addRow([]);
-        worksheet.addRow([]);
+        // Alignment for Date in G7
+        worksheet.getCell("G7").alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getCell("G7").font = { bold: true, size: 10 };
 
-        // Date label above the last column (row 10, column G)
-        const dateCell = worksheet.getCell("G10");
-        dateCell.value = "Date: " + new Date().toLocaleDateString();
-        dateCell.font = { bold: true, size: 11 };
-        dateCell.alignment = { horizontal: "right", vertical: "middle" };
-
-        // Table headers – row 11 is a safe starting point
-        const headerRow = worksheet.getRow(11);
+        // Table headers – starting at row 8
+        const headerRow = worksheet.getRow(8);
         headerRow.values = [
             "S.No",
             "Academic Year",
@@ -157,8 +163,8 @@ const HODWorkshopManager = ({ userRole }) => {
                 sno: index + 1,
                 academicYear: w.academicYear,
                 activityName: w.activityName,
-                fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
-                toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
+                fromDate: formatDate(w.startDate),
+                toDate: formatDate(w.endDate),
                 resourcePerson: w.resourcePerson || w.coordinators || "",
                 students: w.studentCount
             });
@@ -307,7 +313,7 @@ const HODWorkshopManager = ({ userRole }) => {
                                             <td>{w.academicYear}</td>
                                             <td style={{ color: '#64748b' }}>{w.userId}</td>
                                             <td><strong>{w.activityName}</strong></td>
-                                            <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
+                                            <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.resourcePerson || w.coordinators}</td>
                                             <td>{w.studentCount}</td>
                                         </tr>
