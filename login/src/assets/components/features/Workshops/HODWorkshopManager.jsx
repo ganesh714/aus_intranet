@@ -89,7 +89,8 @@ const HODWorkshopManager = ({ userRole }) => {
             { key: "fromDate", width: 15 },
             { key: "toDate", width: 15 },
             { key: "resourcePerson", width: 30 },
-            { key: "students", width: 18 }
+            { key: "students", width: 18 },
+            { key: "contactHours", width: 18 }
         ];
 
         // Load logo
@@ -116,8 +117,8 @@ const HODWorkshopManager = ({ userRole }) => {
         }
 
         // Title rows start after the image (rows 5-6)
-        worksheet.mergeCells("A5:G5");
-        worksheet.mergeCells("A6:G6");
+        worksheet.mergeCells("A5:H5");
+        worksheet.mergeCells("A6:H6");
 
         const userRoleCode = sessionStorage.getItem('usersubRole') || 'IT';
 
@@ -130,7 +131,7 @@ const HODWorkshopManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
         worksheet.getCell("A6").value = "WORKSHOP REPORT";
-        worksheet.getCell("G7").value = "Date: " + formatDate(new Date());
+        worksheet.getCell("H7").value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
@@ -147,9 +148,9 @@ const HODWorkshopManager = ({ userRole }) => {
             };
         });
 
-        // Alignment for Date in G7
-        worksheet.getCell("G7").alignment = { horizontal: "center", vertical: "middle" };
-        worksheet.getCell("G7").font = { bold: true, size: 10 };
+        // Alignment for Date in H7
+        worksheet.getCell("H7").alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getCell("H7").font = { bold: true, size: 10 };
 
         // Table headers – starting at row 8
         const headerRow = worksheet.getRow(8);
@@ -160,7 +161,8 @@ const HODWorkshopManager = ({ userRole }) => {
             "From Date",
             "To Date",
             "Resource Person",
-            "No. of Students"
+            "No. of Students",
+            "Contact Hours"
         ];
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
@@ -188,7 +190,8 @@ const HODWorkshopManager = ({ userRole }) => {
                 fromDate: formatDate(w.startDate),
                 toDate: formatDate(w.endDate),
                 resourcePerson: w.resourcePerson || w.coordinators || "",
-                students: w.studentCount
+                students: w.studentCount,
+                contactHours: w.contactHours || ""
             });
 
             dataRow.eachCell((cell) => {
@@ -324,11 +327,12 @@ const HODWorkshopManager = ({ userRole }) => {
                                     <th>Date(s)</th>
                                     <th>Resource Person</th>
                                     <th>Students</th>
+                                    <th>Contact Hours</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {displayedWorkshops.length === 0 ? (
-                                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No workshops found.</td></tr>
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No workshops found.</td></tr>
                                 ) : (
                                     displayedWorkshops.map((w, idx) => (
                                         <tr key={idx}>
@@ -338,6 +342,7 @@ const HODWorkshopManager = ({ userRole }) => {
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.resourcePerson || w.coordinators}</td>
                                             <td>{w.studentCount}</td>
+                                            <td>{w.contactHours || '-'}</td>
                                         </tr>
                                     ))
                                 )}

@@ -17,7 +17,8 @@ const WorkshopManager = ({ userId }) => {
         endDate: '',
         resourcePerson: '',
         professionalBody: '',
-        studentCount: ''
+        studentCount: '',
+        contactHours: ''
     };
 
     const [formData, setFormData] = useState(initialForm);
@@ -72,7 +73,8 @@ const WorkshopManager = ({ userId }) => {
             endDate: item.endDate ? item.endDate.split('T')[0] : '',
             resourcePerson: item.resourcePerson || item.coordinators,
             professionalBody: item.professionalBody,
-            studentCount: item.studentCount
+            studentCount: item.studentCount,
+            contactHours: item.contactHours || ''
         });
         setEditId(item._id); // Use _id from MongoDB
         setIsEditing(true);
@@ -207,6 +209,19 @@ const WorkshopManager = ({ userId }) => {
                                 required
                             />
                         </div>
+
+                        <div className="std-form-group">
+                            <label className="std-label">No. of Contact Hours</label>
+                            <input
+                                type="number"
+                                name="contactHours"
+                                className="std-input"
+                                value={formData.contactHours}
+                                onChange={handleInputChange}
+                                placeholder="e.g. 5"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -231,13 +246,14 @@ const WorkshopManager = ({ userId }) => {
                             <th>Resource Person</th>
                             <th>Professional Body</th>
                             <th>Students</th>
+                            <th>Contact Hours</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {workshops.length === 0 ? (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                                <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
                                     No workshops added yet. Click "Add Workshop" to get started.
                                 </td>
                             </tr>
@@ -250,6 +266,7 @@ const WorkshopManager = ({ userId }) => {
                                     <td>{w.resourcePerson || w.coordinators}</td>
                                     <td>{w.professionalBody || '-'}</td>
                                     <td>{w.studentCount}</td>
+                                    <td>{w.contactHours || '-'}</td>
                                     <td style={{ display: 'flex', gap: '10px' }}>
                                         <button className="std-btn-sm std-btn-secondary" onClick={() => handleEdit(w)}>
                                             <FaEdit />
