@@ -97,7 +97,7 @@ System-wide or targeted broadcasts.
 
 Specifically structured entities for managing scheduling.
 
-* **Workshop Fields:** `title`, `date`, `speaker`, `venue`, `registrationLink`.
+* **Workshop Fields:** `userId`, `userRole`, `userName`, `dept` (ObjectId → SubRole), `academicYear`, `activityName`, `startDate`, `endDate`, `resourcePerson`, `professionalBody`, `studentCount`, `contactHours`.
 * **Timetable Fields:** `department`, `year`, `semester`, `scheduleData`.
 
 ## Tracking Entities

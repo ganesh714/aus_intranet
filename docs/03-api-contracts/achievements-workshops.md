@@ -50,27 +50,70 @@ Fetch a paginated list of achievements for the global feed.
 
 ## Workshops and Events
 
-### `POST /api/workshops`
-Schedule a new workshop or departmental event.
-**Headers:** `Authorization: Bearer <token>`, `Content-Type: application/json`
-**Required Roles:** Faculty, HOD, Dean, Admin
+### `POST /add-workshop`
+Add a new workshop record for a faculty member.
+**Headers:** `Content-Type: application/json`
 **Body:**
 ```json
 {
-  "title": "React Advanced Masterclass",
-  "date": "2026-04-10T10:00:00.000Z",
-  "speaker": "Siva Ganesh",
-  "venue": "Lab 3",
-  "registrationLink": "https://forms.gle/..."
+  "userId": "FAC001",
+  "academicYear": "2024-2025",
+  "activityName": "AI Workflow Workshop",
+  "startDate": "2026-03-01",
+  "endDate": "2026-03-02",
+  "resourcePerson": "Dr. Smith",
+  "professionalBody": "IEEE",
+  "studentCount": 150,
+  "contactHours": 5
 }
 ```
 **Success Response (201 Created):**
 ```json
 {
-  "message": "Workshop scheduled successfully",
-  "workshop": {
-    "id": "66abcd...",
-    "title": "React Advanced Masterclass"
-  }
+  "message": "Workshop added successfully",
+  "workshop": { "_id": "66abcd...", "activityName": "AI Workflow Workshop", "..." : "..." }
 }
 ```
+
+### `GET /get-workshops`
+Fetch workshops with optional filters.
+**Query Parameters:** `?userId=FAC001&dept=CSE&academicYear=2024-2025`
+**Success Response (200 OK):**
+```json
+{
+  "workshops": [
+    {
+      "_id": "66abcd...",
+      "academicYear": "2024-2025",
+      "activityName": "AI Workflow Workshop",
+      "startDate": "2026-03-01T00:00:00.000Z",
+      "endDate": "2026-03-02T00:00:00.000Z",
+      "resourcePerson": "Dr. Smith",
+      "professionalBody": "IEEE",
+      "studentCount": 150,
+      "contactHours": 5
+    }
+  ]
+}
+```
+
+### `PUT /update-workshop/:id`
+Update an existing workshop by its MongoDB `_id`.
+**Body:** Any subset of workshop fields.
+**Success Response (200 OK):**
+```json
+{
+  "message": "Workshop updated",
+  "workshop": { "..." : "..." }
+}
+```
+
+### `DELETE /delete-workshop/:id`
+Delete a workshop by its MongoDB `_id`.
+**Success Response (200 OK):**
+```json
+{
+  "message": "Workshop deleted"
+}
+```
+

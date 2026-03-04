@@ -14,9 +14,9 @@ Components for reading, creating, editing, and deleting (CRUD) broadcast message
 
 
 ### 4. `Workshops`
-Handles events, scheduling, and Timetables.
-* `WorkshopList`: A calendar or list view of upcoming tech events.
-* `HODWorkshopManager`: Specifically for HODs to approve or schedule new departmental events.
+Handles workshop event records and department-level reporting.
+* `WorkshopManager`: Faculty-facing CRUD form for adding, editing, and deleting workshop records. Includes fields for academic year, activity name, dates, resource person, professional body, student count, and contact hours.
+* `HODWorkshopManager`: HOD view with Overview (filterable table of all department workshops + Excel report generation) and Access Control (grant/revoke `canManageWorkshops` permission to faculty).
 
 ## State Management Approach
 

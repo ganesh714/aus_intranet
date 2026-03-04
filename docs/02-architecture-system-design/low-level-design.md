@@ -76,6 +76,7 @@ backend/
 │   ├── DriveService.js
 │   ├── MaterialService.js
 │   ├── TimetableService.js
+│   ├── WorkshopService.js
 │   ├── EmailService.js
 │   └── storageService.js
 │
@@ -291,12 +292,16 @@ Faculty workshop/event records tied to a department.
 | Field | Type | Required | Notes |
 |:---|:---|:---|:---|
 | `userId` | `String` | ✅ | Faculty login ID |
+| `userRole` | `String` | — | Defaults to `'Faculty'` |
+| `userName` | `String` | — | Display name from User |
 | `dept` | `ObjectId → SubRole` | ✅ | Department |
 | `academicYear` | `String` | ✅ | |
 | `activityName` | `String` | ✅ | |
 | `startDate` / `endDate` | `Date` | ✅ | |
 | `resourcePerson` | `String` | ✅ | |
+| `professionalBody` | `String` | — | e.g. IEEE, CSI |
 | `studentCount` | `Number` | ✅ | |
+| `contactHours` | `Number` | ✅ | No. of contact hours |
 
 ---
 
@@ -441,6 +446,18 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 | Method | Purpose |
 |:---|:---|
 | `addTimetable(user, file, subRole, batch, targetYear, targetSection)` | Upload or replace a timetable. Uses a safe strategy: upload new file first, then delete old. Uniqueness is enforced by `SubRole + Year + Section`. |
+
+---
+
+### 7.8 `WorkshopService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `resolveDeptId(dept)` | Resolves a department string (code/displayName/name) to its ObjectId. Returns the ID directly if already valid. |
+| `addWorkshop(userId, data)` | Looks up the User by login ID, attaches `userName`, `dept`, and `userRole` context, then creates and saves the Workshop. |
+| `getWorkshops({ userId, dept, academicYear })` | Builds a dynamic filter. Resolves `dept` via `resolveDeptId()`. Returns sorted workshops. |
+| `deleteWorkshop(id)` | Deletes a workshop by its MongoDB `_id`. |
+| `updateWorkshop(id, data)` | Updates a workshop by its MongoDB `_id`. |
 
 ---
 
