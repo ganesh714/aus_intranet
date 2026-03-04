@@ -26,7 +26,6 @@ const HODWorkshopManager = ({ userRole }) => {
     };
 
     // Filters
-    const [facultyFilter, setFacultyFilter] = useState('All');
     const [yearFilter, setYearFilter] = useState('All');
 
     // Mock Faculty List (Should ideally be fetched)
@@ -257,10 +256,6 @@ const HODWorkshopManager = ({ userRole }) => {
 
     // --- FILTERING ---
     const displayedWorkshops = allWorkshops.filter(w => {
-        if (facultyFilter !== 'All') {
-            const fac = deptFaculty.find(f => f.username === facultyFilter);
-            if (!fac || w.userId !== fac.id) return false;
-        }
         if (yearFilter !== 'All' && w.academicYear !== yearFilter) return false;
         return true;
     });
@@ -296,23 +291,18 @@ const HODWorkshopManager = ({ userRole }) => {
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <select
                                 className="std-select"
-                                style={{ width: '180px' }}
-                                value={facultyFilter}
-                                onChange={(e) => setFacultyFilter(e.target.value)}
-                            >
-                                <option value="All">All Faculty</option>
-                                {deptFaculty.map(f => <option key={f.id} value={f.username}>{f.username}</option>)}
-                            </select>
-                            <select
-                                className="std-select"
                                 style={{ width: '150px' }}
                                 value={yearFilter}
                                 onChange={(e) => setYearFilter(e.target.value)}
                             >
                                 <option value="All">All Years</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                                <option value="2022-2023">2022-2023</option>
+                                {[...new Set(allWorkshops.map(w => w.academicYear))]
+                                    .filter(Boolean)
+                                    .sort((a, b) => b.localeCompare(a)) // Sort descending (e.g. 2024-2025 comes before 2023-2024)
+                                    .map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                     </div>
