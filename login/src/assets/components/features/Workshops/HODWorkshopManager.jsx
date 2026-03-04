@@ -91,16 +91,14 @@ const HODWorkshopManager = ({ userRole }) => {
             worksheet.getRow(r).height = 20;
         }
 
-        // Title rows start after the image (rows 5-7)
+        // Title rows start after the image (rows 5-6)
         worksheet.mergeCells("A5:G5");
         worksheet.mergeCells("A6:G6");
-        worksheet.mergeCells("A7:G7");
 
         worksheet.getCell("A5").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
         worksheet.getCell("A6").value = "WORKSHOP REPORT";
-        worksheet.getCell("A7").value = "Generated on: " + new Date().toLocaleDateString();
 
-        [5, 6, 7].forEach(rowNum => {
+        [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
             row.height = 32;
             const cell = worksheet.getCell(`A${rowNum}`);
@@ -118,6 +116,12 @@ const HODWorkshopManager = ({ userRole }) => {
         // Add empty rows to separate title from table
         worksheet.addRow([]);
         worksheet.addRow([]);
+
+        // Date label above the last column (row 10, column G)
+        const dateCell = worksheet.getCell("G10");
+        dateCell.value = "Date: " + new Date().toLocaleDateString();
+        dateCell.font = { bold: true, size: 11 };
+        dateCell.alignment = { horizontal: "right", vertical: "middle" };
 
         // Table headers – row 11 is a safe starting point
         const headerRow = worksheet.getRow(11);
