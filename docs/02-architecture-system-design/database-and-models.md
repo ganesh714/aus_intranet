@@ -1,122 +1,219 @@
-# Database and Models Architecture
+# Database Architecture & Mongoose Schemas
 
-This document outlines the core Mongoose schemas and the underlying MongoDB database architecture for the Aditya University Intranet. It serves as the single source of truth for entity relationships, data structures, and database optimization strategies.
+> **For beginners:** This document describes how data is structured in the MongoDB database. Think of each section below as a "table" (called a _collection_ in MongoDB) with its columns (called _fields_).
 
-## Entity-Relationship Diagram
+---
 
-The following diagram illustrates the high-level relationships between our primary MongoDB collections:
+## How the Database Fits in the System
 
 ```mermaid
-erDiagram
-    USER ||--o| SUBROLE : "belongs to (optional)"
-    USER ||--o{ TIMETABLE : "pins"
-    USER ||--o{ MATERIAL : "uploads"
-    USER ||--o{ ANNOUNCEMENT : "authors"
-    USER ||--o{ ACHIEVEMENT : "receives"
-
-    USER {
-        string id PK
-        string username
-        string role
-        string batch
-    }
-    
-    SUBROLE {
-        ObjectId _id PK
-        string code
-        string name
-    }
-    
-    MATERIAL {
-        ObjectId _id PK
-        string title
-        ObjectId uploadedBy FK
-    }
-    
-    ANNOUNCEMENT {
-        ObjectId _id PK
-        string title
-        ObjectId author FK
-    }
-
+flowchart LR
+    React["React Frontend"] -->|"HTTP (JSON/FormData)"| Express["Express Backend"]
+    Express -->|"Mongoose ODM"| MongoDB[("MongoDB Database")]
+    MongoDB --- Collections["9 Collections:\nusers, subroles, files\ndriveItems, materials\nannouncements, timetables\nachievements, workshops"]
 ```
 
 ---
 
-## Core Entities & Mongoose Schemas
+## Entity-Relationship Overview
 
-### 1. `User` (`models/User.js`)
+```mermaid
+erDiagram
+    User ||--o| SubRole : "belongs to (dept)"
+    User ||--o{ DriveItem : "owns"
+    User ||--o{ File : "uploads"
+    User ||--o{ Announcement : "creates"
+    User ||--o{ Material : "uploads"
+    User ||--o{ Achievement : "submits"
+    User ||--o{ Workshop : "records"
+    User }o--o{ Timetable : "pins (max 3)"
 
-The central entity for authentication and Role-Based Access Control (RBAC).
+    SubRole ||--o{ User : "has members"
+    SubRole ||--o{ Timetable : "scoped to"
+    SubRole ||--o{ Achievement : "dept context"
+    SubRole ||--o{ Workshop : "dept context"
 
-* **Fields:** 
-  * `username` & `id` (unique string, not MongoDB ObjectId)
-  * `password` (stored in plain text)
-  * `role` (Strictly enum: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`)
-  * `batch` (Required only if role is 'Student'. Represents the student's pass-out year.)
-  * `canUploadTimetable` (Boolean)
-  * `permissions` (Granular booleans: `approveStudentAchievements`, `approveFacultyAchievements`, `canManageWorkshops`)
+    File ||--o| DriveItem : "referenced by"
+    File ||--o| Timetable : "attached to"
+    File ||--o| Material : "attached to"
+    File ||--o| Announcement : "attached to"
+    File ||--o| Achievement : "proof file"
 
-* **Relations:** One-to-one with `SubRole` (optional), and an array of `pinnedTimetables` referencing the `Timetable` model.
-* **Pattern:** Validates explicitly against defined Enum roles.
-
-### 2. `SubRole` (`models/SubRole.js`)
-
-Serves as an organizational unit or department linkage (e.g., "Computer Science and Engineering" or "Registrar") applied to users.
-
-* **Fields:** 
-  * `name` (String, e.g. "Computer Science and Engineering")
-  * `code` (Unique uppercase string, e.g. "CSE", "REG")
-  * `displayName` (String, e.g. "CSE", to display in UI)
-  * `allowedRoles` (Array of enums: `Student`, `Faculty`, `HOD`, `Asso.Dean`, `Dean`, `Officers`)
-
-* **Relations:** The `User` model references `SubRole` via `ObjectId`.
-
-## Content Management Entities
-
-### 3. `Material` (`models/Material.js`)
-
-Handles the metadata for uploaded documents in the Document Management System.
-
-* **Fields:** `title`, `description`, `category`, `uploadedBy` (ObjectId), `fileUrl` (Drive link or Local path).
-* **Pattern:** Often interacts with the `StorageAdapter` to handle the actual binary file upload, while storing only the reference string in MongoDB.
-
-### 4. `DriveItem` (`models/DriveItem.js`)
-
-A more abstracted representation for managing hierarchical folders and files within the application's internal "Drive" view.
-
-## Announcements & Events Entities
-
-### 5. `Announcement` (`models/Announcement.js`)
-
-System-wide or targeted broadcasts.
-
-* **Fields:** `title`, `content`, `targetRoles` (e.g., `["Student", "Faculty"]`), `targetDepartments`, `author` (ObjectId).
-
-### 6. `Workshop` & `Timetable` (`models/Workshop.js`, `models/Timetable.js`)
-
-Specifically structured entities for managing scheduling.
-
-* **Workshop Fields:** `userId`, `userRole`, `userName`, `dept` (ObjectId → SubRole), `academicYear`, `activityName`, `startDate`, `endDate`, `resourcePerson`, `professionalBody`, `studentCount`, `contactHours`.
-* **Timetable Fields:** `department`, `year`, `semester`, `scheduleData`.
-
-## Tracking Entities
-
-### 7. `Achievement` (`models/Achievement.js`)
-
-Tracks accolades for students or faculty to display on the dashboard or public feeds.
-
-* **Fields:** `title`, `description`, `dateAwarded`, `recipient` (ObjectId).
+    DriveItem ||--o{ DriveItem : "parent → children"
+    Announcement }o--o{ SubRole : "targets (via audience)"
+    Material }o--o{ SubRole : "targets (via audience)"
+```
 
 ---
 
-## Database Indexing & Optimization Strategy
+## Collection Details
 
-To ensure performant queries as the intranet scales, the following indexes are applied at the MongoDB level:
+---
 
-* **User Collection:** 
-  * Unique index on `id` and `username` for fast authentication and login lookups.
-  * Index on `role` and `SubRole` to quickly fetch all users within a specific department or permission level.
+### 1. `users` — `models/User.js`
 
-* **SubRole Collection:** Unique index on `code` (e.g., "CSE") to prevent duplicate department entries and allow fast string-based lookups.
-* **Material & Announcement Collections:** Index on `createdAt` (descending) to optimize the loading of the most recent dashboard feeds.
+The central identity model. Every authenticated action traces back to a User.
+
+| Field                                    | Type                     | Required      | Notes                                                                                                 |
+| ---------------------------------------- | ------------------------ | ------------- | ----------------------------------------------------------------------------------------------------- |
+| `username`                               | String                   | ✅            | Display name (e.g. `"Veeranna Reddy"`)                                                                |
+| `id`                                     | String (unique)          | ✅            | Login ID — roll number for students, employee ID for staff. **Case-insensitive lookup.**              |
+| `password`                               | String                   | ✅            | ⚠️ Currently plain text. See [Known Issues KI-001](../06-troubleshooting-and-lessons/known-issues.md) |
+| `role`                                   | String (enum)            | ✅            | One of: `Student`, `Officers`, `Dean`, `Asso.Dean`, `HOD`, `Faculty`, `Admin`                         |
+| `subRole`                                | ObjectId → `SubRole`     | Conditional   | Department reference. Required for all roles except `Admin`. `null` for Admin.                        |
+| `batch`                                  | String                   | Students only | Academic batch e.g. `"2022-2026"`                                                                     |
+| `canUploadTimetable`                     | Boolean                  | —             | Faculty-only permission flag. Default `false`.                                                        |
+| `permissions.approveStudentAchievements` | Boolean                  | —             | Can approve student achievement submissions                                                           |
+| `permissions.approveFacultyAchievements` | Boolean                  | —             | Can approve faculty achievement submissions                                                           |
+| `permissions.canManageWorkshops`         | Boolean                  | —             | Can add/edit workshop records                                                                         |
+| `pinnedTimetables`                       | [ObjectId → `Timetable`] | —             | Up to 3 pinned timetable shortcuts                                                                    |
+
+---
+
+### 2. `subroles` — `models/SubRole.js`
+
+Departments and organizational units. The bridge for all department-scoped operations.
+
+| Field          | Type                       | Required | Notes                                                      |
+| -------------- | -------------------------- | -------- | ---------------------------------------------------------- |
+| `name`         | String                     | ✅       | Full department name: `"Computer Science and Engineering"` |
+| `code`         | String (unique, uppercase) | ✅       | Short lookup key: `"CSE"`, `"AIML"`, `"REG"`               |
+| `displayName`  | String                     | ✅       | UI-friendly label: `"CSE"`                                 |
+| `allowedRoles` | [String]                   | —        | Which roles can be registered in this dept                 |
+
+---
+
+### 3. `files` — `models/File.js`
+
+> [!IMPORTANT]
+> This is the **most important model to understand.** Every uploaded file across every feature (timetable, material, announcement, achievement, drive) creates one `File` document. It is the single source of truth for physical file storage. See [ADR-0003](../05-decisions-and-adrs/0003-unified-file-model.md) for the design rationale.
+
+| Field                  | Type              | Required | Notes                                                                                                                                                          |
+| ---------------------- | ----------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fileName`             | String            | ✅       | Original filename e.g. `"schedule.pdf"`                                                                                                                        |
+| `filePath`             | String (unique)   | ✅       | Storage pointer — a Google Drive File ID (`"1abc..."`) when using cloud, or the timestamped filename (`"1709123456789_schedule.pdf"`) when using local storage |
+| `fileType`             | String            | —        | MIME type e.g. `"application/pdf"`, `"image/jpeg"`                                                                                                             |
+| `fileSize`             | Number            | —        | Size in bytes                                                                                                                                                  |
+| `uploadedBy`           | ObjectId → `User` | ✅       | Who uploaded it                                                                                                                                                |
+| `usage.isPersonal`     | Boolean           | —        | `true` = linked to a DriveItem (personal drive file)                                                                                                           |
+| `usage.isAnnouncement` | Boolean           | —        | `true` = linked to an Announcement attachment                                                                                                                  |
+| `usage.isAchievement`  | Boolean           | —        | `true` = linked to an Achievement proof                                                                                                                        |
+| `usage.isDeptDocument` | Boolean           | —        | `true` = linked to a Material or Timetable                                                                                                                     |
+| `uploadedAt`           | Date              | —        | Auto-set on creation                                                                                                                                           |
+
+---
+
+### 4. `driveitems` — `models/DriveItem.js`
+
+The virtual folder/file tree for each user's "My Data" space.
+
+| Field       | Type                   | Required | Notes                                                              |
+| ----------- | ---------------------- | -------- | ------------------------------------------------------------------ |
+| `name`      | String                 | ✅       | Display name (shown in UI)                                         |
+| `type`      | String (enum)          | ✅       | `"folder"` or `"file"`                                             |
+| `parent`    | ObjectId → `DriveItem` | —        | Parent folder's ID. `null` = root level item.                      |
+| `owner`     | ObjectId → `User`      | ✅       | The user this item belongs to                                      |
+| `fileId`    | ObjectId → `File`      | —        | Only set when `type = "file"`. Points to the physical file record. |
+| `createdAt` | Date                   | —        | Auto-set                                                           |
+| `updatedAt` | Date                   | —        | Auto-updated via `pre('save')` hook                                |
+
+---
+
+### 5. `announcements` — `models/Announcement.js`
+
+System-wide or targeted broadcast messages.
+
+| Field            | Type              | Required | Notes                                                                                                         |
+| ---------------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------- |
+| `title`          | String            | ✅       | Announcement heading                                                                                          |
+| `description`    | String            | ✅       | Message body                                                                                                  |
+| `fileId`         | ObjectId → `File` | —        | Optional attachment                                                                                           |
+| `uploadedBy`     | ObjectId → `User` | ✅       | Author                                                                                                        |
+| `uploadedAt`     | Date              | —        | Auto-set                                                                                                      |
+| `targetAudience` | Array of rules    | —        | Each rule: `{ role: String, subRole: ObjectId\|null, batch: String\|null }`. An empty array = visible to all. |
+
+---
+
+### 6. `materials` — `models/Material.js`
+
+Shared academic documents (lecture notes, assignments, etc.)
+
+| Field                 | Type              | Required | Notes                                                 |
+| --------------------- | ----------------- | -------- | ----------------------------------------------------- |
+| `title`               | String            | ✅       | Document title                                        |
+| `subject`             | String            | ✅       | Course/subject name                                   |
+| `targetAudience`      | Array of rules    | —        | Same format as Announcement's `targetAudience`        |
+| `targetIndividualIds` | [String]          | —        | Specific user IDs who can always see this material    |
+| `hiddenFor`           | [String]          | —        | User IDs who have soft-deleted (hidden) this material |
+| `fileId`              | ObjectId → `File` | ✅       | The physical document                                 |
+| `uploadedBy`          | ObjectId → `User` | ✅       | Who shared it                                         |
+
+---
+
+### 7. `timetables` — `models/Timetable.js`
+
+Department timetable PDFs. Uniqueness enforced per `SubRole + targetYear + targetSection`.
+
+| Field           | Type                 | Required | Notes                                      |
+| --------------- | -------------------- | -------- | ------------------------------------------ |
+| `targetYear`    | Number               | ✅       | Academic year (e.g. `2` = second year)     |
+| `targetSection` | Number               | ✅       | Section number (e.g. `1`)                  |
+| `subRole`       | ObjectId → `SubRole` | ✅       | Which department this timetable belongs to |
+| `batch`         | String               | —        | Optional batch filter                      |
+| `fileId`        | ObjectId → `File`    | ✅       | The PDF file                               |
+| `uploadedBy`    | ObjectId → `User`    | ✅       | Who uploaded it                            |
+
+---
+
+### 8. `achievements` — `models/Achievement.js`
+
+Student and faculty achievements with a 3-stage approval workflow: **Pending → Approved/Rejected**.
+
+| Field            | Type                 | Notes                                                                                                         |
+| ---------------- | -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `type`           | String               | Category: `"Certification"`, `"Placement"`, `"Competition"`, `"Research Paper"`, etc.                         |
+| `status`         | String (enum)        | `"Pending"`, `"Approved"`, `"Rejected"`                                                                       |
+| `userId`         | String               | Submitter's login ID (e.g. `"22CS001"`)                                                                       |
+| `userName`       | String               | Snapshot of submitter's name at time of submission                                                            |
+| `userRole`       | String               | `"Student"` or `"Faculty"`                                                                                    |
+| `dept`           | ObjectId → `SubRole` | Department context for the achievement                                                                        |
+| `proofFileId`    | ObjectId → `File`    | Certificate or proof document                                                                                 |
+| `approvedBy`     | String               | Approver's display name (snapshotted)                                                                         |
+| `approverId`     | String               | Approver's login ID                                                                                           |
+| `approverRole`   | String               | Approver's role at time of approval                                                                           |
+| _Dynamic fields_ | Varies               | Type-specific fields: `certificationName`, `companyName`, `journalName`, `eventName`, `rank`, `package`, etc. |
+
+---
+
+### 9. `workshops` — `models/Workshop.js`
+
+Faculty training/workshop records tied to a department.
+
+| Field                   | Type                 | Required | Notes                           |
+| ----------------------- | -------------------- | -------- | ------------------------------- |
+| `userId`                | String               | ✅       | Faculty's login ID              |
+| `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
+| `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
+| `activityName`          | String               | ✅       | Name of the workshop/event      |
+| `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `resourcePerson`        | String               | ✅       | Speaker / resource person name  |
+| `professionalBody`      | String               | —        | Organizing body (e.g. `"IEEE"`) |
+| `studentCount`          | Number               | ✅       | Number of students who attended |
+| `contactHours`          | Number               | —        | Total hours of the program      |
+
+---
+
+## Database Indexing
+
+> [!NOTE]
+> The indexes listed here are **planned/aspirational** — they are not yet defined in the Mongoose schemas. Adding them is recommended as the user count grows.
+
+| Collection      | Recommended Index            | Reason                                    |
+| --------------- | ---------------------------- | ----------------------------------------- |
+| `users`         | Unique on `id`               | Fast login lookups                        |
+| `users`         | Compound on `role + subRole` | Dashboard stats and user filter queries   |
+| `subroles`      | Unique on `code`             | Fast department resolution by code string |
+| `achievements`  | Compound on `dept + status`  | HOD approval queue queries                |
+| `achievements`  | Index on `userId`            | Fetch user's own achievements             |
+| `materials`     | Index on `createdAt DESC`    | Newest materials feed                     |
+| `announcements` | Index on `createdAt DESC`    | Newest announcements feed                 |
