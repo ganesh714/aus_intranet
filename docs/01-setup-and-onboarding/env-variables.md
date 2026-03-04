@@ -1,31 +1,79 @@
-# Environment Variables
+# Environment Variables Guide
 
-Environment variables are used to store sensitive information and configuration settings.
+> **For beginners:** Environment variables are like a secret config file that holds sensitive information (passwords, API keys) so they never get accidentally pushed to GitHub.
 
-> **CRITICAL:** Never commit the `.env` file to version control. Always use a `.env.example` file to share the required keys with the team, but keep actual secrets local.
+> [!CAUTION]
+> **Never commit `.env` to Git.** It is already listed in `.gitignore`. If you accidentally push it, rotate all secrets immediately.
 
-## Backend `.env` (`aus_intranet/backend/.env`)
+---
 
-These variables are required for the Express.js server to operate correctly.
+## Backend `.env` — `backend/.env`
 
-| Variable Name   | Description                                                                 | Example Value                                  |
-| :-------------- | :-------------------------------------------------------------------------- | :--------------------------------------------- |
-| `PORT`          | The port the backend server listens on. Defaults to 5001.                   | `5001`                                         |
-| `MONGO_URI`     | The connection string for your MongoDB database cluster or local instance.  | `mongodb+srv://...` |
-| `MONGODB_PROD_URI` | The connection string for the Production MongoDB database. Required for `npm run sync-db`. | `mongodb+srv://...` |
-| `MONGODB_STAG_URI` | The connection string for the Staging MongoDB database. Required for `npm run sync-db`.    | `mongodb+srv://...` |
-| `JWT_SECRET`    | The secret key used to sign and verify JSON Web Tokens for authentication.  | `your_super_secret_jwt_key_here`               |
-| `STORAGE_MODE`  | Determines the file storage adapter. Set to `local` to bypass Google Drive during local development. | `local` |
-| `GOOGLE_DRIVE_*`| Credentials for the Google Drive API (Only needed if `STORAGE_MODE=gdrive`).| N/A (Consult team lead)                        |
-| `MAILTRAP_USER` | Mailtrap username for intercepting asynchronous developer emails.           | `your_user` |
-| `MAILTRAP_PASS` | Mailtrap password for the background email service queue.                   | `your_pass` |
+Create this file by copying `backend/.env.example` (if it exists) or by creating it manually.
 
-## Frontend Configuration
+### Full Variable Reference
 
-The React application uses Vite, which handles environment variables differently. Variables exposed to the client must be prefixed with `VITE_`.
+| Variable           | Required                   | Example Value                                                 | What It Does                                                              |
+| ------------------ | -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `MONGODB_URI`      | ✅                         | `mongodb+srv://user:pass@cluster.mongodb.net/aditya_intranet` | Main database connection string. **Must be named `MONGODB_URI`** exactly. |
+| `MONGODB_PROD_URI` | Only for `npm run sync-db` | `mongodb+srv://...`                                           | Production database (source for the sync script)                          |
+| `MONGODB_STAG_URI` | Only for `npm run sync-db` | `mongodb+srv://...`                                           | Staging database (target for the sync script)                             |
+| `PORT`             | ❌ (defaults to 5001)      | `5001`                                                        | Port the backend server listens on                                        |
+| `JWT_SECRET`       | ✅                         | `a_long_random_string_here_min_32_chars`                      | Used to sign and verify login tokens. **Use a long random string.**       |
+| `JWT_EXPIRES_IN`   | ❌ (defaults to `7d`)      | `7d`                                                          | How long login tokens stay valid                                          |
+| `STORAGE_TYPE`     | ✅                         | `LOCAL` or `DRIVE`                                            | Controls where uploaded files go. See Storage section below.              |
+| `MAILTRAP_USER`    | ✅ for email               | from mailtrap.io dashboard                                    | Username for the Mailtrap email interceptor                               |
+| `MAILTRAP_PASS`    | ✅ for email               | from mailtrap.io dashboard                                    | Password for the Mailtrap email interceptor                               |
 
-Usually, this is handled in `vite.config.js` or a root `.env` file depending on the deployment strategy.
+> [!WARNING]
+> The variable is `MONGODB_URI` — **not** `MONGO_URI`. Using the wrong name means the server will silently fail to connect and crash on startup.
 
-| Variable Name         | Description                                                        | Example Value           |
-| :-------------------- | :----------------------------------------------------------------- | :---------------------- |
-| `VITE_BACKEND_URL` | The base URL the frontend uses to make requests to the backend API. | `http://localhost:5001` |
+---
+
+### Storage Mode Explained
+
+The `STORAGE_TYPE` variable controls which storage adapter is loaded.
+
+```mermaid
+flowchart LR
+    ENV["STORAGE_TYPE=?"]
+    ENV -- "DRIVE" --> GDA["GoogleDriveAdapter\n(needs service-account-key.json)"]
+    ENV -- "LOCAL" --> LSA["LocalStorageAdapter\n(saves to backend/uploads/)"]
+```
+
+| `STORAGE_TYPE` | Where Files Go                            | Requires                                                                                           |
+| -------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `LOCAL`        | `backend/uploads/` folder on your machine | Nothing extra — works out of the box                                                               |
+| `DRIVE`        | Google Drive cloud storage                | `service-account-key.json` in `backend/`. See [Google Drive Setup Guide](./google-drive-setup.md). |
+
+> [!TIP]
+> **For local development, always use `STORAGE_TYPE=LOCAL`.** You don't need a Google account, and files are stored instantly on disk.
+
+---
+
+### Minimal `.env` for Local Development
+
+```env
+MONGODB_URI=mongodb://localhost:27017/aditya_intranet
+PORT=5001
+JWT_SECRET=replace_this_with_a_long_secret_string_at_least_32_chars
+JWT_EXPIRES_IN=7d
+STORAGE_TYPE=LOCAL
+MAILTRAP_USER=your_mailtrap_username
+MAILTRAP_PASS=your_mailtrap_password
+```
+
+---
+
+## Frontend — No `.env` Required Locally
+
+The React frontend (`login/`) connects to the backend using a hardcoded URL in `vite.config.js`. By default it hits `http://localhost:5001`.
+
+If you need to change this (e.g., pointing at a staging server), you can add a `.env` file inside the `login/` directory:
+
+```env
+VITE_BACKEND_URL=http://localhost:5001
+```
+
+> [!NOTE]
+> Vite requires all environment variables to start with `VITE_` to expose them to the React application code.
