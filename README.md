@@ -11,8 +11,10 @@ This system relies on strictly enforced design patterns. For a comprehensive gui
 If you are joining the team or returning after a break, start here:
 
 - **1. Setup & Onboarding**
+  - [Project Overview & Architecture](./docs/01-setup-and-onboarding/project-overview.md)
   - [Local Environment Setup](./docs/01-setup-and-onboarding/local-env-setup.md)
   - [Environment Variables Guide](./docs/01-setup-and-onboarding/env-variables.md)
+  - [Google Drive Storage Setup](./docs/01-setup-and-onboarding/google-drive-setup.md)
   - [Git Collaboration Workflow](./docs/01-setup-and-onboarding/git-workflow.md)
 
 - **2. Architecture & System Design**
@@ -26,11 +28,15 @@ If you are joining the team or returning after a break, start here:
   - [Global API Response Standard](./docs/03-api-contracts/api-response-standards.md)
   - [Authentication & User Endpoints](./docs/03-api-contracts/auth-and-users.md)
   - [Content Management (Materials & Announcements)](./docs/03-api-contracts/content-management.md)
+  - [Personal Drive (My Data) Endpoints](./docs/03-api-contracts/drive-personal-storage.md)
   - [Achievements & Event Workshops Endpoints](./docs/03-api-contracts/achievements-workshops.md)
+  - [Timetable & SubRole Management](./docs/03-api-contracts/timetable-subrole.md)
+  - [Dashboard Statistics API](./docs/03-api-contracts/dashboard-stats.md)
   - [Database Sync Scripts Documentation](./docs/03-api-contracts/database-scripts.md)
 
 - **4. Frontend UI (React + Vite)**
-  > **Note on Folder Structure:** The `login/` directory contains the *complete* React frontend application (encompassing all role dashboards and views), not just the authentication portal.
+
+  > **Note on Folder Structure:** The `login/` directory contains the _complete_ React frontend application (encompassing all role dashboards and views), not just the authentication portal.
   - [Role Dashboards Layout Architecture](./docs/04-frontend-ui/role-dashboards.md)
   - [Reusable Component Hierarchy](./docs/04-frontend-ui/component-hierarchy.md)
   - [Global State Management](./docs/04-frontend-ui/state-management.md)
@@ -39,9 +45,11 @@ If you are joining the team or returning after a break, start here:
 - **5. Architecture Decision Records (ADRs)**
   - [0001: Implementing Strategy Pattern for Overloaded Roles](./docs/05-decisions-and-adrs/0001-use-strategy-for-roles.md)
   - [0002: Google Drive Authentication Wrapper](./docs/05-decisions-and-adrs/0002-google-drive-integration.md)
+  - [0003: Unified File Model for All Uploads](./docs/05-decisions-and-adrs/0003-unified-file-model.md)
   - [ADR Template](./docs/05-decisions-and-adrs/template.md)
 
 - **6. Troubleshooting & Post-Mortems**
+  - [Known Issues & Technical Debt](./docs/06-troubleshooting-and-lessons/known-issues.md)
   - [Common Errors (MongoDB, Multer, JWT issues)](./docs/06-troubleshooting-and-lessons/common-errors.md)
   - [Post-Mortem: Fixing Upload Timeouts](./docs/06-troubleshooting-and-lessons/post-mortems/fixing-drive-upload-timeout.md)
 
