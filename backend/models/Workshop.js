@@ -13,6 +13,7 @@ const workshopSchema = new mongoose.Schema({
     resourcePerson: { type: String, required: true },
     professionalBody: { type: String },
     studentCount: { type: Number, required: true },
+    contactHours: { type: Number, required: true },
 
     createdAt: { type: Date, default: Date.now }
 });
