@@ -57,18 +57,19 @@ const HODWorkshopManager = ({ userRole }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Workshops");
 
-        // Define column keys and widths. Added empty first and last columns for padding.
+        // Define column keys and widths only (no header property → no auto row 1 headers)
         worksheet.columns = [
-            { key: "padLeft", width: 15 }, // Increased Left padding
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
             { key: "activityName", width: 45 },
             { key: "fromDate", width: 15 },
+            { key: "deptName", width: 20 },
             { key: "toDate", width: 15 },
             { key: "resourcePerson", width: 30 },
-            { key: "students", width: 18 },
-            { key: "padRight", width: 15 } // Increased Right padding
+            { key: "students", width: 18 }
         ];
+
+        const userDept = sessionStorage.getItem('usersubRole') || 'CSE';
 
         // Load logo
         const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
@@ -77,30 +78,37 @@ const HODWorkshopManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // Place logo as centered as possible in an 8-column sheet
-        // --- LOGO CENTERING (FOOLPROOF INTEGER STRATEGY) ---
-        // We found that fractional offsets (like 3.99) completely break in some Excel viewers,
-        // causing the image coordinates to wrap backwards into the wrong columns.
-        // Solution: Lock to a pure integer grid line.
-        // `col: 3` is exactly the start of Col D (Activity Name). At our column widths, 
-        // Col D starts exactly 287 pixels from the left. An image width of 486px places its 
-        // center at 530px, which flawlessly matches the exact true center of the table (521px).
+        // Center the logo using native EMU offsets (Excel's internal coordinate system).
+        // This bypasses the unreliable fractional-column positioning.
+        //
+        // Total sheet width ≈ 1243px (8 cols). Image = 486x75px.
+        // Center start = (1243 - 486) / 2 ≈ 378px → Column C (index 2) + 186px offset.
+        // EMU conversion: 186px × 9525 = 1771650 EMU, 5px top margin = 47625 EMU
+        // Image spans 4 rows (rows 1-4)
         worksheet.addImage(imageId, {
-            tl: { col: 3, row: 1 },         // STRICT INTEGER: Snaps to D2 perfectly.
-            ext: { width: 486, height: 75 } // Original exact bounds
+            tl: { nativeCol: 2, nativeColOff: 1771650, nativeRow: 0, nativeRowOff: 47625 },
+            ext: { width: 486, height: 75 },
+            editAs: 'oneCell'
         });
 
-        // Start titles lower so the logo doesn't overlap (moved to rows 7, 8, 9)
-        worksheet.mergeCells("B7:H7");
-        worksheet.mergeCells("B8:H8");
+        // Set row heights for the image area (rows 1-4)
+        for (let r = 1; r <= 4; r++) {
+            worksheet.getRow(r).height = 20;
+        }
 
-        worksheet.getCell("B7").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
-        worksheet.getCell("B8").value = "WORKSHOP REPORT";
+        // Title rows start after the image (rows 5-7)
+        worksheet.mergeCells("A5:H5");
+        worksheet.mergeCells("A6:H6");
+        worksheet.mergeCells("A7:H7");
 
-        [7, 8].forEach(rowNum => {
+        worksheet.getCell("A5").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
+        worksheet.getCell("A6").value = "WORKSHOP REPORT";
+        worksheet.getCell("A7").value = "Generated on: " + new Date().toLocaleDateString();
+
+        [5, 6, 7].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
-            row.height = 30; // Slightly smaller row height to tighten spacing
-            const cell = worksheet.getCell(`B${rowNum}`);
+            row.height = 32;
+            const cell = worksheet.getCell(`A${rowNum}`);
             cell.alignment = {
                 horizontal: "center",
                 vertical: "middle",
@@ -108,39 +116,30 @@ const HODWorkshopManager = ({ userRole }) => {
             };
             cell.font = {
                 bold: true,
-                size: rowNum === 7 ? 15 : 13
+                size: rowNum === 5 ? 15 : 13
             };
         });
 
-        // Add Date at the top right of the table (above Student Count column)
-        const today = new Date();
-        const formattedToday = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-        const dateCell = worksheet.getCell("H11");
-        dateCell.value = `Date : ${formattedToday}`;
-        dateCell.font = { bold: true, size: 11 };
-        dateCell.alignment = { horizontal: "right" };
+        // Add empty rows to separate title from table
+        worksheet.addRow([]);
+        worksheet.addRow([]);
 
-        // Table headers – row 12 is a safe starting point
-        const headerRow = worksheet.getRow(12);
-        // Add empty string for left padding column
+        // Table headers – row 11 is a safe starting point
+        const headerRow = worksheet.getRow(11);
         headerRow.values = [
-            "",
             "S.No",
             "Academic Year",
             "Activity Name",
             "From Date",
+            "Dept Name",
             "To Date",
             "Resource Person",
-            "No. of Students",
-            ""
+            "No. of Students"
         ];
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
-
-        // Apply styling only to the actual content cells (B to H)
-        for (let col = 2; col <= 8; col++) {
-            const cell = headerRow.getCell(col);
+        headerRow.eachCell((cell) => {
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
@@ -152,31 +151,22 @@ const HODWorkshopManager = ({ userRole }) => {
                 bottom: { style: "medium" },
                 right: { style: "thin" }
             };
-        }
+        });
 
-        // Data rows (NOTE: This only formats the Excel report, original database data remains untouched)
-        const formatDate = (dateStr) => {
-            if (!dateStr) return "";
-            const date = new Date(dateStr);
-            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-        };
-
+        // Data rows
         displayedWorkshops.forEach((w, index) => {
             const dataRow = worksheet.addRow({
-                padLeft: "",
                 sno: index + 1,
                 academicYear: w.academicYear,
                 activityName: w.activityName,
-                fromDate: formatDate(w.startDate),
-                toDate: formatDate(w.endDate),
+                fromDate: w.startDate ? new Date(w.startDate).toLocaleDateString() : "",
+                deptName: userDept,
+                toDate: w.endDate ? new Date(w.endDate).toLocaleDateString() : "",
                 resourcePerson: w.resourcePerson || w.coordinators || "",
-                students: w.studentCount,
-                padRight: ""
+                students: w.studentCount
             });
 
-            // Apply styling only to the actual content cells (B to H)
-            for (let col = 2; col <= 8; col++) {
-                const cell = dataRow.getCell(col);
+            dataRow.eachCell((cell) => {
                 cell.border = {
                     top: { style: "thin" },
                     left: { style: "thin" },
@@ -184,7 +174,7 @@ const HODWorkshopManager = ({ userRole }) => {
                     right: { style: "thin" }
                 };
                 cell.alignment = { vertical: "middle" };
-            }
+            });
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
