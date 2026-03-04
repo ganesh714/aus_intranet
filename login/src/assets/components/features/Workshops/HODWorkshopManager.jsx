@@ -26,7 +26,6 @@ const HODWorkshopManager = ({ userRole }) => {
     };
 
     // Filters
-    const [facultyFilter, setFacultyFilter] = useState('All');
     const [yearFilter, setYearFilter] = useState('All');
 
     // Mock Faculty List (Should ideally be fetched)
@@ -257,10 +256,6 @@ const HODWorkshopManager = ({ userRole }) => {
 
     // --- FILTERING ---
     const displayedWorkshops = allWorkshops.filter(w => {
-        if (facultyFilter !== 'All') {
-            const fac = deptFaculty.find(f => f.username === facultyFilter);
-            if (!fac || w.userId !== fac.id) return false;
-        }
         if (yearFilter !== 'All' && w.academicYear !== yearFilter) return false;
         return true;
     });
@@ -294,15 +289,6 @@ const HODWorkshopManager = ({ userRole }) => {
                     <div className="achievements-toolbar">
                         <div className="toolbar-text">All Faculty Workshops</div>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <select
-                                className="std-select"
-                                style={{ width: '180px' }}
-                                value={facultyFilter}
-                                onChange={(e) => setFacultyFilter(e.target.value)}
-                            >
-                                <option value="All">All Faculty</option>
-                                {deptFaculty.map(f => <option key={f.id} value={f.username}>{f.username}</option>)}
-                            </select>
                             <select
                                 className="std-select"
                                 style={{ width: '150px' }}
