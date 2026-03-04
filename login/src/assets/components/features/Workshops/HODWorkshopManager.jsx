@@ -12,6 +12,7 @@ const HODWorkshopManager = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allWorkshops, setAllWorkshops] = useState([]);
     const [permissions, setPermissions] = useState({});
+    const [subRolesList, setSubRolesList] = useState([]); // [NEW] Dynamic subroles
 
     // Helper to format date as DD/MM/YYYY
     const formatDate = (date) => {
@@ -41,6 +42,18 @@ const HODWorkshopManager = ({ userRole }) => {
         fetchWorkshops(); // Renamed for clarity
         fetchPermissions();
         fetchFaculty();
+        fetchSubRoles(); // [NEW] Fetch subroles
+    };
+
+    const fetchSubRoles = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/subroles/all-subroles`);
+            if (response.data && response.data.success) {
+                setSubRolesList(response.data.subRoles);
+            }
+        } catch (error) {
+            console.error("Error fetching subroles for Excel report:", error);
+        }
     };
 
     const fetchWorkshops = async () => {
@@ -106,7 +119,16 @@ const HODWorkshopManager = ({ userRole }) => {
         worksheet.mergeCells("A5:G5");
         worksheet.mergeCells("A6:G6");
 
-        worksheet.getCell("A5").value = "DEPARTMENT OF INFORMATION TECHNOLOGY";
+        const userRoleCode = sessionStorage.getItem('usersubRole') || 'IT';
+
+        // Find matching subrole from the dynamically fetched list
+        const matchedRole = subRolesList.find(r =>
+            r.code?.toUpperCase() === userRoleCode.toUpperCase() ||
+            r.displayName?.toUpperCase() === userRoleCode.toUpperCase()
+        );
+        const userDept = matchedRole ? matchedRole.name : userRoleCode;
+
+        worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
         worksheet.getCell("A6").value = "WORKSHOP REPORT";
         worksheet.getCell("G7").value = "Date: " + formatDate(new Date());
 
