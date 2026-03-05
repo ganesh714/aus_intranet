@@ -56,12 +56,14 @@ const IQACManager = ({ userRole, userId }) => {
                     </button>
                 )}
 
-                <button
-                    className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('industrial-visits')}
-                >
-                    <FaIndustry /> Industrial Visits
-                </button>
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageIndustrialVisits) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('industrial-visits')}
+                    >
+                        <FaIndustry /> Industrial Visits
+                    </button>
+                )}
                 <button
                     className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
                     onClick={() => setActiveTab('fdp-pdp')}
