@@ -57,7 +57,7 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
             const userDeptId = sessionStorage.getItem('userSubRoleId');
             const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
 
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-outside`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-attended`, {
                 params: { dept: userDept }
             });
             setAllRecords(response.data.records || []);
