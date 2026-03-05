@@ -10,7 +10,7 @@ import ausLogo from '../../images/aus_logo.png'; // Adjust the path as needed
 const HODFDP_STTP_OutsideManager = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allRecords, setAllRecords] = useState([]);
-    const [subRolesList, setSubRolesList] = useState([]); 
+    const [subRolesList, setSubRolesList] = useState([]);
 
     // Helper to format date as DD/MM/YYYY
     const formatDate = (date) => {
@@ -36,9 +36,9 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
     }, []);
 
     const loadData = () => {
-        fetchRecords(); 
+        fetchRecords();
         fetchFaculty();
-        fetchSubRoles(); 
+        fetchSubRoles();
     };
 
     const fetchSubRoles = async () => {
@@ -240,6 +240,8 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
         return true;
     });
 
+    const activeApprovers = deptFaculty.filter(f => f.permissions?.canManageFdpSttp);
+
     return (
         <div className="std-page-container workshops-container">
             <div className="std-page-header">
@@ -252,6 +254,12 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                     onClick={() => setActiveTab('overview')}
                 >
                     <FaList /> Overview
+                </button>
+                <button
+                    className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('access')}
+                >
+                    <FaUserCog /> Access Control
                 </button>
             </div>
 
@@ -317,6 +325,63 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                 </>
 
             )}
+
+            {/* ACCESS CONTROL TAB */}
+            {activeTab === 'access' && (
+                <div className="permission-manager" style={{ marginTop: '20px' }}>
+                    <div className="pm-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                        <h3 style={{ fontSize: '16px', color: '#1e293b' }}>Authorized Faculty ({activeApprovers.length})</h3>
+                        <button className="std-btn" style={{ fontSize: '13px', padding: '6px 12px' }} onClick={() => setShowAddForm(!showAddForm)}>
+                            {showAddForm ? 'Cancel Adding' : '+ Grant Access'}
+                        </button>
+                    </div>
+
+                    {!showAddForm && (
+                        <div className="faculty-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {activeApprovers.length > 0 ? (
+                                activeApprovers.map(fac => (
+                                    <div key={fac.id} className="user-result-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <FaUser style={{ color: '#94a3b8' }} />
+                                            <b>{fac.username}</b>
+                                            <span style={{ fontSize: '12px', color: '#64748b' }}>({fac.id})</span>
+                                        </span>
+                                        <button className="std-btn-sm std-btn-danger" onClick={() => revokeAccess(fac.id)}>
+                                            Revoke Access
+                                        </button>
+                                    </div>
+                                ))
+                            ) : <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>No faculty members currently have access.</p>}
+                        </div>
+                    )}
+
+                    {showAddForm && (
+                        <div className="user-picker-box" style={{ border: '1px solid #cbd5e1', padding: '15px', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
+                            <input
+                                type="text"
+                                className="std-input"
+                                placeholder="Search faculty..."
+                                value={accessSearch}
+                                onChange={e => setAccessSearch(e.target.value)}
+                                autoFocus
+                                style={{ marginBottom: '10px' }}
+                            />
+                            <div className="user-results-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {deptFaculty
+                                    .filter(f => !f.permissions?.canManageFdpSttp && f.username.toLowerCase().includes(accessSearch.toLowerCase()))
+                                    .map(fac => (
+                                        <div key={fac.id} onClick={() => grantAccess(fac.id)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', backgroundColor: 'white' }}>
+                                            <span><b>{fac.username}</b> ({fac.id})</span>
+                                            <span style={{ color: '#16a34a', fontWeight: 'bold' }}>+ Grant</span>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
         </div>
     );
 };
