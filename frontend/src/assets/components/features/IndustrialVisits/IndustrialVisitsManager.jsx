@@ -32,10 +32,13 @@ const IndustrialVisitsManager = ({ userId }) => {
     const [formData, setFormData] = useState(initialForm);
 
     // Load Data
-    const loadVisits = async () => {
+    const loadIndustrialVisits = async () => {
         try {
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole');
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-industrial-visits`, {
-                params: { userId }
+                params: { dept: userDept }
             });
             setVisits(response.data.industrialVisits || []);
         } catch (error) {

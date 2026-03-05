@@ -33,8 +33,11 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     // Load Data
     const loadRecords = async () => {
         try {
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole');
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-attended`, {
-                params: { userId }
+                params: { dept: userDept }
             });
             setRecords(response.data.records || []);
         } catch (error) {

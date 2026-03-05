@@ -34,8 +34,11 @@ const WorkshopManager = ({ userId }) => {
     // Load Data
     const loadWorkshops = async () => {
         try {
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole');
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-workshops`, {
-                params: { userId }
+                params: { dept: userDept }
             });
             setWorkshops(response.data.workshops || []);
         } catch (error) {

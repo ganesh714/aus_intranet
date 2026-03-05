@@ -31,12 +31,15 @@ const FDP_PDPManager = ({ userId }) => {
     const [formData, setFormData] = useState(initialForm);
 
     // Load Data
-    const loadRecords = async () => {
+    const loadFdpPdp = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
-                params: { userId }
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole');
+
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp`, {
+                params: { dept: userDept }
             });
-            setRecords(response.data.records || []);
+            setRecords(response.data.data || []); // Assuming setRecords is the state for the list
         } catch (error) {
             console.error("Error fetching FDP/PDP records:", error);
         }

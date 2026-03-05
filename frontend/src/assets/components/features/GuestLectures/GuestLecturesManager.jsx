@@ -32,8 +32,11 @@ const GuestLecturesManager = ({ userId }) => {
     // Load Data
     const loadGuestLectures = async () => {
         try {
+            const userDeptId = sessionStorage.getItem('userSubRoleId');
+            const userDept = userDeptId || sessionStorage.getItem('usersubRole');
+
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-guest-lectures`, {
-                params: { userId }
+                params: { dept: userDept }
             });
             setGuestLectures(response.data.guestLectures || []);
         } catch (error) {
