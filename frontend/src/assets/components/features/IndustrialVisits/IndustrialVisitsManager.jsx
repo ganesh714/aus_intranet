@@ -43,6 +43,13 @@ const IndustrialVisitsManager = ({ userId }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleYearChange = (delta) => {
+        const currentYearStart = parseInt(formData.academicYear.split('-')[0], 10);
+        if (isNaN(currentYearStart)) return;
+        const newYearStart = currentYearStart + delta;
+        setFormData({ ...formData, academicYear: `${newYearStart}-${newYearStart + 1}` });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -119,17 +126,32 @@ const IndustrialVisitsManager = ({ userId }) => {
                     <div className="form-grid">
                         <div className="std-form-group">
                             <label className="std-label">Academic Year</label>
-                            <select
-                                name="academicYear"
-                                className="std-select"
-                                value={formData.academicYear}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="2025-2026">2025-2026</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                            </select>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    name="academicYear"
+                                    className="std-input"
+                                    value={formData.academicYear}
+                                    readOnly
+                                    style={{ textAlign: 'center', width: '120px', borderTopRightRadius: '0', borderBottomRightRadius: '0', borderRight: 'none' }}
+                                />
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderTopRightRadius: '4px', borderBottom: 'none' }}
+                                    >
+                                        ▲
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(-1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderBottomRightRadius: '4px' }}
+                                    >
+                                        ▼
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="std-form-group">
