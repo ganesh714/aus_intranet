@@ -41,7 +41,11 @@ backend/
 │   ├── Material.js
 │   ├── Timetable.js
 │   ├── DriveItem.js
-│   └── Workshop.js
+│   ├── Workshop.js
+│   ├── GuestLecture.js
+│   ├── IndustrialVisit.js
+│   ├── FdpPdpOrganized.js
+│   └── FdpSttpAttended.js
 │
 ├── middleware/             # Express middleware (Auth & RBAC)
 │   ├── authMiddleware.js
@@ -57,6 +61,10 @@ backend/
 │   ├── timetableRoutes.js
 │   ├── achievementRoutes.js
 │   ├── workshopRoutes.js
+│   ├── guestLectureRoutes.js
+│   ├── industrialVisitRoutes.js
+│   ├── fdpPdpRoutes.js
+│   ├── fdpSttpRoutes.js
 │   └── subRoleRoutes.js
 │
 ├── controllers/           # Request handlers
@@ -68,6 +76,10 @@ backend/
 │   ├── timetableController.js
 │   ├── achievementController.js
 │   ├── workshopController.js
+│   ├── guestLectureController.js
+│   ├── industrialVisitController.js
+│   ├── fdpPdpController.js
+│   ├── fdpSttpController.js
 │   └── subRoleController.js
 │
 ├── services/              # Business logic
@@ -77,6 +89,10 @@ backend/
 │   ├── MaterialService.js
 │   ├── TimetableService.js
 │   ├── WorkshopService.js
+│   ├── GuestLectureService.js
+│   ├── IndustrialVisitService.js
+│   ├── FdpPdpService.js
+│   ├── FdpSttpService.js
 │   ├── EmailService.js
 │   └── storageService.js
 │
@@ -138,6 +154,10 @@ flowchart TD
 | `/` | `timetableRoutes` | Root-mounted |
 | `/` | `announcementRoutes` | Root-mounted |
 | `/` | `workshopRoutes` | Root-mounted |
+| `/` | `guestLectureRoutes` | Root-mounted |
+| `/` | `industrialVisitRoutes` | Root-mounted |
+| `/` | `fdpPdpRoutes` | Root-mounted |
+| `/` | `fdpSttpRoutes` | Root-mounted |
 | `/` | `subRoleRoutes` | Root-mounted |
 
 > [!WARNING]
@@ -356,6 +376,10 @@ Each route file defines Express `Router` endpoints and applies the appropriate m
 | `timetableRoutes.js` | `POST /upload-timetable`, `GET /get-timetables` | `timetableController` |
 | `achievementRoutes.js` | `POST /achievements`, `GET /achievements`, `PUT /achievements/:id/approve` | `achievementController` |
 | `workshopRoutes.js` | `POST /workshops`, `GET /workshops` | `workshopController` |
+| `guestLectureRoutes.js` | `POST /guest-lectures`, `GET /guest-lectures` | `guestLectureController` |
+| `industrialVisitRoutes.js` | `POST /industrial-visits`, `GET /industrial-visits` | `industrialVisitController` |
+| `fdpPdpRoutes.js` | `POST /fdp-pdp`, `GET /fdp-pdp` | `fdpPdpController` |
+| `fdpSttpRoutes.js` | `POST /fdp-sttp`, `GET /fdp-sttp` | `fdpSttpController` |
 | `subRoleRoutes.js` | `GET /sub-roles`, `POST /sub-roles` | `subRoleController` |
 
 ---
@@ -466,6 +490,50 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 | `getWorkshops({ userId, dept, academicYear })` | Builds a dynamic filter. Resolves `dept` via `resolveDeptId()`. Returns sorted workshops. |
 | `deleteWorkshop(id)` | Deletes a workshop by its MongoDB `_id`. |
 | `updateWorkshop(id, data)` | Updates a workshop by its MongoDB `_id`. |
+
+---
+
+### 7.9 `GuestLectureService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addGuestLecture(userId, data)` | Creates a new Guest Lecture record. |
+| `getGuestLectures({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteGuestLecture(id)` | Deletes a guest lecture. |
+| `updateGuestLecture(id, data)` | Updates a guest lecture. |
+
+---
+
+### 7.10 `IndustrialVisitService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addIndustrialVisit(userId, data)` | Creates a new Industrial Visit record. |
+| `getIndustrialVisits({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteIndustrialVisit(id)` | Deletes an industrial visit. |
+| `updateIndustrialVisit(id, data)` | Updates an industrial visit. |
+
+---
+
+### 7.11 `FdpPdpService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addFdpPdp(userId, data)` | Creates a new FDP/PDP record. |
+| `getFdpPdps({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteFdpPdp(id)` | Deletes an FDP/PDP record. |
+| `updateFdpPdp(id, data)` | Updates an FDP/PDP record. |
+
+---
+
+### 7.12 `FdpSttpService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addFdpSttp(userId, data)` | Creates a new FDP/STTP (Outside) record. |
+| `getFdpSttps({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteFdpSttp(id)` | Deletes an FDP/STTP (Outside) record. |
+| `updateFdpSttp(id, data)` | Updates an FDP/STTP (Outside) record. |
 
 ---
 
