@@ -14,6 +14,7 @@ router.post('/toggle-achievement-permission', userController.toggleAchievementPe
 router.post('/toggle-workshop-permission', userController.toggleWorkshopPermission); // [NEW]
 router.post('/toggle-guest-lecture-permission', userController.toggleGuestLecturePermission); // [NEW]
 router.post('/toggle-industrial-visit-permission', userController.toggleIndustrialVisitPermission); // [NEW]
+router.post('/toggle-fdp-pdp-permission', userController.toggleFdpPdpPermission); // [NEW]
 router.post('/change-password', protect, userController.changePassword);
 
 // New Routes
