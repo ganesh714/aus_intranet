@@ -33,7 +33,7 @@ const FDP_PDPManager = ({ userId }) => {
     // Load Data
     const loadRecords = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
                 params: { userId }
             });
             setRecords(response.data.records || []);
@@ -63,10 +63,10 @@ const FDP_PDPManager = ({ userId }) => {
         try {
             if (isEditing) {
                 // Update existing
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-pdp/${editId}`, formData);
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-pdp-organized/${editId}`, formData);
             } else {
                 // Add new
-                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-pdp`, {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-pdp-organized`, {
                     userId,
                     ...formData
                 });
@@ -97,7 +97,7 @@ const FDP_PDPManager = ({ userId }) => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
-                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-pdp/${id}`);
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-pdp-organized/${id}`);
                 loadRecords();
             } catch (error) {
                 console.error("Error deleting FDP/PDP record:", error);
