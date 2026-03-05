@@ -61,6 +61,7 @@ app.use('/', announcementRoutes);
 app.use('/', require('./routes/workshopRoutes')); // [NEW] Workshop Endpoints
 app.use('/', require('./routes/subRoleRoutes')); // [NEW] SubRole Endpoints
 app.use('/', require('./routes/industrialVisitRoutes')); // [NEW] Industrial Visit Endpoints
+app.use('/', require('./routes/guestLectureRoutes')); // [NEW] Guest Lecture Endpoints
 
 const port = process.env.PORT || 5001;
 
