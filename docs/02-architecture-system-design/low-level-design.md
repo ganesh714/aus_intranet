@@ -481,6 +481,10 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 
 ---
 
+## IQAC Services
+
+The following services handle CRUD operations and filtering for the faculty event modules grouped under IQAC. They all follow a similar pattern and expose identical interfaces.
+
 ### 7.8 `WorkshopService.js`
 
 | Method | Purpose |
@@ -535,6 +539,8 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 | `deleteFdpSttp(id)` | Deletes an FDP/STTP (Outside) record. |
 | `updateFdpSttp(id, data)` | Updates an FDP/STTP (Outside) record. |
 
+---
+*(End of IQAC Services)*
 ---
 
 ### 7.6 `EmailService.js` (Observer)

@@ -193,6 +193,10 @@ Student and faculty achievements with a 3-stage approval workflow: **Pending →
 
 ---
 
+## IQAC Sub-Modules
+
+The following collections manage faculty events and are grouped centrally under the IQAC (Internal Quality Assurance Cell) umbrella.
+
 ### 9. `workshops` — `models/Workshop.js`
 
 Faculty training/workshop records tied to a department.
@@ -274,6 +278,8 @@ FDP/STTP (Outside) attended records.
 | `organizedBy`           | String               | ✅       | Internal/External org name      |
 
 
+---
+*(End of IQAC Sub-Modules)*
 ---
 
 ## Database Indexing
