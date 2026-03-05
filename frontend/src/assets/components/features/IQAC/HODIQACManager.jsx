@@ -5,7 +5,8 @@ import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'rea
 import HODWorkshopManager from '../Workshops/HODWorkshopManager';
 import HODGuestLecturesManager from '../GuestLectures/HODGuestLecturesManager';
 import HODIndustrialVisitsManager from '../IndustrialVisits/HODIndustrialVisitsManager';
-import HODFDP_PDPManager from '../FDP_PDP/HODFDP_PDPManager'; // [NEW]
+import HODFDP_PDPManager from '../FDP_PDP/HODFDP_PDPManager';
+import HODFDP_STTP_OutsideManager from '../FDP_PDP/HODFDP_STTP_OutsideManager'; // [NEW]
 
 const HODIQACManager = ({ userRole, userId }) => {
     // Determine which horizontal tab is currently active
@@ -21,7 +22,9 @@ const HODIQACManager = ({ userRole, userId }) => {
             case 'industrial-visits':
                 return <HODIndustrialVisitsManager userRole={userRole} />; // [NEW]
             case 'fdp-pdp':
-                return <HODFDP_PDPManager userRole={userRole} />; // [NEW]
+                return <HODFDP_PDPManager userRole={userRole} />;
+            case 'fdp-sttp-outside':
+                return <HODFDP_STTP_OutsideManager userRole={userRole} />; // [NEW]
             default:
                 return <HODWorkshopManager userRole={userRole} />;
         }
@@ -58,6 +61,12 @@ const HODIQACManager = ({ userRole, userId }) => {
                     onClick={() => setActiveTab('fdp-pdp')}
                 >
                     <FaGraduationCap /> FDP / PDP
+                </button>
+                <button
+                    className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('fdp-sttp-outside')}
+                >
+                    <FaGraduationCap /> FDP / STTP (Outside)
                 </button>
             </div>
 
