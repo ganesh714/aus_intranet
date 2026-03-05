@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Sidebar.css';
 import { MdDashboard, MdCampaign } from 'react-icons/md';
+import axios from 'axios';
 
 import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy, FaChalkboardTeacher } from 'react-icons/fa';
 
@@ -19,6 +20,33 @@ const Sidebar = ({
     onDirectCategoryClick, // <--- New Prop for direct clicking main categories
     onAchievementsClick // [NEW] Handler for achievements
 }) => {
+
+    // Dynamic permissions state
+    const [permissions, setPermissions] = useState(JSON.parse(sessionStorage.getItem('permissions') || '{}'));
+
+    // Fetch latest permissions when Sidebar mounts
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            const userId = sessionStorage.getItem('userId');
+            if (userRole === 'Faculty' && userId) {
+                try {
+                    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, {
+                        params: { search: userId }
+                    });
+                    if (res.data && res.data.users) {
+                        const currentUser = res.data.users.find(u => u.id === userId);
+                        if (currentUser && currentUser.permissions) {
+                            sessionStorage.setItem('permissions', JSON.stringify(currentUser.permissions));
+                            setPermissions(currentUser.permissions);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to refresh permissions:", err);
+                }
+            }
+        };
+        fetchPermissions();
+    }, [userRole]);
 
     // Helper to check if a category should be a direct link for Students
     const isStudentDirectLink = (catName) => {
@@ -139,11 +167,11 @@ const Sidebar = ({
 
                 {/* 1. Faculty Link (Visible only if granted access) */}
                 {userRole === 'Faculty' && (
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops ||
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures ||
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageIndustrialVisits ||
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp ||
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpSttp
+                    permissions.canManageWorkshops ||
+                    permissions.canManageGuestLectures ||
+                    permissions.canManageIndustrialVisits ||
+                    permissions.canManageFdpPdp ||
+                    permissions.canManageFdpSttp
                 ) && (
                         <div className={`category-item ${type === 'IQAC' ? "expanded" : ""}`}>
                             <div className="category-header" onClick={() => onDirectCategoryClick('IQAC')}>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './IQAC.css';
 import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'react-icons/fa';
+import axios from 'axios';
 
 import WorkshopManager from '../Workshops/WorkshopManager';
 import GuestLecturesManager from '../GuestLectures/GuestLecturesManager';
@@ -9,11 +10,13 @@ import FDP_PDPManager from '../FDP_PDP/FDP_PDPManager';
 import FDP_STTP_OutsideManager from '../FDP_PDP/FDP_STTP_OutsideManager'; // [NEW]
 
 const IQACManager = ({ userRole, userId }) => {
+    // Dynamic permissions state
+    const [permissions, setPermissions] = useState(JSON.parse(sessionStorage.getItem('permissions') || '{}'));
+
     // Determine the first accessible tab for the user
-    const getDefaultTab = () => {
+    const getDefaultTab = (perms) => {
         if (userRole !== 'Faculty') return 'workshops';
 
-        const perms = JSON.parse(sessionStorage.getItem('permissions') || '{}');
         if (perms.canManageWorkshops) return 'workshops';
         if (perms.canManageGuestLectures) return 'guest-lectures';
         if (perms.canManageIndustrialVisits) return 'industrial-visits';
@@ -23,7 +26,31 @@ const IQACManager = ({ userRole, userId }) => {
         return null;
     };
 
-    const [activeTab, setActiveTab] = useState(getDefaultTab());
+    const [activeTab, setActiveTab] = useState(getDefaultTab(permissions));
+
+    // Fetch latest permissions when IQACManager mounts
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            if (userRole === 'Faculty' && userId) {
+                try {
+                    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, {
+                        params: { search: userId }
+                    });
+                    if (res.data && res.data.users) {
+                        const currentUser = res.data.users.find(u => u.id === userId);
+                        if (currentUser && currentUser.permissions) {
+                            sessionStorage.setItem('permissions', JSON.stringify(currentUser.permissions));
+                            setPermissions(currentUser.permissions);
+                            setActiveTab(prev => prev ? prev : getDefaultTab(currentUser.permissions));
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to refresh permissions:", err);
+                }
+            }
+        };
+        fetchPermissions();
+    }, [userRole, userId]);
 
     // Render the correct child component based on the active tab
     const renderSubModule = () => {
@@ -51,7 +78,7 @@ const IQACManager = ({ userRole, userId }) => {
 
             {/* IQAC Horizontal Navigation Tabs */}
             <div className="achievements-tabs">
-                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops) && (
+                {(userRole !== 'Faculty' || permissions.canManageWorkshops) && (
                     <button
                         className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
                         onClick={() => setActiveTab('workshops')}
@@ -60,7 +87,7 @@ const IQACManager = ({ userRole, userId }) => {
                     </button>
                 )}
 
-                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures) && (
+                {(userRole !== 'Faculty' || permissions.canManageGuestLectures) && (
                     <button
                         className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
                         onClick={() => setActiveTab('guest-lectures')}
@@ -69,7 +96,7 @@ const IQACManager = ({ userRole, userId }) => {
                     </button>
                 )}
 
-                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageIndustrialVisits) && (
+                {(userRole !== 'Faculty' || permissions.canManageIndustrialVisits) && (
                     <button
                         className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
                         onClick={() => setActiveTab('industrial-visits')}
@@ -77,7 +104,7 @@ const IQACManager = ({ userRole, userId }) => {
                         <FaIndustry /> Industrial Visits
                     </button>
                 )}
-                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp) && (
+                {(userRole !== 'Faculty' || permissions.canManageFdpPdp) && (
                     <button
                         className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
                         onClick={() => setActiveTab('fdp-pdp')}
@@ -85,7 +112,7 @@ const IQACManager = ({ userRole, userId }) => {
                         <FaGraduationCap /> FDP / PDP
                     </button>
                 )}
-                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpSttp) && (
+                {(userRole !== 'Faculty' || permissions.canManageFdpSttp) && (
                     <button
                         className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
                         onClick={() => setActiveTab('fdp-sttp-outside')}
