@@ -252,12 +252,14 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
             </div>
 
             <div className="achievements-tabs">
+                {/* 
                 <button
                     className={`std-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
                     onClick={() => setActiveTab('overview')}
                 >
                     <FaList /> Overview
                 </button>
+                */}
             </div>
 
             {/* OVERVIEW TAB */}

@@ -249,18 +249,20 @@ const HODGuestLecturesManager = ({ userRole }) => {
             </div>
 
             <div className="achievements-tabs">
+                {/* 
                 <button
                     className={`std-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
                     onClick={() => setActiveTab('overview')}
                 >
                     <FaList /> Overview
                 </button>
-                {/* <button
+                <button
                     className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
                     onClick={() => setActiveTab('access')}
                 >
                     <FaUserCog /> Access Control
-                </button> */}
+                </button> 
+                */}
             </div>
 
             {/* OVERVIEW TAB */}

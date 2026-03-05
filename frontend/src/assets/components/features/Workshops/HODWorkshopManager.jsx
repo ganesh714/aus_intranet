@@ -269,17 +269,19 @@ const HODWorkshopManager = ({ userRole }) => {
             </div>
 
             <div className="achievements-tabs">
+                {/* 
                 <button
                     className={`std-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
                     onClick={() => setActiveTab('overview')}
                 >
                     <FaList /> Overview
                 </button>
+                */}
                 <button
                     className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('access')}
+                    onClick={() => setActiveTab(activeTab === 'access' ? 'overview' : 'access')}
                 >
-                    <FaUserCog /> Access Control
+                    <FaUserCog /> {activeTab === 'access' ? 'Close Access Control' : 'Access Control'}
                 </button>
             </div>
 
