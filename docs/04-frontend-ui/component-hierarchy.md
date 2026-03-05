@@ -13,10 +13,12 @@ Components for reading, creating, editing, and deleting (CRUD) broadcast message
 * `CreateAnnouncementForm`: The form utilized by Faculty+ to target specific roles/departments with a new message.
 
 
-### 4. `Workshops`
-Handles workshop event records and department-level reporting.
-* `WorkshopManager`: Faculty-facing CRUD form for adding, editing, and deleting workshop records. Includes fields for academic year, activity name, dates, resource person, professional body, student count, and contact hours.
-* `HODWorkshopManager`: HOD view with Overview (dynamically filterable table by academic year of all department workshops + Excel report generation) and Access Control (grant/revoke `canManageWorkshops` permission to faculty).
+### 4. `IQAC Sub-Modules (Workshops, Guest Lectures, Industrial Visits, FDP/PDP, FDP/STTP Outside)`
+Handles various departmental faculty events and reporting. All sub-modules follow the identical architectural pattern:
+* `[Feature]Manager`: Faculty-facing CRUD form for adding, editing, and deleting records.
+* `HOD[Feature]Manager`: HOD view with:
+  * **Overview Tab:** Dynamically filterable table to view all department records by academic year + Excel Report Generation.
+  * **Access Control Tab:** UI for mapping which specific faculty members are authorized to add/edit records within that module (grants specific boolean flags like `canManageWorkshops` or `canManageGuestLectures`).
 
 ## State Management Approach
 

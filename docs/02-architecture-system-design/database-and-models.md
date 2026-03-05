@@ -66,6 +66,10 @@ The central identity model. Every authenticated action traces back to a User.
 | `permissions.approveStudentAchievements` | Boolean                  | —             | Can approve student achievement submissions                                                           |
 | `permissions.approveFacultyAchievements` | Boolean                  | —             | Can approve faculty achievement submissions                                                           |
 | `permissions.canManageWorkshops`         | Boolean                  | —             | Can add/edit workshop records                                                                         |
+| `permissions.canManageGuestLectures`     | Boolean                  | —             | Can add/edit guest lecture records                                                                    |
+| `permissions.canManageIndustrialVisits`  | Boolean                  | —             | Can add/edit industrial visit records                                                                 |
+| `permissions.canManageFdpPdp`            | Boolean                  | —             | Can add/edit FDP/PDP records                                                                          |
+| `permissions.canManageFdpSttp`           | Boolean                  | —             | Can add/edit FDP/STTP (Outside) records                                                               |
 | `pinnedTimetables`                       | [ObjectId → `Timetable`] | —             | Up to 3 pinned timetable shortcuts                                                                    |
 
 ---

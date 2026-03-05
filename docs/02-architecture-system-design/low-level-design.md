@@ -167,6 +167,10 @@ The central identity model. Every authenticated action traces back to a User.
 | `permissions.approveStudentAchievements` | `Boolean` | — | Granular permission |
 | `permissions.approveFacultyAchievements` | `Boolean` | — | Granular permission |
 | `permissions.canManageWorkshops` | `Boolean` | — | Granular permission |
+| `permissions.canManageGuestLectures` | `Boolean` | — | Granular permission |
+| `permissions.canManageIndustrialVisits` | `Boolean` | — | Granular permission |
+| `permissions.canManageFdpPdp` | `Boolean` | — | Granular permission |
+| `permissions.canManageFdpSttp` | `Boolean` | — | Granular permission |
 | `pinnedTimetables` | `[ObjectId → Timetable]` | — | Max 3 pinned timetables |
 
 ---
@@ -397,6 +401,10 @@ Services contain all business logic and are the core of the application.
 | `toggleTimetablePermission(id, canUpload)` | Enable/disable timetable upload for a faculty member. |
 | `toggleAchievementPermission(id, permissionType, allowed)` | Toggle `approveStudentAchievements` or `approveFacultyAchievements`. |
 | `toggleWorkshopPermission(id, allowed)` | Toggle `canManageWorkshops` for faculty. |
+| `toggleGuestLecturePermission(id, allowed)` | Toggle `canManageGuestLectures` for faculty. |
+| `toggleIndustrialVisitPermission(id, allowed)` | Toggle `canManageIndustrialVisits` for faculty. |
+| `toggleFdpPdpPermission(id, allowed)` | Toggle `canManageFdpPdp` for faculty. |
+| `toggleFdpSttpPermission(id, allowed)` | Toggle `canManageFdpSttp` for faculty. |
 | `changePassword(user, currentPassword, newPassword)` | Validate current password and update. |
 | `togglePin(userId, timetableId)` | Pin/unpin a timetable (max 3). |
 | `getPinnedTimetables(userId)` | Fetch pinned timetables with populated data. |
