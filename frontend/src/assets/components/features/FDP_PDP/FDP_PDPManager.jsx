@@ -9,9 +9,17 @@ const FDP_PDPManager = ({ userId }) => {
     const [editId, setEditId] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    // Helper to get current academic year dynamically
+    const getCurrentAcademicYear = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        // If current month is before June (5), we are in the previous academic year
+        return today.getMonth() < 5 ? `${year - 1}-${year}` : `${year}-${year + 1}`;
+    };
+
     // Initial Form State
     const initialForm = {
-        academicYear: '2023-2024',
+        academicYear: getCurrentAcademicYear(),
         type: 'FDP',
         title: '',
         startDate: '',
@@ -25,7 +33,7 @@ const FDP_PDPManager = ({ userId }) => {
     // Load Data
     const loadRecords = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
                 params: { userId }
             });
             setRecords(response.data.records || []);
@@ -42,16 +50,23 @@ const FDP_PDPManager = ({ userId }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleYearChange = (delta) => {
+        const currentYearStart = parseInt(formData.academicYear.split('-')[0], 10);
+        if (isNaN(currentYearStart)) return;
+        const newYearStart = currentYearStart + delta;
+        setFormData({ ...formData, academicYear: `${newYearStart}-${newYearStart + 1}` });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
             if (isEditing) {
                 // Update existing
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-pdp/${editId}`, formData);
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-pdp-organized/${editId}`, formData);
             } else {
                 // Add new
-                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-pdp`, {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-pdp-organized`, {
                     userId,
                     ...formData
                 });
@@ -82,7 +97,7 @@ const FDP_PDPManager = ({ userId }) => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
-                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-pdp/${id}`);
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-pdp-organized/${id}`);
                 loadRecords();
             } catch (error) {
                 console.error("Error deleting FDP/PDP record:", error);
@@ -117,17 +132,32 @@ const FDP_PDPManager = ({ userId }) => {
                     <div className="form-grid">
                         <div className="std-form-group">
                             <label className="std-label">Academic Year</label>
-                            <select
-                                name="academicYear"
-                                className="std-select"
-                                value={formData.academicYear}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="2025-2026">2025-2026</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                            </select>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    name="academicYear"
+                                    className="std-input"
+                                    value={formData.academicYear}
+                                    readOnly
+                                    style={{ textAlign: 'center', width: '60%', borderTopRightRadius: '0', borderBottomRightRadius: '0', borderRight: 'none' }}
+                                />
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderTopRightRadius: '4px', borderBottom: 'none' }}
+                                    >
+                                        ▲
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(-1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderBottomRightRadius: '4px' }}
+                                    >
+                                        ▼
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="std-form-group">
@@ -245,9 +275,9 @@ const FDP_PDPManager = ({ userId }) => {
                                 <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td><span style={{
-                                        padding: '4px 8px', 
-                                        borderRadius: '4px', 
-                                        fontWeight: 'bold', 
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        fontWeight: 'bold',
                                         fontSize: '12px',
                                         backgroundColor: w.type === 'FDP' ? '#dbeafe' : '#fef3c7',
                                         color: w.type === 'FDP' ? '#1e3a8a' : '#92400e'

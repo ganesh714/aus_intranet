@@ -41,7 +41,11 @@ backend/
 │   ├── Material.js
 │   ├── Timetable.js
 │   ├── DriveItem.js
-│   └── Workshop.js
+│   ├── Workshop.js
+│   ├── GuestLecture.js
+│   ├── IndustrialVisit.js
+│   ├── FdpPdpOrganized.js
+│   └── FdpSttpAttended.js
 │
 ├── middleware/             # Express middleware (Auth & RBAC)
 │   ├── authMiddleware.js
@@ -57,6 +61,10 @@ backend/
 │   ├── timetableRoutes.js
 │   ├── achievementRoutes.js
 │   ├── workshopRoutes.js
+│   ├── guestLectureRoutes.js
+│   ├── industrialVisitRoutes.js
+│   ├── fdpPdpRoutes.js
+│   ├── fdpSttpRoutes.js
 │   └── subRoleRoutes.js
 │
 ├── controllers/           # Request handlers
@@ -68,6 +76,10 @@ backend/
 │   ├── timetableController.js
 │   ├── achievementController.js
 │   ├── workshopController.js
+│   ├── guestLectureController.js
+│   ├── industrialVisitController.js
+│   ├── fdpPdpController.js
+│   ├── fdpSttpController.js
 │   └── subRoleController.js
 │
 ├── services/              # Business logic
@@ -77,6 +89,10 @@ backend/
 │   ├── MaterialService.js
 │   ├── TimetableService.js
 │   ├── WorkshopService.js
+│   ├── GuestLectureService.js
+│   ├── IndustrialVisitService.js
+│   ├── FdpPdpService.js
+│   ├── FdpSttpService.js
 │   ├── EmailService.js
 │   └── storageService.js
 │
@@ -138,6 +154,10 @@ flowchart TD
 | `/` | `timetableRoutes` | Root-mounted |
 | `/` | `announcementRoutes` | Root-mounted |
 | `/` | `workshopRoutes` | Root-mounted |
+| `/` | `guestLectureRoutes` | Root-mounted |
+| `/` | `industrialVisitRoutes` | Root-mounted |
+| `/` | `fdpPdpRoutes` | Root-mounted |
+| `/` | `fdpSttpRoutes` | Root-mounted |
 | `/` | `subRoleRoutes` | Root-mounted |
 
 > [!WARNING]
@@ -167,6 +187,10 @@ The central identity model. Every authenticated action traces back to a User.
 | `permissions.approveStudentAchievements` | `Boolean` | — | Granular permission |
 | `permissions.approveFacultyAchievements` | `Boolean` | — | Granular permission |
 | `permissions.canManageWorkshops` | `Boolean` | — | Granular permission |
+| `permissions.canManageGuestLectures` | `Boolean` | — | Granular permission |
+| `permissions.canManageIndustrialVisits` | `Boolean` | — | Granular permission |
+| `permissions.canManageFdpPdp` | `Boolean` | — | Granular permission |
+| `permissions.canManageFdpSttp` | `Boolean` | — | Granular permission |
 | `pinnedTimetables` | `[ObjectId → Timetable]` | — | Max 3 pinned timetables |
 
 ---
@@ -352,6 +376,10 @@ Each route file defines Express `Router` endpoints and applies the appropriate m
 | `timetableRoutes.js` | `POST /upload-timetable`, `GET /get-timetables` | `timetableController` |
 | `achievementRoutes.js` | `POST /achievements`, `GET /achievements`, `PUT /achievements/:id/approve` | `achievementController` |
 | `workshopRoutes.js` | `POST /workshops`, `GET /workshops` | `workshopController` |
+| `guestLectureRoutes.js` | `POST /guest-lectures`, `GET /guest-lectures` | `guestLectureController` |
+| `industrialVisitRoutes.js` | `POST /industrial-visits`, `GET /industrial-visits` | `industrialVisitController` |
+| `fdpPdpRoutes.js` | `POST /fdp-pdp`, `GET /fdp-pdp` | `fdpPdpController` |
+| `fdpSttpRoutes.js` | `POST /fdp-sttp`, `GET /fdp-sttp` | `fdpSttpController` |
 | `subRoleRoutes.js` | `GET /sub-roles`, `POST /sub-roles` | `subRoleController` |
 
 ---
@@ -397,6 +425,10 @@ Services contain all business logic and are the core of the application.
 | `toggleTimetablePermission(id, canUpload)` | Enable/disable timetable upload for a faculty member. |
 | `toggleAchievementPermission(id, permissionType, allowed)` | Toggle `approveStudentAchievements` or `approveFacultyAchievements`. |
 | `toggleWorkshopPermission(id, allowed)` | Toggle `canManageWorkshops` for faculty. |
+| `toggleGuestLecturePermission(id, allowed)` | Toggle `canManageGuestLectures` for faculty. |
+| `toggleIndustrialVisitPermission(id, allowed)` | Toggle `canManageIndustrialVisits` for faculty. |
+| `toggleFdpPdpPermission(id, allowed)` | Toggle `canManageFdpPdp` for faculty. |
+| `toggleFdpSttpPermission(id, allowed)` | Toggle `canManageFdpSttp` for faculty. |
 | `changePassword(user, currentPassword, newPassword)` | Validate current password and update. |
 | `togglePin(userId, timetableId)` | Pin/unpin a timetable (max 3). |
 | `getPinnedTimetables(userId)` | Fetch pinned timetables with populated data. |
@@ -449,6 +481,10 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 
 ---
 
+## IQAC Services
+
+The following services handle CRUD operations and filtering for the faculty event modules grouped under IQAC. They all follow a similar pattern and expose identical interfaces.
+
 ### 7.8 `WorkshopService.js`
 
 | Method | Purpose |
@@ -459,6 +495,52 @@ Admin(1) > Officers(2) > Dean(3) > Asso.Dean(4) > HOD(5) > Faculty(6) > Student(
 | `deleteWorkshop(id)` | Deletes a workshop by its MongoDB `_id`. |
 | `updateWorkshop(id, data)` | Updates a workshop by its MongoDB `_id`. |
 
+---
+
+### 7.9 `GuestLectureService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addGuestLecture(userId, data)` | Creates a new Guest Lecture record. |
+| `getGuestLectures({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteGuestLecture(id)` | Deletes a guest lecture. |
+| `updateGuestLecture(id, data)` | Updates a guest lecture. |
+
+---
+
+### 7.10 `IndustrialVisitService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addIndustrialVisit(userId, data)` | Creates a new Industrial Visit record. |
+| `getIndustrialVisits({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteIndustrialVisit(id)` | Deletes an industrial visit. |
+| `updateIndustrialVisit(id, data)` | Updates an industrial visit. |
+
+---
+
+### 7.11 `FdpPdpService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addFdpPdp(userId, data)` | Creates a new FDP/PDP record. |
+| `getFdpPdps({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteFdpPdp(id)` | Deletes an FDP/PDP record. |
+| `updateFdpPdp(id, data)` | Updates an FDP/PDP record. |
+
+---
+
+### 7.12 `FdpSttpService.js`
+
+| Method | Purpose |
+|:---|:---|
+| `addFdpSttp(userId, data)` | Creates a new FDP/STTP (Outside) record. |
+| `getFdpSttps({ userId, dept, academicYear })` | Dynamic filter. Returns sorted records. |
+| `deleteFdpSttp(id)` | Deletes an FDP/STTP (Outside) record. |
+| `updateFdpSttp(id, data)` | Updates an FDP/STTP (Outside) record. |
+
+---
+*(End of IQAC Services)*
 ---
 
 ### 7.6 `EmailService.js` (Observer)

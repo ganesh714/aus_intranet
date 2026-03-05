@@ -9,15 +9,23 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     const [editId, setEditId] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    // Helper to get current academic year dynamically
+    const getCurrentAcademicYear = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        // If current month is before June (5), we are in the previous academic year
+        return today.getMonth() < 5 ? `${year - 1}-${year}` : `${year}-${year + 1}`;
+    };
+
     // Initial Form State
     const initialForm = {
-        academicYear: '2023-2024',
+        academicYear: getCurrentAcademicYear(),
         facultyName: '',
-        eventName: '',
+        title: '',
         startDate: '',
         endDate: '',
         durationDays: '',
-        organisedBy: ''
+        organizedBy: ''
     };
 
     const [formData, setFormData] = useState(initialForm);
@@ -25,7 +33,7 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     // Load Data
     const loadRecords = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-outside`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-attended`, {
                 params: { userId }
             });
             setRecords(response.data.records || []);
@@ -42,16 +50,23 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleYearChange = (delta) => {
+        const currentYearStart = parseInt(formData.academicYear.split('-')[0], 10);
+        if (isNaN(currentYearStart)) return;
+        const newYearStart = currentYearStart + delta;
+        setFormData({ ...formData, academicYear: `${newYearStart}-${newYearStart + 1}` });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
             if (isEditing) {
                 // Update existing
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-sttp-outside/${editId}`, formData);
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-sttp-attended/${editId}`, formData);
             } else {
                 // Add new
-                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-sttp-outside`, {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-sttp-attended`, {
                     userId,
                     ...formData
                 });
@@ -68,11 +83,11 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
         setFormData({
             academicYear: item.academicYear,
             facultyName: item.facultyName || '',
-            eventName: item.eventName,
+            title: item.title,
             startDate: item.startDate ? item.startDate.split('T')[0] : '',
             endDate: item.endDate ? item.endDate.split('T')[0] : '',
             durationDays: item.durationDays,
-            organisedBy: item.organisedBy
+            organizedBy: item.organizedBy
         });
         setEditId(item._id); // Use _id from MongoDB
         setIsEditing(true);
@@ -82,7 +97,7 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
-                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-sttp-outside/${id}`);
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-sttp-attended/${id}`);
                 loadRecords();
             } catch (error) {
                 console.error("Error deleting FDP/STTP record:", error);
@@ -117,17 +132,32 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                     <div className="form-grid">
                         <div className="std-form-group">
                             <label className="std-label">Academic Year</label>
-                            <select
-                                name="academicYear"
-                                className="std-select"
-                                value={formData.academicYear}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="2025-2026">2025-2026</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2023-2024">2023-2024</option>
-                            </select>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    name="academicYear"
+                                    className="std-input"
+                                    value={formData.academicYear}
+                                    readOnly
+                                    style={{ textAlign: 'center', width: '60%', borderTopRightRadius: '0', borderBottomRightRadius: '0', borderRight: 'none' }}
+                                />
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderTopRightRadius: '4px', borderBottom: 'none' }}
+                                    >
+                                        ▲
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleYearChange(-1)}
+                                        style={{ padding: '4px 8px', fontSize: '10px', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: '#f3f4f6', borderBottomRightRadius: '4px' }}
+                                    >
+                                        ▼
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="std-form-group">
@@ -147,9 +177,9 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                             <label className="std-label">Name of the FDP/STTP attended</label>
                             <input
                                 type="text"
-                                name="eventName"
+                                name="title"
                                 className="std-input"
-                                value={formData.eventName}
+                                value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder="e.g. AI and Machine Learning Workhop"
                                 required
@@ -197,9 +227,9 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                             <label className="std-label">Organised by</label>
                             <input
                                 type="text"
-                                name="organisedBy"
+                                name="organizedBy"
                                 className="std-input"
-                                value={formData.organisedBy}
+                                value={formData.organizedBy}
                                 onChange={handleInputChange}
                                 placeholder="e.g. IIT Bombay"
                                 required
@@ -244,10 +274,10 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                                 <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td>{w.facultyName}</td>
-                                    <td><strong>{w.eventName}</strong></td>
+                                    <td><strong>{w.title}</strong></td>
                                     <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
                                     <td>{w.durationDays} Days</td>
-                                    <td>{w.organisedBy}</td>
+                                    <td>{w.organizedBy}</td>
                                     <td style={{ display: 'flex', gap: '10px' }}>
                                         <button className="std-btn-sm std-btn-secondary" onClick={() => handleEdit(w)}>
                                             <FaEdit />

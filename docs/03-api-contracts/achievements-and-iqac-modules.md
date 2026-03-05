@@ -1,6 +1,6 @@
-# Achievements & Workshops — API Contracts
+# Achievements & IQAC Modules — API Contracts
 
-> **Covers:** Achievement submission and approval workflow, Workshop management for faculty, and the Excel report generation feature.
+> **Covers:** Achievement submission and approval workflow, and all 5 IQAC modules (Workshops, Guest Lectures, Industrial Visits, FDP/PDP, FDP/STTP Outside).
 
 ---
 
@@ -338,3 +338,24 @@ Delete a workshop record.
 **URL Example:** `DELETE /delete-workshop/66abcd...`
 
 **Success (200 OK):** `{ "message": "Workshop deleted" }`
+
+---
+
+## 🛠️ Other IQAC Sub-Modules
+
+The following four IQAC sub-modules were implemented using the exact same REST API architecture and CRUD pattern as the Workshops module described above:
+
+1. **Guest Lectures** (`/guest-lectures/*`)
+2. **Industrial Visits** (`/industrial-visits/*`)
+3. **FDP/PDP** (`/fdp-pdp/*`)
+4. **FDP/STTP (Outside)** (`/fdp-sttp/*`)
+
+### API Contract Pattern
+All of these modules expose identical endpoints, replacing the noun:
+
+* `POST /add-[module]` — Creates a record (requires the relevant `permissions.canManage[Module] = true`)
+* `GET /get-[modules]?userId=...&dept=...&academicYear=...` — Fetches records using dynamic filters.
+* `PUT /update-[module]/:id` — Edits a record.
+* `DELETE /delete-[module]/:id` — Deletes a record.
+
+For the exact payload required for each module's `POST` request, please refer to the specific Mongoose model schemas located in `backend/models/`.

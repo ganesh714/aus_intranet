@@ -10,7 +10,7 @@
 flowchart LR
     React["React Frontend"] -->|"HTTP (JSON/FormData)"| Express["Express Backend"]
     Express -->|"Mongoose ODM"| MongoDB[("MongoDB Database")]
-    MongoDB --- Collections["9 Collections:\nusers, subroles, files\ndriveItems, materials\nannouncements, timetables\nachievements, workshops"]
+    MongoDB --- Collections["13 Collections:\nusers, subroles, files\ndriveItems, materials\nannouncements, timetables\nachievements, workshops\nguestlectures, industrialvisits\nfdppdporganizeds, fdpsttpattendeds"]
 ```
 
 ---
@@ -26,6 +26,10 @@ erDiagram
     User ||--o{ Material : "uploads"
     User ||--o{ Achievement : "submits"
     User ||--o{ Workshop : "records"
+    User ||--o{ GuestLecture : "records"
+    User ||--o{ IndustrialVisit : "records"
+    User ||--o{ FdpPdpOrganized : "records"
+    User ||--o{ FdpSttpAttended : "records"
     User }o--o{ Timetable : "pins (max 3)"
 
     SubRole ||--o{ User : "has members"
@@ -66,6 +70,10 @@ The central identity model. Every authenticated action traces back to a User.
 | `permissions.approveStudentAchievements` | Boolean                  | —             | Can approve student achievement submissions                                                           |
 | `permissions.approveFacultyAchievements` | Boolean                  | —             | Can approve faculty achievement submissions                                                           |
 | `permissions.canManageWorkshops`         | Boolean                  | —             | Can add/edit workshop records                                                                         |
+| `permissions.canManageGuestLectures`     | Boolean                  | —             | Can add/edit guest lecture records                                                                    |
+| `permissions.canManageIndustrialVisits`  | Boolean                  | —             | Can add/edit industrial visit records                                                                 |
+| `permissions.canManageFdpPdp`            | Boolean                  | —             | Can add/edit FDP/PDP records                                                                          |
+| `permissions.canManageFdpSttp`           | Boolean                  | —             | Can add/edit FDP/STTP (Outside) records                                                               |
 | `pinnedTimetables`                       | [ObjectId → `Timetable`] | —             | Up to 3 pinned timetable shortcuts                                                                    |
 
 ---
@@ -185,6 +193,10 @@ Student and faculty achievements with a 3-stage approval workflow: **Pending →
 
 ---
 
+## IQAC Sub-Modules
+
+The following collections manage faculty events and are grouped centrally under the IQAC (Internal Quality Assurance Cell) umbrella.
+
 ### 9. `workshops` — `models/Workshop.js`
 
 Faculty training/workshop records tied to a department.
@@ -201,6 +213,73 @@ Faculty training/workshop records tied to a department.
 | `studentCount`          | Number               | ✅       | Number of students who attended |
 | `contactHours`          | Number               | —        | Total hours of the program      |
 
+---
+
+### 10. `guestlectures` — `models/GuestLecture.js`
+
+Faculty guest lecture records tied to a department.
+
+| Field                   | Type                 | Required | Notes                           |
+| ----------------------- | -------------------- | -------- | ------------------------------- |
+| `userId`                | String               | ✅       | Faculty's login ID              |
+| `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
+| `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
+| `topic`                 | String               | ✅       | Topic of the lecture            |
+| `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `resourcePerson`        | String               | ✅       | Speaker name                    |
+| `studentCount`          | Number               | ✅       | Number of attendees             |
+
+---
+
+### 11. `industrialvisits` — `models/IndustrialVisit.js`
+
+Industrial visit records tied to a department.
+
+| Field                   | Type                 | Required | Notes                           |
+| ----------------------- | -------------------- | -------- | ------------------------------- |
+| `userId`                | String               | ✅       | Faculty's login ID              |
+| `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
+| `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
+| `industryName`          | String               | ✅       | Name of visited industry        |
+| `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `studentCount`          | Number               | ✅       | Number of attendees             |
+| `facultyCount`          | Number               | ✅       | Participating faculty           |
+| `outcome`               | String               | ✅       | Visit outcome summary           |
+
+---
+
+### 12. `fdppdporganizeds` — `models/FdpPdpOrganized.js`
+
+FDP/PDP records organized by the department.
+
+| Field                   | Type                 | Required | Notes                           |
+| ----------------------- | -------------------- | -------- | ------------------------------- |
+| `userId`                | String               | ✅       | Faculty's login ID              |
+| `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
+| `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
+| `nameOfProgram`         | String               | ✅       | Name of FDP/PDP                 |
+| `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `facultyCount`          | Number               | ✅       | Number of attendees             |
+| `sourceOfFunding`       | String               | ✅       | Funding agency/source           |
+
+---
+
+### 13. `fdpsttpattendeds` — `models/FdpSttpAttended.js`
+
+FDP/STTP (Outside) attended records.
+
+| Field                   | Type                 | Required | Notes                           |
+| ----------------------- | -------------------- | -------- | ------------------------------- |
+| `userId`                | String               | ✅       | Faculty's login ID              |
+| `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
+| `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
+| `nameOfProgram`         | String               | ✅       | Name of FDP/STTP attended       |
+| `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `organizedBy`           | String               | ✅       | Internal/External org name      |
+
+
+---
+*(End of IQAC Sub-Modules)*
 ---
 
 ## Database Indexing

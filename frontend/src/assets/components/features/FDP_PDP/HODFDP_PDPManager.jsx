@@ -57,7 +57,7 @@ const HODFDP_PDPManager = ({ userRole }) => {
             const userDeptId = sessionStorage.getItem('userSubRoleId');
             const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
 
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
                 params: { dept: userDept }
             });
             setAllRecords(response.data.records || []);

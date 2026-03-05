@@ -17,7 +17,7 @@ const addLecture = async (req, res) => {
 const getLectures = async (req, res) => {
     try {
         const lectures = await GuestLectureService.getLectures(req.query);
-        res.json({ lectures });
+        res.json({ guestLectures: lectures });
     } catch (error) {
         console.error("Error fetching guest lectures:", error);
         res.status(500).json({ message: 'Error fetching guest lectures' });

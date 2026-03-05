@@ -87,7 +87,11 @@ Authenticate and receive a JWT token.
     "permissions": {
       "approveStudentAchievements": false,
       "approveFacultyAchievements": false,
-      "canManageWorkshops": false
+      "canManageWorkshops": false,
+      "canManageGuestLectures": false,
+      "canManageIndustrialVisits": false,
+      "canManageFdpPdp": false,
+      "canManageFdpSttp": false
     },
     "pinnedTimetables": []
   }
@@ -161,7 +165,11 @@ Fetch a filtered list of users.
       "permissions": {
         "approveStudentAchievements": true,
         "approveFacultyAchievements": false,
-        "canManageWorkshops": true
+        "canManageWorkshops": true,
+        "canManageGuestLectures": true,
+        "canManageIndustrialVisits": true,
+        "canManageFdpPdp": true,
+        "canManageFdpSttp": true
       }
     }
   ]
@@ -304,6 +312,17 @@ Grant or revoke workshop management rights for a faculty member.
 ```
 
 **Success (200 OK):** `{ "message": "Permission updated", "permissions": { ... } }`
+
+---
+
+### IQAC Module Access Control Toggles
+
+The same request payload and response signature apply to all other IQAC sub-module permissions:
+
+* `POST /toggle-guest-lecture-permission` -> updates `canManageGuestLectures`
+* `POST /toggle-industrial-visit-permission` -> updates `canManageIndustrialVisits`
+* `POST /toggle-fdp-pdp-permission` -> updates `canManageFdpPdp`
+* `POST /toggle-fdp-sttp-permission` -> updates `canManageFdpSttp`
 
 ---
 
