@@ -13,6 +13,7 @@ router.post('/toggle-timetable-permission', userController.toggleTimetablePermis
 router.post('/toggle-achievement-permission', userController.toggleAchievementPermission); // [NEW]
 router.post('/toggle-workshop-permission', userController.toggleWorkshopPermission); // [NEW]
 router.post('/toggle-guest-lecture-permission', userController.toggleGuestLecturePermission); // [NEW]
+router.post('/toggle-industrial-visit-permission', userController.toggleIndustrialVisitPermission); // [NEW]
 router.post('/change-password', protect, userController.changePassword);
 
 // New Routes
