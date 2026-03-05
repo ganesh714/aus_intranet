@@ -10,7 +10,7 @@ import ausLogo from '../../images/aus_logo.png'; // Adjust the path as needed
 const HODGuestLecturesManager = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allGuestLectures, setAllGuestLectures] = useState([]);
-    const [subRolesList, setSubRolesList] = useState([]); 
+    const [subRolesList, setSubRolesList] = useState([]);
 
     // Helper to format date as DD/MM/YYYY
     const formatDate = (date) => {
@@ -36,9 +36,9 @@ const HODGuestLecturesManager = ({ userRole }) => {
     }, []);
 
     const loadData = () => {
-        fetchGuestLectures(); 
+        fetchGuestLectures();
         fetchFaculty();
-        fetchSubRoles(); 
+        fetchSubRoles();
     };
 
     const fetchSubRoles = async () => {
@@ -256,13 +256,13 @@ const HODGuestLecturesManager = ({ userRole }) => {
                 >
                     <FaList /> Overview
                 </button>
+                */}
                 <button
                     className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
                     onClick={() => setActiveTab('access')}
                 >
                     <FaUserCog /> Access Control
-                </button> 
-                */}
+                </button>
             </div>
 
             {/* OVERVIEW TAB */}

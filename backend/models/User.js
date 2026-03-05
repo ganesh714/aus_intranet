@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
     permissions: {
         approveStudentAchievements: { type: Boolean, default: false },
         approveFacultyAchievements: { type: Boolean, default: false },
-        canManageWorkshops: { type: Boolean, default: false }
+        canManageWorkshops: { type: Boolean, default: false },
+        canManageGuestLectures: { type: Boolean, default: false },
+        canManageIndustrialVisits: { type: Boolean, default: false },
+        canManageFdpPdp: { type: Boolean, default: false },
+        canManageFdpSttp: { type: Boolean, default: false }
     },
     role: {
         type: String,

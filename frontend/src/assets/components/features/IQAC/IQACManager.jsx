@@ -38,36 +38,48 @@ const IQACManager = ({ userRole, userId }) => {
 
             {/* IQAC Horizontal Navigation Tabs */}
             <div className="achievements-tabs">
-                <button
-                    className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('workshops')}
-                >
-                    <FaChalkboardTeacher /> Workshops
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('guest-lectures')}
-                >
-                    <FaUserTie /> Guest Lectures
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('industrial-visits')}
-                >
-                    <FaIndustry /> Industrial Visits
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('fdp-pdp')}
-                >
-                    <FaGraduationCap /> FDP / PDP
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('fdp-sttp-outside')}
-                >
-                    <FaGraduationCap /> FDP / STTP (Outside)
-                </button>
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('workshops')}
+                    >
+                        <FaChalkboardTeacher /> Workshops
+                    </button>
+                )}
+
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('guest-lectures')}
+                    >
+                        <FaUserTie /> Guest Lectures
+                    </button>
+                )}
+
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageIndustrialVisits) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('industrial-visits')}
+                    >
+                        <FaIndustry /> Industrial Visits
+                    </button>
+                )}
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('fdp-pdp')}
+                    >
+                        <FaGraduationCap /> FDP / PDP
+                    </button>
+                )}
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpSttp) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('fdp-sttp-outside')}
+                    >
+                        <FaGraduationCap /> FDP / STTP (Outside)
+                    </button>
+                )}
             </div>
 
             {/* Mount the selected Module */}

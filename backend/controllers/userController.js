@@ -61,6 +61,50 @@ const toggleWorkshopPermission = async (req, res) => {
     }
 };
 
+// Toggle Guest Lecture Permission
+const toggleGuestLecturePermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleGuestLecturePermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Toggle Industrial Visit Permission
+const toggleIndustrialVisitPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleIndustrialVisitPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Toggle FDP/PDP Permission
+const toggleFdpPdpPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleFdpPdpPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Toggle FDP/STTP Permission
+const toggleFdpSttpPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleFdpSttpPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 4. Change Password
 const changePassword = async (req, res) => {
     try {
@@ -120,6 +164,10 @@ module.exports = {
     toggleTimetablePermission,
     toggleAchievementPermission, // [NEW]
     toggleWorkshopPermission, // [NEW]
+    toggleGuestLecturePermission, // [NEW]
+    toggleIndustrialVisitPermission, // [NEW]
+    toggleFdpPdpPermission, // [NEW]
+    toggleFdpSttpPermission, // [NEW]
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,
