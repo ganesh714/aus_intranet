@@ -171,10 +171,10 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                 sno: index + 1,
                 academicYear: w.academicYear,
                 facultyName: w.facultyName || w.userId,
-                eventName: w.eventName,
+                eventName: w.title,
                 dates: `${formatDate(w.startDate)} \n to \n${formatDate(w.endDate)}`,
                 duration: w.durationDays,
-                organisedBy: w.organisedBy
+                organisedBy: w.organizedBy
             });
 
             dataRow.eachCell((cell) => {
@@ -309,10 +309,10 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                                         <tr key={idx}>
                                             <td>{w.academicYear}</td>
                                             <td>{w.facultyName} <br /><span style={{ color: '#64748b', fontSize: '11px' }}>({w.userId})</span></td>
-                                            <td><strong>{w.eventName}</strong></td>
+                                            <td><strong>{w.title}</strong></td>
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.durationDays} Days</td>
-                                            <td>{w.organisedBy}</td>
+                                            <td>{w.organizedBy}</td>
                                         </tr>
                                     ))
                                 )}
