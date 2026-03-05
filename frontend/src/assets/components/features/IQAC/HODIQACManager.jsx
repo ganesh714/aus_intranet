@@ -3,10 +3,10 @@ import './IQAC.css';
 import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'react-icons/fa';
 
 import HODWorkshopManager from '../Workshops/HODWorkshopManager';
-import HODGuestLecturesManager from '../GuestLectures/HODGuestLecturesManager'; // [NEW]
+import HODGuestLecturesManager from '../GuestLectures/HODGuestLecturesManager';
+import HODIndustrialVisitsManager from '../IndustrialVisits/HODIndustrialVisitsManager'; // [NEW]
 
-// Placeholder empty components for the HOD view of the other 2 modules
-const HODIndustrialVisits = () => <div className="iqac-placeholder"><h3>HOD Industrial Visits Overview</h3><p>Coming Soon...</p></div>;
+// Placeholder empty components for the HOD view of the other 1 module
 const HODFDP_PDP = () => <div className="iqac-placeholder"><h3>HOD FDP / PDP Overview</h3><p>Coming Soon...</p></div>;
 
 const HODIQACManager = ({ userRole, userId }) => {
@@ -21,7 +21,7 @@ const HODIQACManager = ({ userRole, userId }) => {
             case 'guest-lectures':
                 return <HODGuestLecturesManager userRole={userRole} />; // [NEW]
             case 'industrial-visits':
-                return <HODIndustrialVisits userRole={userRole} />;
+                return <HODIndustrialVisitsManager userRole={userRole} />; // [NEW]
             case 'fdp-pdp':
                 return <HODFDP_PDP userRole={userRole} />;
             default:
