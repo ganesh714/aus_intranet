@@ -9,8 +9,21 @@ import FDP_PDPManager from '../FDP_PDP/FDP_PDPManager';
 import FDP_STTP_OutsideManager from '../FDP_PDP/FDP_STTP_OutsideManager'; // [NEW]
 
 const IQACManager = ({ userRole, userId }) => {
-    // Determine which horizontal tab is currently active
-    const [activeTab, setActiveTab] = useState('workshops');
+    // Determine the first accessible tab for the user
+    const getDefaultTab = () => {
+        if (userRole !== 'Faculty') return 'workshops';
+
+        const perms = JSON.parse(sessionStorage.getItem('permissions') || '{}');
+        if (perms.canManageWorkshops) return 'workshops';
+        if (perms.canManageGuestLectures) return 'guest-lectures';
+        if (perms.canManageIndustrialVisits) return 'industrial-visits';
+        if (perms.canManageFdpPdp) return 'fdp-pdp';
+        if (perms.canManageFdpSttp) return 'fdp-sttp-outside';
+
+        return null;
+    };
+
+    const [activeTab, setActiveTab] = useState(getDefaultTab());
 
     // Render the correct child component based on the active tab
     const renderSubModule = () => {
@@ -26,7 +39,7 @@ const IQACManager = ({ userRole, userId }) => {
             case 'fdp-sttp-outside':
                 return <FDP_STTP_OutsideManager userId={userId} userRole={userRole} />; // [NEW]
             default:
-                return <WorkshopManager userId={userId} userRole={userRole} />;
+                return null;
         }
     };
 
