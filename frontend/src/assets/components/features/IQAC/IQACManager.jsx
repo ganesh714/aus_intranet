@@ -72,12 +72,14 @@ const IQACManager = ({ userRole, userId }) => {
                         <FaGraduationCap /> FDP / PDP
                     </button>
                 )}
-                <button
-                    className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('fdp-sttp-outside')}
-                >
-                    <FaGraduationCap /> FDP / STTP (Outside)
-                </button>
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpSttp) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('fdp-sttp-outside')}
+                    >
+                        <FaGraduationCap /> FDP / STTP (Outside)
+                    </button>
+                )}
             </div>
 
             {/* Mount the selected Module */}
