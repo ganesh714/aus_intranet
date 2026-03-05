@@ -149,6 +149,19 @@ class UserService {
 
         return await user.save();
     }
+
+    // Toggle FDP/PDP Permission
+    static async toggleFdpPdpPermission(id, allowed) {
+        const user = await User.findOne({ id });
+        if (!user) throw new Error('User not found');
+        if (user.role !== 'Faculty') throw new Error('Permissions can only be toggled for Faculty.');
+
+        if (!user.permissions) user.permissions = {};
+        user.permissions.canManageFdpPdp = allowed;
+        user.markModified('permissions');
+
+        return await user.save();
+    }
     static async changePassword(user, currentPassword, newPassword) {
         // 1. Validate the current password
         if (user.password !== currentPassword) {
