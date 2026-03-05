@@ -139,10 +139,10 @@ const Sidebar = ({
 
                 {/* 1. Faculty Link (Visible only if granted access) */}
                 {userRole === 'Faculty' && JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops && (
-                    <div className={`category-item ${type === 'Workshops' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onDirectCategoryClick('Workshops')}>
+                    <div className={`category-item ${type === 'IQAC' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('IQAC')}>
                             <span className="cat-name">
-                                <FaChalkboardTeacher className="cat-icon" /> Workshops conducted
+                                <FaChalkboardTeacher className="cat-icon" /> IQAC
                             </span>
                         </div>
                     </div>
@@ -150,10 +150,10 @@ const Sidebar = ({
 
                 {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
                 {['HOD', 'Dean', 'Asso.Dean'].includes(userRole) && (
-                    <div className={`category-item ${type === 'HODWorkshops' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onDirectCategoryClick('HODWorkshops')}>
+                    <div className={`category-item ${type === 'HODIQAC' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('HODIQAC')}>
                             <span className="cat-name">
-                                <FaChalkboardTeacher className="cat-icon" /> Workshops (Dept)
+                                <FaChalkboardTeacher className="cat-icon" /> IQAC (Dept)
                             </span>
                         </div>
                     </div>

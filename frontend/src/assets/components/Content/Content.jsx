@@ -11,8 +11,8 @@ import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
 import AchievementManager from "../features/Achievements/AchievementManager";
 import HODAchievementManager from "../features/Achievements/HODAchievementManager";
-import WorkshopManager from "../features/Workshops/WorkshopManager"; // [NEW]
-import HODWorkshopManager from "../features/Workshops/HODWorkshopManager"; // [NEW]
+import IQACManager from "../features/IQAC/IQACManager"; // [NEW IQAC Wrapper]
+import HODIQACManager from "../features/IQAC/HODIQACManager"; // [NEW IQAC Wrapper]
 import SubRoleManager from "../Admin/SubRoleManager"; // [NEW]
 
 const Content = () => {
@@ -106,12 +106,12 @@ const Content = () => {
         } else if (categoryName === 'HODAchievements') {
             setActiveView('hod-achievements');
             setActiveCategory('HODAchievements');
-        } else if (categoryName === 'Workshops') { // [NEW]
-            setActiveView('workshops');
-            setActiveCategory('Workshops');
-        } else if (categoryName === 'HODWorkshops') { // [NEW]
-            setActiveView('hod-workshops');
-            setActiveCategory('HODWorkshops');
+        } else if (categoryName === 'IQAC') { 
+            setActiveView('iqac');
+            setActiveCategory('IQAC');
+        } else if (categoryName === 'HODIQAC') { 
+            setActiveView('hod-iqac');
+            setActiveCategory('HODIQAC');
         } else if (categoryName === 'Manage SubRoles') { // [NEW]
             setActiveView('manage-subroles');
             setActiveCategory('Manage SubRoles');
@@ -233,19 +233,20 @@ const Content = () => {
                     />
                 );
 
-            // [NEW] Workshop Module Routes
-            case 'workshops':
+            // IQAC Module Routes
+            case 'iqac':
                 return (
-                    <WorkshopManager
+                    <IQACManager
                         userRole={userRole}
                         userId={userId}
                     />
                 );
 
-            case 'hod-workshops':
+            case 'hod-iqac':
                 return (
-                    <HODWorkshopManager
+                    <HODIQACManager
                         userRole={userRole}
+                        userId={userId}
                     />
                 );
 
@@ -274,8 +275,8 @@ const Content = () => {
                         activeView === 'personal-data' ? 'Personal Data' :
                             activeView === 'achievements' ? 'Achievements' :
                                 activeView === 'hod-achievements' ? 'HODAchievements' :
-                                    activeView === 'workshops' ? 'Workshops' : // [NEW]
-                                        activeView === 'hod-workshops' ? 'HODWorkshops' :
+                                    activeView === 'iqac' ? 'IQAC' : 
+                                        activeView === 'hod-iqac' ? 'HODIQAC' :
                                             activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
                 }
 
