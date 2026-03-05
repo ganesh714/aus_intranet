@@ -60,6 +60,7 @@ app.use('/', timetableRoutes);
 app.use('/', announcementRoutes);
 app.use('/', require('./routes/workshopRoutes')); // [NEW] Workshop Endpoints
 app.use('/', require('./routes/subRoleRoutes')); // [NEW] SubRole Endpoints
+app.use('/', require('./routes/industrialVisitRoutes')); // [NEW] Industrial Visit Endpoints
 
 const port = process.env.PORT || 5001;
 
