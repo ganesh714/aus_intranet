@@ -17,7 +17,7 @@ const addFdpPdp = async (req, res) => {
 const getFdpPdps = async (req, res) => {
     try {
         const fdpPdps = await FdpPdpOrganizedService.getFdpPdps(req.query);
-        res.json({ fdpPdps });
+        res.json({ records: fdpPdps });
     } catch (error) {
         console.error("Error fetching FDP/PDP organized:", error);
         res.status(500).json({ message: 'Error fetching FDP/PDP organized' });

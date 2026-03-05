@@ -17,7 +17,7 @@ const addFdpSttp = async (req, res) => {
 const getFdpSttps = async (req, res) => {
     try {
         const fdpSttps = await FdpSttpAttendedService.getFdpSttps(req.query);
-        res.json({ fdpSttps });
+        res.json({ records: fdpSttps });
     } catch (error) {
         console.error("Error fetching FDP/STTP attended:", error);
         res.status(500).json({ message: 'Error fetching FDP/STTP attended' });

@@ -17,7 +17,7 @@ const addVisit = async (req, res) => {
 const getVisits = async (req, res) => {
     try {
         const visits = await IndustrialVisitService.getVisits(req.query);
-        res.json({ visits });
+        res.json({ industrialVisits: visits });
     } catch (error) {
         console.error("Error fetching industrial visits:", error);
         res.status(500).json({ message: 'Error fetching industrial visits' });
