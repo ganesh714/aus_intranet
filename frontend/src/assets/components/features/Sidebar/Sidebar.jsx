@@ -142,7 +142,8 @@ const Sidebar = ({
                     JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops ||
                     JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures ||
                     JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageIndustrialVisits ||
-                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp
+                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp ||
+                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpSttp
                 ) && (
                         <div className={`category-item ${type === 'IQAC' ? "expanded" : ""}`}>
                             <div className="category-header" onClick={() => onDirectCategoryClick('IQAC')}>
