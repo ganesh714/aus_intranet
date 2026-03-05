@@ -3,9 +3,9 @@ import './IQAC.css';
 import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'react-icons/fa';
 
 import WorkshopManager from '../Workshops/WorkshopManager';
+import GuestLecturesManager from '../GuestLectures/GuestLecturesManager'; // [NEW]
 
-// Placeholder empty components for the other 3 modules
-const GuestLectures = () => <div className="iqac-placeholder"><h3>Guest Lectures Module</h3><p>Coming Soon...</p></div>;
+// Placeholder empty components for the other 2 modules
 const IndustrialVisits = () => <div className="iqac-placeholder"><h3>Industrial Visits Module</h3><p>Coming Soon...</p></div>;
 const FDP_PDP = () => <div className="iqac-placeholder"><h3>FDP / PDP Module</h3><p>Coming Soon...</p></div>;
 
@@ -19,7 +19,7 @@ const IQACManager = ({ userRole, userId }) => {
             case 'workshops':
                 return <WorkshopManager userId={userId} userRole={userRole} />;
             case 'guest-lectures':
-                return <GuestLectures userId={userId} userRole={userRole} />;
+                return <GuestLecturesManager userId={userId} userRole={userRole} />; // [NEW]
             case 'industrial-visits':
                 return <IndustrialVisits userId={userId} userRole={userRole} />;
             case 'fdp-pdp':
