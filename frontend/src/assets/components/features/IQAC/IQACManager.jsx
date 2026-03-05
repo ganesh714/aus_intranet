@@ -64,12 +64,14 @@ const IQACManager = ({ userRole, userId }) => {
                         <FaIndustry /> Industrial Visits
                     </button>
                 )}
-                <button
-                    className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('fdp-pdp')}
-                >
-                    <FaGraduationCap /> FDP / PDP
-                </button>
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageFdpPdp) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('fdp-pdp')}
+                    >
+                        <FaGraduationCap /> FDP / PDP
+                    </button>
+                )}
                 <button
                     className={`std-tab-btn ${activeTab === 'fdp-sttp-outside' ? 'active' : ''}`}
                     onClick={() => setActiveTab('fdp-sttp-outside')}
