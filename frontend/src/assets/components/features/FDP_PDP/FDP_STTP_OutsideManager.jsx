@@ -21,11 +21,11 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     const initialForm = {
         academicYear: getCurrentAcademicYear(),
         facultyName: '',
-        eventName: '',
+        title: '',
         startDate: '',
         endDate: '',
         durationDays: '',
-        organisedBy: ''
+        organizedBy: ''
     };
 
     const [formData, setFormData] = useState(initialForm);
@@ -83,11 +83,11 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
         setFormData({
             academicYear: item.academicYear,
             facultyName: item.facultyName || '',
-            eventName: item.eventName,
+            title: item.title,
             startDate: item.startDate ? item.startDate.split('T')[0] : '',
             endDate: item.endDate ? item.endDate.split('T')[0] : '',
             durationDays: item.durationDays,
-            organisedBy: item.organisedBy
+            organizedBy: item.organizedBy
         });
         setEditId(item._id); // Use _id from MongoDB
         setIsEditing(true);
@@ -177,9 +177,9 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                             <label className="std-label">Name of the FDP/STTP attended</label>
                             <input
                                 type="text"
-                                name="eventName"
+                                name="title"
                                 className="std-input"
-                                value={formData.eventName}
+                                value={formData.title}
                                 onChange={handleInputChange}
                                 placeholder="e.g. AI and Machine Learning Workhop"
                                 required
@@ -227,9 +227,9 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                             <label className="std-label">Organised by</label>
                             <input
                                 type="text"
-                                name="organisedBy"
+                                name="organizedBy"
                                 className="std-input"
-                                value={formData.organisedBy}
+                                value={formData.organizedBy}
                                 onChange={handleInputChange}
                                 placeholder="e.g. IIT Bombay"
                                 required
@@ -274,10 +274,10 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
                                 <tr key={w._id}>
                                     <td>{w.academicYear}</td>
                                     <td>{w.facultyName}</td>
-                                    <td><strong>{w.eventName}</strong></td>
+                                    <td><strong>{w.title}</strong></td>
                                     <td>{w.startDate ? new Date(w.startDate).toLocaleDateString() : '-'} to {w.endDate ? new Date(w.endDate).toLocaleDateString() : '-'}</td>
                                     <td>{w.durationDays} Days</td>
-                                    <td>{w.organisedBy}</td>
+                                    <td>{w.organizedBy}</td>
                                     <td style={{ display: 'flex', gap: '10px' }}>
                                         <button className="std-btn-sm std-btn-secondary" onClick={() => handleEdit(w)}>
                                             <FaEdit />
