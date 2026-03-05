@@ -36,7 +36,7 @@ If you are joining the team or returning after a break, start here:
 
 - **4. Frontend UI (React + Vite)**
 
-  > **Note on Folder Structure:** The `login/` directory contains the _complete_ React frontend application (encompassing all role dashboards and views), not just the authentication portal.
+  > **Note on Folder Structure:** The `frontend/` directory contains the _complete_ React frontend application (encompassing all role dashboards and views), not just the authentication portal.
   - [Role Dashboards Layout Architecture](./docs/04-frontend-ui/role-dashboards.md)
   - [Reusable Component Hierarchy](./docs/04-frontend-ui/component-hierarchy.md)
   - [Global State Management](./docs/04-frontend-ui/state-management.md)

@@ -67,9 +67,9 @@ MAILTRAP_PASS=your_mailtrap_password
 
 ## Frontend — No `.env` Required Locally
 
-The React frontend (`login/`) connects to the backend using a hardcoded URL in `vite.config.js`. By default it hits `http://localhost:5001`.
+The React frontend (`frontend/`) connects to the backend using a hardcoded URL in `vite.config.js`. By default it hits `http://localhost:5001`.
 
-If you need to change this (e.g., pointing at a staging server), you can add a `.env` file inside the `login/` directory:
+If you need to change this (e.g., pointing at a staging server), you can add a `.env` file inside the `frontend/` directory:
 
 ```env
 VITE_BACKEND_URL=http://localhost:5001

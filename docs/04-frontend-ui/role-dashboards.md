@@ -4,7 +4,7 @@ The frontend application uses React Router DOM to split the application into rol
 
 ## Top-Level Dashboards
 
-Under the `aus_intranet/login/src/assets/components/` directory, there are distinct folder structures for each major Role:
+Under the `aus_intranet/frontend/src/assets/components/` directory, there are distinct folder structures for each major Role:
 
 * **StudentDashboard:** A read-only view focused on consuming Announcements and Timetables.
 * **FacultyDashboard:** Focused on creating Announcements for students and uploading teaching materials.

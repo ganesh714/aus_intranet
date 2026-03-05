@@ -32,7 +32,7 @@ formData.append('documentFile', fileInput); // THIS string must match Multer's e
 **Cause:** Dependencies changed on GitHub, and your local `node_modules` folder is out of sync.
 **Fix:**
 ```bash
-cd login
+cd frontend
 npm install
 ```
 

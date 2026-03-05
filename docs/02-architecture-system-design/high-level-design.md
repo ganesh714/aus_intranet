@@ -19,7 +19,7 @@ graph TD
 ```
 
 ## 1. The Client Layer (Frontend)
-The frontend (`aus_intranet/login/`) is a React application utilizing Vite. 
+The frontend (`aus_intranet/frontend/`) is a React application utilizing Vite. 
 * **State:** Global state (like the logged-in User profile and JWT) is managed via contexts or specific state managers.
 * **Routing:** React Router DOM manages transitions between role-specific dashboards (`Admin`, `DeanPage`, `HodPage`, `FacultyDashboard`, `StudentDashboard`).
 * **Communication:** Axios interceptors are used to automatically attach the JWT `Authorization: Bearer <token>` to every backend request.

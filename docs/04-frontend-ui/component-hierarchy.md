@@ -1,6 +1,6 @@
 # Component Hierarchy
 
-The `aus_intranet/login/src/assets/components/features/` directory houses the modular, reusable pieces of UI that are shared across different Role Dashboards.
+The `aus_intranet/frontend/src/assets/components/features/` directory houses the modular, reusable pieces of UI that are shared across different Role Dashboards.
 
 ## Feature Breakdown
 

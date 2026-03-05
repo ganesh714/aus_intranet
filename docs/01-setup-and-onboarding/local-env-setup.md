@@ -73,7 +73,7 @@ The frontend is built with React and Vite for fast Hot Module Replacement (HMR).
 1. **Navigate to the frontend directory:**
    Open a new terminal window/tab:
    ```bash
-   cd login
+   cd frontend
    ```
 2. **Install dependencies:**
    ```bash

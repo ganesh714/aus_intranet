@@ -6,7 +6,7 @@
 
 ## 📂 Complete Folder Structure
 
-The project is split into two main directories: `backend` (Express.js) and `login` (React Frontend).
+The project is split into two main directories: `backend` (Express.js) and `frontend` (React Frontend).
 
 ### Backend Structure (`/backend`)
 
@@ -25,10 +25,10 @@ backend/
 └── server.js                  # Entry point for the Node.js application
 ```
 
-### Frontend Structure (`/login`)
+### Frontend Structure (`/frontend`)
 
 ```text
-login/
+frontend/
 ├── src/
 │   ├── assets/
 │   │   ├── components/
