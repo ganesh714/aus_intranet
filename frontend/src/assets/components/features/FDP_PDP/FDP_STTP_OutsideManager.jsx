@@ -33,7 +33,7 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     // Load Data
     const loadRecords = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-outside`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-sttp-attended`, {
                 params: { userId }
             });
             setRecords(response.data.records || []);
@@ -63,10 +63,10 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
         try {
             if (isEditing) {
                 // Update existing
-                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-sttp-outside/${editId}`, formData);
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-fdp-sttp-attended/${editId}`, formData);
             } else {
                 // Add new
-                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-sttp-outside`, {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-fdp-sttp-attended`, {
                     userId,
                     ...formData
                 });
@@ -97,7 +97,7 @@ const FDP_STTP_OutsideManager = ({ userId }) => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
-                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-sttp-outside/${id}`);
+                await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-sttp-attended/${id}`);
                 loadRecords();
             } catch (error) {
                 console.error("Error deleting FDP/STTP record:", error);
