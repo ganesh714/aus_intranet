@@ -63,6 +63,7 @@ app.use('/', require('./routes/subRoleRoutes')); // [NEW] SubRole Endpoints
 app.use('/', require('./routes/industrialVisitRoutes')); // [NEW] Industrial Visit Endpoints
 app.use('/', require('./routes/guestLectureRoutes')); // [NEW] Guest Lecture Endpoints
 app.use('/', require('./routes/fdpPdpOrganizedRoutes')); // [NEW] FDP/PDP Organized Endpoints
+app.use('/', require('./routes/fdpSttpAttendedRoutes')); // [NEW] FDP/STTP Attended Endpoints
 
 const port = process.env.PORT || 5001;
 
