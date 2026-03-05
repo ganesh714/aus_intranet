@@ -138,15 +138,18 @@ const Sidebar = ({
                 )}
 
                 {/* 1. Faculty Link (Visible only if granted access) */}
-                {userRole === 'Faculty' && JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops && (
-                    <div className={`category-item ${type === 'IQAC' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onDirectCategoryClick('IQAC')}>
-                            <span className="cat-name">
-                                <FaChalkboardTeacher className="cat-icon" /> IQAC
-                            </span>
+                {userRole === 'Faculty' && (
+                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops ||
+                    JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures
+                ) && (
+                        <div className={`category-item ${type === 'IQAC' ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={() => onDirectCategoryClick('IQAC')}>
+                                <span className="cat-name">
+                                    <FaChalkboardTeacher className="cat-icon" /> IQAC
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
                 {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
                 {['HOD', 'Dean', 'Asso.Dean'].includes(userRole) && (

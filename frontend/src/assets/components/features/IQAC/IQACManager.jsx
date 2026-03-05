@@ -38,18 +38,24 @@ const IQACManager = ({ userRole, userId }) => {
 
             {/* IQAC Horizontal Navigation Tabs */}
             <div className="achievements-tabs">
-                <button
-                    className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('workshops')}
-                >
-                    <FaChalkboardTeacher /> Workshops
-                </button>
-                <button
-                    className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('guest-lectures')}
-                >
-                    <FaUserTie /> Guest Lectures
-                </button>
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageWorkshops) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('workshops')}
+                    >
+                        <FaChalkboardTeacher /> Workshops
+                    </button>
+                )}
+
+                {(userRole !== 'Faculty' || JSON.parse(sessionStorage.getItem('permissions') || '{}').canManageGuestLectures) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('guest-lectures')}
+                    >
+                        <FaUserTie /> Guest Lectures
+                    </button>
+                )}
+
                 <button
                     className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
                     onClick={() => setActiveTab('industrial-visits')}

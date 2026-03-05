@@ -12,6 +12,7 @@ router.get('/get-dept-faculty', userController.getDeptFaculty);
 router.post('/toggle-timetable-permission', userController.toggleTimetablePermission);
 router.post('/toggle-achievement-permission', userController.toggleAchievementPermission); // [NEW]
 router.post('/toggle-workshop-permission', userController.toggleWorkshopPermission); // [NEW]
+router.post('/toggle-guest-lecture-permission', userController.toggleGuestLecturePermission); // [NEW]
 router.post('/change-password', protect, userController.changePassword);
 
 // New Routes
