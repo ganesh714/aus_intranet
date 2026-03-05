@@ -9,9 +9,17 @@ const GuestLecturesManager = ({ userId }) => {
     const [editId, setEditId] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    // Helper to get current academic year dynamically
+    const getCurrentAcademicYear = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        // If current month is before June (5), we are in the previous academic year
+        return today.getMonth() < 5 ? `${year - 1}-${year}` : `${year}-${year + 1}`;
+    };
+
     // Initial Form State
     const initialForm = {
-        academicYear: '2023-2024',
+        academicYear: getCurrentAcademicYear(),
         topic: '',
         startDate: '',
         endDate: '',
