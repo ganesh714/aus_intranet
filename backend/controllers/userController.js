@@ -94,6 +94,17 @@ const toggleFdpPdpPermission = async (req, res) => {
     }
 };
 
+// Toggle FDP/STTP Permission
+const toggleFdpSttpPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleFdpSttpPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 4. Change Password
 const changePassword = async (req, res) => {
     try {
@@ -156,6 +167,7 @@ module.exports = {
     toggleGuestLecturePermission, // [NEW]
     toggleIndustrialVisitPermission, // [NEW]
     toggleFdpPdpPermission, // [NEW]
+    toggleFdpSttpPermission, // [NEW]
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,
