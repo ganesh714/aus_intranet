@@ -141,7 +141,7 @@ const IndustrialVisitsManager = ({ userId }) => {
                                     className="std-input"
                                     value={formData.academicYear}
                                     readOnly
-                                    style={{ textAlign: 'center', width: '100%', borderTopRightRadius: '0', borderBottomRightRadius: '0', borderRight: 'none' }}
+                                    style={{ textAlign: 'center', width: '60%', borderTopRightRadius: '0', borderBottomRightRadius: '0', borderRight: 'none' }}
                                 />
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <button
