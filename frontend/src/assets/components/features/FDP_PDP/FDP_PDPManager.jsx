@@ -46,7 +46,7 @@ const FDP_PDPManager = ({ userId }) => {
     };
 
     useEffect(() => {
-        if (userId) loadRecords();
+        if (userId) loadFdpPdp();
     }, [userId]);
 
     const handleInputChange = (e) => {
@@ -74,7 +74,7 @@ const FDP_PDPManager = ({ userId }) => {
                     ...formData
                 });
             }
-            loadRecords();
+            loadFdpPdp();
             resetForm();
         } catch (error) {
             console.error("Error saving FDP/PDP record:", error);
@@ -101,7 +101,7 @@ const FDP_PDPManager = ({ userId }) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
                 await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-fdp-pdp-organized/${id}`);
-                loadRecords();
+                loadFdpPdp();
             } catch (error) {
                 console.error("Error deleting FDP/PDP record:", error);
                 alert("Failed to delete FDP/PDP record");

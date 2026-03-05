@@ -47,7 +47,7 @@ const IndustrialVisitsManager = ({ userId }) => {
     };
 
     useEffect(() => {
-        if (userId) loadVisits();
+        if (userId) loadIndustrialVisits();
     }, [userId]);
 
     const handleInputChange = (e) => {
@@ -75,7 +75,7 @@ const IndustrialVisitsManager = ({ userId }) => {
                     ...formData
                 });
             }
-            loadVisits();
+            loadIndustrialVisits();
             resetForm();
         } catch (error) {
             console.error("Error saving industrial visit:", error);
@@ -103,7 +103,7 @@ const IndustrialVisitsManager = ({ userId }) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
             try {
                 await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-industrial-visit/${id}`);
-                loadVisits();
+                loadIndustrialVisits();
             } catch (error) {
                 console.error("Error deleting industrial visit:", error);
                 alert("Failed to delete industrial visit");
