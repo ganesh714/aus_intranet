@@ -1,0 +1,74 @@
+import React, { useState } from 'react';
+import './IQAC.css';
+import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'react-icons/fa';
+
+import HODWorkshopManager from '../Workshops/HODWorkshopManager';
+
+// Placeholder empty components for the HOD view of the other 3 modules
+const HODGuestLectures = () => <div className="iqac-placeholder"><h3>HOD Guest Lectures Overview</h3><p>Coming Soon...</p></div>;
+const HODIndustrialVisits = () => <div className="iqac-placeholder"><h3>HOD Industrial Visits Overview</h3><p>Coming Soon...</p></div>;
+const HODFDP_PDP = () => <div className="iqac-placeholder"><h3>HOD FDP / PDP Overview</h3><p>Coming Soon...</p></div>;
+
+const HODIQACManager = ({ userRole, userId }) => {
+    // Determine which horizontal tab is currently active
+    const [activeTab, setActiveTab] = useState('workshops');
+
+    // Render the correct child component based on the active tab
+    const renderSubModule = () => {
+        switch (activeTab) {
+            case 'workshops':
+                return <HODWorkshopManager userRole={userRole} />;
+            case 'guest-lectures':
+                return <HODGuestLectures userRole={userRole} />;
+            case 'industrial-visits':
+                return <HODIndustrialVisits userRole={userRole} />;
+            case 'fdp-pdp':
+                return <HODFDP_PDP userRole={userRole} />;
+            default:
+                return <HODWorkshopManager userRole={userRole} />;
+        }
+    };
+
+    return (
+        <div className="std-page-container iqac-container">
+            <div className="std-page-header">
+                <h2>Department IQAC Overview</h2>
+            </div>
+
+            {/* IQAC Horizontal Navigation Tabs */}
+            <div className="achievements-tabs">
+                <button
+                    className={`std-tab-btn ${activeTab === 'workshops' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('workshops')}
+                >
+                    <FaChalkboardTeacher /> Workshops
+                </button>
+                <button
+                    className={`std-tab-btn ${activeTab === 'guest-lectures' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('guest-lectures')}
+                >
+                    <FaUserTie /> Guest Lectures
+                </button>
+                <button
+                    className={`std-tab-btn ${activeTab === 'industrial-visits' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('industrial-visits')}
+                >
+                    <FaIndustry /> Industrial Visits
+                </button>
+                <button
+                    className={`std-tab-btn ${activeTab === 'fdp-pdp' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('fdp-pdp')}
+                >
+                    <FaGraduationCap /> FDP / PDP
+                </button>
+            </div>
+
+            {/* Mount the selected Module */}
+            <div className="iqac-module-content" style={{ marginTop: '20px' }}>
+                {renderSubModule()}
+            </div>
+        </div>
+    );
+};
+
+export default HODIQACManager;
