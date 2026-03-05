@@ -72,6 +72,17 @@ const toggleGuestLecturePermission = async (req, res) => {
     }
 };
 
+// Toggle Industrial Visit Permission
+const toggleIndustrialVisitPermission = async (req, res) => {
+    try {
+        const { id, allowed } = req.body;
+        const savedUser = await UserService.toggleIndustrialVisitPermission(id, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // 4. Change Password
 const changePassword = async (req, res) => {
     try {
@@ -132,6 +143,7 @@ module.exports = {
     toggleAchievementPermission, // [NEW]
     toggleWorkshopPermission, // [NEW]
     toggleGuestLecturePermission, // [NEW]
+    toggleIndustrialVisitPermission, // [NEW]
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,
