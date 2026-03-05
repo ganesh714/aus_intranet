@@ -4,10 +4,8 @@ import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'rea
 
 import WorkshopManager from '../Workshops/WorkshopManager';
 import GuestLecturesManager from '../GuestLectures/GuestLecturesManager';
-import IndustrialVisitsManager from '../IndustrialVisits/IndustrialVisitsManager'; // [NEW]
-
-// Placeholder empty components for the other 1 module
-const FDP_PDP = () => <div className="iqac-placeholder"><h3>FDP / PDP Module</h3><p>Coming Soon...</p></div>;
+import IndustrialVisitsManager from '../IndustrialVisits/IndustrialVisitsManager';
+import FDP_PDPManager from '../FDP_PDP/FDP_PDPManager'; // [NEW]
 
 const IQACManager = ({ userRole, userId }) => {
     // Determine which horizontal tab is currently active
@@ -23,7 +21,7 @@ const IQACManager = ({ userRole, userId }) => {
             case 'industrial-visits':
                 return <IndustrialVisitsManager userId={userId} userRole={userRole} />; // [NEW]
             case 'fdp-pdp':
-                return <FDP_PDP userId={userId} userRole={userRole} />;
+                return <FDP_PDPManager userId={userId} userRole={userRole} />; // [NEW]
             default:
                 return <WorkshopManager userId={userId} userRole={userRole} />;
         }

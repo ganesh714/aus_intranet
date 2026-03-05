@@ -4,10 +4,8 @@ import { FaChalkboardTeacher, FaUserTie, FaIndustry, FaGraduationCap } from 'rea
 
 import HODWorkshopManager from '../Workshops/HODWorkshopManager';
 import HODGuestLecturesManager from '../GuestLectures/HODGuestLecturesManager';
-import HODIndustrialVisitsManager from '../IndustrialVisits/HODIndustrialVisitsManager'; // [NEW]
-
-// Placeholder empty components for the HOD view of the other 1 module
-const HODFDP_PDP = () => <div className="iqac-placeholder"><h3>HOD FDP / PDP Overview</h3><p>Coming Soon...</p></div>;
+import HODIndustrialVisitsManager from '../IndustrialVisits/HODIndustrialVisitsManager';
+import HODFDP_PDPManager from '../FDP_PDP/HODFDP_PDPManager'; // [NEW]
 
 const HODIQACManager = ({ userRole, userId }) => {
     // Determine which horizontal tab is currently active
@@ -23,7 +21,7 @@ const HODIQACManager = ({ userRole, userId }) => {
             case 'industrial-visits':
                 return <HODIndustrialVisitsManager userRole={userRole} />; // [NEW]
             case 'fdp-pdp':
-                return <HODFDP_PDP userRole={userRole} />;
+                return <HODFDP_PDPManager userRole={userRole} />; // [NEW]
             default:
                 return <HODWorkshopManager userRole={userRole} />;
         }
