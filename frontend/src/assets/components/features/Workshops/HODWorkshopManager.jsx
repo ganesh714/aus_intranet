@@ -129,7 +129,7 @@ const HODWorkshopManager = ({ userRole }) => {
         const userDept = matchedRole ? matchedRole.name : userRoleCode;
 
         worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
-        worksheet.getCell("A6").value = "WORKSHOP REPORT";
+        worksheet.getCell("A6").value = "WORKSHOP CONDUCTED";
         worksheet.getCell("H7").value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
