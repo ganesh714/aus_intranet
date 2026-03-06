@@ -46,8 +46,15 @@ const AdminPermissionsManager = () => {
     };
 
     const applyFilters = () => {
-        let result = [...users];
-        // When a specific permission type is chosen, only show users eligible for that permission
+        // Collect all roles that can receive at least one special permission
+        const allEligibleRoles = new Set(
+            SPECIAL_PERMISSIONS.flatMap(p => p.eligibleRoles)
+        );
+
+        // Base: only users whose role can be assigned any permission
+        let result = users.filter(u => allEligibleRoles.has(u.role));
+
+        // When a specific permission type is chosen, further narrow to that permission's eligible roles
         if (permTypeFilter !== 'All') {
             const perm = SPECIAL_PERMISSIONS.find(p => p.key === permTypeFilter);
             if (perm) result = result.filter(u => perm.eligibleRoles.includes(u.role));
