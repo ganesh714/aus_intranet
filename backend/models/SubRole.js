@@ -14,6 +14,12 @@ const subRoleSchema = new mongoose.Schema({
     allowedRoles: [{
         type: String,
         enum: ['Student', 'Faculty', 'HOD', 'Asso.Dean', 'Dean', 'Officers']
+    }],
+
+    // Special features/permissions attached to this department
+    specialFeatures: [{
+        type: String,
+        enum: ['MANAGE_IQAC'], // Add more here as needed, e.g. 'MANAGE_FINANCE'
     }]
 });
 
