@@ -93,9 +93,12 @@ const HODFDP_PDPManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // Center the logo
+        // Center the logo using native EMU offsets
+        // Total sheet width ≈ 1183px (7 cols). Image = 486x75px.
+        // Center start = (1183 - 486) / 2 = 348.5px → 348px → Column D (index 3) + 46px offset.
+        // EMU conversion: 46px × 9525 = 438150 EMU, 5px top margin = 47625 EMU
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 1, nativeColOff: 3819250, nativeRow: 0, nativeRowOff: 47625 },
+            tl: { nativeCol: 3, nativeColOff: 438150, nativeRow: 0, nativeRowOff: 47625 },
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
