@@ -178,6 +178,18 @@
     margin-bottom: 2px;
 }
 
+.feature-badge {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
 .delete-btn {
     background-color: #fee2e2;
     color: #ef4444;
