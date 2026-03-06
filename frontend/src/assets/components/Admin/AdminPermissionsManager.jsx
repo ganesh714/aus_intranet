@@ -123,8 +123,8 @@ const AdminPermissionsManager = () => {
             </div>
 
             {/* Filters */}
-            <div className="apm-toolbar">
-                <div className="apm-search-wrap">
+            <div className="apm-toolbar" style={{ alignItems: 'center' }}>
+                <div className="apm-search-wrap" style={{ flex: 1, minWidth: '200px' }}>
                     <FaSearch className="apm-search-icon" />
                     <input
                         type="text"
@@ -136,35 +136,29 @@ const AdminPermissionsManager = () => {
                 </div>
 
                 {/* Permission Type Filter */}
-                <div className="apm-filter-wrap">
-                    <label className="apm-filter-label">Permission Type</label>
-                    <select
-                        className="std-select apm-select"
-                        value={permTypeFilter}
-                        onChange={e => { setPermTypeFilter(e.target.value); setRoleFilter('All'); }}
-                        style={{ minWidth: 160 }}
-                    >
-                        <option value="All">All Permissions</option>
-                        {SPECIAL_PERMISSIONS.map(p => (
-                            <option key={p.key} value={p.key}>{p.label}</option>
-                        ))}
-                    </select>
-                </div>
+                <select
+                    className="std-select apm-select"
+                    value={permTypeFilter}
+                    onChange={e => { setPermTypeFilter(e.target.value); setRoleFilter('All'); }}
+                    style={{ minWidth: 160 }}
+                >
+                    <option value="All">All Permissions</option>
+                    {SPECIAL_PERMISSIONS.map(p => (
+                        <option key={p.key} value={p.key}>{p.label}</option>
+                    ))}
+                </select>
 
                 {/* Role Filter */}
-                <div className="apm-filter-wrap">
-                    <label className="apm-filter-label">Role</label>
-                    <select
-                        className="std-select apm-select"
-                        value={roleFilter}
-                        onChange={e => setRoleFilter(e.target.value)}
-                        style={{ minWidth: 140 }}
-                    >
-                        {uniqueRoles.map(r => (
-                            <option key={r} value={r}>{r === 'All' ? 'All Roles' : r}</option>
-                        ))}
-                    </select>
-                </div>
+                <select
+                    className="std-select apm-select"
+                    value={roleFilter}
+                    onChange={e => setRoleFilter(e.target.value)}
+                    style={{ minWidth: 140 }}
+                >
+                    {uniqueRoles.map(r => (
+                        <option key={r} value={r}>{r === 'All' ? 'All Roles' : r}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Results count */}
