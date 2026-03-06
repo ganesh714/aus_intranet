@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { MdDashboard, MdCampaign } from 'react-icons/md';
 import axios from 'axios';
 
-import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaBullhorn, FaFolder, FaChevronRight, FaFilePdf, FaBook, FaClock, FaTrophy, FaChalkboardTeacher, FaShieldAlt } from 'react-icons/fa';
 
 const Sidebar = ({
     userRole,
@@ -221,7 +221,7 @@ const Sidebar = ({
                     <div className="category-item">
                         <div className="category-header" onClick={() => onDirectCategoryClick('Manage Permissions')}>
                             <span className="cat-name">
-                                <FaChalkboardTeacher className="cat-icon" style={{ color: '#6366f1' }} /> Permissions
+                                <FaShieldAlt className="cat-icon" style={{ color: '#6366f1' }} /> Permissions
                             </span>
                         </div>
                     </div>

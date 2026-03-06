@@ -117,12 +117,8 @@ const AdminPermissionsManager = () => {
         <div className="apm-container std-page-container">
             <div className="apm-page-header">
                 <div className="apm-header-left">
-                    <h2><FaShieldAlt className="apm-header-icon" /> Special Permissions</h2>
+                    <h2>Special Permissions</h2>
                     <p className="apm-header-sub">Assign special module access to specific users. Only eligible roles are shown.</p>
-                </div>
-                <div className="apm-header-stat">
-                    <span className="apm-stat-num">{filtered.length}</span>
-                    <span className="apm-stat-label">Users Shown</span>
                 </div>
             </div>
 
