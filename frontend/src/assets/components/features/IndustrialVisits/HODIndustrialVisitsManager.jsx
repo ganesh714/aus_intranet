@@ -94,9 +94,12 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // Center the logo
+        // Center the logo using native EMU offsets
+        // Total sheet width ≈ 1202px (8 cols). Image = 486x75px.
+        // Center start = (1202 - 486) / 2 = 358px → Column D (index 3) + 77px offset.
+        // EMU conversion: 77px × 9525 = 733425 EMU, 5px top margin = 47625 EMU
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 2, nativeColOff: 1619250, nativeRow: 0, nativeRowOff: 47625 },
+            tl: { nativeCol: 3, nativeColOff: 733425, nativeRow: 0, nativeRowOff: 47625 },
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
