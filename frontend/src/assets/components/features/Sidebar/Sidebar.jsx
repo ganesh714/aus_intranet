@@ -193,6 +193,19 @@ const Sidebar = ({
                     </div>
                 )}
 
+                {/* [NEW] 3. Dean IQAC Link (Visible ONLY for the IQAC Dean) */}
+                {userRole === 'Dean' && (
+                    JSON.parse(sessionStorage.getItem('specialFeatures') || '[]').includes('MANAGE_IQAC')
+                ) && (
+                    <div className={`category-item ${type === 'DeanIQAC' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('DeanIQAC')}>
+                            <span className="cat-name">
+                                <FaChalkboardTeacher className="cat-icon" style={{ color: '#8b5cf6' }} /> Dean IQAC
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* [NEW] Manage SubRoles (Admin Only) */}
                 {userRole === 'Admin' && (
                     <div className="category-item">
