@@ -14,7 +14,7 @@ exports.getAllSubRoles = async (req, res) => {
 // Add a new subrole
 exports.createSubRole = async (req, res) => {
     try {
-        const { name, code, displayName, allowedRoles } = req.body;
+        const { name, code, displayName, allowedRoles, specialFeatures } = req.body;
 
         const existing = await SubRole.findOne({ code });
         if (existing) {
@@ -25,7 +25,8 @@ exports.createSubRole = async (req, res) => {
             name,
             code,
             displayName,
-            allowedRoles
+            allowedRoles,
+            specialFeatures: specialFeatures || []
         });
 
         await newSubRole.save();
@@ -33,6 +34,29 @@ exports.createSubRole = async (req, res) => {
     } catch (error) {
         console.error('Error creating subrole:', error);
         res.status(500).json({ success: false, message: 'Server error creating subrole' });
+    }
+};
+
+// Update an existing subrole
+exports.updateSubRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, code, displayName, allowedRoles, specialFeatures } = req.body;
+
+        const updatedSubRole = await SubRole.findByIdAndUpdate(
+            id,
+            { name, code, displayName, allowedRoles, specialFeatures: specialFeatures || [] },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedSubRole) {
+            return res.status(404).json({ success: false, message: 'SubRole not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'SubRole updated successfully', subRole: updatedSubRole });
+    } catch (error) {
+        console.error('Error updating subrole:', error);
+        res.status(500).json({ success: false, message: 'Server error updating subrole' });
     }
 };
 
