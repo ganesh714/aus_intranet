@@ -182,8 +182,8 @@ const Sidebar = ({
                         </div>
                     )}
 
-                {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
-                {['HOD', 'Dean', 'Asso.Dean'].includes(userRole) && (
+                {/* 2. HOD Link (Always Visible for HOD, Associate Dean) */}
+                {['HOD', 'Asso.Dean'].includes(userRole) && (
                     <div className={`category-item ${type === 'HODIQAC' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODIQAC')}>
                             <span className="cat-name">
