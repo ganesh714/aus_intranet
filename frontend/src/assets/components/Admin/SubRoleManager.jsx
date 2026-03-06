@@ -3,13 +3,19 @@ import axios from 'axios';
 import { FaTrash, FaPlus } from 'react-icons/fa';
 import './SubRoleManager.css';
 
+const AVAILABLE_FEATURES = [
+    { id: 'MANAGE_IQAC', label: 'Dean IQAC / IQAC Access' }
+    // Add more features here in the future, e.g. { id: 'MANAGE_FINANCE', label: 'Finance Access' }
+];
+
 const SubRoleManager = () => {
     const [subRoles, setSubRoles] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         code: '',
         displayName: '',
-        allowedRoles: []
+        allowedRoles: [],
+        specialFeatures: []
     });
 
     const rolesEnum = ['Student', 'Faculty', 'HOD', 'Asso.Dean', 'Dean', 'Officers'];
@@ -46,7 +52,7 @@ const SubRoleManager = () => {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-subrole`, formData);
             alert('SubRole added successfully!');
-            setFormData({ name: '', code: '', displayName: '', allowedRoles: [] });
+            setFormData({ name: '', code: '', displayName: '', allowedRoles: [], specialFeatures: [] });
             fetchSubRoles();
         } catch (error) {
             console.error('Error adding subrole:', error);
@@ -106,6 +112,34 @@ const SubRoleManager = () => {
                             </div>
                         </div>
 
+                        <div className="form-group">
+                            <label>Special Features (Optional)</label>
+                            <div className="checkbox-group">
+                                {AVAILABLE_FEATURES.map(feature => (
+                                    <label key={feature.id} className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.specialFeatures.includes(feature.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setFormData({
+                                                        ...formData,
+                                                        specialFeatures: [...formData.specialFeatures, feature.id]
+                                                    });
+                                                } else {
+                                                    setFormData({
+                                                        ...formData,
+                                                        specialFeatures: formData.specialFeatures.filter(f => f !== feature.id)
+                                                    });
+                                                }
+                                            }}
+                                        />
+                                        {feature.label}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
                         <button type="submit" className="add-btn"><FaPlus /> Add SubRole</button>
                     </form>
                 </div>
@@ -121,6 +155,7 @@ const SubRoleManager = () => {
                                         <th>Display Name</th>
                                         <th>Full Name</th>
                                         <th>Allowed Roles</th>
+                                        <th>Special Features</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -137,6 +172,14 @@ const SubRoleManager = () => {
                                                     ))}
                                                 </td>
                                                 <td>
+                                                    {role.specialFeatures && role.specialFeatures.length > 0
+                                                        ? role.specialFeatures.map(f => (
+                                                            <span key={f} className="feature-badge">{f}</span>
+                                                        ))
+                                                        : <span style={{color: '#999'}}>None</span>
+                                                    }
+                                                </td>
+                                                <td>
                                                     <button onClick={() => handleDelete(role._id)} className="delete-btn" title="Delete">
                                                         <FaTrash />
                                                     </button>
@@ -145,7 +188,7 @@ const SubRoleManager = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="5" style={{ textAlign: 'center', color: '#999' }}>No SubRoles found. Add one to get started.</td>
+                                            <td colSpan="6" style={{ textAlign: 'center', color: '#999' }}>No SubRoles found. Add one to get started.</td>
                                         </tr>
                                     )}
                                 </tbody>
