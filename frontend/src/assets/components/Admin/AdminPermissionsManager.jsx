@@ -115,14 +115,15 @@ const AdminPermissionsManager = () => {
 
     return (
         <div className="apm-container std-page-container">
-            <div className="std-page-header">
-                <h2><FaShieldAlt style={{ marginRight: 10, color: '#6366f1' }} />Special Permissions</h2>
-            </div>
-
-            <div className="apm-info-banner">
-                <p>
-                    Manage which users have access to special modules. Changes take effect on the user's next page load.
-                </p>
+            <div className="apm-page-header">
+                <div className="apm-header-left">
+                    <h2><FaShieldAlt className="apm-header-icon" /> Special Permissions</h2>
+                    <p className="apm-header-sub">Assign special module access to specific users. Only eligible roles are shown.</p>
+                </div>
+                <div className="apm-header-stat">
+                    <span className="apm-stat-num">{filtered.length}</span>
+                    <span className="apm-stat-label">Users Shown</span>
+                </div>
             </div>
 
             {/* Filters */}
@@ -142,9 +143,9 @@ const AdminPermissionsManager = () => {
                 <div className="apm-filter-wrap">
                     <label className="apm-filter-label">Permission Type</label>
                     <select
-                        className="std-select"
+                        className="std-select apm-select"
                         value={permTypeFilter}
-                        onChange={e => setPermTypeFilter(e.target.value)}
+                        onChange={e => { setPermTypeFilter(e.target.value); setRoleFilter('All'); }}
                         style={{ minWidth: 160 }}
                     >
                         <option value="All">All Permissions</option>
@@ -158,7 +159,7 @@ const AdminPermissionsManager = () => {
                 <div className="apm-filter-wrap">
                     <label className="apm-filter-label">Role</label>
                     <select
-                        className="std-select"
+                        className="std-select apm-select"
                         value={roleFilter}
                         onChange={e => setRoleFilter(e.target.value)}
                         style={{ minWidth: 140 }}
@@ -170,7 +171,16 @@ const AdminPermissionsManager = () => {
                 </div>
             </div>
 
-
+            {/* Results count */}
+            {!loading && (
+                <div className="apm-results-bar">
+                    Showing <strong>{filtered.length}</strong> user{filtered.length !== 1 ? 's' : ''}
+                    {permTypeFilter !== 'All' && <span className="apm-active-filter">
+                        &nbsp;· Filtered by: {SPECIAL_PERMISSIONS.find(p => p.key === permTypeFilter)?.label}
+                    </span>}
+                    {roleFilter !== 'All' && <span className="apm-active-filter">&nbsp;· Role: {roleFilter}</span>}
+                </div>
+            )}
             {/* Table */}
             {loading ? (
                 <div className="apm-loading">Loading users...</div>
@@ -229,7 +239,13 @@ const AdminPermissionsManager = () => {
                                                             disabled={isToggling}
                                                             title={currentValue ? `Revoke ${perm.label}` : `Grant ${perm.label}`}
                                                         >
-                                                            {isToggling ? '...' : currentValue ? <><FaCheck /> Granted</> : 'Grant'}
+                                                            {isToggling ? (
+                                                <span className="apm-toggle-spinner">...</span>
+                                            ) : currentValue ? (
+                                                <><FaCheck style={{ fontSize: 10 }} /> Granted</>
+                                            ) : (
+                                                'Grant Access'
+                                            )}
                                                         </button>
                                                     ) : (
                                                         <span style={{ color: '#cbd5e1', fontSize: 12 }}>N/A</span>

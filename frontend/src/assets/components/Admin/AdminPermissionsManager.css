@@ -4,15 +4,89 @@
     max-width: 1100px;
 }
 
-.apm-info-banner {
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    border: 1px solid #c7d2fe;
-    border-radius: 10px;
-    padding: 14px 20px;
-    margin-bottom: 20px;
-    color: #4338ca;
-    font-size: 14px;
+/* Page Header */
+.apm-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid #e2e8f0;
 }
+
+.apm-header-left h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px 0;
+}
+
+.apm-header-icon {
+    color: #6366f1;
+    font-size: 20px;
+}
+
+.apm-header-sub {
+    margin: 0;
+    color: #64748b;
+    font-size: 13.5px;
+}
+
+.apm-header-stat {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.apm-stat-num {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.apm-stat-label {
+    font-size: 11px;
+    opacity: 0.85;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Results Bar */
+.apm-results-bar {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 12px;
+    padding: 8px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.apm-active-filter {
+    color: #6366f1;
+    font-weight: 600;
+}
+
+/* Select override */
+.apm-select {
+    height: 38px;
+    border-radius: 8px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    font-size: 13.5px !important;
+}
+.apm-select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important;
+}
+
 
 .apm-toolbar {
     display: flex;
