@@ -68,6 +68,7 @@ class AuthService {
             const userObj = user.toObject();
             if (userObj.subRole && typeof userObj.subRole === 'object') {
                 userObj.subRoleId = userObj.subRole._id;
+                userObj.specialFeatures = userObj.subRole.specialFeatures || []; // Pass special features
                 userObj.subRole = userObj.subRole.displayName || userObj.subRole.code;
             }
 
