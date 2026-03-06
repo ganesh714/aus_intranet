@@ -7,7 +7,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import ausLogo from '../../images/aus_logo.png'; // Adjust the path as needed
 
-const HODFDP_PDPManager = ({ userRole }) => {
+const HODFDP_PDPManager = ({ userRole, selectedDept }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allRecords, setAllRecords] = useState([]);
     const [subRolesList, setSubRolesList] = useState([]);
@@ -33,7 +33,7 @@ const HODFDP_PDPManager = ({ userRole }) => {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [selectedDept]);
 
     const loadData = () => {
         fetchRecords();
@@ -43,7 +43,7 @@ const HODFDP_PDPManager = ({ userRole }) => {
 
     const fetchSubRoles = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/subroles/all-subroles`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
             if (response.data && response.data.success) {
                 setSubRolesList(response.data.subRoles);
             }
@@ -54,11 +54,10 @@ const HODFDP_PDPManager = ({ userRole }) => {
 
     const fetchRecords = async () => {
         try {
-            const userDeptId = sessionStorage.getItem('userSubRoleId');
-            const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
+            const dept = selectedDept || sessionStorage.getItem('userSubRoleId') || sessionStorage.getItem('usersubRole') || 'CSE';
 
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
-                params: { dept: userDept }
+                params: { dept }
             });
             setAllRecords(response.data.records || []);
         } catch (error) {

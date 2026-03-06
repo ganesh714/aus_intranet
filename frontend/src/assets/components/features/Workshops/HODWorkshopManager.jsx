@@ -8,7 +8,7 @@ import { saveAs } from "file-saver";
 import ausLogo from '../../images/aus_logo.png'; // Adjust the path as needed
 
 
-const HODWorkshopManager = ({ userRole }) => {
+const HODWorkshopManager = ({ userRole, selectedDept }) => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'access'
     const [allWorkshops, setAllWorkshops] = useState([]);
     const [permissions, setPermissions] = useState({});
@@ -35,7 +35,7 @@ const HODWorkshopManager = ({ userRole }) => {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [selectedDept]);
 
     const loadData = () => {
         fetchWorkshops(); // Renamed for clarity
@@ -46,7 +46,7 @@ const HODWorkshopManager = ({ userRole }) => {
 
     const fetchSubRoles = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/subroles/all-subroles`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
             if (response.data && response.data.success) {
                 setSubRolesList(response.data.subRoles);
             }
@@ -57,12 +57,11 @@ const HODWorkshopManager = ({ userRole }) => {
 
     const fetchWorkshops = async () => {
         try {
-            // [OPTIMIZATION] Use ID if available, else fallback to string
-            const userDeptId = sessionStorage.getItem('userSubRoleId');
-            const userDept = userDeptId || sessionStorage.getItem('usersubRole') || 'CSE';
+            // Use selectedDept prop if provided (Dean view), else fall back to sessionStorage (HOD view)
+            const dept = selectedDept || sessionStorage.getItem('userSubRoleId') || sessionStorage.getItem('usersubRole') || 'CSE';
 
             const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-workshops`, {
-                params: { dept: userDept }
+                params: { dept }
             });
             console.log("Fetched Workshops:", response.data);
             setAllWorkshops(response.data.workshops || []);
@@ -269,20 +268,15 @@ const HODWorkshopManager = ({ userRole }) => {
             </div>
 
             <div className="achievements-tabs">
-                {/* 
-                <button
-                    className={`std-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('overview')}
-                >
-                    <FaList /> Overview
-                </button>
-                */}
-                <button
-                    className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
-                    onClick={() => setActiveTab(activeTab === 'access' ? 'overview' : 'access')}
-                >
-                    <FaUserCog /> {activeTab === 'access' ? 'Close Access Control' : 'Access Control'}
-                </button>
+                {/* Access Control button — hidden for Dean/Asso.Dean */}
+                {!['Dean', 'Asso.Dean'].includes(userRole) && (
+                    <button
+                        className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
+                        onClick={() => setActiveTab(activeTab === 'access' ? 'overview' : 'access')}
+                    >
+                        <FaUserCog /> {activeTab === 'access' ? 'Close Access Control' : 'Access Control'}
+                    </button>
+                )}
             </div>
 
             {/* OVERVIEW TAB */}
