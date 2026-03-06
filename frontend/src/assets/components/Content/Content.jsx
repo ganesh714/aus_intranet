@@ -13,6 +13,7 @@ import AchievementManager from "../features/Achievements/AchievementManager";
 import HODAchievementManager from "../features/Achievements/HODAchievementManager";
 import IQACManager from "../features/IQAC/IQACManager"; // [NEW IQAC Wrapper]
 import HODIQACManager from "../features/IQAC/HODIQACManager"; // [NEW IQAC Wrapper]
+import DeanIQACManager from "../features/IQAC/DeanIQACManager"; // [NEW Dean IQAC]
 import SubRoleManager from "../Admin/SubRoleManager"; // [NEW]
 
 const Content = () => {
@@ -112,6 +113,9 @@ const Content = () => {
         } else if (categoryName === 'HODIQAC') { 
             setActiveView('hod-iqac');
             setActiveCategory('HODIQAC');
+        } else if (categoryName === 'DeanIQAC') { 
+            setActiveView('dean-iqac');
+            setActiveCategory('DeanIQAC');
         } else if (categoryName === 'Manage SubRoles') { // [NEW]
             setActiveView('manage-subroles');
             setActiveCategory('Manage SubRoles');
@@ -250,6 +254,14 @@ const Content = () => {
                     />
                 );
 
+            case 'dean-iqac':
+                return (
+                    <DeanIQACManager
+                        userRole={userRole}
+                        userId={userId}
+                    />
+                );
+
             case 'manage-subroles':
                 return (
                     <SubRoleManager />
@@ -277,7 +289,8 @@ const Content = () => {
                                 activeView === 'hod-achievements' ? 'HODAchievements' :
                                     activeView === 'iqac' ? 'IQAC' : 
                                         activeView === 'hod-iqac' ? 'HODIQAC' :
-                                            activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
+                                            activeView === 'dean-iqac' ? 'DeanIQAC' :
+                                                activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}
