@@ -87,7 +87,19 @@ const AdminPermissionsManager = () => {
         }
     };
 
-    const uniqueRoles = ['All', ...new Set(users.map(u => u.role))];
+    // If a specific permission type is selected, only show eligible roles in the Role dropdown
+    const eligibleRolesForFilter = permTypeFilter === 'All'
+        ? null
+        : SPECIAL_PERMISSIONS.find(p => p.key === permTypeFilter)?.eligibleRoles || [];
+
+    const uniqueRoles = [
+        'All',
+        ...new Set(
+            users
+                .filter(u => eligibleRolesForFilter === null || eligibleRolesForFilter.includes(u.role))
+                .map(u => u.role)
+        )
+    ];
 
     // Show only the selected permission column(s)
     const visiblePermissions = permTypeFilter === 'All'
