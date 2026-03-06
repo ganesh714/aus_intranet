@@ -22,7 +22,8 @@ const AdminPermissionsManager = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('All');
-    const [toggling, setToggling] = useState(null); // tracks userId+key being toggled
+    const [permTypeFilter, setPermTypeFilter] = useState('All');
+    const [toggling, setToggling] = useState(null);
 
     useEffect(() => {
         loadUsers();
@@ -30,7 +31,7 @@ const AdminPermissionsManager = () => {
 
     useEffect(() => {
         applyFilters();
-    }, [users, searchTerm, roleFilter]);
+    }, [users, searchTerm, roleFilter, permTypeFilter]);
 
     const loadUsers = async () => {
         setLoading(true);
@@ -46,6 +47,11 @@ const AdminPermissionsManager = () => {
 
     const applyFilters = () => {
         let result = [...users];
+        // When a specific permission type is chosen, only show users eligible for that permission
+        if (permTypeFilter !== 'All') {
+            const perm = SPECIAL_PERMISSIONS.find(p => p.key === permTypeFilter);
+            if (perm) result = result.filter(u => perm.eligibleRoles.includes(u.role));
+        }
         if (roleFilter !== 'All') {
             result = result.filter(u => u.role === roleFilter);
         }
@@ -69,13 +75,9 @@ const AdminPermissionsManager = () => {
                 permissionKey: permKey,
                 allowed: !currentValue
             });
-            // Update local state immediately for snappy UX
             setUsers(prev => prev.map(u => {
                 if (u.id !== user.id) return u;
-                return {
-                    ...u,
-                    permissions: { ...u.permissions, [permKey]: !currentValue }
-                };
+                return { ...u, permissions: { ...u.permissions, [permKey]: !currentValue } };
             }));
         } catch (err) {
             console.error('Failed to update permission:', err);
@@ -86,6 +88,11 @@ const AdminPermissionsManager = () => {
     };
 
     const uniqueRoles = ['All', ...new Set(users.map(u => u.role))];
+
+    // Show only the selected permission column(s)
+    const visiblePermissions = permTypeFilter === 'All'
+        ? SPECIAL_PERMISSIONS
+        : SPECIAL_PERMISSIONS.filter(p => p.key === permTypeFilter);
 
     return (
         <div className="apm-container std-page-container">
@@ -111,7 +118,26 @@ const AdminPermissionsManager = () => {
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                 </div>
+
+                {/* Permission Type Filter */}
                 <div className="apm-filter-wrap">
+                    <label className="apm-filter-label">Permission Type</label>
+                    <select
+                        className="std-select"
+                        value={permTypeFilter}
+                        onChange={e => setPermTypeFilter(e.target.value)}
+                        style={{ minWidth: 160 }}
+                    >
+                        <option value="All">All Permissions</option>
+                        {SPECIAL_PERMISSIONS.map(p => (
+                            <option key={p.key} value={p.key}>{p.label}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Role Filter */}
+                <div className="apm-filter-wrap">
+                    <label className="apm-filter-label">Role</label>
                     <select
                         className="std-select"
                         value={roleFilter}
@@ -125,6 +151,7 @@ const AdminPermissionsManager = () => {
                 </div>
             </div>
 
+
             {/* Table */}
             {loading ? (
                 <div className="apm-loading">Loading users...</div>
@@ -136,7 +163,7 @@ const AdminPermissionsManager = () => {
                                 <th>User</th>
                                 <th>Role</th>
                                 <th>Sub-Role / Dept</th>
-                                {SPECIAL_PERMISSIONS.map(p => (
+                                {visiblePermissions.map(p => (
                                     <th key={p.key} title={p.description}>{p.label}</th>
                                 ))}
                             </tr>
@@ -144,7 +171,7 @@ const AdminPermissionsManager = () => {
                         <tbody>
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3 + SPECIAL_PERMISSIONS.length} style={{ textAlign: 'center', padding: 30, color: '#64748b' }}>
+                                    <td colSpan={3 + visiblePermissions.length} style={{ textAlign: 'center', padding: 30, color: '#64748b' }}>
                                         No users found.
                                     </td>
                                 </tr>
@@ -168,7 +195,7 @@ const AdminPermissionsManager = () => {
                                             </span>
                                         </td>
                                         <td style={{ color: '#64748b' }}>{user.subRole || '—'}</td>
-                                        {SPECIAL_PERMISSIONS.map(perm => {
+                                        {visiblePermissions.map(perm => {
                                             const isEligible = perm.eligibleRoles.includes(user.role);
                                             const currentValue = user.permissions?.[perm.key] || false;
                                             const toggleId = `${user.id}-${perm.key}`;
