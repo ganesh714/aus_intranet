@@ -13,7 +13,8 @@ import AchievementManager from "../features/Achievements/AchievementManager";
 import HODAchievementManager from "../features/Achievements/HODAchievementManager";
 import IQACManager from "../features/IQAC/IQACManager"; // [NEW IQAC Wrapper]
 import HODIQACManager from "../features/IQAC/HODIQACManager"; // [NEW IQAC Wrapper]
-import SubRoleManager from "../Admin/SubRoleManager"; // [NEW]
+import SubRoleManager from "../Admin/SubRoleManager";
+import AdminPermissionsManager from "../Admin/AdminPermissionsManager"; // [NEW]
 
 const Content = () => {
     // --- USER INFO ---
@@ -112,9 +113,12 @@ const Content = () => {
         } else if (categoryName === 'HODIQAC') { 
             setActiveView('hod-iqac');
             setActiveCategory('HODIQAC');
-        } else if (categoryName === 'Manage SubRoles') { // [NEW]
+        } else if (categoryName === 'Manage SubRoles') {
             setActiveView('manage-subroles');
             setActiveCategory('Manage SubRoles');
+        } else if (categoryName === 'Manage Permissions') {
+            setActiveView('manage-permissions');
+            setActiveCategory('Manage Permissions');
         }
     };
 
@@ -255,6 +259,11 @@ const Content = () => {
                     <SubRoleManager />
                 );
 
+            case 'manage-permissions':
+                return (
+                    <AdminPermissionsManager />
+                );
+
             default:
                 return <Dashboard />;
         }
@@ -277,7 +286,8 @@ const Content = () => {
                                 activeView === 'hod-achievements' ? 'HODAchievements' :
                                     activeView === 'iqac' ? 'IQAC' : 
                                         activeView === 'hod-iqac' ? 'HODIQAC' :
-                                            activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
+                                            activeView === 'manage-subroles' ? 'Manage SubRoles' :
+                                                activeView === 'manage-permissions' ? 'Manage Permissions' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}

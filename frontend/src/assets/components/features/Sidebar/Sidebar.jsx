@@ -24,11 +24,12 @@ const Sidebar = ({
     // Dynamic permissions state
     const [permissions, setPermissions] = useState(JSON.parse(sessionStorage.getItem('permissions') || '{}'));
 
-    // Fetch latest permissions when Sidebar mounts
+    // Fetch latest permissions when Sidebar mounts (Faculty AND Dean/Asso.Dean)
     useEffect(() => {
         const fetchPermissions = async () => {
             const userId = sessionStorage.getItem('userId');
-            if (userRole === 'Faculty' && userId) {
+            const shouldFetch = ['Faculty', 'Dean', 'Asso.Dean'].includes(userRole) && userId;
+            if (shouldFetch) {
                 try {
                     const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, {
                         params: { search: userId }
@@ -182,8 +183,19 @@ const Sidebar = ({
                         </div>
                     )}
 
-                {/* 2. HOD Link (Always Visible for HOD, Dean, Associate Dean) */}
-                {['HOD', 'Dean', 'Asso.Dean'].includes(userRole) && (
+                {/* 2. HOD: Always visible for HOD */}
+                {userRole === 'HOD' && (
+                    <div className={`category-item ${type === 'HODIQAC' ? "expanded" : ""}`}>
+                        <div className="category-header" onClick={() => onDirectCategoryClick('HODIQAC')}>
+                            <span className="cat-name">
+                                <FaChalkboardTeacher className="cat-icon" /> IQAC (Dept)
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* 3. Dean/Asso.Dean: Only visible if admin granted canViewIQAC */}
+                {['Dean', 'Asso.Dean'].includes(userRole) && permissions.canViewIQAC && (
                     <div className={`category-item ${type === 'HODIQAC' ? "expanded" : ""}`}>
                         <div className="category-header" onClick={() => onDirectCategoryClick('HODIQAC')}>
                             <span className="cat-name">
@@ -199,6 +211,17 @@ const Sidebar = ({
                         <div className="category-header" onClick={() => onDirectCategoryClick('Manage SubRoles')}>
                             <span className="cat-name">
                                 <FaBook className="cat-icon" /> Manage Depts
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* [NEW] Manage Permissions (Admin Only) */}
+                {userRole === 'Admin' && (
+                    <div className="category-item">
+                        <div className="category-header" onClick={() => onDirectCategoryClick('Manage Permissions')}>
+                            <span className="cat-name">
+                                <FaChalkboardTeacher className="cat-icon" style={{ color: '#6366f1' }} /> Permissions
                             </span>
                         </div>
                     </div>

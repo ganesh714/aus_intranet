@@ -11,6 +11,30 @@ const getUsers = async (req, res) => {
     }
 };
 
+// Admin: Get All Users for Permissions Panel
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await UserService.getAllUsers();
+        res.json({ users });
+    } catch (error) {
+        console.error("Error fetching all users:", error);
+        res.status(500).json({ message: "Error fetching users", error: error.message });
+    }
+};
+
+// Admin: Toggle any special permission key
+const toggleSpecialPermission = async (req, res) => {
+    try {
+        const { id, permissionKey, allowed } = req.body;
+        const savedUser = await UserService.toggleSpecialPermission(id, permissionKey, allowed);
+        res.json({ message: 'Permission updated', permissions: savedUser.permissions });
+    } catch (error) {
+        const status = error.message.includes('not found') ? 404 :
+            error.message.includes('Invalid') ? 400 : 500;
+        res.status(status).json({ message: error.message });
+    }
+};
+
 // 2. Get Dept Faculty
 const getDeptFaculty = async (req, res) => {
     try {
@@ -160,14 +184,16 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
     getUsers,
+    getAllUsers, // Admin
+    toggleSpecialPermission, // Admin
     getDeptFaculty,
     toggleTimetablePermission,
-    toggleAchievementPermission, // [NEW]
-    toggleWorkshopPermission, // [NEW]
-    toggleGuestLecturePermission, // [NEW]
-    toggleIndustrialVisitPermission, // [NEW]
-    toggleFdpPdpPermission, // [NEW]
-    toggleFdpSttpPermission, // [NEW]
+    toggleAchievementPermission,
+    toggleWorkshopPermission,
+    toggleGuestLecturePermission,
+    toggleIndustrialVisitPermission,
+    toggleFdpPdpPermission,
+    toggleFdpSttpPermission,
     changePassword,
     togglePinTimetable,
     getPinnedTimetables,

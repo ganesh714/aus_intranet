@@ -1,0 +1,181 @@
+/* Admin Permissions Manager Styles */
+
+.apm-container {
+    max-width: 1100px;
+}
+
+.apm-info-banner {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    color: #4338ca;
+    font-size: 14px;
+}
+
+.apm-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.apm-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.apm-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.apm-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.apm-search-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.apm-filter-wrap {
+    display: flex;
+    gap: 8px;
+}
+
+.apm-loading {
+    text-align: center;
+    padding: 40px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.apm-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.apm-table {
+    border: none !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.apm-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 14px 16px;
+    white-space: nowrap;
+}
+
+.apm-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+.apm-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.apm-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.apm-user-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.apm-user-id {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* Role Badges */
+.apm-role-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.apm-role-dean { background: #fef3c7; color: #92400e; }
+.apm-role-assodean { background: #ede9fe; color: #5b21b6; }
+.apm-role-hod { background: #dbeafe; color: #1e40af; }
+.apm-role-faculty { background: #dcfce7; color: #14532d; }
+.apm-role-officers { background: #fce7f3; color: #831843; }
+
+/* Permission Toggle Buttons */
+.apm-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.apm-toggle-on {
+    background: #dcfce7;
+    color: #15803d;
+}
+.apm-toggle-on:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.apm-toggle-off {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+}
+.apm-toggle-off:hover {
+    background: #ede9fe;
+    color: #6366f1;
+    border-color: #a5b4fc;
+}
+
+.apm-toggle-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

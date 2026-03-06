@@ -18,7 +18,9 @@ const userSchema = new mongoose.Schema({
         canManageGuestLectures: { type: Boolean, default: false },
         canManageIndustrialVisits: { type: Boolean, default: false },
         canManageFdpPdp: { type: Boolean, default: false },
-        canManageFdpSttp: { type: Boolean, default: false }
+        canManageFdpSttp: { type: Boolean, default: false },
+        // Special Admin-assigned permissions (for Dean/Asso.Dean etc.)
+        canViewIQAC: { type: Boolean, default: false }
     },
     role: {
         type: String,

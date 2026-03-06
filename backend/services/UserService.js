@@ -52,6 +52,45 @@ class UserService {
         });
     }
 
+    // Admin: Get All Users (non-Student) for Permissions Panel
+    static async getAllUsers() {
+        const users = await User.find(
+            { role: { $nin: ['Student', 'Admin'] } },
+            'id username role subRole permissions'
+        ).populate('subRole');
+
+        return users.map(user => {
+            const u = user.toObject();
+            if (u.subRole && typeof u.subRole === 'object') {
+                u.subRoleId = u.subRole._id;
+                u.subRoleDisplay = u.subRole.displayName || u.subRole.code;
+                u.subRole = u.subRoleDisplay;
+            }
+            return u;
+        });
+    }
+
+    // Admin: Toggle any special permission key for any user
+    static async toggleSpecialPermission(id, permissionKey, allowed) {
+        const VALID_SPECIAL_KEYS = [
+            'canViewIQAC',
+            // Add future special permissions here
+        ];
+
+        if (!VALID_SPECIAL_KEYS.includes(permissionKey)) {
+            throw new Error(`Invalid permission key: ${permissionKey}`);
+        }
+
+        const user = await User.findOne({ id });
+        if (!user) throw new Error('User not found');
+
+        if (!user.permissions) user.permissions = {};
+        user.permissions[permissionKey] = allowed;
+        user.markModified('permissions');
+
+        return await user.save();
+    }
+
     // 2. Get Department Faculty
     // 2. Get Department Faculty
     static async getDeptFaculty(dept) {
