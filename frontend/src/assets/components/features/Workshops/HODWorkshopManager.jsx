@@ -80,8 +80,10 @@ const HODWorkshopManager = ({ userRole }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Workshops");
 
-        // Define column keys and widths only (no header property → no auto row 1 headers)
-        worksheet.columns = [
+        const isFiltered = yearFilter !== 'All';
+
+        // Define base column keys and widths
+        const baseColumns = [
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
             { key: "activityName", width: 45 },
@@ -92,6 +94,10 @@ const HODWorkshopManager = ({ userRole }) => {
             { key: "contactHours", width: 18 }
         ];
 
+        worksheet.columns = isFiltered 
+            ? baseColumns.filter(c => c.key !== 'academicYear')
+            : baseColumns;
+
         // Load logo
         const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
         const imageId = workbook.addImage({
@@ -99,13 +105,15 @@ const HODWorkshopManager = ({ userRole }) => {
             extension: "png"
         });
 
-        // Center the logo using native EMU offsets (Excel's internal coordinate system).
-        // Total sheet width ≈ 1209px (8 cols). Image = 486x75px.
-        // Center start = (1209 - 486) / 2 ≈ 362px → Column C (index 2) + 170px offset.
-        // EMU conversion: 170px × 9525 = 1619250 EMU, 5px top margin = 47625 EMU
-        // Image spans 4 rows (rows 1-4)
+        // Center the logo using native EMU offsets
+        // Base width ≈ 1252px (8 cols). Image = 486px. Center = (1252-486)/2 = 383px.
+        // Filtered width ≈ 1117px (7 cols). Image = 486px. Center = (1117-486)/2 = 315px.
+        const logoConfig = isFiltered 
+            ? { nativeCol: 1, nativeColOff: 2436018, nativeRow: 0, nativeRowOff: 47625 } // Col B (index 1) + 255.75px
+            : { nativeCol: 2, nativeColOff: 1793081, nativeRow: 0, nativeRowOff: 47625 }; // Col C (index 2) + 188.25px
+
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 2, nativeColOff: 1619250, nativeRow: 0, nativeRowOff: 47625 },
+            tl: logoConfig,
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
@@ -115,13 +123,12 @@ const HODWorkshopManager = ({ userRole }) => {
             worksheet.getRow(r).height = 20;
         }
 
-        // Title rows start after the image (rows 5-6)
-        worksheet.mergeCells("A5:H5");
-        worksheet.mergeCells("A6:H6");
+        // Title rows
+        const lastCol = isFiltered ? "G" : "H";
+        worksheet.mergeCells(`A5:${lastCol}5`);
+        worksheet.mergeCells(`A6:${lastCol}6`);
 
         const userRoleCode = sessionStorage.getItem('usersubRole') || 'IT';
-
-        // Find matching subrole from the dynamically fetched list
         const matchedRole = subRolesList.find(r =>
             r.code?.toUpperCase() === userRoleCode.toUpperCase() ||
             r.displayName?.toUpperCase() === userRoleCode.toUpperCase()
@@ -130,7 +137,14 @@ const HODWorkshopManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
         worksheet.getCell("A6").value = "WORKSHOP CONDUCTED";
-        worksheet.getCell("H7").value = "Date: " + formatDate(new Date());
+        
+        // Academic Year on left, Date on right
+        if (isFiltered) {
+            worksheet.getCell("A7").value = "Academic Year : " + yearFilter;
+            worksheet.getCell("A7").font = { bold: true, size: 10 };
+            worksheet.getCell("A7").alignment = { horizontal: "left", vertical: "middle" };
+        }
+        worksheet.getCell(`${lastCol}7`).value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
@@ -141,19 +155,15 @@ const HODWorkshopManager = ({ userRole }) => {
                 vertical: "middle",
                 wrapText: true
             };
-            cell.font = {
-                bold: true,
-                size: rowNum === 5 ? 15 : 13
-            };
+            cell.font = { bold: true, size: rowNum === 5 ? 15 : 13 };
         });
 
-        // Alignment for Date in H7
-        worksheet.getCell("H7").alignment = { horizontal: "center", vertical: "middle" };
-        worksheet.getCell("H7").font = { bold: true, size: 10 };
+        worksheet.getCell(`${lastCol}7`).alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getCell(`${lastCol}7`).font = { bold: true, size: 10 };
 
         // Table headers – starting at row 8
         const headerRow = worksheet.getRow(8);
-        headerRow.values = [
+        const headers = [
             "S.No",
             "Academic Year",
             "Name of the Workshop",
@@ -163,6 +173,7 @@ const HODWorkshopManager = ({ userRole }) => {
             "No. of Students Participated",
             "Contact Hours"
         ];
+        headerRow.values = isFiltered ? headers.filter(h => h !== "Academic Year") : headers;
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
@@ -181,8 +192,9 @@ const HODWorkshopManager = ({ userRole }) => {
         });
 
         // Data rows
+        // Data rows
         displayedWorkshops.forEach((w, index) => {
-            const dataRow = worksheet.addRow({
+            const rowData = {
                 sno: index + 1,
                 academicYear: w.academicYear,
                 activityName: w.activityName,
@@ -191,7 +203,10 @@ const HODWorkshopManager = ({ userRole }) => {
                 resourcePerson: w.resourcePerson || w.coordinators || "",
                 students: w.studentCount,
                 contactHours: w.contactHours || ""
-            });
+            };
+            
+            if (isFiltered) delete rowData.academicYear;
+            const dataRow = worksheet.addRow(rowData);
 
             dataRow.eachCell((cell) => {
                 cell.border = {
