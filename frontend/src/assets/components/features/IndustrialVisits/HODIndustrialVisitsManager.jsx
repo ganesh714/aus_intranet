@@ -265,9 +265,9 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
                 */}
                 <button
                     className={`std-tab-btn ${activeTab === 'access' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('access')}
+                    onClick={() => setActiveTab(activeTab === 'access' ? 'overview' : 'access')}
                 >
-                    <FaUserCog /> Access Control
+                    <FaUserCog /> {activeTab === 'access' ? 'Close Access Control' : 'Access Control'}
                 </button>
             </div>
 
