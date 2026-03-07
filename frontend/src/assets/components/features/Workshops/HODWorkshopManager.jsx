@@ -156,11 +156,11 @@ const HODWorkshopManager = ({ userRole }) => {
         headerRow.values = [
             "S.No",
             "Academic Year",
-            "Activity Name",
+            "Name of the Workshop",
             "From Date",
             "To Date",
-            "Resource Person",
-            "No. of Students",
+            "Resource Person/Instructor",
+            "No. of Students Participated",
             "Contact Hours"
         ];
         headerRow.font = { bold: true, size: 11 };
