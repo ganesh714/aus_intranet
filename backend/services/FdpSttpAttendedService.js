@@ -51,7 +51,7 @@ class FdpSttpAttendedService {
 
         if (academicYear && academicYear !== 'All') filter.academicYear = academicYear;
 
-        return await FdpSttpAttended.find(filter).sort({ createdAt: -1 });
+        return await FdpSttpAttended.find(filter).populate('dept').sort({ createdAt: -1 });
     }
 
     // Delete FDP/STTP Attended
