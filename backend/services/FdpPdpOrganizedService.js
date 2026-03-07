@@ -47,7 +47,7 @@ class FdpPdpOrganizedService {
 
         if (academicYear && academicYear !== 'All') filter.academicYear = academicYear;
 
-        return await FdpPdpOrganized.find(filter).sort({ createdAt: -1 });
+        return await FdpPdpOrganized.find(filter).populate('dept').sort({ createdAt: -1 });
     }
 
     // Delete FDP/PDP Organized
