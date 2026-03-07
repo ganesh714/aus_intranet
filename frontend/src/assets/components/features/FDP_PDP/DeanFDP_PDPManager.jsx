@@ -117,12 +117,11 @@ const DeanFDP_PDPManager = ({ userRole }) => {
             deptTitle = matchedRole ? matchedRole.name.toUpperCase() : deptFilter.toUpperCase();
         }
 
-        worksheet.getCell("A5").value = "DEPARTMENT OF " + deptTitle;
+        worksheet.getCell("A5").value = isDeptFiltered ? "DEPARTMENT OF " + deptTitle : "ALL DEPARTMENTS";
         worksheet.getCell("A6").value = "FDP / PDP REPORT";
         
         let headerLabels = [];
         if (isYearFiltered) headerLabels.push("Academic Year : " + yearFilter);
-        if (isDeptFiltered) headerLabels.push("Department : " + deptTitle);
 
         if (headerLabels.length > 0) {
             worksheet.getCell("A7").value = headerLabels.join(" | ");
