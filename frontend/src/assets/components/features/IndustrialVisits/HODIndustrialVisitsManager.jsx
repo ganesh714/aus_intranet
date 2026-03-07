@@ -299,12 +299,13 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
                         <table className="std-table">
                             <thead>
                                 <tr>
-                                    <th>Year</th>
-                                    <th>Faculty ID</th>
+                                    <th>Academic Year</th>
+                                    <th>Sem</th>
                                     <th>Class/Section</th>
                                     <th>Industry</th>
                                     <th>Place</th>
                                     <th>Date(s)</th>
+                                    <th>Students</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -314,11 +315,12 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
                                     displayedVisits.map((w, idx) => (
                                         <tr key={idx}>
                                             <td>{w.academicYear}</td>
-                                            <td style={{ color: '#64748b' }}>{w.userId}</td>
+                                            <td>{w.semester || '-'}</td>
                                             <td>{w.classSection}</td>
                                             <td><strong>{w.industryName}</strong></td>
                                             <td>{w.placeOfVisit}</td>
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
+                                            <td>{w.studentCount || '-'}</td>
                                         </tr>
                                     ))
                                 )}
