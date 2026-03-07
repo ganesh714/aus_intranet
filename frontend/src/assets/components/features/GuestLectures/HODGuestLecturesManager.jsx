@@ -43,7 +43,7 @@ const HODGuestLecturesManager = ({ userRole }) => {
 
     const fetchSubRoles = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/subroles/all-subroles`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
             if (response.data && response.data.success) {
                 setSubRolesList(response.data.subRoles);
             }
@@ -151,6 +151,7 @@ const HODGuestLecturesManager = ({ userRole }) => {
         worksheet.getCell(`${lastCol}7`).font = { bold: true, size: 10 };
 
         // Table headers – starting at row 8
+        const headerRow = worksheet.getRow(8);
         const headers = [
             "S.No",
             "Academic Year",
