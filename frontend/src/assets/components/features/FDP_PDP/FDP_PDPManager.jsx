@@ -36,10 +36,10 @@ const FDP_PDPManager = ({ userId }) => {
             const userDeptId = sessionStorage.getItem('userSubRoleId');
             const userDept = userDeptId || sessionStorage.getItem('usersubRole');
 
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-fdp-pdp-organized`, {
                 params: { dept: userDept }
             });
-            setRecords(response.data.data || []); // Assuming setRecords is the state for the list
+            setRecords(response.data.records || []); // Fixed endpoint and mapping
         } catch (error) {
             console.error("Error fetching FDP/PDP records:", error);
         }
