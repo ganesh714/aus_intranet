@@ -94,11 +94,27 @@ const DeanFDP_PDPManager = ({ userRole }) => {
             extension: "png"
         });
 
-        const colCount = activeColumns.length;
-        const centerCol = Math.floor(colCount / 2);
-        
+        // Precise Logo Centering Calculation
+        const imgWidthPx = 486;
+        const colWidthMap = activeColumns.map(c => (c.width || 10) * 8); // approx 8px per width unit
+        const totalSheetWidthPx = colWidthMap.reduce((a, b) => a + b, 0);
+        const centerStartPx = (totalSheetWidthPx - imgWidthPx) / 2;
+
+        let currentSumPx = 0;
+        let nativeCol = 0;
+        let nativeColOff = 0;
+
+        for (let i = 0; i < colWidthMap.length; i++) {
+            if (currentSumPx + colWidthMap[i] > centerStartPx) {
+                nativeCol = i;
+                nativeColOff = Math.round((centerStartPx - currentSumPx) * 9525);
+                break;
+            }
+            currentSumPx += colWidthMap[i];
+        }
+
         worksheet.addImage(imageId, {
-            tl: { nativeCol: centerCol - 1, nativeColOff: 0, nativeRow: 0, nativeRowOff: 47625 },
+            tl: { nativeCol: nativeCol, nativeColOff: nativeColOff, nativeRow: 0, nativeRowOff: 47625 },
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
@@ -107,6 +123,7 @@ const DeanFDP_PDPManager = ({ userRole }) => {
             worksheet.getRow(r).height = 20;
         }
 
+        const colCount = activeColumns.length;
         const lastColLetter = String.fromCharCode(64 + colCount);
         worksheet.mergeCells(`A5:${lastColLetter}5`);
         worksheet.mergeCells(`A6:${lastColLetter}6`);
