@@ -46,7 +46,7 @@ const HODWorkshopManager = ({ userRole }) => {
 
     const fetchSubRoles = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/subroles/all-subroles`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
             if (response.data && response.data.success) {
                 setSubRolesList(response.data.subRoles);
             }
