@@ -75,8 +75,10 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Industrial Visits");
 
+        const isFiltered = yearFilter !== 'All';
+
         // Define column keys and widths
-        worksheet.columns = [
+        const baseColumns = [
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
             { key: "semester", width: 12 },
@@ -87,6 +89,10 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
             { key: "students", width: 18 }
         ];
 
+        worksheet.columns = isFiltered 
+            ? baseColumns.filter(c => c.key !== 'academicYear')
+            : baseColumns;
+
         // Load logo
         const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
         const imageId = workbook.addImage({
@@ -95,11 +101,14 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
         });
 
         // Center the logo using native EMU offsets
-        // Total sheet width ≈ 1202px (8 cols). Image = 486x75px.
-        // Center start = (1202 - 486) / 2 = 358px → Column D (index 3) + 77px offset.
-        // EMU conversion: 77px × 9525 = 733425 EMU, 5px top margin = 47625 EMU
+        // Base width ≈ 1202px (8 cols). Image = 486px. Center = (1202-486)/2 = 358px.
+        // Filtered width ≈ 1067px (7 cols). Image = 486px. Center = (1067-486)/2 = 290px.
+        const logoConfig = isFiltered 
+            ? { nativeCol: 2, nativeColOff: 1338262, nativeRow: 0, nativeRowOff: 47625 } // Col C (index 2) + 140.5px
+            : { nativeCol: 3, nativeColOff: 733425, nativeRow: 0, nativeRowOff: 47625 }; // Col D (index 3) + 77px
+
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 3, nativeColOff: 733425, nativeRow: 0, nativeRowOff: 47625 },
+            tl: logoConfig,
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
@@ -109,8 +118,9 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
         }
 
         // Title rows
-        worksheet.mergeCells("A5:H5");
-        worksheet.mergeCells("A6:H6");
+        const lastCol = isFiltered ? "G" : "H";
+        worksheet.mergeCells(`A5:${lastCol}5`);
+        worksheet.mergeCells(`A6:${lastCol}6`);
 
         const userRoleCode = sessionStorage.getItem('usersubRole') || 'IT';
         const matchedRole = subRolesList.find(r =>
@@ -121,29 +131,29 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
         worksheet.getCell("A6").value = "INDUSTRIAL VISITS REPORT";
-        worksheet.getCell("H7").value = "Date: " + formatDate(new Date());
+        
+        // Academic Year on left, Date on right
+        if (isFiltered) {
+            worksheet.getCell("A7").value = "Academic Year : " + yearFilter;
+            worksheet.getCell("A7").font = { bold: true, size: 10 };
+            worksheet.getCell("A7").alignment = { horizontal: "left", vertical: "middle" };
+        }
+        worksheet.getCell(`${lastCol}7`).value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
             row.height = 32;
             const cell = worksheet.getCell(`A${rowNum}`);
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle",
-                wrapText: true
-            };
-            cell.font = {
-                bold: true,
-                size: rowNum === 5 ? 15 : 13
-            };
+            cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+            cell.font = { bold: true, size: rowNum === 5 ? 15 : 13 };
         });
 
-        worksheet.getCell("H7").alignment = { horizontal: "center", vertical: "middle" };
-        worksheet.getCell("H7").font = { bold: true, size: 10 };
+        worksheet.getCell(`${lastCol}7`).alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getCell(`${lastCol}7`).font = { bold: true, size: 10 };
 
         // Table headers – starting at row 8
         const headerRow = worksheet.getRow(8);
-        headerRow.values = [
+        const headers = [
             "S.No",
             "Academic Year",
             "Semester",
@@ -153,6 +163,7 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
             "Dates(s) of Visit",
             "No. of Students Participated"
         ];
+        headerRow.values = isFiltered ? headers.filter(h => h !== "Academic Year") : headers;
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
@@ -172,7 +183,7 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
 
         // Data rows
         displayedVisits.forEach((w, index) => {
-            const dataRow = worksheet.addRow({
+            const rowData = {
                 sno: index + 1,
                 academicYear: w.academicYear,
                 semester: w.semester,
@@ -181,7 +192,10 @@ const HODIndustrialVisitsManager = ({ userRole }) => {
                 placeOfVisit: w.placeOfVisit,
                 dates: `${formatDate(w.startDate)} to ${formatDate(w.endDate)}`,
                 students: w.studentCount
-            });
+            };
+
+            if (isFiltered) delete rowData.academicYear;
+            const dataRow = worksheet.addRow(rowData);
 
             dataRow.eachCell((cell) => {
                 cell.border = {
