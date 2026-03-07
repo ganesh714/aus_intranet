@@ -156,7 +156,7 @@ const HODWorkshopManager = ({ userRole }) => {
         headerRow.values = [
             "S.No",
             "Academic Year",
-            "Activity Name",
+            "Name of the Workshop",
             "From Date",
             "To Date",
             "Resource Person",
