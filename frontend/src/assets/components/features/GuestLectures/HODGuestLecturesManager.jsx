@@ -296,8 +296,7 @@ const HODGuestLecturesManager = ({ userRole }) => {
                         <table className="std-table">
                             <thead>
                                 <tr>
-                                    <th>Year</th>
-                                    <th>Faculty ID</th>
+                                    <th>Academic Year</th>
                                     <th>Topic</th>
                                     <th>Date(s)</th>
                                     <th>Resource Person</th>
@@ -311,7 +310,6 @@ const HODGuestLecturesManager = ({ userRole }) => {
                                     displayedGuestLectures.map((w, idx) => (
                                         <tr key={idx}>
                                             <td>{w.academicYear}</td>
-                                            <td style={{ color: '#64748b' }}>{w.userId}</td>
                                             <td><strong>{w.topic}</strong></td>
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.resourcePerson}</td>

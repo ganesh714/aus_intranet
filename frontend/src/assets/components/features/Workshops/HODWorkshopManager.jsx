@@ -313,11 +313,11 @@ const HODWorkshopManager = ({ userRole }) => {
                         <table className="std-table">
                             <thead>
                                 <tr>
-                                    <th>Year</th>
-                                    <th>Faculty ID</th>
+                                    <th>Academic Year</th>
                                     <th>Activity</th>
                                     <th>Date(s)</th>
                                     <th>Resource Person</th>
+                                    <th>Professional Body</th>
                                     <th>Students</th>
                                     <th>Contact Hours</th>
                                 </tr>
@@ -329,16 +329,15 @@ const HODWorkshopManager = ({ userRole }) => {
                                     displayedWorkshops.map((w, idx) => (
                                         <tr key={idx}>
                                             <td>{w.academicYear}</td>
-                                            <td style={{ color: '#64748b' }}>{w.userId}</td>
                                             <td><strong>{w.activityName}</strong></td>
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.resourcePerson || w.coordinators}</td>
-                                            <td>{w.studentCount}</td>
+                                            <td>{w.professionalBody || '-'}</td>
+                                            <td>{w.studentCount || '-'}</td>
                                             <td>{w.contactHours || '-'}</td>
                                         </tr>
                                     ))
-                                )}
-                            </tbody>
+                                )}</tbody>
                         </table>
                     </div>
                     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100px" }}>

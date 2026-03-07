@@ -144,7 +144,7 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
         const headerRow = worksheet.getRow(8);
         headerRow.values = [
             "S.No",
-            "Academic year",
+            "Academic Year",
             "Name of the Faculty",
             "Name of the FDP/STTP attended",
             "Dates",
@@ -296,7 +296,7 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                         <table className="std-table">
                             <thead>
                                 <tr>
-                                    <th>Year</th>
+                                    <th>Academic Year</th>
                                     <th>Faculty Name</th>
                                     <th>FDP/STTP Name</th>
                                     <th>Date(s)</th>
@@ -311,7 +311,7 @@ const HODFDP_STTP_OutsideManager = ({ userRole }) => {
                                     displayedRecords.map((w, idx) => (
                                         <tr key={idx}>
                                             <td>{w.academicYear}</td>
-                                            <td>{w.facultyName} <br /><span style={{ color: '#64748b', fontSize: '11px' }}>({w.userId})</span></td>
+                                            <td>{w.facultyName}</td>
                                             <td><strong>{w.title}</strong></td>
                                             <td>{formatDate(w.startDate)} to {formatDate(w.endDate)}</td>
                                             <td>{w.durationDays} Days</td>
