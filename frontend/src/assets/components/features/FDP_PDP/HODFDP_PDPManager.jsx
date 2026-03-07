@@ -75,8 +75,10 @@ const HODFDP_PDPManager = ({ userRole }) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("FDP PDP");
 
+        const isFiltered = yearFilter !== 'All';
+
         // Define column keys and widths
-        worksheet.columns = [
+        const baseColumns = [
             { key: "sno", width: 8 },
             { key: "academicYear", width: 18 },
             { key: "type", width: 15 },
@@ -86,6 +88,10 @@ const HODFDP_PDPManager = ({ userRole }) => {
             { key: "participants", width: 18 }
         ];
 
+        worksheet.columns = isFiltered 
+            ? baseColumns.filter(c => c.key !== 'academicYear')
+            : baseColumns;
+
         // Load logo
         const imageBuffer = await fetch(ausLogo).then(res => res.arrayBuffer());
         const imageId = workbook.addImage({
@@ -94,11 +100,14 @@ const HODFDP_PDPManager = ({ userRole }) => {
         });
 
         // Center the logo using native EMU offsets
-        // Total sheet width ≈ 1183px (7 cols). Image = 486x75px.
-        // Center start = (1183 - 486) / 2 = 348.5px → 348px → Column D (index 3) + 46px offset.
-        // EMU conversion: 46px × 9525 = 438150 EMU, 5px top margin = 47625 EMU
+        // Base width ≈ 1183px (7 cols). Image = 486px. Center = (1183-486)/2 = 348.5px.
+        // Filtered width ≈ 1048px (6 cols). Image = 486px. Center = (1048-486)/2 = 281px.
+        const logoConfig = isFiltered 
+            ? { nativeCol: 2, nativeColOff: 1033462, nativeRow: 0, nativeRowOff: 47625 } // Col C (index 2) + 108.5px
+            : { nativeCol: 3, nativeColOff: 438150, nativeRow: 0, nativeRowOff: 47625 }; // Col D (index 3) + 46px
+
         worksheet.addImage(imageId, {
-            tl: { nativeCol: 3, nativeColOff: 438150, nativeRow: 0, nativeRowOff: 47625 },
+            tl: logoConfig,
             ext: { width: 486, height: 75 },
             editAs: 'oneCell'
         });
@@ -108,8 +117,9 @@ const HODFDP_PDPManager = ({ userRole }) => {
         }
 
         // Title rows
-        worksheet.mergeCells("A5:G5");
-        worksheet.mergeCells("A6:G6");
+        const lastCol = isFiltered ? "F" : "G";
+        worksheet.mergeCells(`A5:${lastCol}5`);
+        worksheet.mergeCells(`A6:${lastCol}6`);
 
         const userRoleCode = sessionStorage.getItem('usersubRole') || 'IT';
         const matchedRole = subRolesList.find(r =>
@@ -120,29 +130,28 @@ const HODFDP_PDPManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = "DEPARTMENT OF " + userDept.toUpperCase();
         worksheet.getCell("A6").value = "FDP / PDP REPORT";
-        worksheet.getCell("G7").value = "Date: " + formatDate(new Date());
+        
+        // Academic Year on left, Date on right
+        if (isFiltered) {
+            worksheet.getCell("A7").value = "Academic Year : " + yearFilter;
+            worksheet.getCell("A7").font = { bold: true, size: 10 };
+            worksheet.getCell("A7").alignment = { horizontal: "left", vertical: "middle" };
+        }
+        worksheet.getCell(`${lastCol}7`).value = "Date: " + formatDate(new Date());
 
         [5, 6].forEach(rowNum => {
             const row = worksheet.getRow(rowNum);
             row.height = 32;
             const cell = worksheet.getCell(`A${rowNum}`);
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle",
-                wrapText: true
-            };
-            cell.font = {
-                bold: true,
-                size: rowNum === 5 ? 15 : 13
-            };
+            cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+            cell.font = { bold: true, size: rowNum === 5 ? 15 : 13 };
         });
 
-        worksheet.getCell("G7").alignment = { horizontal: "center", vertical: "middle" };
-        worksheet.getCell("G7").font = { bold: true, size: 10 };
+        worksheet.getCell(`${lastCol}7`).alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getCell(`${lastCol}7`).font = { bold: true, size: 10 };
 
         // Table headers – starting at row 8
-        const headerRow = worksheet.getRow(8);
-        headerRow.values = [
+        const headers = [
             "S.No",
             "Academic Year",
             "FDP/PDP",
@@ -151,6 +160,7 @@ const HODFDP_PDPManager = ({ userRole }) => {
             "Details of the Resource Person(s)",
             "No. of Participants"
         ];
+        headerRow.values = isFiltered ? headers.filter(h => h !== "Academic Year") : headers;
         headerRow.font = { bold: true, size: 11 };
         headerRow.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
         headerRow.height = 32;
@@ -170,15 +180,18 @@ const HODFDP_PDPManager = ({ userRole }) => {
 
         // Data rows
         displayedRecords.forEach((w, index) => {
-            const dataRow = worksheet.addRow({
+            const rowData = {
                 sno: index + 1,
                 academicYear: w.academicYear,
                 type: w.type,
                 title: w.title,
-                dates: `${formatDate(w.startDate)} \n to \n${formatDate(w.endDate)}`,
+                dates: `${formatDate(w.startDate)} to ${formatDate(w.endDate)}`,
                 resourcePerson: w.resourcePerson,
                 participants: w.participantCount
-            });
+            };
+
+            if (isFiltered) delete rowData.academicYear;
+            const dataRow = worksheet.addRow(rowData);
 
             dataRow.eachCell((cell) => {
                 cell.border = {
