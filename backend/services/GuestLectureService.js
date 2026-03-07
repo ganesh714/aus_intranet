@@ -47,7 +47,7 @@ class GuestLectureService {
 
         if (academicYear && academicYear !== 'All') filter.academicYear = academicYear;
 
-        return await GuestLecture.find(filter).sort({ createdAt: -1 });
+        return await GuestLecture.find(filter).populate('dept').sort({ createdAt: -1 });
     }
 
     // Delete Guest Lecture
