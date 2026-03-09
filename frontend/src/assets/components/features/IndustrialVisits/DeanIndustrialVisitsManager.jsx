@@ -137,7 +137,7 @@ const DeanIndustrialVisitsManager = ({ userRole }) => {
 
         worksheet.getCell("A5").value = isDeptFiltered ? "DEPARTMENT OF " + deptTitle : "ALL DEPARTMENTS";
         worksheet.getCell("A6").value = "INDUSTRIAL VISITS REPORT";
-        
+
         let headerLabels = [];
         if (isYearFiltered) headerLabels.push("Academic Year : " + yearFilter);
 
@@ -171,7 +171,7 @@ const DeanIndustrialVisitsManager = ({ userRole }) => {
             "Dates(s) of Visit",
             "No. of Students Participated"
         ];
-        
+
         let activeHeaders = headers;
         if (isYearFiltered) activeHeaders = activeHeaders.filter(h => h !== "Academic Year");
         if (isDeptFiltered) activeHeaders = activeHeaders.filter(h => h !== "Department");
@@ -202,7 +202,7 @@ const DeanIndustrialVisitsManager = ({ userRole }) => {
                 visitDate: formatDate(w.startDate) + (w.endDate ? " to " + formatDate(w.endDate) : ""),
                 studentsCount: w.studentsCount
             };
-            
+
             if (isYearFiltered) delete rowData.academicYear;
             if (isDeptFiltered) delete rowData.department;
 
