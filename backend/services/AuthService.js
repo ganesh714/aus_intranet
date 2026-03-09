@@ -39,14 +39,14 @@ class AuthService {
             throw error;
         }
 
-        if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
-            const existingUserByRoleAndSubRole = await User.findOne({ role, subRole: subRoleObjId });
-            if (existingUserByRoleAndSubRole) {
-                const error = new Error('User with this role and subRole already exists');
-                error.statusCode = 400;
-                throw error;
-            }
-        }
+        // if (role !== 'Faculty' && role !== 'Admin' && role !== 'Student') {
+        //     const existingUserByRoleAndSubRole = await User.findOne({ role, subRole: subRoleObjId });
+        //     if (existingUserByRoleAndSubRole) {
+        //         const error = new Error('User with this role and subRole already exists');
+        //         error.statusCode = 400;
+        //         throw error;
+        //     }
+        // }
 
         const newUser = UserFactory.create({
             username,
