@@ -6,10 +6,10 @@ import './Syllabus.css';
 const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     const [syllabusList, setSyllabusList] = useState([]);
     const [subRolesList, setSubRolesList] = useState([]);
-    
+
     // Upload Permission State
     const [canUpload, setCanUpload] = useState(false);
-    
+
     // Tab State: 'view' or 'upload'
     const [activeTab, setActiveTab] = useState('view');
 
@@ -32,7 +32,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         const fetchAccessLimits = async () => {
             try {
                 // Fetch SubRoles for Dropdowns
-                const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
+                const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/subroles/HOD`);
                 const allSubRoles = srRes.data.subRoles || [];
                 setSubRolesList(allSubRoles);
 
@@ -105,7 +105,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     const handleDelete = async (id, e) => {
         e.stopPropagation();
         if (!window.confirm("Are you sure you want to delete this syllabus? It cannot be undone.")) return;
-        
+
         try {
             await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/delete-syllabus/${id}`);
             fetchSyllabus();
@@ -135,7 +135,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         <div className="std-page-container">
             <div className="std-page-header">
                 <h2>Academic Syllabus</h2>
-                
+
                 {canUpload && (
                     <div className="materials-tabs">
                         <button
@@ -159,32 +159,32 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                 <div className="upload-section">
                     <form onSubmit={handleUploadSubmit} className="std-form">
                         <h3 className="section-title">Upload New Syllabus</h3>
-                        
+
                         <div className="form-row">
                             <div className="std-form-group half">
                                 <label className="std-label">Academic Year</label>
-                                <select 
-                                    className="std-input" 
+                                <select
+                                    className="std-input"
                                     required
                                     value={uploadData.academicYear}
-                                    onChange={e => setUploadData({...uploadData, academicYear: e.target.value})}
+                                    onChange={e => setUploadData({ ...uploadData, academicYear: e.target.value })}
                                 >
                                     <option value="">Select Year</option>
                                     {generateYears().map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
                             </div>
-                            
+
                             <div className="std-form-group half">
                                 <label className="std-label">Branch / Department</label>
-                                <select 
-                                    className="std-input" 
+                                <select
+                                    className="std-input"
                                     required
                                     value={uploadData.branch}
-                                    onChange={e => setUploadData({...uploadData, branch: e.target.value})}
+                                    onChange={e => setUploadData({ ...uploadData, branch: e.target.value })}
                                 >
                                     <option value="">Select Branch</option>
                                     {subRolesList.map(sr => (
-                                        <option key={sr._id} value={sr.code}>{sr.displayName || sr.name}</option>
+                                        <option key={sr._id} value={sr.name}>{sr.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -192,27 +192,27 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
                         <div className="std-form-group">
                             <label className="std-label">Syllabus Title</label>
-                            <input 
-                                type="text" 
-                                className="std-input" 
+                            <input
+                                type="text"
+                                className="std-input"
                                 required
                                 placeholder="e.g. B.Tech CSE R20 Syllabus"
                                 value={uploadData.title}
-                                onChange={e => setUploadData({...uploadData, title: e.target.value})}
+                                onChange={e => setUploadData({ ...uploadData, title: e.target.value })}
                             />
                         </div>
 
                         <div className="std-form-group">
                             <label className="std-label">PDF Document</label>
-                            <input 
-                                type="file" 
+                            <input
+                                type="file"
                                 accept="application/pdf"
-                                className="std-file-input" 
+                                className="std-file-input"
                                 required
-                                onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
+                                onChange={e => setUploadData({ ...uploadData, file: e.target.files[0] })}
                             />
                         </div>
-                        
+
                         <div className="std-form-footer">
                             <button type="submit" className="std-btn">Submit Syllabus</button>
                         </div>
@@ -224,22 +224,22 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
             {activeTab === 'view' && (
                 <>
                     <div className="syllabus-filters">
-                        <select 
-                            value={filters.academicYear} 
-                            onChange={e => setFilters({...filters, academicYear: e.target.value})}
+                        <select
+                            value={filters.academicYear}
+                            onChange={e => setFilters({ ...filters, academicYear: e.target.value })}
                             className="syllabus-filter-select"
                         >
                             <option value="">All Academic Years</option>
                             {generateYears().map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
-                        <select 
-                            value={filters.branch} 
-                            onChange={e => setFilters({...filters, branch: e.target.value})}
+                        <select
+                            value={filters.branch}
+                            onChange={e => setFilters({ ...filters, branch: e.target.value })}
                             className="syllabus-filter-select"
                         >
                             <option value="All">All Branches</option>
                             {subRolesList.map(sr => (
-                                <option key={sr._id} value={sr.code}>{sr.displayName || sr.name}</option>
+                                <option key={sr._id} value={sr.name}>{sr.name}</option>
                             ))}
                         </select>
                     </div>
@@ -247,8 +247,8 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                     <div className="materials-grid">
                         {displayedSyllabus.length > 0 ? (
                             displayedSyllabus.map(item => (
-                                <div 
-                                    key={item._id} 
+                                <div
+                                    key={item._id}
                                     className="mat-card syllabus-card"
                                     onClick={() => onFileClick(`proxy-syllabus/${item.fileUrl}`, 'application/pdf', item.fileName)}
                                 >
@@ -257,11 +257,11 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                     </div>
                                     <div className="mat-title">{item.title}</div>
                                     <div className="mat-subject">{item.academicYear} • {item.branch}</div>
-                                    
+
                                     {canUpload && (
-                                        <div className="mat-meta" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <div className="mat-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <span>By: {item.uploadedBy}</span>
-                                            <button 
+                                            <button
                                                 onClick={(e) => handleDelete(item._id, e)}
                                                 className="syllabus-delete-btn"
                                                 title="Delete Syllabus"
