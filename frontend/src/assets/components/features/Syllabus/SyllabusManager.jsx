@@ -156,11 +156,12 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
             {/* --- UPLOAD TAB --- */}
             {activeTab === 'upload' && canUpload && (
-                <div className="upload-form-container" style={{maxWidth: '600px', margin: '0 auto'}}>
-                    <form onSubmit={handleUploadSubmit}>
-                        <h3 className="upload-form-header">Upload New Syllabus</h3>
-                        <div className="form-section">
-                            <div className="std-form-group">
+                <div className="upload-section">
+                    <form onSubmit={handleUploadSubmit} className="std-form">
+                        <h3 className="section-title">Upload New Syllabus</h3>
+                        
+                        <div className="form-row">
+                            <div className="std-form-group half">
                                 <label className="std-label">Academic Year</label>
                                 <select 
                                     className="std-input" 
@@ -173,7 +174,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                 </select>
                             </div>
                             
-                            <div className="std-form-group">
+                            <div className="std-form-group half">
                                 <label className="std-label">Branch / Department</label>
                                 <select 
                                     className="std-input" 
@@ -187,31 +188,32 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                     ))}
                                 </select>
                             </div>
-
-                            <div className="std-form-group">
-                                <label className="std-label">Syllabus Title</label>
-                                <input 
-                                    type="text" 
-                                    className="std-input" 
-                                    required
-                                    placeholder="e.g. B.Tech CSE R20 Syllabus"
-                                    value={uploadData.title}
-                                    onChange={e => setUploadData({...uploadData, title: e.target.value})}
-                                />
-                            </div>
-
-                            <div className="std-form-group">
-                                <label className="std-label">PDF Document</label>
-                                <input 
-                                    type="file" 
-                                    accept="application/pdf"
-                                    className="std-file-input" 
-                                    required
-                                    onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
-                                />
-                            </div>
                         </div>
-                        <div className="submit-section">
+
+                        <div className="std-form-group">
+                            <label className="std-label">Syllabus Title</label>
+                            <input 
+                                type="text" 
+                                className="std-input" 
+                                required
+                                placeholder="e.g. B.Tech CSE R20 Syllabus"
+                                value={uploadData.title}
+                                onChange={e => setUploadData({...uploadData, title: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="std-form-group">
+                            <label className="std-label">PDF Document</label>
+                            <input 
+                                type="file" 
+                                accept="application/pdf"
+                                className="std-file-input" 
+                                required
+                                onChange={e => setUploadData({...uploadData, file: e.target.files[0]})}
+                            />
+                        </div>
+                        
+                        <div className="std-form-footer">
                             <button type="submit" className="std-btn">Submit Syllabus</button>
                         </div>
                     </form>
