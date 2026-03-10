@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaBook, FaCloudUploadAlt, FaTrash } from 'react-icons/fa';
+import { FaBook, FaCloudUploadAlt, FaTrash, FaChevronDown, FaGraduationCap, FaCalendarCheck } from 'react-icons/fa';
 import './Syllabus.css';
 
 const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     const [syllabusList, setSyllabusList] = useState([]);
     const [subRolesList, setSubRolesList] = useState([]);
+    const [expandedDepts, setExpandedDepts] = useState({});
+    const [activeBatchTabs, setActiveBatchTabs] = useState({});
 
     // Upload Permission State
     const [canUpload, setCanUpload] = useState(false);
@@ -31,15 +33,12 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     useEffect(() => {
         const fetchAccessLimits = async () => {
             try {
-                // Fetch ALL SubRoles to ensure permission checks work for all users
                 const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
                 const allSubRoles = srRes.data.subRoles || [];
 
-                // For Branches dropdown, show only HOD-level departments (same logic as Dean IQAC)
                 const branchSubRoles = allSubRoles.filter(sr => sr.allowedRoles && sr.allowedRoles.includes('HOD'));
                 setSubRolesList(branchSubRoles);
 
-                // Check Special Feature from SubRole natively
                 let hasSubRolePermission = false;
                 if (userSubRole) {
                     const mySubRole = allSubRoles.find(sr => sr._id === userSubRole || sr.code === userSubRole || sr.displayName === userSubRole || sr.name === userSubRole);
@@ -48,7 +47,6 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                     }
                 }
 
-                // Fallback check: Fetch personal granular permissions
                 let hasPersonalPermission = false;
                 const userRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/get-users`, { params: { id: userId } });
                 const myUser = userRes.data.users?.find(u => u.id === userId);
@@ -75,6 +73,20 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         } catch (error) {
             console.error("Error fetching syllabus:", error);
         }
+    };
+
+    const toggleAccordion = (dept) => {
+        setExpandedDepts(prev => ({
+            ...prev,
+            [dept]: !prev[dept]
+        }));
+    };
+
+    const setBatchTab = (dept, batch) => {
+        setActiveBatchTabs(prev => ({
+            ...prev,
+            [dept]: batch
+        }));
     };
 
     // 3. Handle File Upload
@@ -118,16 +130,49 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         }
     };
 
-    // Derived Display List
-    const displayedSyllabus = syllabusList.filter(item => {
-        if (filters.batch && item.batch !== filters.batch) return false;
-        if (filters.branch !== 'All' && item.branch !== filters.branch) return false;
-        return true;
-    });
+    // Data Grouping Logic
+    const getGroupedData = () => {
+        const filtered = syllabusList.filter(item => {
+            if (filters.batch && item.batch !== filters.batch) return false;
+            if (filters.branch !== 'All' && item.branch !== filters.branch) return false;
+            return true;
+        });
+
+        const groups = {};
+
+        filtered.forEach(item => {
+            const branch = item.branch || 'General';
+            if (!groups[branch]) groups[branch] = {};
+
+            const batchYear = item.batch;
+            if (!groups[branch][batchYear]) groups[branch][batchYear] = {};
+
+            // Derive Program from title
+            let program = 'B.Tech';
+            if (item.title.toLowerCase().includes('m.tech')) program = 'M.Tech';
+            else if (item.title.toLowerCase().includes('mba')) program = 'MBA';
+            else if (item.title.toLowerCase().includes('mca')) program = 'MCA';
+            else if (item.title.toLowerCase().includes('ph.d')) program = 'Ph.D';
+
+            if (!groups[branch][batchYear][program]) groups[branch][batchYear][program] = [];
+            groups[branch][batchYear][program].push(item);
+        });
+
+        return groups;
+    };
+
+    const groupedData = getGroupedData();
 
     // Helper to generate Batches
     const generateBatches = () => {
         return Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
+    };
+
+    const getMimeType = (fileName) => {
+        if (fileName.toLowerCase().endsWith('.pdf')) return 'application/pdf';
+        if (fileName.toLowerCase().endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        if (fileName.toLowerCase().endsWith('.doc')) return 'application/msword';
+        return 'application/octet-stream';
     };
 
     return (
@@ -161,7 +206,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
                         <div className="form-row">
                             <div className="std-form-group half">
-                                <label className="std-label">Batch</label>
+                                <label className="std-label">Passing-out Batch (Year)</label>
                                 <select
                                     className="std-input"
                                     required
@@ -190,22 +235,22 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">Syllabus Title</label>
+                            <label className="std-label">Syllabus Title / Course Type</label>
                             <input
                                 type="text"
                                 className="std-input"
                                 required
-                                placeholder="e.g. B.Tech CSE R20 Syllabus"
+                                placeholder="e.g. Major Core Courses (MCC)"
                                 value={uploadData.title}
                                 onChange={e => setUploadData({ ...uploadData, title: e.target.value })}
                             />
                         </div>
 
                         <div className="std-form-group">
-                            <label className="std-label">PDF Document</label>
+                            <label className="std-label">Document (PDF or DOCX)</label>
                             <input
                                 type="file"
-                                accept="application/pdf"
+                                accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
                                 className="std-file-input"
                                 required
                                 onChange={e => setUploadData({ ...uploadData, file: e.target.files[0] })}
@@ -221,7 +266,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
             {/* --- VIEW TAB --- */}
             {activeTab === 'view' && (
-                <>
+                <div className="syllabus-container">
                     <div className="syllabus-filters">
                         <select
                             value={filters.batch}
@@ -243,38 +288,88 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                         </select>
                     </div>
 
-                    <div className="materials-grid">
-                        {displayedSyllabus.length > 0 ? (
-                            displayedSyllabus.map(item => (
-                                <div
-                                    key={item._id}
-                                    className="mat-card syllabus-card"
-                                    onClick={() => onFileClick(`proxy-syllabus/${item.fileUrl}`, 'application/pdf', item.fileName)}
-                                >
-                                    <div className="mat-icon-wrapper">
-                                        <FaBook />
-                                    </div>
-                                    <div className="mat-title">{item.title}</div>
-                                    <div className="mat-subject">{item.batch ? `${item.batch - 4}-${item.batch}` : 'Unknown Batch'} • {item.branch}</div>
+                    <div className="syllabus-list">
+                        {Object.keys(groupedData).length > 0 ? (
+                            Object.keys(groupedData).sort().map(branch => {
+                                const branchBatches = Object.keys(groupedData[branch]).sort();
+                                const currentActiveBatch = activeBatchTabs[branch] || branchBatches[branchBatches.length - 1]; // Default to latest
 
-                                    {canUpload && (
-                                        <div className="mat-meta" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                            <button
-                                                onClick={(e) => handleDelete(item._id, e)}
-                                                className="syllabus-delete-btn"
-                                                title="Delete Syllabus"
-                                            >
-                                                <FaTrash />
-                                            </button>
+                                return (
+                                    <div key={branch} className={`syllabus-accordion ${expandedDepts[branch] ? 'open' : ''}`}>
+                                        <div className="accordion-header" onClick={() => toggleAccordion(branch)}>
+                                            <div className="header-left">
+                                                <FaGraduationCap className="dept-icon" />
+                                                <span>{branch}</span>
+                                            </div>
+                                            <FaChevronDown className="accordion-icon" />
                                         </div>
-                                    )}
-                                </div>
-                            ))
+                                        <div className="accordion-content">
+                                            {/* Batch Tabs Row */}
+                                            <div className="batch-tabs-row">
+                                                {branchBatches.map(batchYear => (
+                                                    <button
+                                                        key={batchYear}
+                                                        className={`batch-tab-btn ${currentActiveBatch === batchYear ? 'active' : ''}`}
+                                                        onClick={() => setBatchTab(branch, batchYear)}
+                                                    >
+                                                        <FaCalendarCheck /> {batchYear - 4}-{batchYear}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {/* Syllabus Content for Active Batch */}
+                                            <div className="batch-syllabus-pane">
+                                                {currentActiveBatch && groupedData[branch][currentActiveBatch] ? (
+                                                    <table className="syllabus-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Program</th>
+                                                                <th>Course Syllabus</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {Object.keys(groupedData[branch][currentActiveBatch]).map(program => (
+                                                                <tr key={program}>
+                                                                    <td className="program-name">{program}</td>
+                                                                    <td>
+                                                                        <div className="batches-column">
+                                                                            {groupedData[branch][currentActiveBatch][program].map(item => (
+                                                                                <div
+                                                                                    key={item._id}
+                                                                                    className="syllabus-item-link"
+                                                                                    onClick={() => onFileClick(`proxy-syllabus/${item.fileUrl}`, getMimeType(item.fileName), item.fileName)}
+                                                                                >
+                                                                                    <span className="syllabus-item-title">{item.title}</span>
+                                                                                    {canUpload && (
+                                                                                        <button
+                                                                                            onClick={(e) => handleDelete(item._id, e)}
+                                                                                            className="syllabus-delete-btn"
+                                                                                            title="Delete Syllabus"
+                                                                                        >
+                                                                                            <FaTrash />
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                ) : (
+                                                    <div className="no-batch-data">Select a batch to view syllabus.</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
                         ) : (
-                            <div className="no-data-msg">No syllabus documents found for selected filters.</div>
+                            <div className="no-data-msg">No syllabus documents found matching filters.</div>
                         )}
                     </div>
-                </>
+                </div>
             )}
         </div>
     );
