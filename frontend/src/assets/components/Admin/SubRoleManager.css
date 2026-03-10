@@ -207,3 +207,20 @@
     background-color: #fca5a5;
     color: #b91c1c;
 }
+
+.edit-btn {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.edit-btn:hover {
+    background-color: #ea580c; /* Orange color matching the requirement */
+    color: white;
+}

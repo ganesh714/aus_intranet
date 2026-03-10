@@ -19,6 +19,7 @@ const SubRoleManager = () => {
         specialFeatures: []
     });
     const [editingId, setEditingId] = useState(null);
+    const [showForm, setShowForm] = useState(false);
 
     const rolesEnum = ['Student', 'Faculty', 'HOD', 'Asso.Dean', 'Dean', 'Officers'];
 
@@ -76,6 +77,7 @@ const SubRoleManager = () => {
             specialFeatures: role.specialFeatures || []
         });
         setEditingId(role._id);
+        setShowForm(true);
         // Scroll to top or form if needed
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -83,6 +85,7 @@ const SubRoleManager = () => {
     const resetForm = () => {
         setFormData({ name: '', code: '', displayName: '', allowedRoles: [], specialFeatures: [] });
         setEditingId(null);
+        setShowForm(false);
     };
 
     const handleDelete = async (id) => {
@@ -96,147 +99,161 @@ const SubRoleManager = () => {
     };
 
     return (
-        <div className="subrole-manager-container">
-            <div className="subrole-manager-header">
-                <h2>Manage Departments / SubRoles</h2>
-                <p style={{ color: '#64748b' }}>Add, remove, and manage sub-departments and roles available in the system.</p>
+        <div className="std-page-container">
+            <div className="std-page-header">
+                <div>
+                    <h2>Manage Departments / SubRoles</h2>
+                    <p style={{ color: '#64748b', fontSize: '14px', marginTop: '5px' }}>Add, remove, and manage sub-departments and roles available in the system.</p>
+                </div>
+                
+                {showForm ? (
+                    <button className="std-btn" onClick={resetForm} style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                         View All
+                    </button>
+                ) : (
+                     <button className="std-btn" onClick={() => setShowForm(true)}>
+                         <FaPlus /> Add SubRole
+                     </button>
+                )}
             </div>
 
-            <div className="subrole-content-grid">
-
-                {/* Left Column: Form */}
-                <div className="subrole-form-card">
-                    <h3>{editingId ? 'Edit SubRole' : 'Add New SubRole'}</h3>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label>Name (Full)</label>
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Computer Science and Engineering" />
-                        </div>
-                        <div className="form-group">
-                            <label>Code (Unique ID)</label>
-                            <input type="text" name="code" value={formData.code} onChange={handleChange} required placeholder="CSE" />
-                        </div>
-                        <div className="form-group">
-                            <label>Display Name (UI)</label>
-                            <input type="text" name="displayName" value={formData.displayName} onChange={handleChange} required placeholder="CSE" />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Allowed Roles:</label>
-                            <div className="checkbox-group">
-                                {rolesEnum.map(role => (
-                                    <label key={role} className="checkbox-label">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.allowedRoles.includes(role)}
-                                            onChange={() => handleRoleCheckbox(role)}
-                                        />
-                                        {role}
-                                    </label>
-                                ))}
+            {showForm && (
+                <div className="upload-form-container" style={{ maxWidth: '800px', margin: '0 auto', marginBottom: '30px' }}>
+                    <form onSubmit={handleSubmit} className="std-form">
+                        <h3 className="section-title">{editingId ? 'Edit SubRole' : 'Add New SubRole'}</h3>
+                        
+                        <div className="form-row">
+                            <div className="std-form-group half">
+                                <label className="std-label">Code (Unique ID)</label>
+                                <input type="text" className="std-input" name="code" value={formData.code} onChange={handleChange} required placeholder="e.g. CSE" />
+                            </div>
+                            <div className="std-form-group half">
+                                <label className="std-label">Display Name (UI)</label>
+                                <input type="text" className="std-input" name="displayName" value={formData.displayName} onChange={handleChange} required placeholder="e.g. CSE" />
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label>Special Features (Optional)</label>
-                            <div className="checkbox-group">
-                                {AVAILABLE_FEATURES.map(feature => (
-                                    <label key={feature.id} className="checkbox-label">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.specialFeatures.includes(feature.id)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setFormData({
-                                                        ...formData,
-                                                        specialFeatures: [...formData.specialFeatures, feature.id]
-                                                    });
-                                                } else {
-                                                    setFormData({
-                                                        ...formData,
-                                                        specialFeatures: formData.specialFeatures.filter(f => f !== feature.id)
-                                                    });
-                                                }
-                                            }}
-                                        />
-                                        {feature.label}
-                                    </label>
-                                ))}
+                        <div className="std-form-group">
+                            <label className="std-label">Name (Full / Formal)</label>
+                            <input type="text" className="std-input" name="name" value={formData.name} onChange={handleChange} required placeholder="e.g. Computer Science and Engineering" />
+                        </div>
+
+                        <div className="form-row">
+                            <div className="std-form-group half">
+                                <label className="std-label">Allowed Roles:</label>
+                                <div className="checkbox-group">
+                                    {rolesEnum.map(role => (
+                                        <label key={role} className="checkbox-label" style={{ width: '45%' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.allowedRoles.includes(role)}
+                                                onChange={() => handleRoleCheckbox(role)}
+                                            />
+                                            {role}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="std-form-group half">
+                                <label className="std-label">Special Features (Optional)</label>
+                                <div className="checkbox-group">
+                                    {AVAILABLE_FEATURES.map(feature => (
+                                        <label key={feature.id} className="checkbox-label" style={{ width: '100%' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.specialFeatures.includes(feature.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            specialFeatures: [...formData.specialFeatures, feature.id]
+                                                        });
+                                                    } else {
+                                                        setFormData({
+                                                            ...formData,
+                                                            specialFeatures: formData.specialFeatures.filter(f => f !== feature.id)
+                                                        });
+                                                    }
+                                                }}
+                                            />
+                                            {feature.label}
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="form-actions" style={{ display: 'flex', gap: '10px' }}>
-                            <button type="submit" className="add-btn" style={{ flex: 1 }}>
-                                {editingId ? 'Update SubRole' : <><FaPlus /> Add SubRole</>}
+                        <div className="std-form-footer" style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
+                            <button type="button" onClick={resetForm} className="std-btn std-btn-secondary" style={{ backgroundColor: '#f1f5f9', color: '#475569' }}>
+                                Cancel
                             </button>
-                            {editingId && (
-                                <button type="button" onClick={resetForm} className="add-btn" style={{ background: '#64748b', flex: 1 }}>
-                                    Cancel
-                                </button>
-                            )}
+                            <button type="submit" className="std-btn">
+                                {editingId ? 'Update SubRole' : 'Save Details'}
+                            </button>
                         </div>
                     </form>
                 </div>
+            )}
 
-                {/* Right Column: List */}
-                <div className="subrole-list-card">
-                    <div className="subrole-list">
-                        <div className="subrole-list-table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Code</th>
-                                        <th>Display Name</th>
-                                        <th>Full Name</th>
-                                        <th>Allowed Roles</th>
-                                        <th>Special Features</th>
-                                        <th>Action</th>
+            {!showForm && (
+                <div style={{ overflowX: 'auto' }}>
+                    <table className="std-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Display Name</th>
+                                <th>Full / Formal Name</th>
+                                <th>Allowed Roles</th>
+                                <th>Special Features</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {subRoles.length > 0 ? (
+                                subRoles.map(role => (
+                                    <tr key={role._id}>
+                                        <td><strong>{role.code}</strong></td>
+                                        <td>{role.displayName}</td>
+                                        <td>{role.name}</td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                {role.allowedRoles.map(r => (
+                                                    <span key={r} className="role-badge" style={{ margin: 0 }}>{r}</span>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                {role.specialFeatures && role.specialFeatures.length > 0
+                                                    ? role.specialFeatures.map(f => (
+                                                        <span key={f} className="feature-badge" style={{ margin: 0, fontSize: '11px' }}>{f.replace('MANAGE_', '').replace('UPLOAD_', '')}</span>
+                                                    ))
+                                                    : <span style={{color: '#94a3b8', fontSize: '13px'}}>None</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td style={{ display: 'flex', gap: '10px' }}>
+                                            <button className="edit-btn" onClick={() => handleEdit(role)} title="Edit">
+                                                Edit
+                                            </button>
+                                            <button className="std-btn-sm std-btn-danger" onClick={() => handleDelete(role._id)} style={{ backgroundColor: '#fee2e2', color: '#ef4444', border: 'none' }} title="Delete">
+                                                <FaTrash />
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {subRoles.length > 0 ? (
-                                        subRoles.map(role => (
-                                            <tr key={role._id}>
-                                                <td><b>{role.code}</b></td>
-                                                <td>{role.displayName}</td>
-                                                <td>{role.name}</td>
-                                                <td>
-                                                    {role.allowedRoles.map(r => (
-                                                        <span key={r} className="role-badge">{r}</span>
-                                                    ))}
-                                                </td>
-                                                <td>
-                                                    {role.specialFeatures && role.specialFeatures.length > 0
-                                                        ? role.specialFeatures.map(f => (
-                                                            <span key={f} className="feature-badge">{f}</span>
-                                                        ))
-                                                        : <span style={{color: '#999'}}>None</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button onClick={() => handleEdit(role)} className="std-btn" style={{ padding: '6px 10px', fontSize: '12px' }} title="Edit">
-                                                            Edit
-                                                        </button>
-                                                        <button onClick={() => handleDelete(role._id)} className="delete-btn" title="Delete">
-                                                            <FaTrash />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="6" style={{ textAlign: 'center', color: '#999' }}>No SubRoles found. Add one to get started.</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                                        No departments found. Click "Add SubRole" to get started.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-
-            </div>
+            )}
         </div>
     );
 };
