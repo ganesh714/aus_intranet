@@ -108,13 +108,13 @@ const Content = () => {
         } else if (categoryName === 'HODAchievements') {
             setActiveView('hod-achievements');
             setActiveCategory('HODAchievements');
-        } else if (categoryName === 'IQAC') { 
+        } else if (categoryName === 'IQAC') {
             setActiveView('iqac');
             setActiveCategory('IQAC');
-        } else if (categoryName === 'HODIQAC') { 
+        } else if (categoryName === 'HODIQAC') {
             setActiveView('hod-iqac');
             setActiveCategory('HODIQAC');
-        } else if (categoryName === 'DeanIQAC') { 
+        } else if (categoryName === 'DeanIQAC') {
             setActiveView('dean-iqac');
             setActiveCategory('DeanIQAC');
         } else if (categoryName === 'Manage SubRoles') { // [NEW]
@@ -135,8 +135,17 @@ const Content = () => {
         if (!url) return;
 
         // Ensure proxy if it's a relative path (simplified check)
-        // If it starts with http, leave it. If not, prepent proxy.
-        const finalUrl = url.startsWith('http') ? url : `${import.meta.env.VITE_BACKEND_URL}/proxy-file/${url}`;
+        // If it starts with http, leave it. 
+        // If it already has a proxy prefix (like proxy-syllabus), just prepend backend URL.
+        // Otherwise, prepend proxy-file.
+        let finalUrl;
+        if (url.startsWith('http')) {
+            finalUrl = url;
+        } else if (url.startsWith('proxy-')) {
+            finalUrl = `${import.meta.env.VITE_BACKEND_URL}/${url}`;
+        } else {
+            finalUrl = `${import.meta.env.VITE_BACKEND_URL}/proxy-file/${url}`;
+        }
 
         setSelectedFile(finalUrl);
         setSelectedFileType(type);
@@ -300,10 +309,10 @@ const Content = () => {
                         activeView === 'personal-data' ? 'Personal Data' :
                             activeView === 'achievements' ? 'Achievements' :
                                 activeView === 'hod-achievements' ? 'HODAchievements' :
-                                    activeView === 'iqac' ? 'IQAC' : 
+                                    activeView === 'iqac' ? 'IQAC' :
                                         activeView === 'hod-iqac' ? 'HODIQAC' :
                                             activeView === 'dean-iqac' ? 'DeanIQAC' :
-                                                activeView === 'manage-subroles' ? 'Manage SubRoles' : 
+                                                activeView === 'manage-subroles' ? 'Manage SubRoles' :
                                                     activeView === 'syllabus-manager' ? 'Syllabus' : ''
                 }
 

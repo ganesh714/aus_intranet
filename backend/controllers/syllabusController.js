@@ -39,12 +39,12 @@ const deleteSyllabus = async (req, res) => {
 const getSyllabusFile = async (req, res) => {
     try {
         const fileId = req.params.fileId;
-        const fileStreamData = await SyllabusService.getSyllabusFileStream(fileId);
-        
-        // Setting generic headers, let browser handle the application/pdf representation
-        res.setHeader('Content-Type', fileStreamData.mimeType || 'application/pdf');
-        
-        fileStreamData.stream.pipe(res);
+        const stream = await SyllabusService.getSyllabusFileStream(fileId);
+
+        // Setting generic headers for PDF
+        res.setHeader('Content-Type', 'application/pdf');
+
+        stream.pipe(res);
     } catch (error) {
         console.error("Error streaming syllabus file:", error);
         res.status(500).send('Error retrieving file');
