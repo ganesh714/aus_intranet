@@ -18,6 +18,7 @@ const SubRoleManager = () => {
         allowedRoles: [],
         specialFeatures: []
     });
+    const [editingId, setEditingId] = useState(null);
 
     const rolesEnum = ['Student', 'Faculty', 'HOD', 'Asso.Dean', 'Dean', 'Officers'];
 
@@ -51,14 +52,37 @@ const SubRoleManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-subrole`, formData);
-            alert('SubRole added successfully!');
-            setFormData({ name: '', code: '', displayName: '', allowedRoles: [], specialFeatures: [] });
+            if (editingId) {
+                await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-subrole/${editingId}`, formData);
+                alert('SubRole updated successfully!');
+            } else {
+                await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-subrole`, formData);
+                alert('SubRole added successfully!');
+            }
+            resetForm();
             fetchSubRoles();
         } catch (error) {
-            console.error('Error adding subrole:', error);
-            alert('Failed to add subrole. Check console for details.');
+            console.error('Error saving subrole:', error);
+            alert('Failed to save subrole. Check console for details.');
         }
+    };
+
+    const handleEdit = (role) => {
+        setFormData({
+            name: role.name,
+            code: role.code,
+            displayName: role.displayName,
+            allowedRoles: role.allowedRoles || [],
+            specialFeatures: role.specialFeatures || []
+        });
+        setEditingId(role._id);
+        // Scroll to top or form if needed
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const resetForm = () => {
+        setFormData({ name: '', code: '', displayName: '', allowedRoles: [], specialFeatures: [] });
+        setEditingId(null);
     };
 
     const handleDelete = async (id) => {
@@ -82,7 +106,7 @@ const SubRoleManager = () => {
 
                 {/* Left Column: Form */}
                 <div className="subrole-form-card">
-                    <h3>Add New SubRole</h3>
+                    <h3>{editingId ? 'Edit SubRole' : 'Add New SubRole'}</h3>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label>Name (Full)</label>
@@ -141,7 +165,16 @@ const SubRoleManager = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="add-btn"><FaPlus /> Add SubRole</button>
+                        <div className="form-actions" style={{ display: 'flex', gap: '10px' }}>
+                            <button type="submit" className="add-btn" style={{ flex: 1 }}>
+                                {editingId ? 'Update SubRole' : <><FaPlus /> Add SubRole</>}
+                            </button>
+                            {editingId && (
+                                <button type="button" onClick={resetForm} className="add-btn" style={{ background: '#64748b', flex: 1 }}>
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </div>
 
@@ -181,9 +214,14 @@ const SubRoleManager = () => {
                                                     }
                                                 </td>
                                                 <td>
-                                                    <button onClick={() => handleDelete(role._id)} className="delete-btn" title="Delete">
-                                                        <FaTrash />
-                                                    </button>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button onClick={() => handleEdit(role)} className="std-btn" style={{ padding: '6px 10px', fontSize: '12px' }} title="Edit">
+                                                            Edit
+                                                        </button>
+                                                        <button onClick={() => handleDelete(role._id)} className="delete-btn" title="Delete">
+                                                            <FaTrash />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
