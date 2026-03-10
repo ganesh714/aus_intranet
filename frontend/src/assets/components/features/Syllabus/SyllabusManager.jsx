@@ -53,7 +53,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                     hasPersonalPermission = true;
                 }
 
-                setCanUpload(userRole === 'Admin' || hasSubRolePermission || hasPersonalPermission);
+                setCanUpload(hasSubRolePermission || hasPersonalPermission);
 
             } catch (error) {
                 console.error("Error fetching access data for syllabus:", error);
