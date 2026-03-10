@@ -76,11 +76,11 @@ const AnnouncementManager = ({
     const getTargetRoles = () => {
         switch (userRole) {
             case 'Faculty': return ['Student'];
-            case 'HOD': return ['Student', 'Faculty'];
+            case 'HOD': return ['Student', 'Faculty', 'HOD'];
             case 'Asso.Dean':
             case 'Associate Dean':
-            case 'Assoc Dean': return ['Student', 'Faculty', 'HOD'];
-            case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
+            case 'Assoc Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean'];
+            case 'Dean': return ['Student', 'Faculty', 'HOD', 'Asso.Dean', 'Dean'];
             case 'Officers':
             case 'Admin': return ['All', 'Student', 'Faculty', 'HOD', 'Dean', 'Asso.Dean', 'Officers'];
             default: return ['All'];
