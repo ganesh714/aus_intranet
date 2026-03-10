@@ -324,7 +324,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                                         <thead>
                                                             <tr>
                                                                 <th>Program</th>
-                                                                <th>Course Syllabus</th>
+                                                                <th>{currentActiveBatch ? `${currentActiveBatch - 1}-${currentActiveBatch.toString().slice(-2)}` : 'Syllabus'}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
