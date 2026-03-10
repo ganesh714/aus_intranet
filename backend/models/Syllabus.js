@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const syllabusSchema = new mongoose.Schema({
-    academicYear: {
+    batch: {
         type: String,
         required: true
     },

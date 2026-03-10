@@ -15,13 +15,13 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
     // Filters
     const [filters, setFilters] = useState({
-        academicYear: '',
+        batch: '',
         branch: 'All'
     });
 
     // Upload Form State
     const [uploadData, setUploadData] = useState({
-        academicYear: '',
+        batch: '',
         branch: '',
         title: '',
         file: null
@@ -42,7 +42,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                 // Check Special Feature from SubRole natively
                 let hasSubRolePermission = false;
                 if (userSubRole) {
-                    const mySubRole = allSubRoles.find(sr => sr.code === userSubRole || sr.displayName === userSubRole || sr.name === userSubRole);
+                    const mySubRole = allSubRoles.find(sr => sr._id === userSubRole || sr.code === userSubRole || sr.displayName === userSubRole || sr.name === userSubRole);
                     if (mySubRole && mySubRole.specialFeatures && mySubRole.specialFeatures.includes('UPLOAD_SYLLABUS')) {
                         hasSubRolePermission = true;
                     }
@@ -86,7 +86,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         }
 
         const formData = new FormData();
-        formData.append('academicYear', uploadData.academicYear);
+        formData.append('batch', uploadData.batch);
         formData.append('branch', uploadData.branch);
         formData.append('title', uploadData.title);
         formData.append('file', uploadData.file);
@@ -95,7 +95,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-syllabus`, formData);
             alert("Syllabus Uploaded Successfully!");
-            setUploadData({ academicYear: '', branch: '', title: '', file: null });
+            setUploadData({ batch: '', branch: '', title: '', file: null });
             setActiveTab('view');
             fetchSyllabus();
         } catch (error) {
@@ -120,18 +120,14 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
     // Derived Display List
     const displayedSyllabus = syllabusList.filter(item => {
-        if (filters.academicYear && item.academicYear !== filters.academicYear) return false;
+        if (filters.batch && item.batch !== filters.batch) return false;
         if (filters.branch !== 'All' && item.branch !== filters.branch) return false;
         return true;
     });
 
-    // Helper to generate Years
-    const generateYears = () => {
-        const currentYear = new Date().getFullYear();
-        return Array.from({ length: 5 }, (_, i) => {
-            const start = currentYear - i;
-            return `${start}-${start + 1}`;
-        });
+    // Helper to generate Batches
+    const generateBatches = () => {
+        return Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
     };
 
     return (
@@ -165,15 +161,15 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
                         <div className="form-row">
                             <div className="std-form-group half">
-                                <label className="std-label">Academic Year</label>
+                                <label className="std-label">Batch</label>
                                 <select
                                     className="std-input"
                                     required
-                                    value={uploadData.academicYear}
-                                    onChange={e => setUploadData({ ...uploadData, academicYear: e.target.value })}
+                                    value={uploadData.batch}
+                                    onChange={e => setUploadData({ ...uploadData, batch: e.target.value })}
                                 >
-                                    <option value="">Select Year</option>
-                                    {generateYears().map(y => <option key={y} value={y}>{y}</option>)}
+                                    <option value="">Select Batch</option>
+                                    {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
                                 </select>
                             </div>
 
@@ -228,12 +224,12 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                 <>
                     <div className="syllabus-filters">
                         <select
-                            value={filters.academicYear}
-                            onChange={e => setFilters({ ...filters, academicYear: e.target.value })}
+                            value={filters.batch}
+                            onChange={e => setFilters({ ...filters, batch: e.target.value })}
                             className="syllabus-filter-select"
                         >
-                            <option value="">All Academic Years</option>
-                            {generateYears().map(y => <option key={y} value={y}>{y}</option>)}
+                            <option value="">All Batches</option>
+                            {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
                         </select>
                         <select
                             value={filters.branch}
@@ -259,11 +255,10 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                         <FaBook />
                                     </div>
                                     <div className="mat-title">{item.title}</div>
-                                    <div className="mat-subject">{item.academicYear} • {item.branch}</div>
+                                    <div className="mat-subject">{item.batch ? `${item.batch - 4}-${item.batch}` : 'Unknown Batch'} • {item.branch}</div>
 
                                     {canUpload && (
-                                        <div className="mat-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span>By: {item.uploadedBy}</span>
+                                        <div className="mat-meta" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                                             <button
                                                 onClick={(e) => handleDelete(item._id, e)}
                                                 className="syllabus-delete-btn"

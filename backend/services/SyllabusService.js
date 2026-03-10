@@ -9,17 +9,17 @@ class SyllabusService {
             throw error;
         }
 
-        const { academicYear, branch, title, uploadedBy } = data;
+        const { batch, branch, title, uploadedBy } = data;
 
         // Save file using unified StorageService (Drive or Local depending on env)
-        const fileData = await StorageService.saveFile(file);
+        const fileId = await StorageService.saveFile(file);
 
         const newSyllabus = new Syllabus({
-            academicYear,
+            batch,
             branch,
             title,
-            fileUrl: fileData.fileId, // Unified generic storage reference
-            fileName: fileData.fileName,
+            fileUrl: fileId, // Unified generic storage reference
+            fileName: file.originalname,
             uploadedBy
         });
 
@@ -28,8 +28,8 @@ class SyllabusService {
     }
 
     static async getSyllabusList() {
-        // Find all documents, sort by academic Year descending, then title ascending
-        const docs = await Syllabus.find().sort({ academicYear: -1, title: 1 });
+        // Find all documents, sort by batch descending, then title ascending
+        const docs = await Syllabus.find().sort({ batch: -1, title: 1 });
         return docs;
     }
 
