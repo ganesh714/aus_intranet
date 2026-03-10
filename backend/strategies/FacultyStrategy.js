@@ -14,6 +14,11 @@ class FacultyStrategy extends DefaultStrategy {
             orConditions.push({
                 targetAudience: { $elemMatch: { role: 'Faculty', subRole: this.subRole } }
             });
+        } else {
+            // When subRole is null (filter = 'All'), also fetch dept-specific Faculty announcements
+            orConditions.push({
+                targetAudience: { $elemMatch: { role: 'Faculty' } }
+            });
         }
 
         // Also show my own uploads

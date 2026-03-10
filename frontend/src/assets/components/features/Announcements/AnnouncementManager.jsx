@@ -141,7 +141,8 @@ const AnnouncementManager = ({
     const fetchAnnouncements = async () => {
         try {
             const canCreate = ['HOD', 'Dean', 'Asso.Dean'].includes(userRole) || (userRole === 'Officers');
-            const roleParam = currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole;
+            // For higher-level roles, always use their actual role (HOD should see HOD-targeted announcements, not Faculty-targeted)
+            const roleParam = canCreate ? userRole : (currentViewCategory ? getRoleFromCategory(currentViewCategory) : userRole);
             let subRoleParam = userSubRole;
             // Read batch directly from session if not passed as prop (or ensure parent passes it)
             const batchParam = sessionStorage.getItem('userBatch');
