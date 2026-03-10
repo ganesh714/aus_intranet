@@ -31,10 +31,13 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     useEffect(() => {
         const fetchAccessLimits = async () => {
             try {
-                // Fetch SubRoles for Dropdowns
-                const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/subroles/HOD`);
+                // Fetch ALL SubRoles to ensure permission checks work for all users
+                const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
                 const allSubRoles = srRes.data.subRoles || [];
-                setSubRolesList(allSubRoles);
+
+                // For Branches dropdown, show only HOD-level departments (same logic as Dean IQAC)
+                const branchSubRoles = allSubRoles.filter(sr => sr.allowedRoles && sr.allowedRoles.includes('HOD'));
+                setSubRolesList(branchSubRoles);
 
                 // Check Special Feature from SubRole natively
                 let hasSubRolePermission = false;
@@ -53,7 +56,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                     hasPersonalPermission = true;
                 }
 
-                setCanUpload(hasSubRolePermission || hasPersonalPermission);
+                setCanUpload(userRole === 'Admin' || hasSubRolePermission || hasPersonalPermission);
 
             } catch (error) {
                 console.error("Error fetching access data for syllabus:", error);
