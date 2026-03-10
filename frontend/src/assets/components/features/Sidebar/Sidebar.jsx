@@ -143,6 +143,15 @@ const Sidebar = ({
                     </div>
                 )}
 
+                {/* [NEW] Syllabus Module (Visible to All) */}
+                <div className={`category-item ${activeCategory === 'Syllabus' ? "expanded" : ""}`}>
+                    <div className="category-header" onClick={() => onDirectCategoryClick('Syllabus')}>
+                        <span className="cat-name">
+                            <FaFolder className="cat-icon" style={{ color: '#10b981' }} /> Syllabus
+                        </span>
+                    </div>
+                </div>
+
                 {/* [NEW] Time Table (Excluded for Deans) */}
                 {(['Student', 'Faculty', 'HOD'].includes(userRole)) && (
                     <div className={`category-item ${activeCategory === 'Time Table' ? "expanded" : ""}`}>

@@ -19,7 +19,7 @@ const subRoleSchema = new mongoose.Schema({
     // Special features/permissions attached to this department
     specialFeatures: [{
         type: String,
-        enum: ['MANAGE_IQAC'], // Add more here as needed, e.g. 'MANAGE_FINANCE'
+        enum: ['MANAGE_IQAC', 'UPLOAD_SYLLABUS'], // Add more here as needed, e.g. 'MANAGE_FINANCE'
     }]
 });
 

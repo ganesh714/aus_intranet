@@ -1,0 +1,46 @@
+/* Reusing base standard styles via .std-page-container. 
+   Adding small overrides or specific classes for Syllabus. */
+
+   .syllabus-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.syllabus-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.syllabus-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.syllabus-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.syllabus-delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.syllabus-delete-btn:hover {
+    background: #fee2e2;
+}

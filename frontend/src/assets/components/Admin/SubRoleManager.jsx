@@ -4,7 +4,8 @@ import { FaTrash, FaPlus } from 'react-icons/fa';
 import './SubRoleManager.css';
 
 const AVAILABLE_FEATURES = [
-    { id: 'MANAGE_IQAC', label: 'Dean IQAC / IQAC Access' }
+    { id: 'MANAGE_IQAC', label: 'Dean IQAC / IQAC Access' },
+    { id: 'UPLOAD_SYLLABUS', label: 'Upload Syllabus (Pro-VC Academics)' }
     // Add more features here in the future, e.g. { id: 'MANAGE_FINANCE', label: 'Finance Access' }
 ];
 

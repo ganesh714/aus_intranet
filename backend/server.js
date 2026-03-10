@@ -15,6 +15,10 @@ const userRoutes = require('./routes/userRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const driveRoutes = require('./routes/driveRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
+const workshopRoutes = require('./routes/workshopRoutes');
+const fdpPdpOrganizedRoutes = require('./routes/fdpPdpOrganizedRoutes');
+const fdpSttpAttendedRoutes = require('./routes/fdpSttpAttendedRoutes');
+const syllabusRoutes = require('./routes/syllabusRoutes'); // [NEW IMPORT]
 
 // Import Services
 const emailService = require('./services/EmailService');
@@ -64,6 +68,7 @@ app.use('/', require('./routes/industrialVisitRoutes')); // [NEW] Industrial Vis
 app.use('/', require('./routes/guestLectureRoutes')); // [NEW] Guest Lecture Endpoints
 app.use('/', require('./routes/fdpPdpOrganizedRoutes')); // [NEW] FDP/PDP Organized Endpoints
 app.use('/', require('./routes/fdpSttpAttendedRoutes')); // [NEW] FDP/STTP Attended Endpoints
+app.use('/', syllabusRoutes); // [NEW MOUNT]
 
 const port = process.env.PORT || 5001;
 

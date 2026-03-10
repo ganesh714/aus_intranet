@@ -11,6 +11,7 @@ import MaterialManager from "../features/Materials/MaterialManager";
 import TimetableManager from "../features/Timetable/TimetableManager"; // [NEW IMPORT]
 import AchievementManager from "../features/Achievements/AchievementManager";
 import HODAchievementManager from "../features/Achievements/HODAchievementManager";
+import SyllabusManager from "../features/Syllabus/SyllabusManager"; // [NEW IMPORT]
 import IQACManager from "../features/IQAC/IQACManager"; // [NEW IQAC Wrapper]
 import HODIQACManager from "../features/IQAC/HODIQACManager"; // [NEW IQAC Wrapper]
 import DeanIQACManager from "../features/IQAC/DeanIQACManager"; // [NEW Dean IQAC]
@@ -119,6 +120,9 @@ const Content = () => {
         } else if (categoryName === 'Manage SubRoles') { // [NEW]
             setActiveView('manage-subroles');
             setActiveCategory('Manage SubRoles');
+        } else if (categoryName === 'Syllabus') { // [NEW]
+            setActiveView('syllabus-manager');
+            setActiveCategory('Syllabus');
         }
     };
 
@@ -210,10 +214,19 @@ const Content = () => {
                     />
                 );
 
-            // [NEW CASE]
             case 'timetable-manager':
                 return (
                     <TimetableManager
+                        userRole={userRole}
+                        userSubRole={userSubRole}
+                        userId={userId}
+                        onFileClick={handleFileClick}
+                    />
+                );
+
+            case 'syllabus-manager':
+                return (
+                    <SyllabusManager
                         userRole={userRole}
                         userSubRole={userSubRole}
                         userId={userId}
@@ -290,7 +303,8 @@ const Content = () => {
                                     activeView === 'iqac' ? 'IQAC' : 
                                         activeView === 'hod-iqac' ? 'HODIQAC' :
                                             activeView === 'dean-iqac' ? 'DeanIQAC' :
-                                                activeView === 'manage-subroles' ? 'Manage SubRoles' : ''
+                                                activeView === 'manage-subroles' ? 'Manage SubRoles' : 
+                                                    activeView === 'syllabus-manager' ? 'Syllabus' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}

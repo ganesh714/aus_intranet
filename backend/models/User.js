@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
         canManageGuestLectures: { type: Boolean, default: false },
         canManageIndustrialVisits: { type: Boolean, default: false },
         canManageFdpPdp: { type: Boolean, default: false },
-        canManageFdpSttp: { type: Boolean, default: false }
+        canManageFdpSttp: { type: Boolean, default: false },
+        canUploadSyllabus: { type: Boolean, default: false }
     },
     role: {
         type: String,
