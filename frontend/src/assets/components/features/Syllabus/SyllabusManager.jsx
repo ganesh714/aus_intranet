@@ -130,6 +130,36 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         }
     };
 
+    // 5. Title Editing
+    const [editingId, setEditingId] = useState(null);
+    const [editTitle, setEditTitle] = useState('');
+
+    const startEditing = (item, e) => {
+        e.stopPropagation();
+        setEditingId(item._id);
+        setEditTitle(item.title);
+    };
+
+    const cancelEditing = (e) => {
+        e.stopPropagation();
+        setEditingId(null);
+        setEditTitle('');
+    };
+
+    const handleUpdateTitle = async (id, e) => {
+        e.stopPropagation();
+        if (!editTitle.trim()) return;
+
+        try {
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/update-syllabus-title/${id}`, { title: editTitle });
+            setEditingId(null);
+            fetchSyllabus();
+        } catch (error) {
+            console.error("Error updating title:", error);
+            alert("Failed to update title");
+        }
+    };
+
     // Data Grouping Logic
     const getGroupedData = () => {
         const filtered = syllabusList.filter(item => {
@@ -147,12 +177,14 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
             const batchYear = item.batch;
             if (!groups[branch][batchYear]) groups[branch][batchYear] = {};
 
-            // Derive Program from title
-            let program = 'B.Tech';
-            if (item.title.toLowerCase().includes('m.tech')) program = 'M.Tech';
-            else if (item.title.toLowerCase().includes('mba')) program = 'MBA';
-            else if (item.title.toLowerCase().includes('mca')) program = 'MCA';
-            else if (item.title.toLowerCase().includes('ph.d')) program = 'Ph.D';
+            // Derive Program from title with Department suffix
+            let baseProgram = 'B.Tech';
+            if (item.title.toLowerCase().includes('m.tech')) baseProgram = 'M.Tech';
+            else if (item.title.toLowerCase().includes('mba')) baseProgram = 'MBA';
+            else if (item.title.toLowerCase().includes('mca')) baseProgram = 'MCA';
+            else if (item.title.toLowerCase().includes('ph.d')) baseProgram = 'Ph.D';
+
+            const program = `${baseProgram} (${branch})`;
 
             if (!groups[branch][batchYear][program]) groups[branch][batchYear][program] = [];
             groups[branch][batchYear][program].push(item);
@@ -324,7 +356,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                                         <thead>
                                                             <tr>
                                                                 <th>Program</th>
-                                                                <th>{currentActiveBatch ? `${currentActiveBatch - 1}-${currentActiveBatch.toString().slice(-2)}` : 'Syllabus'}</th>
+                                                                <th>{currentActiveBatch ? `${currentActiveBatch - 4}-${currentActiveBatch}` : 'Syllabus'}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -336,18 +368,47 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                                                             {groupedData[branch][currentActiveBatch][program].map(item => (
                                                                                 <div
                                                                                     key={item._id}
-                                                                                    className="syllabus-item-link"
-                                                                                    onClick={() => onFileClick(`proxy-syllabus/${item.fileUrl}`, getMimeType(item.fileName), item.fileName)}
+                                                                                    className={`syllabus-item-link ${editingId === item._id ? 'editing' : ''}`}
+                                                                                    onClick={() => editingId !== item._id && onFileClick(`proxy-syllabus/${item.fileUrl}`, getMimeType(item.fileName), item.fileName)}
                                                                                 >
-                                                                                    <span className="syllabus-item-title">{item.title}</span>
-                                                                                    {canUpload && (
-                                                                                        <button
-                                                                                            onClick={(e) => handleDelete(item._id, e)}
-                                                                                            className="syllabus-delete-btn"
-                                                                                            title="Delete Syllabus"
-                                                                                        >
-                                                                                            <FaTrash />
-                                                                                        </button>
+                                                                                    {editingId === item._id ? (
+                                                                                        <div className="title-edit-container">
+                                                                                            <input
+                                                                                                className="title-edit-input"
+                                                                                                value={editTitle}
+                                                                                                onChange={(e) => setEditTitle(e.target.value)}
+                                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                                autoFocus
+                                                                                            />
+                                                                                            <div className="edit-actions">
+                                                                                                <button className="confirm-btn" onClick={(e) => handleUpdateTitle(item._id, e)}>Save</button>
+                                                                                                <button className="cancel-btn" onClick={cancelEditing}>Cancel</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <>
+                                                                                            <span className="syllabus-item-title">{item.title}</span>
+                                                                                            <div className="item-action-group">
+                                                                                                {canUpload && (
+                                                                                                    <>
+                                                                                                        <button
+                                                                                                            onClick={(e) => startEditing(item, e)}
+                                                                                                            className="syllabus-edit-btn"
+                                                                                                            title="Edit Title"
+                                                                                                        >
+                                                                                                            <FaBook />
+                                                                                                        </button>
+                                                                                                        <button
+                                                                                                            onClick={(e) => handleDelete(item._id, e)}
+                                                                                                            className="syllabus-delete-btn"
+                                                                                                            title="Delete Syllabus"
+                                                                                                        >
+                                                                                                            <FaTrash />
+                                                                                                        </button>
+                                                                                                    </>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </>
                                                                                     )}
                                                                                 </div>
                                                                             ))}

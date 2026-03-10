@@ -49,6 +49,19 @@ class SyllabusService {
         return true;
     }
 
+    static async updateSyllabusTitle(id, title) {
+        const doc = await Syllabus.findById(id);
+        if (!doc) {
+            const error = new Error('Syllabus not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        doc.title = title;
+        await doc.save();
+        return doc;
+    }
+
     static async getSyllabusFileStream(fileId) {
         return await StorageService.getFileStream(fileId);
     }

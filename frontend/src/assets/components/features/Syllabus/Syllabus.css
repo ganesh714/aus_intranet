@@ -124,7 +124,7 @@
     font-weight: 600;
     color: #475569;
     width: 40%;
-    text-align: left;
+    text-align: center;
     background: #ffffff;
 }
 
@@ -160,7 +160,7 @@
     flex: 1;
 }
 
-.syllabus-delete-btn {
+.syllabus-delete-btn, .syllabus-edit-btn {
     background: none;
     border: none;
     color: #94a3b8;
@@ -171,13 +171,63 @@
     transition: all 0.2s;
 }
 
-.syllabus-item-link:hover .syllabus-delete-btn {
+.item-action-group {
+    display: flex;
+    gap: 5px;
+}
+
+.syllabus-item-link:hover .syllabus-delete-btn,
+.syllabus-item-link:hover .syllabus-edit-btn {
     opacity: 1;
-    color: #ef4444;
+}
+
+.syllabus-edit-btn:hover {
+    background: #e0f2fe;
+    color: var(--primary-blue);
 }
 
 .syllabus-delete-btn:hover {
     background: #fee2e2;
+    color: #ef4444;
+}
+
+/* Inline Editing Styles */
+.title-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.title-edit-input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid var(--primary-blue);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.confirm-btn, .cancel-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+}
+
+.confirm-btn {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.cancel-btn {
+    background: #94a3b8;
+    color: white;
 }
 
 /* Batch Tabs Section */

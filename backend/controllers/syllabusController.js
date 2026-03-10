@@ -51,9 +51,23 @@ const getSyllabusFile = async (req, res) => {
     }
 };
 
+// Update Syllabus Title
+const updateSyllabusTitle = async (req, res) => {
+    try {
+        const { title } = req.body;
+        const updatedDoc = await SyllabusService.updateSyllabusTitle(req.params.id, title);
+        res.status(200).json({ message: 'Syllabus title updated successfully', syllabus: updatedDoc });
+    } catch (error) {
+        console.error("Error updating syllabus title:", error);
+        const status = error.statusCode || 500;
+        res.status(status).json({ message: 'Error updating syllabus title', error: error.message });
+    }
+};
+
 module.exports = {
     addSyllabus,
     getSyllabusList,
     deleteSyllabus,
+    updateSyllabusTitle,
     getSyllabusFile
 };
