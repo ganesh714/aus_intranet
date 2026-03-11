@@ -217,13 +217,22 @@ const Sidebar = ({
 
                 {/* [NEW] Manage SubRoles (Admin Only) */}
                 {userRole === 'Admin' && (
-                    <div className={`category-item ${activeCategory === 'Manage SubRoles' ? "expanded" : ""}`}>
-                        <div className="category-header" onClick={() => onDirectCategoryClick('Manage SubRoles')}>
-                            <span className="cat-name">
-                                <FaBook className="cat-icon" /> Manage Depts
-                            </span>
+                    <>
+                        <div className={`category-item ${activeCategory === 'Manage SubRoles' ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={() => onDirectCategoryClick('Manage SubRoles')}>
+                                <span className="cat-name">
+                                    <FaBook className="cat-icon" /> Manage Depts
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                        <div className={`category-item ${activeCategory === 'Syllabus Config' ? "expanded" : ""}`}>
+                            <div className="category-header" onClick={() => onDirectCategoryClick('Syllabus Config')}>
+                                <span className="cat-name">
+                                    <FaFolder className="cat-icon" style={{ color: '#10b981' }} /> Syllabus Setup
+                                </span>
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
 
