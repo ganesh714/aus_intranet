@@ -247,6 +247,8 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         return prog ? prog.departments.map(d => d.name) : [];
     };
 
+    const uploadDuration = schoolPrograms.find(p => p.school === uploadData.school && p.level === uploadData.level && p.program === uploadData.program)?.duration || 4;
+    const filterDuration = schoolPrograms.find(p => p.school === filters.school && p.level === filters.level && p.program === filters.program)?.duration || 4;
 
     return (
         <div className="std-page-container">
@@ -321,7 +323,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                 <label className="std-label">Passing-out Batch (Year)</label>
                                 <select className="std-input" required value={uploadData.batch} onChange={e => setUploadData({ ...uploadData, batch: e.target.value })}>
                                     <option value="">Select Batch</option>
-                                    {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
+                                    {generateBatches().map(y => <option key={y} value={y}>{y - uploadDuration}-{y}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -380,7 +382,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                         </select>
                         <select className="syllabus-filter-select" value={filters.batch} onChange={e => setFilters({ ...filters, batch: e.target.value })}>
                             <option value="">All Batches</option>
-                            {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
+                            {generateBatches().map(y => <option key={y} value={y}>{y - filterDuration}-{y}</option>)}
                         </select>
                     </div>
 
@@ -414,7 +416,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                                         className={`batch-tab-btn ${currentActiveBatch === batchYear ? 'active' : ''}`}
                                                         onClick={() => setBatchTab(branch, batchYear)}
                                                     >
-                                                        <FaCalendarCheck /> {batchYear - 4}-{batchYear}
+                                                        <FaCalendarCheck /> {batchYear - filterDuration}-{batchYear}
                                                     </button>
                                                 ))}
                                             </div>
@@ -426,7 +428,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                                         <thead>
                                                             <tr>
                                                                 <th>Program</th>
-                                                                <th>{currentActiveBatch ? `${currentActiveBatch - 4}-${currentActiveBatch}` : 'Syllabus'}</th>
+                                                                <th>{currentActiveBatch ? `${currentActiveBatch - filterDuration}-${currentActiveBatch}` : 'Syllabus'}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
