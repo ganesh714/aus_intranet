@@ -216,9 +216,13 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
     const groupedData = getGroupedData();
 
-    // Helper to generate Batches
-    const generateBatches = () => {
-        return Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
+    // Helper to generate Batches based on duration
+    const generateBatches = (duration) => {
+        const currentYear = new Date().getFullYear();
+        // Start: The batch passing out this year -> (currentYear - duration) to currentYear
+        // End: The batch joining this year -> currentYear to (currentYear + duration)
+        // Total number of batches to display = duration + 1
+        return Array.from({ length: duration + 1 }, (_, i) => currentYear + i);
     };
 
     const getMimeType = (fileName) => {
@@ -323,7 +327,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                                 <label className="std-label">Passing-out Batch (Year)</label>
                                 <select className="std-input" required value={uploadData.batch} onChange={e => setUploadData({ ...uploadData, batch: e.target.value })}>
                                     <option value="">Select Batch</option>
-                                    {generateBatches().map(y => <option key={y} value={y}>{y - uploadDuration}-{y}</option>)}
+                                    {generateBatches(uploadDuration).map(y => <option key={y} value={y}>{y - uploadDuration}-{y}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -382,7 +386,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                         </select>
                         <select className="syllabus-filter-select" value={filters.batch} onChange={e => setFilters({ ...filters, batch: e.target.value })}>
                             <option value="">All Batches</option>
-                            {generateBatches().map(y => <option key={y} value={y}>{y - filterDuration}-{y}</option>)}
+                            {generateBatches(filterDuration).map(y => <option key={y} value={y}>{y - filterDuration}-{y}</option>)}
                         </select>
                     </div>
 
