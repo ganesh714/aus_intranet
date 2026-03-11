@@ -202,9 +202,13 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
             if (!groups[branch]) groups[branch] = {};
 
             const batchYear = item.batch || 'Unknown Batch';
-            if (!groups[branch][batchYear]) groups[branch][batchYear] = [];
+            if (!groups[branch][batchYear]) groups[branch][batchYear] = {};
 
-            groups[branch][batchYear].push(item);
+            // Group by the item's program, falling back to the current active filter's program if legacy data is missing it
+            const itemProgram = item.program || program;
+
+            if (!groups[branch][batchYear][itemProgram]) groups[branch][batchYear][itemProgram] = [];
+            groups[branch][batchYear][itemProgram].push(item);
         });
 
         return groups;
