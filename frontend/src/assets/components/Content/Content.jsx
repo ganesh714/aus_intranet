@@ -16,6 +16,7 @@ import IQACManager from "../features/IQAC/IQACManager"; // [NEW IQAC Wrapper]
 import HODIQACManager from "../features/IQAC/HODIQACManager"; // [NEW IQAC Wrapper]
 import DeanIQACManager from "../features/IQAC/DeanIQACManager"; // [NEW Dean IQAC]
 import SubRoleManager from "../Admin/SubRoleManager"; // [NEW]
+import SchoolProgramManager from "../Admin/SchoolProgramManager"; // [NEW]
 
 const Content = () => {
     // --- USER INFO ---
@@ -120,6 +121,9 @@ const Content = () => {
         } else if (categoryName === 'Manage SubRoles') { // [NEW]
             setActiveView('manage-subroles');
             setActiveCategory('Manage SubRoles');
+        } else if (categoryName === 'Syllabus Config') { // [NEW]
+            setActiveView('syllabus-config');
+            setActiveCategory('Syllabus Config');
         } else if (categoryName === 'Syllabus') { // [NEW]
             setActiveView('syllabus-manager');
             setActiveCategory('Syllabus');
@@ -289,6 +293,11 @@ const Content = () => {
                     <SubRoleManager />
                 );
 
+            case 'syllabus-config':
+                return (
+                    <SchoolProgramManager />
+                );
+
             default:
                 return <Dashboard />;
         }
@@ -313,7 +322,8 @@ const Content = () => {
                                         activeView === 'hod-iqac' ? 'HODIQAC' :
                                             activeView === 'dean-iqac' ? 'DeanIQAC' :
                                                 activeView === 'manage-subroles' ? 'Manage SubRoles' :
-                                                    activeView === 'syllabus-manager' ? 'Syllabus' : ''
+                                                    activeView === 'syllabus-config' ? 'Syllabus Config' :
+                                                        activeView === 'syllabus-manager' ? 'Syllabus' : ''
                 }
 
                 onDashboardClick={handleDashboardClick}
