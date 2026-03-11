@@ -5,6 +5,7 @@ import './Syllabus.css';
 
 const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     const [syllabusList, setSyllabusList] = useState([]);
+    const [schoolPrograms, setSchoolPrograms] = useState([]); // Fetch new config
     const [subRolesList, setSubRolesList] = useState([]);
     const [expandedDepts, setExpandedDepts] = useState({});
     const [activeBatchTabs, setActiveBatchTabs] = useState({});
@@ -15,16 +16,22 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     // Tab State: 'view' or 'upload'
     const [activeTab, setActiveTab] = useState('view');
 
-    // Filters
+    // Filters (Mandatory: school, level, program)
     const [filters, setFilters] = useState({
-        batch: '',
-        branch: 'All'
+        school: '',
+        level: '',
+        program: '',
+        branch: 'All', // Department
+        batch: ''
     });
 
     // Upload Form State
     const [uploadData, setUploadData] = useState({
+        school: '',
+        level: '',
+        program: '',
         batch: '',
-        branch: '',
+        branch: '', // Department
         title: '',
         file: null
     });
@@ -33,11 +40,16 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
     useEffect(() => {
         const fetchAccessLimits = async () => {
             try {
+                // Fetch SubRoles for HODs (Departments)
                 const srRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-subroles`);
                 const allSubRoles = srRes.data.subRoles || [];
 
                 const branchSubRoles = allSubRoles.filter(sr => sr.allowedRoles && sr.allowedRoles.includes('HOD'));
                 setSubRolesList(branchSubRoles);
+
+                // Fetch School Programs Config
+                const spRes = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/all-programs`);
+                setSchoolPrograms(spRes.data.data || []);
 
                 let hasSubRolePermission = false;
                 if (userSubRole) {
@@ -98,6 +110,9 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         }
 
         const formData = new FormData();
+        formData.append('school', uploadData.school);
+        formData.append('level', uploadData.level);
+        formData.append('program', uploadData.program);
         formData.append('batch', uploadData.batch);
         formData.append('branch', uploadData.branch);
         formData.append('title', uploadData.title);
@@ -107,7 +122,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/add-syllabus`, formData);
             alert("Syllabus Uploaded Successfully!");
-            setUploadData({ batch: '', branch: '', title: '', file: null });
+            setUploadData({ school: '', level: '', program: '', batch: '', branch: '', title: '', file: null });
             setActiveTab('view');
             fetchSyllabus();
         } catch (error) {
@@ -162,7 +177,19 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
     // Data Grouping Logic
     const getGroupedData = () => {
+        // Enforce Mandatory Filters Check FIRST
+        const { school, level, program } = filters;
+        if (!school || !level || !program) {
+            return {}; // Return empty if mandatory filters aren't set
+        }
+
         const filtered = syllabusList.filter(item => {
+            if (item.school !== school) return false;
+            if (item.level !== level) return false;
+            // Handle potentially missing program in legacy data or exact match for new
+            if (item.program && item.program !== program) return false; 
+            
+            // Optional filters
             if (filters.batch && item.batch !== filters.batch) return false;
             if (filters.branch !== 'All' && item.branch !== filters.branch) return false;
             return true;
@@ -174,20 +201,10 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
             const branch = item.branch || 'General';
             if (!groups[branch]) groups[branch] = {};
 
-            const batchYear = item.batch;
-            if (!groups[branch][batchYear]) groups[branch][batchYear] = {};
+            const batchYear = item.batch || 'Unknown Batch';
+            if (!groups[branch][batchYear]) groups[branch][batchYear] = [];
 
-            // Derive Program from title with Department suffix
-            let baseProgram = 'B.Tech';
-            if (item.title.toLowerCase().includes('m.tech')) baseProgram = 'M.Tech';
-            else if (item.title.toLowerCase().includes('mba')) baseProgram = 'MBA';
-            else if (item.title.toLowerCase().includes('mca')) baseProgram = 'MCA';
-            else if (item.title.toLowerCase().includes('ph.d')) baseProgram = 'Ph.D';
-
-            const program = `${baseProgram} (${branch})`;
-
-            if (!groups[branch][batchYear][program]) groups[branch][batchYear][program] = [];
-            groups[branch][batchYear][program].push(item);
+            groups[branch][batchYear].push(item);
         });
 
         return groups;
@@ -206,6 +223,26 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
         if (fileName.toLowerCase().endsWith('.doc')) return 'application/msword';
         return 'application/octet-stream';
     };
+
+    // Helper to get Derived Options based on Selection
+    const getSchoolsOptions = () => [...new Set(schoolPrograms.map(p => p.school))];
+    
+    // For Upload Form
+    const getUploadLevelsOptions = () => [...new Set(schoolPrograms.filter(p => p.school === uploadData.school).map(p => p.level))];
+    const getUploadProgramsOptions = () => schoolPrograms.filter(p => p.school === uploadData.school && p.level === uploadData.level).map(p => p.program);
+    const getUploadDeptsOptions = () => {
+        const prog = schoolPrograms.find(p => p.school === uploadData.school && p.level === uploadData.level && p.program === uploadData.program);
+        return prog ? prog.departments.map(d => d.name) : [];
+    };
+
+    // For Filter View
+    const getFilterLevelsOptions = () => [...new Set(schoolPrograms.filter(p => p.school === filters.school).map(p => p.level))];
+    const getFilterProgramsOptions = () => schoolPrograms.filter(p => p.school === filters.school && p.level === filters.level).map(p => p.program);
+    const getFilterDeptsOptions = () => {
+        const prog = schoolPrograms.find(p => p.school === filters.school && p.level === filters.level && p.program === filters.program);
+        return prog ? prog.departments.map(d => d.name) : [];
+    };
+
 
     return (
         <div className="std-page-container">
@@ -238,30 +275,49 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
 
                         <div className="form-row">
                             <div className="std-form-group half">
-                                <label className="std-label">Passing-out Batch (Year)</label>
-                                <select
-                                    className="std-input"
-                                    required
-                                    value={uploadData.batch}
-                                    onChange={e => setUploadData({ ...uploadData, batch: e.target.value })}
-                                >
-                                    <option value="">Select Batch</option>
-                                    {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
+                                <label className="std-label">School</label>
+                                <select className="std-input" required value={uploadData.school} onChange={e => setUploadData({ ...uploadData, school: e.target.value, level: '', program: '', branch: '' })}>
+                                    <option value="">Select School</option>
+                                    {getSchoolsOptions().map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
-
                             <div className="std-form-group half">
-                                <label className="std-label">Branch / Department</label>
-                                <select
-                                    className="std-input"
-                                    required
-                                    value={uploadData.branch}
-                                    onChange={e => setUploadData({ ...uploadData, branch: e.target.value })}
-                                >
-                                    <option value="">Select Branch</option>
-                                    {subRolesList.map(sr => (
+                                <label className="std-label">Level</label>
+                                <select className="std-input" required disabled={!uploadData.school} value={uploadData.level} onChange={e => setUploadData({ ...uploadData, level: e.target.value, program: '', branch: '' })}>
+                                    <option value="">Select Level</option>
+                                    {getUploadLevelsOptions().map(l => <option key={l} value={l}>{l}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="std-form-group half">
+                                <label className="std-label">Program</label>
+                                <select className="std-input" required disabled={!uploadData.level} value={uploadData.program} onChange={e => setUploadData({ ...uploadData, program: e.target.value, branch: '' })}>
+                                    <option value="">Select Program</option>
+                                    {getUploadProgramsOptions().map(p => <option key={p} value={p}>{p}</option>)}
+                                </select>
+                            </div>
+                            <div className="std-form-group half">
+                                <label className="std-label">Department / Branch</label>
+                                <select className="std-input" required disabled={!uploadData.program} value={uploadData.branch} onChange={e => setUploadData({ ...uploadData, branch: e.target.value })}>
+                                    <option value="">Select Department</option>
+                                    {/* Default options from config */}
+                                    {getUploadDeptsOptions().map(d => <option key={d} value={d}>{d}</option>)}
+                                    {/* Fallback to subroles if config is meant to automatically map but hasn't updated immediately, or to allow any HOD-level department */}
+                                    {getUploadDeptsOptions().length === 0 && subRolesList.map(sr => (
                                         <option key={sr._id} value={sr.name}>{sr.name}</option>
                                     ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                             <div className="std-form-group half">
+                                <label className="std-label">Passing-out Batch (Year)</label>
+                                <select className="std-input" required value={uploadData.batch} onChange={e => setUploadData({ ...uploadData, batch: e.target.value })}>
+                                    <option value="">Select Batch</option>
+                                    {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -299,30 +355,40 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
             {/* --- VIEW TAB --- */}
             {activeTab === 'view' && (
                 <div className="syllabus-container">
-                    <div className="syllabus-filters">
-                        <select
-                            value={filters.batch}
-                            onChange={e => setFilters({ ...filters, batch: e.target.value })}
-                            className="syllabus-filter-select"
-                        >
+                    <div className="syllabus-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+                         <select className="syllabus-filter-select" value={filters.school} onChange={e => setFilters({ ...filters, school: e.target.value, level: '', program: '', branch: 'All' })}>
+                            <option value="">Select School (Required)</option>
+                            {getSchoolsOptions().map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <select className="syllabus-filter-select" disabled={!filters.school} value={filters.level} onChange={e => setFilters({ ...filters, level: e.target.value, program: '', branch: 'All' })}>
+                            <option value="">Select Level (Required)</option>
+                            {getFilterLevelsOptions().map(l => <option key={l} value={l}>{l}</option>)}
+                        </select>
+                        <select className="syllabus-filter-select" disabled={!filters.level} value={filters.program} onChange={e => setFilters({ ...filters, program: e.target.value, branch: 'All' })}>
+                            <option value="">Select Program (Required)</option>
+                            {getFilterProgramsOptions().map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                        
+                        {/* Optional Filters */}
+                        <select className="syllabus-filter-select" disabled={!filters.program} value={filters.branch} onChange={e => setFilters({ ...filters, branch: e.target.value })}>
+                            <option value="All">All Departments</option>
+                            {getFilterDeptsOptions().map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                        <select className="syllabus-filter-select" value={filters.batch} onChange={e => setFilters({ ...filters, batch: e.target.value })}>
                             <option value="">All Batches</option>
                             {generateBatches().map(y => <option key={y} value={y}>{y - 4}-{y}</option>)}
                         </select>
-                        <select
-                            value={filters.branch}
-                            onChange={e => setFilters({ ...filters, branch: e.target.value })}
-                            className="syllabus-filter-select"
-                        >
-                            <option value="All">All Branches</option>
-                            {subRolesList.map(sr => (
-                                <option key={sr._id} value={sr.name}>{sr.name}</option>
-                            ))}
-                        </select>
                     </div>
 
-                    <div className="syllabus-list">
-                        {Object.keys(groupedData).length > 0 ? (
-                            Object.keys(groupedData).sort().map(branch => {
+                    {(!filters.school || !filters.level || !filters.program) ? (
+                        <div className="no-data-msg" style={{ padding: '40px', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px' }}>
+                            <FaBook style={{ fontSize: '32px', color: '#94a3b8', marginBottom: '10px' }} />
+                            <p style={{ color: '#475569', fontSize: '16px', margin: 0 }}>Please select a School, Level, and Program to view syllabus.</p>
+                        </div>
+                    ) : (
+                        <div className="syllabus-list">
+                            {Object.keys(groupedData).length > 0 ? (
+                                Object.keys(groupedData).sort().map(branch => {
                                 const branchBatches = Object.keys(groupedData[branch]).sort();
                                 const currentActiveBatch = activeBatchTabs[branch] || branchBatches[branchBatches.length - 1]; // Default to latest
 
@@ -430,6 +496,7 @@ const SyllabusManager = ({ userId, userRole, userSubRole, onFileClick }) => {
                             <div className="no-data-msg">No syllabus documents found matching filters.</div>
                         )}
                     </div>
+                )}
                 </div>
             )}
         </div>
