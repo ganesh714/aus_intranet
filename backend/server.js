@@ -19,6 +19,7 @@ const workshopRoutes = require('./routes/workshopRoutes');
 const fdpPdpOrganizedRoutes = require('./routes/fdpPdpOrganizedRoutes');
 const fdpSttpAttendedRoutes = require('./routes/fdpSttpAttendedRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes'); // [NEW IMPORT]
+const schoolProgramRoutes = require('./routes/schoolProgramRoutes'); // [NEW IMPORT]
 
 // Import Services
 const emailService = require('./services/EmailService');
@@ -69,6 +70,7 @@ app.use('/', require('./routes/guestLectureRoutes')); // [NEW] Guest Lecture End
 app.use('/', require('./routes/fdpPdpOrganizedRoutes')); // [NEW] FDP/PDP Organized Endpoints
 app.use('/', require('./routes/fdpSttpAttendedRoutes')); // [NEW] FDP/STTP Attended Endpoints
 app.use('/', syllabusRoutes); // [NEW MOUNT]
+app.use('/', schoolProgramRoutes); // [NEW MOUNT]
 
 const port = process.env.PORT || 5001;
 
