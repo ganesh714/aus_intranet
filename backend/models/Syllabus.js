@@ -1,6 +1,19 @@
 const mongoose = require('mongoose');
 
 const syllabusSchema = new mongoose.Schema({
+    school: {
+        type: String,
+        required: true
+    },
+    level: {
+        type: String,
+        required: true,
+        enum: ['UG', 'PG']
+    },
+    program: {
+        type: String,
+        required: true
+    },
     batch: {
         type: String,
         required: true

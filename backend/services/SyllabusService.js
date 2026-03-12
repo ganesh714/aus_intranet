@@ -9,12 +9,15 @@ class SyllabusService {
             throw error;
         }
 
-        const { batch, branch, title, uploadedBy } = data;
+        const { school, level, program, batch, branch, title, uploadedBy } = data;
 
         // Save file using unified StorageService (Drive or Local depending on env)
         const fileId = await StorageService.saveFile(file);
 
         const newSyllabus = new Syllabus({
+            school,
+            level,
+            program,
             batch,
             branch,
             title,
