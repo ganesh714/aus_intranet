@@ -180,7 +180,11 @@ const SchoolProgramManager = () => {
                             </div>
                             <div className="std-form-group half">
                                 <label className="std-label">Duration (Years)</label>
-                                <input type="number" className="std-input" name="duration" value={formData.duration} onChange={handleChange} required min="1" max="6" />
+                                <select className="std-input" name="duration" value={formData.duration} onChange={handleChange} required>
+                                    {[1, 2, 3, 4, 5].map(y => (
+                                        <option key={y} value={y}>{y} {y === 1 ? 'Year' : 'Years'}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
