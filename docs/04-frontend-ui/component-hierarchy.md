@@ -20,6 +20,22 @@ Handles various departmental faculty events and reporting. All sub-modules follo
   * **Overview Tab:** Dynamically filterable table to view all department records by academic year + Excel Report Generation.
   * **Access Control Tab:** UI for mapping which specific faculty members are authorized to add/edit records within that module (grants specific boolean flags like `canManageWorkshops` or `canManageGuestLectures`).
 
+### 5. `Syllabus`
+Located in `features/Syllabus`. Used by Admin/Officers to manage academic syllabi.
+* `SyllabusManager`: Comprehensive form to select School, level, program, branch, and batch before uploading or deleting syllabus PDFs.
+
+---
+
+## 🏗️ Admin & Infrastructure Components
+
+Located in `components/Admin`. These are restricted to users with the `Admin` role.
+
+### 1. `SchoolProgramManager`
+A master-data management UI for defining the University's schools and programs (e.g., adding "B.Tech" to "School of Engineering").
+
+### 2. `SubRoleManager`
+Allows administrators to define and manage "Sub-Roles" (Departments) like CSE, ECE, etc., which are then linked to users and school programs.
+
 ## State Management Approach
 
 While tools like Redux exist, for this application's initial scale, state is primarily managed via:
