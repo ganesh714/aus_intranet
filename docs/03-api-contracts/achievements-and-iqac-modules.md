@@ -343,19 +343,85 @@ Delete a workshop record.
 
 ## 🛠️ Other IQAC Sub-Modules
 
-The following four IQAC sub-modules were implemented using the exact same REST API architecture and CRUD pattern as the Workshops module described above:
+The following four IQAC sub-modules follow the exact same REST API architecture as the Workshops module, but with different data fields.
 
-1. **Guest Lectures** (`/guest-lectures/*`)
-2. **Industrial Visits** (`/industrial-visits/*`)
-3. **FDP/PDP** (`/fdp-pdp/*`)
-4. **FDP/STTP (Outside)** (`/fdp-sttp/*`)
+### 1. Guest Lectures (`/guest-lectures/*`)
 
-### API Contract Pattern
+Holds records for guest lectures or expert talks conducted in the department.
+
+| Field             | Type    | Required | Notes                                    |
+| ----------------- | ------- | -------- | ---------------------------------------- |
+| `userId`          | String  | ✅       | Faculty ID                               |
+| `dept`            | ObjectId| ✅       | Department ID (SubRole)                  |
+| `academicYear`    | String  | ✅       | e.g., "2024-2025"                        |
+| `topic`           | String  | ✅       | Title/Topic of the lecture               |
+| `startDate`       | Date    | ✅       | ISO string                               |
+| `endDate`         | Date    | ✅       | ISO string                               |
+| `resourcePerson`  | String  | ✅       | Name of the speaker                      |
+| `studentCount`    | Number  | ✅       | Number of attendees                      |
+
+---
+
+### 2. Industrial Visits (`/industrial-visits/*`)
+
+Tracks visits made by student cohorts to industrial sites.
+
+| Field             | Type    | Required | Notes                                    |
+| ----------------- | ------- | -------- | ---------------------------------------- |
+| `userId`          | String  | ✅       | Faculty ID                               |
+| `dept`            | ObjectId| ✅       | Department ID (SubRole)                  |
+| `academicYear`    | String  | ✅       | e.g., "2024-2025"                        |
+| `semester`        | String  | ✅       | e.g., "Odd", "Even", or specific number  |
+| `classSection`    | String  | ✅       | Class/Cohort name                        |
+| `industryName`    | String  | ✅       | Name of the visited organization         |
+| `placeOfVisit`    | String  | ✅       | City or location of visit                |
+| `startDate`       | Date    | ✅       | ISO string                               |
+| `endDate`         | Date    | ✅       | ISO string                               |
+| `studentCount`    | Number  | ✅       | Total students attending                 |
+
+---
+
+### 3. FDP/PDP Organized (`/fdp-pdp-organized/*`)
+
+Records for Faculty Development Programs or Professional Development Programs **organized** by the department.
+
+| Field             | Type    | Required | Notes                                    |
+| ----------------- | ------- | -------- | ---------------------------------------- |
+| `userId`          | String  | ✅       | Faculty ID (Organizer)                   |
+| `dept`            | ObjectId| ✅       | Department ID (SubRole)                  |
+| `academicYear`    | String  | ✅       | e.g., "2024-2025"                        |
+| `type`            | String  | ✅       | e.g., "FDP", "PDP"                       |
+| `title`           | String  | ✅       | Title of the program                     |
+| `startDate`       | Date    | ✅       | ISO string                               |
+| `endDate`         | Date    | ✅       | ISO string                               |
+| `resourcePerson`  | String  | ✅       | Speaker or primary facilitator           |
+| `participantCount`| Number  | ✅       | Total internal/external participants     |
+
+---
+
+### 4. FDP/STTP Attended (`/fdp-sttp-attended/*`)
+
+Records for programs that faculty members **attended** externally.
+
+| Field             | Type    | Required | Notes                                    |
+| ----------------- | ------- | -------- | ---------------------------------------- |
+| `userId`          | String  | ✅       | Faculty ID (Attendee)                    |
+| `dept`            | ObjectId| ✅       | Department ID (SubRole)                  |
+| `facultyName`     | String  | ✅       | Full name of the attendee                |
+| `academicYear`    | String  | ✅       | e.g., "2024-2025"                        |
+| `title`           | String  | ✅       | Title of the program                     |
+| `startDate`       | Date    | ✅       | ISO string                               |
+| `endDate`         | Date    | ✅       | ISO string                               |
+| `durationDays`    | Number  | ✅       | Self-reported duration in days           |
+| `organizedBy`     | String  | ✅       | External host institution                |
+
+---
+
+### API Contract Patterns
+
 All of these modules expose identical endpoints, replacing the noun:
 
 * `POST /add-[module]` — Creates a record (requires the relevant `permissions.canManage[Module] = true`)
 * `GET /get-[modules]?userId=...&dept=...&academicYear=...` — Fetches records using dynamic filters.
 * `PUT /update-[module]/:id` — Edits a record.
 * `DELETE /delete-[module]/:id` — Deletes a record.
-
-For the exact payload required for each module's `POST` request, please refer to the specific Mongoose model schemas located in `backend/models/`.

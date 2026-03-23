@@ -298,3 +298,98 @@ Copy a shared material into the user's personal "My Data" drive. This creates an
 ```
 
 **Success (200 OK):** `{ "message": "Material hidden" }`
+---
+
+## 📄 Syllabus Management
+
+The Syllabus module allows Admin/Officers to upload and manage syllabus documents for various programs and batches.
+
+### `POST /add-syllabus`
+
+Upload a new syllabus document.
+
+**Content-Type:** `multipart/form-data`
+
+**Form Fields:**
+
+| Field      | Type          | Required | Notes                                    |
+| ---------- | ------------- | -------- | ---------------------------------------- |
+| `school`     | String        | ✅       | e.g., "School of Engineering"            |
+| `level`      | String        | ✅       | "UG" or "PG"                             |
+| `program`    | String        | ✅       | e.g., "B.Tech"                           |
+| `batch`      | String        | ✅       | e.g., "2024-2028"                        |
+| `branch`     | String        | ✅       | e.g., "CSE"                              |
+| `title`      | String        | ✅       | Display title for the syllabus           |
+| `uploadedBy` | String        | ✅       | Username of the uploader                 |
+| `file`       | File (Binary) | ✅       | The syllabus PDF document                |
+
+**Success (201 Created):**
+
+```json
+{
+  "message": "Syllabus added successfully",
+  "syllabus": {
+    "_id": "67abcd...",
+    "title": "B.Tech CSE 2024-2028",
+    "fileName": "syllabus_cse_2024.pdf",
+    "fileUrl": "1xyz...googleDriveId"
+  }
+}
+```
+
+---
+
+### `GET /get-syllabus`
+
+Fetch a filtered list of syllabus documents.
+
+**Query Parameters:**
+
+| Param     | Example     | Notes                   |
+| --------- | ----------- | ----------------------- |
+| `school`  | `Engineering`| Filter by school name   |
+| `level`   | `UG`        | "UG" or "PG"            |
+| `program` | `B.Tech`    | Filter by program       |
+| `batch`   | `2024-2028` | Filter by batch         |
+
+**Success (200 OK):**
+
+```json
+{
+  "syllabusList": [
+    {
+      "_id": "67abcd...",
+      "title": "B.Tech CSE 2024-2028",
+      "program": "B.Tech",
+      "batch": "2024-2028",
+      "fileName": "syllabus_cse_2024.pdf"
+    }
+  ]
+}
+```
+
+---
+
+### `PUT /update-syllabus-title/:id`
+
+Update the display title of a syllabus.
+
+**Request Body:** `{ "title": "New Syllabus Title" }`
+
+**Success (200 OK):** `{ "message": "Title updated successfully", "syllabus": { ... } }`
+
+---
+
+### `DELETE /delete-syllabus/:id`
+
+Delete a syllabus record and its associated file from storage.
+
+**Success (200 OK):** `{ "message": "Syllabus deleted successfully" }`
+
+---
+
+### `GET /proxy-syllabus/:fileId`
+
+Get a proxy URL or stream for the syllabus file (Google Drive integration).
+
+**Success:** Redirects or streams the file content.
