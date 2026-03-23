@@ -38,7 +38,7 @@ flowchart TD
     B -- "Student" --> S["announcements\nrecentAnnouncements\nsharedResources\nuserAchievements"]
     B -- "Faculty" --> F["announcements\nrecentAnnouncements\nstorageUsed\nuserAchievements\ndeptAchievements\npendingApprovals\nstudentCount"]
     B -- "HOD" --> H["All of Faculty +\nfacultyCount"]
-    B -- "Dean / Asso.Dean / Admin" --> D["announcements\nrecentAnnouncements\nuserAchievements"]
+    B -- "Dean / Admin" --> D["announcements\nrecentAnnouncements\nuserAchievements"]
 ```
 
 ---

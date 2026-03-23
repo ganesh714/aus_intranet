@@ -106,3 +106,30 @@ Create a new department or sub-role category.
 Fetch sub-roles specific to a main role (e.g., all departments for `Faculty`).
 
 **URL Example:** `GET /subroles/Faculty`
+
+**Success (200 OK):**
+
+```json
+{
+  "subRoles": [
+    {
+      "_id": "64aabb...",
+      "displayName": "CSE",
+      "code": "CSE",
+      "name": "Computer Science and Engineering",
+      "allowedRoles": ["Student", "Faculty", "HOD"]
+    }
+  ]
+}
+```
+
+---
+
+### `DELETE /delete-subrole/:id`
+
+Delete a department. Admin only.
+
+> [!CAUTION]
+> Deleting a SubRole does not cascade-delete Users assigned to it. Those users will have a dangling `subRole` reference. Always re-assign or delete users before deleting a SubRole.
+
+**Success (200 OK):** `{ "message": "SubRole deleted" }`

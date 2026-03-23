@@ -29,8 +29,9 @@ If you are joining the team or returning after a break, start here:
   - [Authentication & User Endpoints](./docs/03-api-contracts/auth-and-users.md)
   - [Content Management (Materials & Announcements)](./docs/03-api-contracts/content-management.md)
   - [Personal Drive (My Data) Endpoints](./docs/03-api-contracts/drive-personal-storage.md)
-  - [Achievements & Event Workshops Endpoints](./docs/03-api-contracts/achievements-workshops.md)
-  - [Timetable & SubRole Management](./docs/03-api-contracts/timetable-subrole.md)
+  - [Achievements & IQAC Modules](./docs/03-api-contracts/achievements-and-iqac-modules.md)
+  - [University Structure (Schools & Depts)](./docs/03-api-contracts/university-structure.md)
+  - [Timetable Management](./docs/03-api-contracts/timetable.md)
   - [Dashboard Statistics API](./docs/03-api-contracts/dashboard-stats.md)
   - [Database Sync Scripts Documentation](./docs/03-api-contracts/database-scripts.md)
 

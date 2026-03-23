@@ -22,8 +22,12 @@ Create this file by copying `backend/.env.example` (if it exists) or by creating
 | `JWT_SECRET`       | ✅                         | `a_long_random_string_here_min_32_chars`                      | Used to sign and verify login tokens. **Use a long random string.**       |
 | `JWT_EXPIRES_IN`   | ❌ (defaults to `7d`)      | `7d`                                                          | How long login tokens stay valid                                          |
 | `STORAGE_TYPE`     | ✅                         | `LOCAL` or `DRIVE`                                            | Controls where uploaded files go. See Storage section below.              |
-| `MAILTRAP_USER`    | ✅ for email               | from mailtrap.io dashboard                                    | Username for the Mailtrap email interceptor                               |
-| `MAILTRAP_PASS`    | ✅ for email               | from mailtrap.io dashboard                                    | Password for the Mailtrap email interceptor                               |
+| `MAILTRAP_USER`     | ✅ for email               | from mailtrap.io dashboard                                    | Username for the Mailtrap email interceptor                               |
+| `MAILTRAP_PASSWORD` | ✅ for email               | from mailtrap.io dashboard                                    | Password for the Mailtrap email interceptor                               |
+| `GOOGLE_EMAIL`      | ✅ for email               | from Google account Settings                                  | Gmail address for sending notifications                                   |
+| `GOOGLE_PASS`       | ✅ for email               | from App Passwords                                            | App-specific password for Gmail                                           |
+| `GOOGLE_DRIVE_FOLDER_ID` | ✅ for DRIVE storage | ID from folder URL                                            | The root folder where all uploads will be stored                          |
+```
 
 > [!WARNING]
 > The variable is `MONGODB_URI` — **not** `MONGO_URI`. Using the wrong name means the server will silently fail to connect and crash on startup.
@@ -60,7 +64,9 @@ JWT_SECRET=replace_this_with_a_long_secret_string_at_least_32_chars
 JWT_EXPIRES_IN=7d
 STORAGE_TYPE=LOCAL
 MAILTRAP_USER=your_mailtrap_username
-MAILTRAP_PASS=your_mailtrap_password
+MAILTRAP_PASSWORD=your_mailtrap_password
+GOOGLE_EMAIL=your_email@gmail.com
+GOOGLE_PASS=your_google_app_password
 ```
 
 ---

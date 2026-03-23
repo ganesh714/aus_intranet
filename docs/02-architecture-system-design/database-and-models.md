@@ -8,9 +8,7 @@
 
 ```mermaid
 flowchart LR
-    React["React Frontend"] -->|"HTTP (JSON/FormData)"| Express["Express Backend"]
-    Express -->|"Mongoose ODM"| MongoDB[("MongoDB Database")]
-    MongoDB --- Collections["13 Collections:\nusers, subroles, files\ndriveItems, materials\nannouncements, timetables\nachievements, workshops\nguestlectures, industrialvisits\nfdppdporganizeds, fdpsttpattendeds"]
+    MongoDB --- Collections["15 Collections:\nusers, subroles, files\ndriveItems, materials\nannouncements, timetables\nachievements, workshops\nguestlectures, industrialvisits\nfdppdporganizeds, fdpsttpattendeds\nschoolprograms, syllabuses"]
 ```
 
 ---
@@ -241,6 +239,9 @@ Industrial visit records tied to a department.
 | `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
 | `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
 | `industryName`          | String               | ✅       | Name of visited industry        |
+| `placeOfVisit`         | String               | ✅       | Geographic location             |
+| `semester`             | String               | ✅       | e.g. `"4th"`                    |
+| `classSection`         | String               | ✅       | e.g. `"A"`                      |
 | `startDate` / `endDate` | Date                 | ✅       | Duration                        |
 | `studentCount`          | Number               | ✅       | Number of attendees             |
 | `facultyCount`          | Number               | ✅       | Participating faculty           |
@@ -257,10 +258,11 @@ FDP/PDP records organized by the department.
 | `userId`                | String               | ✅       | Faculty's login ID              |
 | `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
 | `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
-| `nameOfProgram`         | String               | ✅       | Name of FDP/PDP                 |
+| `type`                  | String (enum)        | ✅       | `"FDP"` or `"PDP"`              |
+| `title`                 | String               | ✅       | Name of FDP/PDP                 |
 | `startDate` / `endDate` | Date                 | ✅       | Duration                        |
-| `facultyCount`          | Number               | ✅       | Number of attendees             |
-| `sourceOfFunding`       | String               | ✅       | Funding agency/source           |
+| `participantCount`      | Number               | ✅       | Number of attendees             |
+| `resourcePerson`        | String               | ✅       | Speaker/Trainer                 |
 
 ---
 
@@ -273,13 +275,45 @@ FDP/STTP (Outside) attended records.
 | `userId`                | String               | ✅       | Faculty's login ID              |
 | `dept`                  | ObjectId → `SubRole` | ✅       | Department reference            |
 | `academicYear`          | String               | ✅       | e.g. `"2024-2025"`              |
-| `nameOfProgram`         | String               | ✅       | Name of FDP/STTP attended       |
+| `title`                 | String               | ✅       | Name of FDP/STTP attended       |
 | `startDate` / `endDate` | Date                 | ✅       | Duration                        |
+| `durationDays`          | Number               | ✅       | Days attended                   |
 | `organizedBy`           | String               | ✅       | Internal/External org name      |
 
 
 ---
 *(End of IQAC Sub-Modules)*
+---
+
+### 14. `schoolprograms` — `models/SchoolProgram.js`
+
+Defines the academic hierarchy (School → Level → Program → Dept).
+
+| Field         | Type     | Required | Notes                                    |
+| ------------- | -------- | -------- | ---------------------------------------- |
+| `school`      | String   | ✅       | e.g. `"School of Engineering"`           |
+| `level`       | String   | ✅       | `"UG"` or `"PG"`                      |
+| `program`     | String   | ✅       | e.g. `"B.Tech"`                          |
+| `duration`    | Number   | ✅       | Number of years                          |
+| `departments` | [Object] | —        | List of `{ name, subRoleRef (ObjectId) }` |
+
+---
+
+### 15. `syllabuses` — `models/Syllabus.js`
+
+Academic syllabus documents targeting specific entry batches.
+
+| Field     | Type              | Required | Notes                            |
+| --------- | ----------------- | -------- | -------------------------------- |
+| `school`  | String            | ✅       | e.g. `"School of Computing"`     |
+| `level`   | String            | ✅       | `"UG"` or `"PG"`                 |
+| `program` | String            | ✅       | e.g. `"B.Tech"`                  |
+| `batch`   | String            | ✅       | e.g. `"2022-2026"`               |
+| `branch`  | String            | ✅       | e.g. `"CSE"`                     |
+| `title`   | String            | ✅       | Display title                    |
+| `fileUrl` | String            | ✅       | Path to the PDF file             |
+| `status`  | String            | —        | `"Active"` or `"Archived"`       |
+
 ---
 
 ## Database Indexing
