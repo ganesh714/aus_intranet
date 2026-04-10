@@ -50,10 +50,10 @@ const Developers = () => {
         },
         {
             name: 'K. B. S. V. Shankar',
-            role: 'Project Lead & Analyst',
-            status: 'Lead',
+            role: 'Frontend Developer & Analyst',
+            status: 'Contributor',
             image: surya,
-            description: 'Served as the primary point of contact, bridging the gap between client requirements and technical implementation. Conducted initial database schema research and coordinated team efforts.',
+            description: 'Contributed to the frontend UI development using React and Tailwind CSS. Successfully implemented the Excel report generation module and assisted in initial project documentation and research.',
             github: 'https://github.com/kuntella-surya',
             linkedin: 'https://www.linkedin.com/in/suryakuntella/',
             rollNo: '24A95A4406',
