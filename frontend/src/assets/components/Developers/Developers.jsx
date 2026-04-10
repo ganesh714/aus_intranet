@@ -17,8 +17,8 @@ const Developers = () => {
     const developers = [
         {
             name: 'Venkata Ganesh',
-            role: 'System Architect & Full Stack Dev',
-            status: 'Contributor',
+            role: 'LEAD Architect & Full Stack Dev',
+            status: 'Lead & SPOC',
             image: venkat_ganesh,
             description: 'Engineered the core system architecture, refactoring the backend into modular services using SOLID principles. Spearheaded the frontend development and delivered key modules like the Dashboard.',
             github: 'https://github.com/ganesh714',
@@ -28,8 +28,8 @@ const Developers = () => {
         },
         {
             name: 'T Siva Ganesh Vemula',
-            role: 'UI/UX & Full Stack Developer',
-            status: 'Lead Developer',
+            role: 'Full Stack Dev & UI/UX Lead',
+            status: 'Co-Lead',
             image: sivaImg,
             description: 'Established the frontend file structure and design system. Created the initial UI concepts in Stitch and handled complex backend integrations to ensure a seamless user experience.',
             github: 'https://github.com/SivaGaneshv1729',
